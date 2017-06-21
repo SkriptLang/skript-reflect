@@ -1,0 +1,24 @@
+group 'com.btk5h.skript-mirror'
+version '0.1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+  maven {
+    url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+  }
+  maven {
+    url 'https://oss.sonatype.org/content/groups/public/'
+  }
+  maven {
+    url 'http://maven.njol.ch/repo/'
+  }
+}
+
+dependencies {
+  compile 'org.spigotmc:spigot-api:1.11-R0.1-SNAPSHOT'
+  compile 'ch.njol:skript:2.2-SNAPSHOT'
+}
