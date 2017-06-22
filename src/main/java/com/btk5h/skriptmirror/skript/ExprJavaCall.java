@@ -10,8 +10,6 @@ import org.bukkit.event.Event;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Member;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -92,11 +90,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
     switch (type) {
       case FIELD:
-        return Stream.concat(
-            Arrays.stream(javaClass.getFields()),
-            Arrays.stream(javaClass.getDeclaredFields())
-                .filter(ExprJavaCall::notPublic)
-        )
+        return Util.fields(javaClass)
             .filter(f -> f.getName().equals(e.getIdentifier()))
             .peek(f -> f.setAccessible(true))
             .flatMap(Util.propagateErrors(f -> Stream.of(
@@ -106,18 +100,14 @@ public class ExprJavaCall extends SimpleExpression<Object> {
             .limit(2)
             .collect(Collectors.toList());
       case METHOD:
-        return Stream.concat(
-            Arrays.stream(javaClass.getMethods()),
-            Arrays.stream(javaClass.getDeclaredMethods())
-                .filter(ExprJavaCall::notPublic)
-        )
+        return Util.methods(javaClass)
             .filter(m -> m.getName().equals(e.getIdentifier()))
             .peek(m -> m.setAccessible(true))
             .map(Util.propagateErrors(LOOKUP::unreflect))
             //.map(ExprJavaCall::asSpreader)
             .collect(Collectors.toList());
       case CONSTRUCTOR:
-        return Arrays.stream(javaClass.getDeclaredConstructors())
+        return Util.constructor(javaClass)
             .peek(c -> c.setAccessible(true))
             .map(Util.propagateErrors(LOOKUP::unreflectConstructor))
             //.map(ExprJavaCall::asSpreader)
@@ -125,10 +115,6 @@ public class ExprJavaCall extends SimpleExpression<Object> {
       default:
         throw new IllegalStateException();
     }
-  }
-
-  private static boolean notPublic(Member m) {
-    return !Modifier.isPublic(m.getModifiers());
   }
 
   private static MethodHandle asSpreader(MethodHandle mh) {
@@ -172,13 +158,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
     for (Object obj : targets) {
       Descriptor descriptor;
-      Class<?> targetClass;
-
-      if (obj instanceof JavaType) {
-        targetClass = ((JavaType) obj).getJavaClass();
-      } else {
-        targetClass = obj.getClass();
-      }
+      Class<?> targetClass = Util.toClass(obj);
 
       descriptor = specifyDescriptor(baseDescriptor, targetClass);
 
