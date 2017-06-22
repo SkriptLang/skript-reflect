@@ -15,7 +15,8 @@ import ch.njol.util.Kleenean;
 
 public class EffImport extends Effect {
   static {
-    Skript.registerEffect(EffImport.class, "import %string% [as %-object%]");
+    Skript.registerEffect(EffImport.class,
+        "import %string% [(as|to) [[the] var[iable]] %-object%]");
   }
 
   private Expression<String> className;
