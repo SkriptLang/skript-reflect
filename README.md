@@ -1,3 +1,3 @@
 # skript-mirror
 
-A powerful reflection API for Skript.
+> Intuitive Java-like reflection syntax for Skript.
