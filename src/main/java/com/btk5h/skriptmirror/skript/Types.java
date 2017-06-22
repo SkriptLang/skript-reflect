@@ -17,6 +17,7 @@ import ch.njol.yggdrasil.Fields;
 public class Types {
   static {
     Classes.registerClass(new ClassInfo<>(Event.class, "event")
+        .user("events?")
         .parser(new Parser<Event>() {
           @Override
           public Event parse(String s, ParseContext parseContext) {
@@ -45,6 +46,7 @@ public class Types {
         }));
 
     Classes.registerClass(new ClassInfo<>(JavaType.class, "javatype")
+        .user("javatypes?")
         .parser(new Parser<JavaType>() {
           @Override
           public JavaType parse(String s, ParseContext context) {
