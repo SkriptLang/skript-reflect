@@ -56,7 +56,7 @@ public class ExprMembers extends SimpleExpression<String> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     target = (Expression<Object>) exprs[0];
 
-    switch (matchedPattern) {
+    switch (parseResult.mark) {
       case 0:
         mapper = Util::fields;
         break;
