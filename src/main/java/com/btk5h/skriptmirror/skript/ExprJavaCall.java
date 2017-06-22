@@ -378,7 +378,8 @@ public class ExprJavaCall extends SimpleExpression<Object> {
             return false;
           }
 
-          if (staticDescriptor.getJavaClass() != null && getCallSite(staticDescriptor).size() == 0) {
+          if (staticDescriptor.getJavaClass() != null
+              && getCallSite(staticDescriptor).size() == 0) {
             Skript.error(desc + " refers to a non-existent method/field.");
             return false;
           }

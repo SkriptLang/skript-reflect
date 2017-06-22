@@ -52,7 +52,8 @@ public class ExprMemberNames extends SimpleExpression<String> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
     target = (Expression<Object>) exprs[0];
 
     switch (parseResult.mark) {
