@@ -10,12 +10,10 @@ import org.bukkit.event.Event;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +32,7 @@ import ch.njol.util.Kleenean;
 
 public class ExprJavaCall extends SimpleExpression<Object> {
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
-  private static final Object[] NO_ARGS = new Object[0];
+  private static final Object[] EMPTY = new Object[0];
   private static final Descriptor CONSTRUCTOR_DESCRIPTOR = Descriptor.create("<init>");
   private static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
   private static final Set<Class<?>> NUMERIC_CLASSES = new HashSet<>();
@@ -60,8 +58,8 @@ public class ExprJavaCall extends SimpleExpression<Object> {
   static {
     Skript.registerExpression(ExprJavaCall.class, Object.class,
         ExpressionType.PATTERN_MATCHES_EVERYTHING,
-        "%objects%..%string%(0¦!|1¦\\([%-objects%]\\))",
-        "%objects%.<[\\w$.\\[\\]]+>(0¦!|1¦\\([%-objects%]\\))",
+        "%object%..%string%(0¦!|1¦\\([%-objects%]\\))",
+        "%object%.<[\\w$.\\[\\]]+>(0¦!|1¦\\([%-objects%]\\))",
         "new %javatype%\\([%-objects%]\\)");
   }
 
@@ -72,7 +70,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   private LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
 
-  private Expression<Object> target;
+  private Expression<Object> targetArg;
   private Expression<Object> args;
 
   private Type type;
@@ -133,8 +131,13 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   @Override
   protected Object[] get(Event e) {
-    Object[] targets = target.getArray(e);
+    Object target = targetArg.getSingle(e);
     Object[] arguments;
+
+    if (target == null) {
+      return null;
+    }
+
     if (args != null) {
       try {
         arguments = args.getArray(e);
@@ -145,59 +148,55 @@ public class ExprJavaCall extends SimpleExpression<Object> {
         return null;
       }
     } else {
-      arguments = NO_ARGS;
+      arguments = EMPTY;
     }
 
-    Descriptor baseDescriptor = getDescriptor(e);
-
-    return invoke(targets, arguments, baseDescriptor);
+    return invoke(target, arguments, getDescriptor(e));
   }
 
-  private Object[] invoke(Object[] targets, Object[] arguments, Descriptor baseDescriptor) {
-    List<Object> returnedValues = new ArrayList<>();
+  private Object[] invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
+    Object returnedValue = null;
 
-    for (Object obj : targets) {
-      Descriptor descriptor;
-      Class<?> targetClass = Util.toClass(obj);
+    Descriptor descriptor;
+    Class<?> targetClass = Util.toClass(target);
 
-      descriptor = specifyDescriptor(baseDescriptor, targetClass);
+    descriptor = specifyDescriptor(baseDescriptor, targetClass);
 
-      if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
-        Object[] arr;
-        if (obj instanceof JavaType) {
-          arr = new Object[arguments.length];
-          System.arraycopy(arguments, 0, arr, 0, arguments.length);
-        } else {
-          arr = new Object[arguments.length + 1];
-          arr[0] = obj;
-          System.arraycopy(arguments, 0, arr, 1, arguments.length);
-        }
+    if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
+      Object[] arr;
+      if (target instanceof JavaType) {
+        arr = new Object[arguments.length];
+        System.arraycopy(arguments, 0, arr, 0, arguments.length);
+      } else {
+        arr = new Object[arguments.length + 1];
+        arr[0] = target;
+        System.arraycopy(arguments, 0, arr, 1, arguments.length);
+      }
 
-        Class<?>[] argTypes = Arrays.stream(arr)
-            .map(Object::getClass)
-            .toArray(Class<?>[]::new);
+      Class<?>[] argTypes = Arrays.stream(arr)
+          .map(Object::getClass)
+          .toArray(Class<?>[]::new);
 
-        Optional<MethodHandle> method = selectMethod(descriptor, argTypes);
+      Optional<MethodHandle> method = selectMethod(descriptor, argTypes);
 
-        if (method.isPresent()) {
-          MethodHandle mh = method.get();
+      if (method.isPresent()) {
+        MethodHandle mh = method.get();
 
-          convertTypes(mh.type(), arr);
+        convertTypes(mh.type(), arr);
 
-          try {
-            Object value = mh.invokeWithArguments(arr);
-
-            if (mh.type().returnType() != void.class) {
-              returnedValues.add(value);
-            }
-          } catch (Throwable throwable) {
-            // TODO error handling
-          }
+        try {
+          returnedValue = mh.invokeWithArguments(arr);
+        } catch (Throwable throwable) {
+          // TODO error handling
         }
       }
     }
 
-    return returnedValues.toArray();
+    if (returnedValue == null) {
+      return EMPTY;
+    }
+
+    return new Object[]{returnedValue};
   }
 
   private Descriptor getDescriptor(Event e) {
@@ -295,7 +294,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   @Override
   public boolean isSingle() {
-    return target.isSingle();
+    return targetArg.isSingle();
   }
 
   @Override
@@ -320,6 +319,11 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   @Override
   public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
+    Object target = targetArg.getSingle(e);
+    if (target == null) {
+      return;
+    }
+
     Object[] args = new Object[1];
 
     switch (mode) {
@@ -331,19 +335,17 @@ public class ExprJavaCall extends SimpleExpression<Object> {
         break;
     }
 
-    Descriptor baseDescriptor = getDescriptor(e);
-
-    invoke(target.getArray(e), args, baseDescriptor);
+    invoke(target, args, getDescriptor(e));
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    target = (Expression<Object>) exprs[0];
+    targetArg = (Expression<Object>) exprs[0];
     args = (Expression<Object>) exprs[matchedPattern == 0 ? 2 : 1];
 
-    if (target instanceof UnparsedLiteral || args instanceof UnparsedLiteral) {
+    if (targetArg instanceof UnparsedLiteral || args instanceof UnparsedLiteral) {
       return false;
     }
 
