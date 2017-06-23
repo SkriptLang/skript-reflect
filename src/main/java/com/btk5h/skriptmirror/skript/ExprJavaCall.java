@@ -294,7 +294,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   @Override
   public boolean isSingle() {
-    return targetArg.isSingle();
+    return true;
   }
 
   @Override
