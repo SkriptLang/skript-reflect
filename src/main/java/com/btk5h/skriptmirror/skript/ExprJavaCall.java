@@ -7,6 +7,8 @@ import com.btk5h.skriptmirror.Util;
 
 import org.bukkit.event.Event;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -65,7 +67,12 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
 
   private enum Type {
-    FIELD, METHOD, CONSTRUCTOR
+    FIELD, METHOD, CONSTRUCTOR;
+
+    @Override
+    public String toString() {
+      return name().toLowerCase();
+    }
   }
 
   private LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
@@ -75,6 +82,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   private Type type;
   private boolean isDynamic;
+  private boolean suppressErrors = false;
 
   private Descriptor staticDescriptor;
   private Expression<String> dynamicDescriptor;
@@ -157,10 +165,8 @@ public class ExprJavaCall extends SimpleExpression<Object> {
   private Object[] invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
     Object returnedValue = null;
 
-    Descriptor descriptor;
     Class<?> targetClass = Util.toClass(target);
-
-    descriptor = specifyDescriptor(baseDescriptor, targetClass);
+    Descriptor descriptor = specifyDescriptor(baseDescriptor, targetClass);
 
     if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
       Object[] arr;
@@ -187,8 +193,31 @@ public class ExprJavaCall extends SimpleExpression<Object> {
         try {
           returnedValue = mh.invokeWithArguments(arr);
         } catch (Throwable throwable) {
-          // TODO error handling
+          if (!suppressErrors) {
+            Skript.warning(
+                String.format("%s (%s) -> %s called with %s (%s) threw a %s: %s%n" +
+                        "Run Skript with the verbosity 'very high' for the stack trace.",
+                    target, targetClass, toString(descriptor), Arrays.toString(arguments),
+                    Arrays.toString(argTypes), throwable.getClass(), throwable.getMessage()));
+            if (Skript.logVeryHigh()) {
+              StringWriter errors = new StringWriter();
+              throwable.printStackTrace(new PrintWriter(errors));
+              Skript.warning(errors.toString());
+            }
+          }
         }
+      } else {
+        if (!suppressErrors) {
+          Skript.warning(
+              String.format("%s (%s) -> %s could not be resolved with the arguments %s (%s)",
+                  target, targetClass, toString(descriptor), Arrays.toString(arguments),
+                  Arrays.toString(argTypes)));
+        }
+      }
+    } else {
+      if (!suppressErrors) {
+        Skript.warning(String.format("%s (%s) is not a %s", target, targetClass,
+            descriptor.getJavaClass()));
       }
     }
 
@@ -199,6 +228,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
     return new Object[]{returnedValue};
   }
 
+  @SuppressWarnings("ThrowableNotThrown")
   private Descriptor getDescriptor(Event e) {
     if (isDynamic) {
       String desc = dynamicDescriptor.getSingle(e);
@@ -209,8 +239,10 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
       try {
         return Descriptor.parse(desc);
-      } catch (ClassNotFoundException ignored) {
-        // TODO error handling
+      } catch (ClassNotFoundException ex) {
+        if (!suppressErrors) {
+          Skript.exception(ex);
+        }
         return Descriptor.create(null);
       }
     }
@@ -292,6 +324,14 @@ public class ExprJavaCall extends SimpleExpression<Object> {
     }
   }
 
+  void setSuppressErrors(boolean suppressErrors) {
+    this.suppressErrors = suppressErrors;
+
+    if (targetArg instanceof ExprJavaCall) {
+      ((ExprJavaCall) targetArg).setSuppressErrors(suppressErrors);
+    }
+  }
+
   @Override
   public boolean isSingle() {
     return true;
@@ -304,7 +344,11 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return type + " " + getDescriptor(e);
+    return toString(getDescriptor(e));
+  }
+
+  private String toString(Descriptor descriptor) {
+    return type + " " + descriptor;
   }
 
   @Override
