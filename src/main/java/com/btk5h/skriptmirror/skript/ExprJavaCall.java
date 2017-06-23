@@ -197,17 +197,6 @@ public class ExprJavaCall extends SimpleExpression<Object> {
       }
     }
 
-    if (isSingle()) {
-      switch (returnedValues.size()) {
-        case 1:
-          return new Object[]{returnedValues.get(0)};
-        case 0:
-          return null;
-        default:
-          return new Object[]{returnedValues.toArray()};
-      }
-    }
-
     return returnedValues.toArray();
   }
 
@@ -306,7 +295,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   @Override
   public boolean isSingle() {
-    return type != Type.FIELD || target.isSingle();
+    return target.isSingle();
   }
 
   @Override
