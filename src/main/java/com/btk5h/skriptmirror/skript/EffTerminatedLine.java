@@ -23,7 +23,7 @@ public class EffTerminatedLine extends Effect {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return "";
+    return arg.toString(e, debug);
   }
 
   @SuppressWarnings("unchecked")

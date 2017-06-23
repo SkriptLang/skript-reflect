@@ -46,7 +46,7 @@ public class ExprJavaType extends SimpleExpression<JavaType> {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return className.getSingle(e);
+    return "class " + className.toString(e, debug);
   }
 
   @SuppressWarnings("unchecked")

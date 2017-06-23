@@ -48,7 +48,7 @@ public class ExprMembers extends SimpleExpression<String> {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return "fields/methods/constructors";
+    return "members of " + target.toString(e, debug);
   }
 
   @SuppressWarnings("unchecked")
