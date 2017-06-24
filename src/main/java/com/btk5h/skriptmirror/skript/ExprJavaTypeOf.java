@@ -15,7 +15,7 @@ import ch.njol.util.Kleenean;
 
 public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   static {
-    PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "java (class|type)",
+    PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "([java] class|java[ ]type)",
         "objects");
   }
 
