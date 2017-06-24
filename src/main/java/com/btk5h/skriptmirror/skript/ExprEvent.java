@@ -16,7 +16,10 @@ public class ExprEvent extends SimpleExpression<Event> {
 
   @Override
   protected Event[] get(Event e) {
-    return new Event[] {e};
+    if (e instanceof EvtByReflection.BukkitEvent) {
+      return new Event[]{((EvtByReflection.BukkitEvent) e).getEvent()};
+    }
+    return new Event[]{e};
   }
 
   @Override
