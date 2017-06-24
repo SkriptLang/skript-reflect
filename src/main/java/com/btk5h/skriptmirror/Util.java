@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -71,5 +72,10 @@ public final class Util {
       return ((JavaType) o).getJavaClass();
     }
     return o.getClass();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> T[] newArray(Class<? extends T> type, int length) {
+    return (T[]) Array.newInstance(type, length);
   }
 }

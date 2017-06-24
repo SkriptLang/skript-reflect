@@ -12,7 +12,6 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ import ch.njol.util.coll.iterator.ArrayIterator;
 
 public class ExprJavaCall<T> implements Expression<T> {
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
-  private static final Object[] EMPTY = new Object[0];
+  private static final Object[] NO_ARGS = new Object[0];
   private static final Descriptor CONSTRUCTOR_DESCRIPTOR = Descriptor.create("<init>");
   private static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
   private static final Set<Class<?>> NUMERIC_CLASSES = new HashSet<>();
@@ -231,7 +230,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     if (returnedValue == null) {
-      return (T[]) EMPTY;
+      return Util.newArray(superType, 0);
     }
 
     returnedValue = Converters.convert(returnedValue, types);
@@ -243,10 +242,10 @@ public class ExprJavaCall<T> implements Expression<T> {
                 target, targetClass, toString(descriptor), Arrays.toString(arguments),
                 Arrays.toString(argTypes), Arrays.toString(types)));
       }
-      return (T[]) EMPTY;
+      return Util.newArray(superType, 0);
     }
 
-    T[] returnArray = (T[]) Array.newInstance(superType, 1);
+    T[] returnArray = Util.newArray(superType, 1);
     returnArray[0] = returnedValue;
     return returnArray;
   }
@@ -389,7 +388,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         return null;
       }
     } else {
-      arguments = EMPTY;
+      arguments = NO_ARGS;
     }
 
     return invoke(target, arguments, getDescriptor(e));
