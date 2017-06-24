@@ -12,10 +12,12 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,9 +32,13 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.iterator.ArrayIterator;
 
-public class ExprJavaCall extends SimpleExpression<Object> {
+public class ExprJavaCall<T> implements Expression<T> {
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
   private static final Object[] EMPTY = new Object[0];
   private static final Descriptor CONSTRUCTOR_DESCRIPTOR = Descriptor.create("<init>");
@@ -58,13 +64,13 @@ public class ExprJavaCall extends SimpleExpression<Object> {
   }
 
   static {
+    //noinspection unchecked
     Skript.registerExpression(ExprJavaCall.class, Object.class,
         ExpressionType.PATTERN_MATCHES_EVERYTHING,
         "%object%..%string%(0¦!|1¦\\([%-objects%]\\))",
         "%object%.<[\\w$.\\[\\]]+>(0¦!|1¦\\([%-objects%]\\))",
         "new %javatype%\\([%-objects%]\\)");
   }
-
 
   private enum Type {
     FIELD, METHOD, CONSTRUCTOR;
@@ -86,6 +92,33 @@ public class ExprJavaCall extends SimpleExpression<Object> {
 
   private Descriptor staticDescriptor;
   private Expression<String> dynamicDescriptor;
+
+  private final ExprJavaCall<?> source;
+  private final Class<? extends T>[] types;
+  private final Class<T> superType;
+
+  @SuppressWarnings("unchecked")
+  public ExprJavaCall() {
+    this(null, (Class<? extends T>) Object.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  private ExprJavaCall(ExprJavaCall<?> source, Class<? extends T>... types) {
+    this.source = source;
+
+    if (source != null) {
+      this.targetArg = source.targetArg;
+      this.args = source.args;
+      this.type = source.type;
+      this.suppressErrors = source.suppressErrors;
+      this.staticDescriptor = source.staticDescriptor;
+      this.dynamicDescriptor = source.dynamicDescriptor;
+    }
+
+    this.types = types;
+    this.superType = (Class<T>) Utils.getSuperType(types);
+  }
 
   private Collection<MethodHandle> getCallSite(Descriptor e) {
     return callSiteCache.computeIfAbsent(e, this::createCallSite);
@@ -136,37 +169,13 @@ public class ExprJavaCall extends SimpleExpression<Object> {
     return mh.asSpreader(Object[].class, paramCount);
   }
 
-
-  @Override
-  protected Object[] get(Event e) {
-    Object target = targetArg.getSingle(e);
-    Object[] arguments;
-
-    if (target == null) {
-      return null;
-    }
-
-    if (args != null) {
-      try {
-        arguments = args.getArray(e);
-      } catch (SkriptAPIException ex) {
-        Skript.error("The arguments passed to " + getDescriptor(e) + " could not be parsed. Try " +
-            "setting a list variable to the arguments and pass that variable to the reflection " +
-            "call instead!");
-        return null;
-      }
-    } else {
-      arguments = EMPTY;
-    }
-
-    return invoke(target, arguments, getDescriptor(e));
-  }
-
-  private Object[] invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
-    Object returnedValue = null;
+  @SuppressWarnings("unchecked")
+  private T[] invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
+    T returnedValue = null;
 
     Class<?> targetClass = Util.toClass(target);
     Descriptor descriptor = specifyDescriptor(baseDescriptor, targetClass);
+    Class<?>[] argTypes = null;
 
     if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
       Object[] arr;
@@ -179,7 +188,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
         System.arraycopy(arguments, 0, arr, 1, arguments.length);
       }
 
-      Class<?>[] argTypes = Arrays.stream(arr)
+      argTypes = Arrays.stream(arr)
           .map(Object::getClass)
           .toArray(Class<?>[]::new);
 
@@ -191,7 +200,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
         convertTypes(mh.type(), arr);
 
         try {
-          returnedValue = mh.invokeWithArguments(arr);
+          returnedValue = (T) mh.invokeWithArguments(arr);
         } catch (Throwable throwable) {
           if (!suppressErrors) {
             Skript.warning(
@@ -222,10 +231,24 @@ public class ExprJavaCall extends SimpleExpression<Object> {
     }
 
     if (returnedValue == null) {
-      return EMPTY;
+      return (T[]) EMPTY;
     }
 
-    return new Object[]{returnedValue};
+    returnedValue = Converters.convert(returnedValue, types);
+
+    if (returnedValue == null) {
+      if (!suppressErrors) {
+        Skript.warning(
+            String.format("%s (%s) -> %s called with %s (%s) could not be converted to %s",
+                target, targetClass, toString(descriptor), Arrays.toString(arguments),
+                Arrays.toString(argTypes), Arrays.toString(types)));
+      }
+      return (T[]) EMPTY;
+    }
+
+    T[] returnArray = (T[]) Array.newInstance(superType, 1);
+    returnArray[0] = returnedValue;
+    return returnArray;
   }
 
   @SuppressWarnings("ThrowableNotThrown")
@@ -333,13 +356,108 @@ public class ExprJavaCall extends SimpleExpression<Object> {
   }
 
   @Override
+  public T getSingle(Event e) {
+    T[] all = getArray(e);
+    if (all.length == 0) {
+      return null;
+    }
+    return all[0];
+  }
+
+  @Override
+  public T[] getArray(Event e) {
+    return getAll(e);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public T[] getAll(Event e) {
+    Object target = targetArg.getSingle(e);
+    Object[] arguments;
+
+    if (target == null) {
+      return null;
+    }
+
+    if (args != null) {
+      try {
+        arguments = args.getArray(e);
+      } catch (SkriptAPIException ex) {
+        Skript.error("The arguments passed to " + getDescriptor(e) + " could not be parsed. Try " +
+            "setting a list variable to the arguments and pass that variable to the reflection " +
+            "call instead!");
+        return null;
+      }
+    } else {
+      arguments = EMPTY;
+    }
+
+    return invoke(target, arguments, getDescriptor(e));
+  }
+
+  @Override
   public boolean isSingle() {
     return true;
   }
 
   @Override
-  public Class<?> getReturnType() {
-    return Object.class;
+  public boolean check(Event e, Checker<? super T> c, boolean negated) {
+    return SimpleExpression.check(getAll(e), c, negated, getAnd());
+  }
+
+  @Override
+  public boolean check(Event e, Checker<? super T> c) {
+    return SimpleExpression.check(getAll(e), c, false, getAnd());
+  }
+
+  @Override
+  public <R> Expression<? extends R> getConvertedExpression(Class<R>[] to) {
+    return new ExprJavaCall<>(this, to);
+  }
+
+  @Override
+  public Class<T> getReturnType() {
+    return superType;
+  }
+
+  @Override
+  public boolean getAnd() {
+    return true;
+  }
+
+  @Override
+  public boolean setTime(int time) {
+    return false;
+  }
+
+  @Override
+  public int getTime() {
+    return 0;
+  }
+
+  @Override
+  public boolean isDefault() {
+    return false;
+  }
+
+  @Override
+  public Iterator<? extends T> iterator(Event e) {
+    return new ArrayIterator<>(getAll(e));
+  }
+
+  @Override
+  public boolean isLoopOf(String s) {
+    return false;
+  }
+
+  @Override
+  public Expression<?> getSource() {
+    return source == null ? this : source;
+  }
+
+  @Override
+  public Expression<? extends T> simplify() {
+    return this;
   }
 
   @Override
@@ -357,8 +475,7 @@ public class ExprJavaCall extends SimpleExpression<Object> {
         (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)) {
       return new Class<?>[]{Object.class};
     }
-
-    return super.acceptChange(mode);
+    return null;
   }
 
   @Override
