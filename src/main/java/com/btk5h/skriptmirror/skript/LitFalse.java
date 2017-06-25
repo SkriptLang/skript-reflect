@@ -20,7 +20,8 @@ public class LitFalse extends SimpleLiteral<Boolean> {
   }
 
   @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
     return true;
   }
 
