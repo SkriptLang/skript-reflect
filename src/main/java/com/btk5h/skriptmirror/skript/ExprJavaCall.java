@@ -311,6 +311,10 @@ public class ExprJavaCall<T> implements Expression<T> {
           continue;
         }
 
+        if (param == Class.class && arg == JavaType.class) {
+          continue;
+        }
+
         return false;
       }
     }
@@ -342,6 +346,10 @@ public class ExprJavaCall<T> implements Expression<T> {
         } else if (param == short.class) {
           args[i] = ((Number) args[i]).shortValue();
         }
+      }
+
+      if (param == Class.class && args[i] instanceof JavaType) {
+        args[i] = ((JavaType) args[i]).getJavaClass();
       }
     }
   }
