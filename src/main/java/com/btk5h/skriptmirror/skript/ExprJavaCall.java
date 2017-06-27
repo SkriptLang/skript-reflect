@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript;
 import com.btk5h.skriptmirror.Descriptor;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LRUCache;
+import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.Util;
 
 import org.bukkit.event.Event;
@@ -315,6 +316,10 @@ public class ExprJavaCall<T> implements Expression<T> {
           continue;
         }
 
+        if (!param.isPrimitive() && arg == Null.class) {
+          continue;
+        }
+
         return false;
       }
     }
@@ -332,7 +337,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     for (int i = 0; i < params.length; i++) {
       Class<?> param = params[i];
 
-      if (param.isPrimitive()) {
+      if (param.isPrimitive() && args[i] instanceof Number) {
         if (param == byte.class) {
           args[i] = ((Number) args[i]).byteValue();
         } else if (param == double.class) {
@@ -350,6 +355,10 @@ public class ExprJavaCall<T> implements Expression<T> {
 
       if (param == Class.class && args[i] instanceof JavaType) {
         args[i] = ((JavaType) args[i]).getJavaClass();
+      }
+
+      if (args[i] instanceof Null) {
+        args[i] = null;
       }
     }
   }

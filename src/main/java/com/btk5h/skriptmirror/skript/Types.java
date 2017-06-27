@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript;
 
 import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.Null;
 
 import org.bukkit.event.Event;
 
@@ -108,5 +109,61 @@ public class Types {
           }
         }));
 
+    Classes.registerClass(new ClassInfo<>(Null.class, "nullref")
+        .parser(new Parser<Null>() {
+          @Override
+          public Null parse(String s, ParseContext context) {
+            return null;
+          }
+
+          @Override
+          public boolean canParse(ParseContext context) {
+            return false;
+          }
+
+          @Override
+          public String toString(Null o, int flags) {
+            return "null";
+          }
+
+          @Override
+          public String toVariableNameString(Null o) {
+            return "null object";
+          }
+
+          @Override
+          public String getVariableNamePattern() {
+            return "null object";
+          }
+        })
+        .serializer(new Serializer<Null>() {
+          @Override
+          public Fields serialize(Null o) throws NotSerializableException {
+            return new Fields();
+          }
+
+          @Override
+          public void deserialize(Null o, Fields f) throws StreamCorruptedException,
+              NotSerializableException {
+
+          }
+
+          @Override
+          protected Null deserialize(Fields fields) throws StreamCorruptedException,
+              NotSerializableException {
+            return Null.getInstance();
+          }
+
+          @Override
+          public boolean mustSyncDeserialization() {
+            return false;
+          }
+
+          @Override
+          public boolean canBeInstantiated(Class<? extends Null> c) {
+            return false;
+          }
+        })
+    );
   }
 }
