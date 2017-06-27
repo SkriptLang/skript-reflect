@@ -32,6 +32,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
@@ -204,10 +205,11 @@ public class ExprJavaCall<T> implements Expression<T> {
         } catch (Throwable throwable) {
           if (!suppressErrors) {
             Skript.warning(
-                String.format("%s (%s) -> %s called with %s (%s) threw a %s: %s%n" +
+                String.format("%s %s%s threw a %s: %s%n" +
                         "Run Skript with the verbosity 'very high' for the stack trace.",
-                    target, targetClass, toString(descriptor), Arrays.toString(arguments),
-                    Arrays.toString(argTypes), throwable.getClass(), throwable.getMessage()));
+                    type, descriptor, optionalArgs(arguments), throwable.getClass().getSimpleName(),
+                    throwable.getMessage()));
+
             if (Skript.logVeryHigh()) {
               StringWriter errors = new StringWriter();
               throwable.printStackTrace(new PrintWriter(errors));
@@ -218,15 +220,14 @@ public class ExprJavaCall<T> implements Expression<T> {
       } else {
         if (!suppressErrors) {
           Skript.warning(
-              String.format("%s (%s) -> %s could not be resolved with the arguments %s (%s)",
-                  target, targetClass, toString(descriptor), Arrays.toString(arguments),
-                  Arrays.toString(argTypes)));
+              String.format("No matching %s: %s%s",
+                  type, descriptor, optionalArgs(arguments)));
         }
       }
     } else {
       if (!suppressErrors) {
-        Skript.warning(String.format("%s (%s) is not a %s", target, targetClass,
-            descriptor.getJavaClass()));
+        Skript.warning(String.format("Incompatible %s call: %s on %s",
+            type, descriptor, Util.getDebugName(targetClass)));
       }
     }
 
@@ -234,21 +235,38 @@ public class ExprJavaCall<T> implements Expression<T> {
       return Util.newArray(superType, 0);
     }
 
-    returnedValue = Converters.convert(returnedValue, types);
+    T converted = Converters.convert(returnedValue, types);
 
-    if (returnedValue == null) {
+    if (converted == null) {
       if (!suppressErrors) {
+        String toClasses = Arrays.stream(types)
+            .map(Util::getDebugName)
+            .collect(Collectors.joining(", "));
         Skript.warning(
-            String.format("%s (%s) -> %s called with %s (%s) could not be converted to %s",
-                target, targetClass, toString(descriptor), Arrays.toString(arguments),
-                Arrays.toString(argTypes), Arrays.toString(types)));
+            String.format("%s %s%s returned %s, which could not be converted to %s",
+                type, descriptor, optionalArgs(arguments), toString(returnedValue), toClasses));
       }
       return Util.newArray(superType, 0);
     }
 
     T[] returnArray = Util.newArray(superType, 1);
-    returnArray[0] = returnedValue;
+    returnArray[0] = converted;
     return returnArray;
+  }
+
+  private String optionalArgs(Object... arguments) {
+    if (arguments.length == 0) {
+      return "";
+    }
+
+    return " called with (" + toString(arguments) + ")";
+  }
+
+  private String toString(Object... arguments) {
+    return Arrays.stream(arguments)
+        .map(arg -> String.format("%s (%s)",
+                Classes.toString(arg), Util.getDebugName(arg.getClass())))
+        .collect(Collectors.joining(", "));
   }
 
   @SuppressWarnings("ThrowableNotThrown")
@@ -478,11 +496,13 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return toString(getDescriptor(e));
-  }
+    Descriptor descriptor = getDescriptor(e);
 
-  private String toString(Descriptor descriptor) {
-    return type + " " + descriptor;
+    if (descriptor == null) {
+      return "java call";
+    }
+
+    return descriptor.toString();
   }
 
   @Override

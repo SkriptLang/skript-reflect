@@ -40,7 +40,9 @@ public final class Descriptor {
 
   @Override
   public String toString() {
-    return identifier + " from " + (javaClass == null ? "(any)" : javaClass.getName());
+    return String.format("%s#%s",
+        javaClass == null ? "(unspecified)" : Util.getDebugName(javaClass),
+        identifier);
   }
 
   public static Descriptor parse(String desc) throws ClassNotFoundException {

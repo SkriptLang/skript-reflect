@@ -78,4 +78,8 @@ public final class Util {
   public static <T> T[] newArray(Class<? extends T> type, int length) {
     return (T[]) Array.newInstance(type, length);
   }
+
+  public static String getDebugName(Class<?> cls) {
+    return Skript.logVeryHigh() ? cls.getName() : cls.getSimpleName();
+  }
 }
