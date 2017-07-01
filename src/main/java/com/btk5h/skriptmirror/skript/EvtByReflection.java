@@ -4,7 +4,6 @@ import com.btk5h.skriptmirror.SkriptMirror;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventException;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -44,14 +43,9 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static EventExecutor executor = new EventExecutor() {
-
-    @Override
-    public void execute(Listener listener, Event event) throws EventException {
-      Bukkit.getPluginManager()
+  private static EventExecutor executor =
+      (listener, event) -> Bukkit.getPluginManager()
           .callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
-    }
-  };
 
   private static PriorityListener[] listeners = new PriorityListener[]{
       new PriorityListener(0),
