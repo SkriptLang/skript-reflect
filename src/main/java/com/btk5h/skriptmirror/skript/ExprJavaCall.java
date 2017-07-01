@@ -325,6 +325,12 @@ public class ExprJavaCall<T> implements Expression<T> {
           continue;
         }
 
+        if (arg instanceof String
+            && (param == char.class || param == Character.class)
+            && ((String) arg).length() == 1) {
+          continue;
+        }
+
         if (param == Class.class && arg instanceof JavaType) {
           continue;
         }
@@ -364,6 +370,11 @@ public class ExprJavaCall<T> implements Expression<T> {
         } else if (param == short.class) {
           args[i] = ((Number) args[i]).shortValue();
         }
+      }
+
+      if (args[i] instanceof String
+          && (param == char.class || param == Character.class)) {
+        args[i] = ((String) args[i]).charAt(0);
       }
 
       if (param == Class.class && args[i] instanceof JavaType) {
