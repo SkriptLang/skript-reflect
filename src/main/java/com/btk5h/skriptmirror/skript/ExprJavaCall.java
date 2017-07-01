@@ -176,7 +176,6 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     Class<?> targetClass = Util.toClass(target);
     Descriptor descriptor = specifyDescriptor(baseDescriptor, targetClass);
-    Class<?>[] argTypes;
 
     if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
       Object[] arr;
@@ -189,11 +188,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         System.arraycopy(arguments, 0, arr, 1, arguments.length);
       }
 
-      argTypes = Arrays.stream(arr)
-          .map(Object::getClass)
-          .toArray(Class<?>[]::new);
-
-      Optional<MethodHandle> method = selectMethod(descriptor, argTypes);
+      Optional<MethodHandle> method = selectMethod(descriptor, arr);
 
       if (method.isPresent()) {
         MethodHandle mh = method.get();
@@ -265,7 +260,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   private String toString(Object... arguments) {
     return Arrays.stream(arguments)
         .map(arg -> String.format("%s (%s)",
-                Classes.toString(arg), Util.getDebugName(arg.getClass())))
+            Classes.toString(arg), Util.getDebugName(arg.getClass())))
         .collect(Collectors.joining(", "));
   }
 
@@ -299,13 +294,13 @@ public class ExprJavaCall<T> implements Expression<T> {
     return Descriptor.create(cls, descriptor.getIdentifier());
   }
 
-  private Optional<MethodHandle> selectMethod(Descriptor descriptor, Class<?>[] argTypes) {
+  private Optional<MethodHandle> selectMethod(Descriptor descriptor, Object[] args) {
     return getCallSite(descriptor).stream()
-        .filter(mh -> matchesArgs(argTypes, mh))
+        .filter(mh -> matchesArgs(args, mh))
         .findFirst();
   }
 
-  private static boolean matchesArgs(Class<?>[] args, MethodHandle mh) {
+  private static boolean matchesArgs(Object[] args, MethodHandle mh) {
     MethodType mt = mh.type();
     if (mt.parameterCount() != args.length && !mh.isVarargsCollector()) {
       return false;
@@ -319,22 +314,22 @@ public class ExprJavaCall<T> implements Expression<T> {
       }
 
       Class<?> param = params[i];
-      Class<?> arg = args[i];
+      Object arg = args[i];
 
-      if (!param.isAssignableFrom(arg)) {
-        if (Number.class.isAssignableFrom(arg) && NUMERIC_CLASSES.contains(param)) {
+      if (!param.isInstance(arg)) {
+        if (arg instanceof Number && NUMERIC_CLASSES.contains(param)) {
           continue;
         }
 
-        if (param.isPrimitive() && arg == WRAPPER_CLASSES.get(param)) {
+        if (param.isPrimitive() && WRAPPER_CLASSES.get(param).isInstance(arg)) {
           continue;
         }
 
-        if (param == Class.class && arg == JavaType.class) {
+        if (param == Class.class && arg instanceof JavaType) {
           continue;
         }
 
-        if (!param.isPrimitive() && arg == Null.class) {
+        if (!param.isPrimitive() && arg instanceof Null) {
           continue;
         }
 
