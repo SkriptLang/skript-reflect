@@ -176,7 +176,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     Class<?> targetClass = Util.toClass(target);
     Descriptor descriptor = specifyDescriptor(baseDescriptor, targetClass);
-    Class<?>[] argTypes = null;
+    Class<?>[] argTypes;
 
     if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
       Object[] arr;

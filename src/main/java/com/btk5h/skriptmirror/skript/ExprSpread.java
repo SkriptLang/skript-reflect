@@ -118,7 +118,7 @@ public class ExprSpread<T> implements Expression<T> {
 
   @Override
   public Iterator<? extends T> iterator(Event e) {
-    return new ArrayIterator<T>(getAll(e));
+    return new ArrayIterator<>(getAll(e));
   }
 
   @Override
