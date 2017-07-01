@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript;
 import com.btk5h.skriptmirror.SkriptMirror;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -56,7 +57,7 @@ public class EvtByReflection extends SkriptEvent {
       new PriorityListener(5)
   };
 
-  static class BukkitEvent extends Event {
+  static class BukkitEvent extends Event implements Cancellable {
     private final static HandlerList handlers = new HandlerList();
 
     private final Event event;
@@ -84,6 +85,17 @@ public class EvtByReflection extends SkriptEvent {
       return handlers;
     }
 
+    @Override
+    public boolean isCancelled() {
+      return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+      if (event instanceof Cancellable) {
+        ((Cancellable) event).setCancelled(cancel);
+      }
+    }
   }
 
   private static Set<Class<? extends Event>> events = new HashSet<>();
