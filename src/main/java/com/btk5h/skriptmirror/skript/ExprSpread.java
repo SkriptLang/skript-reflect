@@ -4,6 +4,7 @@ import com.btk5h.skriptmirror.Util;
 
 import org.bukkit.event.Event;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import ch.njol.skript.Skript;
@@ -63,6 +64,10 @@ public class ExprSpread<T> implements Expression<T> {
   @Override
   public T[] getAll(Event e) {
     Object obj = object.getSingle(e);
+
+    if (obj instanceof Collection) {
+      obj = ((Collection) obj).toArray();
+    }
 
     if (obj == null || !obj.getClass().isArray()) {
       return Util.newArray(superType, 0);
