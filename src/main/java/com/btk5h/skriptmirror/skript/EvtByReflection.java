@@ -24,7 +24,7 @@ import ch.njol.skript.lang.SkriptParser;
 public class EvtByReflection extends SkriptEvent {
   static {
     Skript.registerEvent("Bukkit Event", EvtByReflection.class, BukkitEvent.class,
-        "%strings% [(at|on|with) priority %-number%]");
+        "%strings% [(1¦(at|on|with) priority <.+>)]");
   }
 
   private static class PriorityListener implements Listener {
@@ -139,14 +139,16 @@ public class EvtByReflection extends SkriptEvent {
       }
     }
 
-    if (args[1] == null) {
+    if (parseResult.mark == 0) {
       priority = SkriptConfig.defaultEventPriority.value();
     } else {
-      int priorityIndex = ((Literal<Number>) args[1]).getSingle().intValue();
-
-      priorityIndex = Math.max(0, Math.min(priorityIndex, listeners.length - 1));
-
-      priority = listeners[priorityIndex].getPriority();
+      String priorityName = parseResult.regexes.get(0).group().toUpperCase();
+      try {
+        priority = EventPriority.valueOf(priorityName);
+      } catch (IllegalArgumentException ex) {
+        Skript.error(priorityName + " is not a valid priority level.");
+        return false;
+      }
     }
 
     for (Class<? extends Event> cls : classes) {
