@@ -4,8 +4,10 @@ import com.btk5h.skriptmirror.Util;
 
 import org.bukkit.event.Event;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
@@ -67,6 +69,10 @@ public class ExprSpread<T> implements Expression<T> {
 
     if (obj instanceof Collection) {
       obj = ((Collection) obj).toArray();
+    } else if (obj instanceof Iterable) {
+      obj = toArray(((Iterable) obj).iterator());
+    } else if (obj instanceof Iterator) {
+      obj = toArray((Iterator<?>) obj);
     }
 
     if (obj == null || !obj.getClass().isArray()) {
@@ -74,6 +80,12 @@ public class ExprSpread<T> implements Expression<T> {
     }
 
     return Converters.convertArray((Object[]) obj, types, superType);
+  }
+
+  private Object[] toArray(Iterator<?> iter) {
+    List<Object> list = new ArrayList<>();
+    iter.forEachRemaining(list::add);
+    return list.toArray();
   }
 
   @Override
