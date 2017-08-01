@@ -96,8 +96,6 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static Set<Class<? extends Event>> events = new HashSet<>();
-
   private static void registerEvent(Class<? extends Event> event, EventPriority priority) {
     PriorityListener listener = listeners[priority.ordinal()];
     Set<Class<? extends Event>> events = listener.getEvents();
