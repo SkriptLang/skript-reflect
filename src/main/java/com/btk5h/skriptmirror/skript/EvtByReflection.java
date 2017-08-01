@@ -49,14 +49,14 @@ public class EvtByReflection extends SkriptEvent {
       (listener, event) -> Bukkit.getPluginManager()
           .callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
 
-  private static PriorityListener[] listeners = new PriorityListener[]{
-      new PriorityListener(0),
-      new PriorityListener(1),
-      new PriorityListener(2),
-      new PriorityListener(3),
-      new PriorityListener(4),
-      new PriorityListener(5)
-  };
+  private static PriorityListener[] listeners;
+
+  static {
+    listeners = Arrays.stream(EventPriority.values())
+        .mapToInt(EventPriority::ordinal)
+        .mapToObj(PriorityListener::new)
+        .toArray(PriorityListener[]::new);
+  }
 
   private static class BukkitEvent extends WrappedEvent implements Cancellable {
     private final static HandlerList handlers = new HandlerList();
