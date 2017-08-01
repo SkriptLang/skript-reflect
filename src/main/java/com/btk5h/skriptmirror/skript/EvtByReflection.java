@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript;
 
 import com.btk5h.skriptmirror.SkriptMirror;
+import com.btk5h.skriptmirror.WrappedEvent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
@@ -57,19 +58,14 @@ public class EvtByReflection extends SkriptEvent {
       new PriorityListener(5)
   };
 
-  static class BukkitEvent extends Event implements Cancellable {
+  private static class BukkitEvent extends WrappedEvent implements Cancellable {
     private final static HandlerList handlers = new HandlerList();
 
-    private final Event event;
     private final EventPriority priority;
 
     public BukkitEvent(Event event, EventPriority priority) {
-      this.event = event;
+      super(event);
       this.priority = priority;
-    }
-
-    public Event getEvent() {
-      return event;
     }
 
     public EventPriority getPriority() {
@@ -87,11 +83,13 @@ public class EvtByReflection extends SkriptEvent {
 
     @Override
     public boolean isCancelled() {
-      return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+      Event event = getEvent();
+      return getEvent() instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 
     @Override
     public void setCancelled(boolean cancel) {
+      Event event = getEvent();
       if (event instanceof Cancellable) {
         ((Cancellable) event).setCancelled(cancel);
       }

@@ -1,5 +1,7 @@
 package com.btk5h.skriptmirror.skript;
 
+import com.btk5h.skriptmirror.WrappedEvent;
+
 import org.bukkit.event.Event;
 
 import ch.njol.skript.Skript;
@@ -16,8 +18,8 @@ public class ExprEvent extends SimpleExpression<Event> {
 
   @Override
   protected Event[] get(Event e) {
-    if (e instanceof EvtByReflection.BukkitEvent) {
-      return new Event[]{((EvtByReflection.BukkitEvent) e).getEvent()};
+    if (e instanceof WrappedEvent) {
+      return new Event[]{((WrappedEvent) e).getEvent()};
     }
     return new Event[]{e};
   }
