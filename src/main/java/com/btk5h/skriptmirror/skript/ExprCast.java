@@ -16,7 +16,7 @@ import ch.njol.util.Kleenean;
 public class ExprCast extends SimpleExpression<Object> {
   static {
     Skript.registerExpression(ExprCast.class, Object.class, ExpressionType.COMBINED,
-        "%objects% (as|converted to) %classinfo/javatype%");
+        "%objects% (as|converted to) %javatype/classinfo%");
   }
 
   private Expression<Object> source;
