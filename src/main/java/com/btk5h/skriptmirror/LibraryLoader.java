@@ -39,12 +39,15 @@ public class LibraryLoader {
   }
 
   public static void loadLibraries() {
-    try {
-      LibraryVisitor visitor = new LibraryVisitor();
-      Files.walkFileTree(SkriptMirror.getInstance().getDataFolder().toPath(), visitor);
-      classLoader = new URLClassLoader(visitor.getUrls(), LibraryLoader.class.getClassLoader());
-    } catch (IOException e) {
-      e.printStackTrace();
+    Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
+    if (Files.isDirectory(dataFolder)) {
+      try {
+        LibraryVisitor visitor = new LibraryVisitor();
+        Files.walkFileTree(dataFolder, visitor);
+        classLoader = new URLClassLoader(visitor.getUrls(), LibraryLoader.class.getClassLoader());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
