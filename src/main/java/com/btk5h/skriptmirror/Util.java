@@ -7,12 +7,37 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import ch.njol.skript.Skript;
 
 public final class Util {
+  public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
+  public static final Set<Class<?>> NUMERIC_CLASSES = new HashSet<>();
+
+  static {
+    WRAPPER_CLASSES.put(boolean.class, Boolean.class);
+    WRAPPER_CLASSES.put(byte.class, Byte.class);
+    WRAPPER_CLASSES.put(char.class, Character.class);
+    WRAPPER_CLASSES.put(double.class, Double.class);
+    WRAPPER_CLASSES.put(float.class, Float.class);
+    WRAPPER_CLASSES.put(int.class, Integer.class);
+    WRAPPER_CLASSES.put(long.class, Long.class);
+    WRAPPER_CLASSES.put(short.class, Short.class);
+
+    NUMERIC_CLASSES.add(byte.class);
+    NUMERIC_CLASSES.add(double.class);
+    NUMERIC_CLASSES.add(float.class);
+    NUMERIC_CLASSES.add(int.class);
+    NUMERIC_CLASSES.add(long.class);
+    NUMERIC_CLASSES.add(short.class);
+  }
+
   private Util () {}
 
   public static Stream<Field> fields(Class<?> cls) {

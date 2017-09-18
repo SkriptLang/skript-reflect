@@ -15,12 +15,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,26 +39,6 @@ public class ExprJavaCall<T> implements Expression<T> {
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
   private static final Object[] NO_ARGS = new Object[0];
   private static final Descriptor CONSTRUCTOR_DESCRIPTOR = Descriptor.create("<init>");
-  private static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
-  private static final Set<Class<?>> NUMERIC_CLASSES = new HashSet<>();
-
-  static {
-    WRAPPER_CLASSES.put(boolean.class, Boolean.class);
-    WRAPPER_CLASSES.put(byte.class, Byte.class);
-    WRAPPER_CLASSES.put(char.class, Character.class);
-    WRAPPER_CLASSES.put(double.class, Double.class);
-    WRAPPER_CLASSES.put(float.class, Float.class);
-    WRAPPER_CLASSES.put(int.class, Integer.class);
-    WRAPPER_CLASSES.put(long.class, Long.class);
-    WRAPPER_CLASSES.put(short.class, Short.class);
-
-    NUMERIC_CLASSES.add(byte.class);
-    NUMERIC_CLASSES.add(double.class);
-    NUMERIC_CLASSES.add(float.class);
-    NUMERIC_CLASSES.add(int.class);
-    NUMERIC_CLASSES.add(long.class);
-    NUMERIC_CLASSES.add(short.class);
-  }
 
   static {
     //noinspection unchecked
@@ -317,11 +293,11 @@ public class ExprJavaCall<T> implements Expression<T> {
       Object arg = args[i];
 
       if (!param.isInstance(arg)) {
-        if (arg instanceof Number && NUMERIC_CLASSES.contains(param)) {
+        if (arg instanceof Number && Util.NUMERIC_CLASSES.contains(param)) {
           continue;
         }
 
-        if (param.isPrimitive() && WRAPPER_CLASSES.get(param).isInstance(arg)) {
+        if (param.isPrimitive() && Util.WRAPPER_CLASSES.get(param).isInstance(arg)) {
           continue;
         }
 
