@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript;
 
 import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.LibraryLoader;
 
 import org.bukkit.event.Event;
 
@@ -28,7 +29,7 @@ public class ExprJavaType extends SimpleExpression<JavaType> {
     }
 
     try {
-      return new JavaType[]{new JavaType(Class.forName(cls))};
+      return new JavaType[]{new JavaType(LibraryLoader.getClassLoader().loadClass(cls))};
     } catch (ClassNotFoundException ex) {
       return null;
     }

@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript;
 
 import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.LibraryLoader;
 
 import org.bukkit.event.Event;
 
@@ -32,7 +33,7 @@ public class EffImport extends Effect {
 
     JavaType javaType;
     try {
-      javaType = new JavaType(Class.forName(cls));
+      javaType = new JavaType(LibraryLoader.getClassLoader().loadClass(cls));
     } catch (ClassNotFoundException ex) {
       Skript.warning(cls + " refers to a non-existent class.");
       return;

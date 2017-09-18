@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript;
 
 import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.Null;
 
 import org.bukkit.event.Event;
@@ -92,7 +93,7 @@ public class Types {
           protected JavaType deserialize(Fields fields) throws StreamCorruptedException,
               NotSerializableException {
             try {
-              return new JavaType(Class.forName((String) fields.getObject("type")));
+              return new JavaType(LibraryLoader.getClassLoader().loadClass((String) fields.getObject("type")));
             } catch (ClassNotFoundException e) {
               throw new NotSerializableException();
             }

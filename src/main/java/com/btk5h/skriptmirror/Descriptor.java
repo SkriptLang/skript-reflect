@@ -55,7 +55,7 @@ public final class Descriptor {
       Class<?> javaClass = null;
 
       if (cls != null) {
-        javaClass = Class.forName(cls);
+        javaClass = LibraryLoader.getClassLoader().loadClass(cls);
       }
 
       return new Descriptor(javaClass, identifier);

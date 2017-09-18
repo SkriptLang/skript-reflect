@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript;
 
+import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.WrappedEvent;
 
@@ -121,7 +122,7 @@ public class EvtByReflection extends SkriptEvent {
       String event = events[i];
 
       try {
-        Class<?> eventClass = Class.forName(event);
+        Class<?> eventClass = LibraryLoader.getClassLoader().loadClass(event);
 
         if (!Event.class.isAssignableFrom(eventClass)) {
           Skript.error(event + " is not an event.");

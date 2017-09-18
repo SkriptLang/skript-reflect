@@ -23,6 +23,7 @@ public class SkriptMirror extends JavaPlugin {
   public void onEnable() {
     try {
       getAddonInstance().loadClasses("com.btk5h.skriptmirror", "skript");
+      LibraryLoader.loadLibraries();
     } catch (IOException e) {
       e.printStackTrace();
     }
