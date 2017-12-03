@@ -1,5 +1,7 @@
 package com.btk5h.skriptmirror;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -86,7 +88,16 @@ public final class Util {
       try {
         return function.apply(t);
       } catch (Exception e) {
-        Skript.exception(e);
+        Skript.warning(
+            String.format("skript-mirror encountered a %s: %s%n" +
+                "Run Skript with the verbosity 'very high' for the stack trace.",
+                e.getClass().getSimpleName(), e.getMessage()));
+
+        if (Skript.logVeryHigh()) {
+          StringWriter errors = new StringWriter();
+          e.printStackTrace(new PrintWriter(errors));
+          Skript.warning(errors.toString());
+        }
       }
       return null;
     };

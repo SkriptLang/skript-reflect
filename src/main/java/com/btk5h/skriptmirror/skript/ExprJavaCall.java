@@ -16,6 +16,7 @@ import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -113,6 +114,7 @@ public class ExprJavaCall<T> implements Expression<T> {
                 LOOKUP.unreflectGetter(f),
                 LOOKUP.unreflectSetter(f)
             )))
+            .filter(Objects::nonNull)
             .limit(2)
             .collect(Collectors.toList());
       case METHOD:
@@ -120,12 +122,14 @@ public class ExprJavaCall<T> implements Expression<T> {
             .filter(m -> m.getName().equals(e.getIdentifier()))
             .peek(m -> m.setAccessible(true))
             .map(Util.propagateErrors(LOOKUP::unreflect))
+            .filter(Objects::nonNull)
             //.map(ExprJavaCall::asSpreader)
             .collect(Collectors.toList());
       case CONSTRUCTOR:
         return Util.constructor(javaClass)
             .peek(c -> c.setAccessible(true))
             .map(Util.propagateErrors(LOOKUP::unreflectConstructor))
+            .filter(Objects::nonNull)
             //.map(ExprJavaCall::asSpreader)
             .collect(Collectors.toList());
       default:
