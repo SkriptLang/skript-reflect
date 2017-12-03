@@ -378,7 +378,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public T getSingle(Event e) {
     T[] all = getArray(e);
-    if (all.length == 0) {
+    if (all == null || all.length == 0) {
       return null;
     }
     return all[0];
