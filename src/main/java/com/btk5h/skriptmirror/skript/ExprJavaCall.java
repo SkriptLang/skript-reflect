@@ -378,7 +378,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public T getSingle(Event e) {
     T[] all = getArray(e);
-    if (all == null || all.length == 0) {
+    if (all.length == 0) {
       return null;
     }
     return all[0];
@@ -396,7 +396,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     Object[] arguments;
 
     if (target == null) {
-      return null;
+      return Util.newArray(superType, 0);
     }
 
     if (args != null) {
@@ -406,7 +406,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         Skript.error("The arguments passed to " + getDescriptor(e) + " could not be parsed. Try " +
             "setting a list variable to the arguments and pass that variable to the reflection " +
             "call instead!");
-        return null;
+        return Util.newArray(superType, 0);
       }
     } else {
       arguments = NO_ARGS;
