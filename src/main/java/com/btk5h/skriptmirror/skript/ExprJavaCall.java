@@ -8,8 +8,6 @@ import com.btk5h.skriptmirror.Util;
 
 import org.bukkit.event.Event;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -58,6 +56,9 @@ public class ExprJavaCall<T> implements Expression<T> {
       return name().toLowerCase();
     }
   }
+
+  static String lastErrorMessage;
+  static Throwable lastError;
 
   private LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
 
@@ -178,31 +179,26 @@ public class ExprJavaCall<T> implements Expression<T> {
         try {
           returnedValue = (T) mh.invokeWithArguments(arr);
         } catch (Throwable throwable) {
+          lastError = throwable;
           if (!suppressErrors) {
             Skript.warning(
-                String.format("%s %s%s threw a %s: %s%n" +
-                        "Run Skript with the verbosity 'very high' for the stack trace.",
-                    type, descriptor, optionalArgs(arguments), throwable.getClass().getSimpleName(),
-                    throwable.getMessage()));
-
-            if (Skript.logVeryHigh()) {
-              StringWriter errors = new StringWriter();
-              throwable.printStackTrace(new PrintWriter(errors));
-              Skript.warning(errors.toString());
-            }
+                String.format("%s %s%s threw a %s: %s%n",
+                    type, descriptor, optionalArgs(arguments),
+                    throwable.getClass().getSimpleName(), throwable.getMessage()));
           }
         }
       } else {
+        lastErrorMessage = String.format("No matching %s: %s%s",
+            type, descriptor, optionalArgs(arguments));
         if (!suppressErrors) {
-          Skript.warning(
-              String.format("No matching %s: %s%s",
-                  type, descriptor, optionalArgs(arguments)));
+          Skript.warning(lastErrorMessage);
         }
       }
     } else {
+      lastErrorMessage = String.format("Incompatible %s call: %s on %s",
+          type, descriptor, Util.getDebugName(targetClass));
       if (!suppressErrors) {
-        Skript.warning(String.format("Incompatible %s call: %s on %s",
-            type, descriptor, Util.getDebugName(targetClass)));
+        Skript.warning(lastErrorMessage);
       }
     }
 
@@ -213,16 +209,19 @@ public class ExprJavaCall<T> implements Expression<T> {
     T converted = Converters.convert(returnedValue, types);
 
     if (converted == null) {
+      String toClasses = Arrays.stream(types)
+          .map(Util::getDebugName)
+          .collect(Collectors.joining(", "));
+      lastErrorMessage = String.format("%s %s%s returned %s, which could not be converted to %s",
+          type, descriptor, optionalArgs(arguments), toString(returnedValue), toClasses);
       if (!suppressErrors) {
-        String toClasses = Arrays.stream(types)
-            .map(Util::getDebugName)
-            .collect(Collectors.joining(", "));
-        Skript.warning(
-            String.format("%s %s%s returned %s, which could not be converted to %s",
-                type, descriptor, optionalArgs(arguments), toString(returnedValue), toClasses));
+        Skript.warning(lastErrorMessage);
       }
       return Util.newArray(superType, 0);
     }
+
+    lastErrorMessage = null;
+    lastError = null;
 
     T[] returnArray = Util.newArray(superType, 1);
     returnArray[0] = converted;
