@@ -4,6 +4,8 @@ import com.btk5h.skriptmirror.WrappedEvent;
 
 import org.bukkit.event.Event;
 
+import java.util.Arrays;
+
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 
@@ -14,7 +16,9 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
   protected CustomSyntaxEvent(Event event, Expression<?>[] expressions,
                               SkriptParser.ParseResult parseResult) {
     super(event);
-    this.expressions = expressions;
+    this.expressions = Arrays.stream(expressions)
+        .map(expr -> CustomSyntaxExpression.wrap(expr, event))
+        .toArray(Expression[]::new);
     this.parseResult = parseResult;
   }
 
