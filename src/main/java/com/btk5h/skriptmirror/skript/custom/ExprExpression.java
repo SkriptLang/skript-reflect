@@ -163,7 +163,7 @@ public class ExprExpression<T> implements Expression<T> {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return "expression " + index;
+    return "expression " + (index + 1);
   }
 
   @SuppressWarnings("unchecked")
