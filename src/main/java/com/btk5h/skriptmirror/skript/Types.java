@@ -9,7 +9,9 @@ import org.bukkit.event.Event;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumSerializer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
@@ -165,6 +167,35 @@ public class Types {
             return false;
           }
         })
+    );
+
+    Classes.registerClass(new ClassInfo<>(Changer.ChangeMode.class, "changemode")
+        .parser(new Parser<Changer.ChangeMode>() {
+          @Override
+          public Changer.ChangeMode parse(String s, ParseContext context) {
+            try {
+              return Changer.ChangeMode.valueOf(s.toUpperCase().replace(' ', '_'));
+            } catch (IllegalArgumentException ex) {
+              return null;
+            }
+          }
+
+          @Override
+          public String toString(Changer.ChangeMode o, int flags) {
+            return o.name().toLowerCase().replace('_', ' ');
+          }
+
+          @Override
+          public String toVariableNameString(Changer.ChangeMode o) {
+            return "changemode:" + o.name();
+          }
+
+          @Override
+          public String getVariableNamePattern() {
+            return "changemode:.+";
+          }
+        })
+        .serializer(new EnumSerializer<>(Changer.ChangeMode.class))
     );
   }
 }

@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.SyntaxElementInfo;
 
 public final class Util {
   public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
@@ -41,6 +42,30 @@ public final class Util {
   }
 
   private Util () {}
+
+  private static Field PATTERNS;
+
+  static {
+    Field _PATTERNS = null;
+    try {
+      _PATTERNS = SyntaxElementInfo.class.getDeclaredField("patterns");
+      _PATTERNS.setAccessible(true);
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's pattern info field could not be resolved. " +
+          "Custom syntax will not work.");
+    }
+    PATTERNS = _PATTERNS;
+  }
+
+  public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
+    if (PATTERNS != null) {
+      try {
+        PATTERNS.set(info, patterns);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+  }
 
   public static Stream<Field> fields(Class<?> cls) {
     return Stream.concat(
