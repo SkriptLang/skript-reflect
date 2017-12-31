@@ -173,16 +173,21 @@ public class Types {
         .parser(new Parser<Changer.ChangeMode>() {
           @Override
           public Changer.ChangeMode parse(String s, ParseContext context) {
-            try {
-              return Changer.ChangeMode.valueOf(s.toUpperCase().replace(' ', '_'));
-            } catch (IllegalArgumentException ex) {
-              return null;
+            s = s.toUpperCase();
+            if (s.startsWith("TO ")) {
+              s = s.substring(3).trim();
+              try {
+                return Changer.ChangeMode.valueOf(s.replace(' ', '_'));
+              } catch (IllegalArgumentException ex) {
+                return null;
+              }
             }
+            return null;
           }
 
           @Override
           public String toString(Changer.ChangeMode o, int flags) {
-            return o.name().toLowerCase().replace('_', ' ');
+            return "to " + o.name().toLowerCase().replace('_', ' ');
           }
 
           @Override
