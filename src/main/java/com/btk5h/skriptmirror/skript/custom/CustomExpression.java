@@ -28,6 +28,7 @@ import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
@@ -430,7 +431,7 @@ public class CustomExpression {
 
       this.exprs = exprs;
       this.parseResult = parseResult;
-      return true;
+      return Arrays.stream(exprs).noneMatch(expr -> expr instanceof UnparsedLiteral);
     }
   }
 

@@ -6,6 +6,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.util.Kleenean;
 
 public class CustomEffect {
@@ -171,7 +173,7 @@ public class CustomEffect {
       which = effects.get(matchedPattern);
       this.exprs = exprs;
       this.parseResult = parseResult;
-      return true;
+      return Arrays.stream(exprs).noneMatch(expr -> expr instanceof UnparsedLiteral);
     }
   }
 }
