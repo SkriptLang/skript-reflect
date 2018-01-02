@@ -173,7 +173,8 @@ public class ExprExpression<T> implements Expression<T> {
     if (!ScriptLoader.isCurrentEvent(
         CustomEffect.EffectEvent.class,
         CustomExpression.ExpressionGetEvent.class,
-        CustomExpression.ExpressionChangeEvent.class
+        CustomExpression.ExpressionChangeEvent.class,
+        CustomCondition.ConditionEvent.class
     )) {
       Skript.error("The expression 'expression' may only be used in a custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);

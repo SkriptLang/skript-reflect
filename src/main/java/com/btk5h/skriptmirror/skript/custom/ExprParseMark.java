@@ -44,7 +44,8 @@ public class ExprParseMark extends SimpleExpression<Number> {
     if (!ScriptLoader.isCurrentEvent(
         CustomEffect.EffectEvent.class,
         CustomExpression.ExpressionGetEvent.class,
-        CustomExpression.ExpressionChangeEvent.class
+        CustomExpression.ExpressionChangeEvent.class,
+        CustomCondition.ConditionEvent.class
     )) {
       Skript.error("The parser mark may only be used in custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);

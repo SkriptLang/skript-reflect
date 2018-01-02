@@ -40,6 +40,8 @@ public class EffContinue extends Effect {
       } else {
         ((CustomExpression.ExpressionGetEvent) e).setOutput(new Object[0]);
       }
+    } else if (e instanceof CustomCondition.ConditionEvent) {
+      ((CustomCondition.ConditionEvent) e).markContinue();
     }
     return null;
   }
@@ -56,10 +58,11 @@ public class EffContinue extends Effect {
     if (!ScriptLoader.isCurrentEvent(
         CustomEffect.EffectEvent.class,
         CustomExpression.ExpressionGetEvent.class,
-        CustomExpression.ExpressionChangeEvent.class
+        CustomExpression.ExpressionChangeEvent.class,
+        CustomCondition.ConditionEvent.class
+
     )) {
-      Skript.error("Only custom syntax may be continued.",
-          ErrorQuality.SEMANTIC_ERROR);
+      Skript.error("Only custom syntax may be continued.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }
 

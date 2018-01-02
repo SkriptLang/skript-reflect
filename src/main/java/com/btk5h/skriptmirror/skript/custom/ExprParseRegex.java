@@ -62,8 +62,9 @@ public class ExprParseRegex extends SimpleExpression<String> {
     if (!ScriptLoader.isCurrentEvent(
         CustomEffect.EffectEvent.class,
         CustomExpression.ExpressionGetEvent.class,
-        CustomExpression.ExpressionChangeEvent.class
-    )) {
+        CustomExpression.ExpressionChangeEvent.class,
+        CustomCondition.ConditionEvent.class
+        )) {
       Skript.error("The parsed regular expression may only be used in custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);
     }
