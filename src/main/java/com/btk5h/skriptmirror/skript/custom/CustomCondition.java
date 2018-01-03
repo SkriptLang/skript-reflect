@@ -134,7 +134,7 @@ public class CustomCondition {
         case 1:
           String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
           whiches.add(new SyntaxInfo("%" + type + "% (is|are) " + c, false));
-          whiches.add( new SyntaxInfo("%" + type + "% (isn't|is not|aren't|are not) " + c, true));
+          whiches.add(new SyntaxInfo("%" + type + "% (isn't|is not|aren't|are not) " + c, true));
           break;
       }
 
