@@ -44,6 +44,11 @@ public class CustomSyntaxExpression extends SimpleExpression<Object> {
   }
 
   @Override
+  public Expression<?> getSource() {
+    return source;
+  }
+
+  @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     throw new UnsupportedOperationException();
   }
