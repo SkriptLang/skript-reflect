@@ -77,7 +77,7 @@ public class ExprExpression<T> implements Expression<T> {
     return Converters.convertArray(expr.getAll(e), types, superType);
   }
 
-  private Expression<?> getExpression(Event e) {
+  Expression<?> getExpression(Event e) {
     Expression<?>[] expressions = ((CustomSyntaxEvent) e).getExpressions();
     if (index < expressions.length) {
       return expressions[index];

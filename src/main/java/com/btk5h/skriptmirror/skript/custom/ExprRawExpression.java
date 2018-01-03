@@ -20,7 +20,10 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 
   @Override
   protected Expression[] get(Event e) {
-    return new Expression[] {expr};
+    if (expr instanceof ExprExpression && e instanceof CustomSyntaxEvent) {
+      return new Expression[]{((ExprExpression) expr).getExpression(e)};
+    }
+    return new Expression[]{expr};
   }
 
   @Override
