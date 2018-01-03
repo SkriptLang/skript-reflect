@@ -102,6 +102,28 @@ public final class Util {
     return !Modifier.isPublic(m.getModifiers());
   }
 
+  public static String preprocessPattern(String pattern) {
+    StringBuilder newPattern = new StringBuilder(pattern.length());
+    String[] parts = pattern.split("%");
+
+    for (int i = 0; i < parts.length; i++) {
+      String part = parts[i];
+      if (i % 2 == 0) {
+        newPattern.append(part);
+      } else {
+        if (part.startsWith("_")) {
+          part = part.endsWith("s") ? "objects" : "object";
+        }
+
+        newPattern.append('%');
+        newPattern.append(part);
+        newPattern.append('%');
+      }
+    }
+
+    return newPattern.toString();
+  }
+
   @FunctionalInterface
   public interface ExceptionalFunction<T, R> {
     R apply(T t) throws Exception;

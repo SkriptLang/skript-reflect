@@ -120,7 +120,7 @@ public class CustomEffect {
 
     @Override
     public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-      which = parseResult.regexes.get(0).group();
+      which = Util.preprocessPattern(parseResult.regexes.get(0).group());
       return true;
     }
 

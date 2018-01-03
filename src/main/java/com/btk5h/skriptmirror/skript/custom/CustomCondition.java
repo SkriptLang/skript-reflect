@@ -47,6 +47,10 @@ public class CustomCondition {
 
   private static SyntaxElementInfo<?> thisInfo;
 
+  private static SyntaxInfo createSyntaxInfo(String pattern, boolean inverted) {
+    return new SyntaxInfo(Util.preprocessPattern(pattern), inverted);
+  }
+
   private static class SyntaxInfo {
     private final String pattern;
     private final boolean inverted;
@@ -129,12 +133,12 @@ public class CustomCondition {
       String c = parseResult.regexes.get(0).group();
       switch (matchedPattern) {
         case 0:
-          whiches.add(new SyntaxInfo(c, false));
+          whiches.add(createSyntaxInfo(c, false));
           break;
         case 1:
           String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-          whiches.add(new SyntaxInfo("%" + type + "% (is|are) " + c, false));
-          whiches.add(new SyntaxInfo("%" + type + "% (isn't|is not|aren't|are not) " + c, true));
+          whiches.add(createSyntaxInfo("%" + type + "% (is|are) " + c, false));
+          whiches.add(createSyntaxInfo("%" + type + "% (isn't|is not|aren't|are not) " + c, true));
           break;
       }
 

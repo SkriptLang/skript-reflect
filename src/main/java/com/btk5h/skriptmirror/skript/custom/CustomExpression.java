@@ -450,6 +450,11 @@ public class CustomExpression {
           part = part.substring(1);
           inheritedSingles.add(i / 2);
         }
+
+        if (part.startsWith("_")) {
+          part = part.endsWith("s") ? "objects" : "object";
+        }
+
         newPattern.append('%');
         newPattern.append(part);
         newPattern.append('%');
