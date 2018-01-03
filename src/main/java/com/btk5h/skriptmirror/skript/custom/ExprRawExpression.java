@@ -20,8 +20,9 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 
   @Override
   protected Expression[] get(Event e) {
+    Expression<?> expr = this.expr;
     if (expr instanceof ExprExpression && e instanceof CustomSyntaxEvent) {
-      return new Expression[]{((ExprExpression) expr).getExpression(e)};
+      expr = ((ExprExpression) expr).getExpression(e).getSource();
     }
     return new Expression[]{expr};
   }
@@ -45,9 +46,6 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     expr = exprs[0];
-    if (expr instanceof CustomSyntaxExpression) {
-      expr = expr.getSource();
-    }
     return !(expr instanceof UnparsedLiteral);
   }
 }
