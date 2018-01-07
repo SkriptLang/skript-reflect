@@ -491,6 +491,11 @@ public class ExprJavaCall<T> implements Expression<T> {
   }
 
   @Override
+  public String toString() {
+    return toString(null, false);
+  }
+
+  @Override
   public Class<?>[] acceptChange(Changer.ChangeMode mode) {
     if (type == Type.FIELD &&
         (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)) {

@@ -156,6 +156,11 @@ public class ExprChangeValue<T> implements Expression<T> {
     return "expression " + index;
   }
 
+  @Override
+  public String toString() {
+    return toString(null, false);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,

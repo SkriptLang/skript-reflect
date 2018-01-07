@@ -397,6 +397,11 @@ public class CustomExpression {
     }
 
     @Override
+    public String toString() {
+      return toString(null, false);
+    }
+
+    @Override
     public Class<?>[] acceptChange(Changer.ChangeMode mode) {
       return changerHandlers.containsKey(which) ? new Class[]{Object[].class} : null;
     }

@@ -181,6 +181,11 @@ public class ExprSpread<T> implements Expression<T> {
     return "spread " + object.toString(e, debug);
   }
 
+  @Override
+  public String toString() {
+    return toString(null, false);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
