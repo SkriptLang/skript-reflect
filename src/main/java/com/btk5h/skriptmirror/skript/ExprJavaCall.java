@@ -326,10 +326,6 @@ public class ExprJavaCall<T> implements Expression<T> {
   }
 
   private static void convertTypes(MethodType mt, Object[] args) {
-    if (!mt.hasPrimitives()) {
-      return;
-    }
-
     Class<?>[] params = mt.parameterArray();
 
     for (int i = 0; i < params.length; i++) {
