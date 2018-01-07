@@ -1,8 +1,13 @@
 package com.btk5h.skriptmirror.skript;
 
 import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.Null;
 
 import org.bukkit.event.Event;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -11,6 +16,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Converters;
 import ch.njol.util.Kleenean;
 
 public class ExprCast extends SimpleExpression<Object> {
@@ -38,12 +44,18 @@ public class ExprCast extends SimpleExpression<Object> {
       throw new IllegalStateException();
     }
 
-    Expression converted = source.getConvertedExpression(convertTo);
-    if (converted == null) {
-      return null;
-    }
+    return convertArray(source.getArray(e), convertTo);
+  }
 
-    return converted.getArray(e);
+  private static Object[] convertArray(Object[] o, Class<?> to) {
+    return Arrays.stream(o)
+        .map(converter(to))
+        .filter(Objects::nonNull)
+        .toArray(Object[]::new);
+  }
+
+  private static <F> Function<F, Object> converter(Class<?> to) {
+    return o -> o instanceof Null ? o : Converters.convert(o, to);
   }
 
   @Override
