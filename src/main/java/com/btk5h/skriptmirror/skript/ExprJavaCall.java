@@ -230,7 +230,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   private String optionalArgs(Object... arguments) {
     if (arguments.length == 0) {
-      return "";
+      return " called without arguments";
     }
 
     return " called with (" + toString(arguments) + ")";
