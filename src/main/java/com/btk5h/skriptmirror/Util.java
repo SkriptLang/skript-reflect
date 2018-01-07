@@ -17,7 +17,11 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.UnparsedLiteral;
 
 public final class Util {
   public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
@@ -41,7 +45,8 @@ public final class Util {
     NUMERIC_CLASSES.add(short.class);
   }
 
-  private Util () {}
+  private Util() {
+  }
 
   private static Field PATTERNS;
 
@@ -122,6 +127,31 @@ public final class Util {
     }
 
     return newPattern.toString();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> Expression<T> defendExpression(Expression<?> expr) {
+    if (expr instanceof UnparsedLiteral) {
+      Literal<?> parsed = ((UnparsedLiteral) expr).getConvertedExpression(Object.class);
+      return (Expression<T>) (parsed == null ? expr : parsed);
+    } else if (expr instanceof ExpressionList) {
+      Expression[] exprs = ((ExpressionList) expr).getExpressions();
+      for (int i = 0; i < exprs.length; i++) {
+        exprs[i] = defendExpression(exprs[i]);
+      }
+    }
+    return (Expression<T>) expr;
+  }
+
+  private static boolean hasUnparsedLiteral(Expression<?> expr) {
+    return expr instanceof UnparsedLiteral ||
+        (expr instanceof ExpressionList &&
+            Arrays.stream(((ExpressionList) expr).getExpressions())
+                .anyMatch(UnparsedLiteral.class::isInstance));
+  }
+
+  public static boolean canInitSafely(Expression<?>... expressions) {
+    return Arrays.stream(expressions).noneMatch(Util::hasUnparsedLiteral);
   }
 
   @FunctionalInterface

@@ -1,5 +1,7 @@
 package com.btk5h.skriptmirror.skript.custom;
 
+import com.btk5h.skriptmirror.Util;
+
 import org.bukkit.event.Event;
 
 import ch.njol.skript.ScriptLoader;
@@ -8,7 +10,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
@@ -66,8 +67,8 @@ public class EffContinue extends Effect {
       return false;
     }
 
-    objects = (Expression<Object>) exprs[0];
+    objects = Util.defendExpression(exprs[0]);
 
-    return !(objects instanceof UnparsedLiteral);
+    return Util.canInitSafely(objects);
   }
 }

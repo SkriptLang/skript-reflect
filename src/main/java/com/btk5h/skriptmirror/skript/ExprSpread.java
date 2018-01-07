@@ -15,7 +15,6 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
@@ -190,7 +189,7 @@ public class ExprSpread<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    object = (Expression<Object>) exprs[0];
-    return !(object instanceof UnparsedLiteral);
+    object = Util.defendExpression(exprs[0]);
+    return Util.canInitSafely(object);
   }
 }

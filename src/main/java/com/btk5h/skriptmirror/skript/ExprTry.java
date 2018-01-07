@@ -1,12 +1,13 @@
 package com.btk5h.skriptmirror.skript;
 
+import com.btk5h.skriptmirror.Util;
+
 import org.bukkit.event.Event;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
@@ -41,9 +42,9 @@ public class ExprTry extends SimpleExpression<Object> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    expr = (Expression<Object>) exprs[0];
+    expr = Util.defendExpression(exprs[0]);
 
-    if (expr instanceof UnparsedLiteral) {
+    if (!Util.canInitSafely(expr)) {
       return false;
     }
 

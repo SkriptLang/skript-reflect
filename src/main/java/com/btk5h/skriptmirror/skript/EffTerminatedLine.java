@@ -1,12 +1,13 @@
 package com.btk5h.skriptmirror.skript;
 
+import com.btk5h.skriptmirror.Util;
+
 import org.bukkit.event.Event;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.util.Kleenean;
 
 public class EffTerminatedLine extends Effect {
@@ -30,8 +31,7 @@ public class EffTerminatedLine extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    arg = (Expression<Object>) exprs[0];
-
-    return !(arg instanceof UnparsedLiteral);
+    arg = Util.defendExpression(exprs[0]);
+    return Util.canInitSafely(arg);
   }
 }

@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript;
 
 import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.Util;
 
 import org.bukkit.event.Event;
 
@@ -9,7 +10,6 @@ import java.util.Arrays;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
@@ -48,8 +48,7 @@ public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    target = (Expression<Object>) exprs[0];
-
-    return !(target instanceof UnparsedLiteral);
+    target = Util.defendExpression(exprs[0]);
+    return Util.canInitSafely(target);
   }
 }

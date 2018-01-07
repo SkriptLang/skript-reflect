@@ -22,7 +22,6 @@ import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.util.Kleenean;
 
 public class CustomCondition {
@@ -207,9 +206,11 @@ public class CustomCondition {
                         SkriptParser.ParseResult parseResult) {
       String pattern = conditions.get(matchedPattern);
       which = conditionInfos.get(pattern);
-      this.exprs = exprs;
+      this.exprs = Arrays.stream(exprs)
+          .map(Util::defendExpression)
+          .toArray(Expression[]::new);
       this.parseResult = parseResult;
-      return Arrays.stream(exprs).noneMatch(expr -> expr instanceof UnparsedLiteral);
+      return Util.canInitSafely(this.exprs);
     }
   }
 }

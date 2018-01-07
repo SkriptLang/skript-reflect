@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
@@ -55,7 +54,7 @@ public class ExprMembers extends SimpleExpression<String> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    target = (Expression<Object>) exprs[0];
+    target = Util.defendExpression(exprs[0]);
 
     switch (parseResult.mark) {
       case 0:
@@ -68,6 +67,7 @@ public class ExprMembers extends SimpleExpression<String> {
         mapper = Util::constructor;
         break;
     }
-    return !(target instanceof UnparsedLiteral);
+
+    return Util.canInitSafely(target);
   }
 }

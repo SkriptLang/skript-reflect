@@ -16,16 +16,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
@@ -399,19 +399,28 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     if (args != null) {
-      try {
+      if (args instanceof ExpressionList) {
+        arguments = Arrays.stream(((ExpressionList) args).getExpressions())
+            .map(unwrapExpression(e))
+            .toArray(Object[]::new);
+      } else {
         arguments = args.getArray(e);
-      } catch (SkriptAPIException ex) {
-        Skript.error("The arguments passed to " + getDescriptor(e) + " could not be parsed. Try " +
-            "setting a list variable to the arguments and pass that variable to the reflection " +
-            "call instead!");
-        return Util.newArray(superType, 0);
       }
     } else {
       arguments = NO_ARGS;
     }
 
     return invoke(target, arguments, getDescriptor(e));
+  }
+
+  private static Function<Expression, Object> unwrapExpression(Event e) {
+    return expr -> {
+      if (expr.isSingle()) {
+        Object value = expr.getSingle(e);
+        return value == null ? Null.getInstance() : value;
+      }
+      return expr.getArray(e);
+    };
   }
 
   @Override
@@ -529,10 +538,10 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    targetArg = (Expression<Object>) exprs[0];
-    args = (Expression<Object>) exprs[matchedPattern == 0 ? 2 : 1];
+    targetArg = Util.defendExpression(exprs[0]);
+    args = Util.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
 
-    if (targetArg instanceof UnparsedLiteral || args instanceof UnparsedLiteral) {
+    if (!Util.canInitSafely(targetArg, args)) {
       return false;
     }
 
