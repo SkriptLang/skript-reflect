@@ -45,7 +45,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         ExpressionType.PATTERN_MATCHES_EVERYTHING,
         "%object%..%string%(0¦!|1¦\\([%-objects%]\\))",
         "%object%.<[\\w$.\\[\\]]+>(0¦!|1¦\\([%-objects%]\\))",
-        "new %javatype%\\([%-objects%]\\)");
+        "[a] new %javatype%\\([%-objects%]\\)");
   }
 
   private enum Type {
