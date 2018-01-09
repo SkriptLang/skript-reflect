@@ -13,8 +13,7 @@ import ch.njol.util.Kleenean;
 
 public class LitNullObject extends SimpleLiteral<Null> {
   static {
-    Skript.registerExpression(LitNullObject.class, Null.class, ExpressionType.SIMPLE,
-        "null (object|value|instance|ref[erence])");
+    Skript.registerExpression(LitNullObject.class, Null.class, ExpressionType.SIMPLE, "null");
   }
 
   public LitNullObject() {

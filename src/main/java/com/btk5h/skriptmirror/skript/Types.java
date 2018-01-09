@@ -112,7 +112,7 @@ public class Types {
           }
         }));
 
-    Classes.registerClass(new ClassInfo<>(Null.class, "nullref")
+    Classes.registerClass(new ClassInfo<>(Null.class, "null")
         .parser(new Parser<Null>() {
           @Override
           public Null parse(String s, ParseContext context) {
@@ -131,12 +131,12 @@ public class Types {
 
           @Override
           public String toVariableNameString(Null o) {
-            return "null object";
+            return "null";
           }
 
           @Override
           public String getVariableNamePattern() {
-            return "null object";
+            return "null";
           }
         })
         .serializer(new Serializer<Null>() {
