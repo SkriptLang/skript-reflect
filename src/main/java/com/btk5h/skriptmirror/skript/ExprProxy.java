@@ -29,7 +29,7 @@ import ch.njol.util.Kleenean;
 public class ExprProxy extends SimpleExpression<Object> {
   static {
     Skript.registerExpression(ExprProxy.class, Object.class, ExpressionType.COMBINED,
-        "[a] [new] proxy [instance] implementing %javatypes% (using|from) %objects%");
+        "[a] [new] proxy [instance] of %javatypes% (using|from) %objects%");
   }
 
   private Expression<JavaType> interfaces;
