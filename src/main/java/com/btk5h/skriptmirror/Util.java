@@ -23,6 +23,7 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.UnparsedLiteral;
+import ch.njol.skript.lang.function.Parameter;
 
 public final class Util {
   public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
@@ -50,17 +51,27 @@ public final class Util {
   }
 
   private static Field PATTERNS;
+  private static Field PARAMETERS;
 
   static {
-    Field _PATTERNS = null;
+    Field _FIELD = null;
     try {
-      _PATTERNS = SyntaxElementInfo.class.getDeclaredField("patterns");
-      _PATTERNS.setAccessible(true);
+      _FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
+      _FIELD.setAccessible(true);
+      PATTERNS = _FIELD;
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's pattern info field could not be resolved. " +
           "Custom syntax will not work.");
     }
-    PATTERNS = _PATTERNS;
+
+    try {
+      _FIELD = ch.njol.skript.lang.function.Function.class.getDeclaredField("parameters");
+      _FIELD.setAccessible(true);
+      PARAMETERS = _FIELD;
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's parameters field could not be resolved. " +
+          "Class proxies will not work.");
+    }
   }
 
   public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
@@ -71,6 +82,17 @@ public final class Util {
         e.printStackTrace();
       }
     }
+  }
+
+  public static Parameter<?>[] getParameters(ch.njol.skript.lang.function.Function function) {
+    if (PARAMETERS != null) {
+      try {
+        return ((Parameter<?>[]) PARAMETERS.get(function));
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+    throw new IllegalStateException();
   }
 
   public static Stream<Field> fields(Class<?> cls) {

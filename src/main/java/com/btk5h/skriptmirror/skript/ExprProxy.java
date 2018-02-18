@@ -97,7 +97,7 @@ public class ExprProxy extends SimpleExpression<Object> {
       return function.execute(
           functionEvent,
           params.stream()
-              .limit(function.getMaxParamaters())
+              .limit(Util.getParameters(function).length)
               .toArray(Object[][]::new)
       );
     }
