@@ -25,22 +25,22 @@ public class CustomSyntaxExpression extends SimpleExpression<Object> {
 
   @Override
   protected Object[] get(Event e) {
-    return source.getAll(realEvent);
+    return source == null ? new Object[0] : source.getAll(realEvent);
   }
 
   @Override
   public boolean isSingle() {
-    return source.isSingle();
+    return source == null || source.isSingle();
   }
 
   @Override
   public Class<?> getReturnType() {
-    return source.getReturnType();
+    return source == null ? Object.class : source.getReturnType();
   }
 
   @Override
   public String toString(Event e, boolean debug) {
-    return source.toString(realEvent, debug);
+    return source == null ? "" : source.toString(realEvent, debug);
   }
 
   @Override
