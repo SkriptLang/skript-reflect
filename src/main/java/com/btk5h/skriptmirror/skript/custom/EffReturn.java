@@ -13,9 +13,9 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-public class EffContinue extends Effect {
+public class EffReturn extends Effect {
   static {
-    Skript.registerEffect(EffContinue.class, "continue [[(with|using|returning)] %-objects%]");
+    Skript.registerEffect(EffReturn.class, "return [%-objects%]");
   }
 
   public Expression<Object> objects;
@@ -63,7 +63,7 @@ public class EffContinue extends Effect {
         CustomCondition.ConditionEvent.class
 
     )) {
-      Skript.error("Only custom syntax may be continued.", ErrorQuality.SEMANTIC_ERROR);
+      Skript.error("Return may only be used in custom syntax.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }
 
