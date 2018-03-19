@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
@@ -310,7 +311,7 @@ public class ExprJavaCall<T> implements Expression<T> {
           continue;
         }
 
-        if (param == Class.class && arg instanceof JavaType) {
+        if (param == Class.class && (arg instanceof JavaType || arg instanceof ClassInfo)) {
           continue;
         }
 
@@ -352,8 +353,12 @@ public class ExprJavaCall<T> implements Expression<T> {
         args[i] = ((String) args[i]).charAt(0);
       }
 
-      if (param == Class.class && args[i] instanceof JavaType) {
-        args[i] = ((JavaType) args[i]).getJavaClass();
+      if (param == Class.class) {
+        if (args[i] instanceof JavaType) {
+          args[i] = ((JavaType) args[i]).getJavaClass();
+        } else if (args[i] instanceof ClassInfo) {
+          args[i] = ((ClassInfo) args[i]).getC();
+        }
       }
 
       if (args[i] instanceof Null) {
