@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -22,29 +21,21 @@ import ch.njol.util.Kleenean;
 public class ExprCast extends SimpleExpression<Object> {
   static {
     Skript.registerExpression(ExprCast.class, Object.class, ExpressionType.COMBINED,
-        "%objects% (as|converted to) %javatype/classinfo%");
+        "%objects% (as|converted to) %javatype%");
   }
 
   private Expression<Object> source;
-  private Expression<Object> type;
+  private Expression<JavaType> type;
 
   @Override
   protected Object[] get(Event e) {
-    Object t = type.getSingle(e);
+    JavaType t = type.getSingle(e);
+
     if (t == null) {
       return null;
     }
 
-    Class convertTo;
-    if (t instanceof ClassInfo) {
-      convertTo = ((ClassInfo) t).getC();
-    } else if (t instanceof JavaType) {
-      convertTo = ((JavaType) t).getJavaClass();
-    } else {
-      throw new IllegalStateException();
-    }
-
-    return convertArray(source.getArray(e), convertTo);
+    return convertArray(source.getArray(e), t.getJavaClass());
   }
 
   private static Object[] convertArray(Object[] o, Class<?> to) {
@@ -77,8 +68,8 @@ public class ExprCast extends SimpleExpression<Object> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    source = (Expression<Object>) exprs[0];
-    type = (Expression<Object>) exprs[1];
+    source = Util.defendExpression(exprs[0]);
+    type = Util.defendExpression(exprs[1]);
     return Util.canInitSafely(source);
   }
 }

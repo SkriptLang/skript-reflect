@@ -11,11 +11,13 @@ import java.io.StreamCorruptedException;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.EnumSerializer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
 
 public class Types {
@@ -111,6 +113,9 @@ public class Types {
             return false;
           }
         }));
+
+    Converters.registerConverter(ClassInfo.class, JavaType.class,
+        ((Converter<ClassInfo, JavaType>) c -> new JavaType(c.getC())));
 
     Classes.registerClass(new ClassInfo<>(Null.class, "null")
         .parser(new Parser<Null>() {
