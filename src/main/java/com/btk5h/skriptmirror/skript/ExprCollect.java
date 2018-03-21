@@ -1,8 +1,12 @@
 package com.btk5h.skriptmirror.skript;
 
+import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.Util;
 
 import org.bukkit.event.Event;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
@@ -21,7 +25,34 @@ public class ExprCollect extends SimpleExpression<Object> {
 
   @Override
   protected Object[] get(Event e) {
-    return new Object[]{objects.getArray(e)};
+    Object[] items = objects.getArray(e);
+    Object[] castedItems = Util.newArray(getCommonSuperclass(items), items.length);
+
+    System.arraycopy(items, 0, castedItems, 0, items.length);
+
+    return new Object[]{castedItems};
+  }
+
+  private static Class<?> getCommonSuperclass(Object[] objects) {
+    Optional<Object> firstNonnull = Arrays.stream(objects)
+        .filter(o -> o != Null.getInstance())
+        .findFirst();
+
+    if (firstNonnull.isPresent()) {
+      return Arrays.stream(objects)
+          .map(Object::getClass)
+          .map(o -> (Class) o)
+          .reduce(firstNonnull.get().getClass(), ExprCollect::getCommonSuperclass);
+    }
+
+    return Object.class;
+  }
+
+  private static Class<?> getCommonSuperclass(Class<?> c1, Class<?> c2) {
+    while (!c1.isAssignableFrom(c2)) {
+      c1 = c1.getSuperclass();
+    }
+    return c1;
   }
 
   @Override
