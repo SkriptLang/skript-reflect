@@ -6,6 +6,7 @@ import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 import ch.njol.skript.Skript;
@@ -25,7 +26,10 @@ public class ExprCollect extends SimpleExpression<Object> {
 
   @Override
   protected Object[] get(Event e) {
-    Object[] items = objects.getArray(e);
+    Object[] items =
+        Arrays.stream(objects.getArray(e))
+            .map(o -> o instanceof Null ? null : o)
+            .toArray();
     Object[] castedItems = Util.newArray(getCommonSuperclass(items), items.length);
 
     System.arraycopy(items, 0, castedItems, 0, items.length);
@@ -35,11 +39,12 @@ public class ExprCollect extends SimpleExpression<Object> {
 
   private static Class<?> getCommonSuperclass(Object[] objects) {
     Optional<Object> firstNonnull = Arrays.stream(objects)
-        .filter(o -> o != Null.getInstance())
+        .filter(Objects::nonNull)
         .findFirst();
 
     if (firstNonnull.isPresent()) {
       return Arrays.stream(objects)
+          .filter(Objects::nonNull)
           .map(Object::getClass)
           .map(o -> (Class) o)
           .reduce(firstNonnull.get().getClass(), ExprCollect::getCommonSuperclass);
