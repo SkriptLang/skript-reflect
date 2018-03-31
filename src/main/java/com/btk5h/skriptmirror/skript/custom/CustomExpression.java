@@ -205,26 +205,28 @@ public class CustomExpression {
           break;
       }
 
-      return true;
-    }
+      Map<SyntaxInfo, Trigger> handlerMap = isChanger ? changerHandlers : expressionHandlers;
 
-    @Override
-    public void register(Trigger t) {
       whiches.forEach(which -> {
         String pattern = which.getPattern();
         if (!expressions.contains(pattern)) {
           expressions.add(pattern);
           expressionInfos.put(pattern, which);
-        }
-
-        Map<SyntaxInfo, Trigger> handlerMap = isChanger ? changerHandlers : expressionHandlers;
-        if (handlerMap.containsKey(which)) {
-          Skript.error(String.format("The custom expression '%s' already has a handler.", pattern));
-        } else {
-          handlerMap.put(which, t);
+          if (handlerMap.containsKey(which)) {
+            Skript.error(String.format("The custom expression '%s' already has a handler.",
+                pattern));
+          }
         }
       });
       updateExpressions();
+
+      return true;
+    }
+
+    @Override
+    public void register(Trigger t) {
+      Map<SyntaxInfo, Trigger> handlerMap = isChanger ? changerHandlers : expressionHandlers;
+      whiches.forEach(which -> handlerMap.put(which, t));
     }
 
     @Override
@@ -439,6 +441,7 @@ public class CustomExpression {
       this.parseResult = parseResult;
       return Util.canInitSafely(this.exprs);
     }
+
   }
 
   private static SyntaxInfo createSyntaxInfo(String pattern, boolean alwaysPlural,

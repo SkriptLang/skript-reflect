@@ -141,22 +141,23 @@ public class CustomCondition {
           break;
       }
 
-      return true;
-    }
-
-    @Override
-    public void register(Trigger t) {
       whiches.forEach(which -> {
         String pattern = which.getPattern();
         if (!conditions.contains(pattern)) {
           conditions.add(pattern);
           conditionInfos.put(pattern, which);
-          conditionHandlers.put(which, t);
         } else {
           Skript.error(String.format("The custom condition '%s' already has a handler.", pattern));
         }
       });
       updateConditions();
+
+      return true;
+    }
+
+    @Override
+    public void register(Trigger t) {
+      whiches.forEach(which -> conditionHandlers.put(which, t));
     }
 
     @Override

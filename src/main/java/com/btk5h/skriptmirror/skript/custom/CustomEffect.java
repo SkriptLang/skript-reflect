@@ -94,13 +94,7 @@ public class CustomEffect {
 
     @Override
     public void register(Trigger t) {
-      if (effects.contains(which)) {
-        Skript.error(String.format("The custom effect '%s' already has a handler.", which));
-        return;
-      }
-      effects.add(which);
       effectHandlers.put(which, t);
-      updateEffects();
     }
 
     @Override
@@ -120,6 +114,12 @@ public class CustomEffect {
     @Override
     public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
       which = Util.preprocessPattern(parseResult.regexes.get(0).group());
+      if (effects.contains(which)) {
+        Skript.error(String.format("The custom effect '%s' already has a handler.", which));
+        return false;
+      }
+      effects.add(which);
+      updateEffects();
       return true;
     }
 
