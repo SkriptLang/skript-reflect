@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 
 public class EffReturn extends Effect {
   static {
-    Skript.registerEffect(EffReturn.class, "return %objects%");
+    Skript.registerEffect(EffReturn.class, "return [%-objects%]");
   }
 
   public Expression<Object> objects;
@@ -25,7 +25,11 @@ public class EffReturn extends Effect {
 
   @Override
   protected TriggerItem walk(Event e) {
-    ((CustomExpression.ExpressionGetEvent) e).setOutput(objects.getAll(e));
+    if (objects != null) {
+      ((CustomExpression.ExpressionGetEvent) e).setOutput(objects.getAll(e));
+    } else {
+      ((CustomExpression.ExpressionGetEvent) e).setOutput(new Object[0]);
+    }
     return null;
   }
 
