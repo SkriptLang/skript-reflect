@@ -1,27 +1,17 @@
 package com.btk5h.skriptmirror.skript.custom;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.validate.SectionValidator;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.Util;
-
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.util.Kleenean;
+import java.util.*;
 
 public class CustomEffect {
   static {
@@ -42,6 +32,8 @@ public class CustomEffect {
   }
 
   private static SyntaxElementInfo<?> thisInfo;
+  private static final SectionValidator EFFECT_DECLARATION = new SectionValidator()
+      .addSection("trigger", false);
 
   public static class EffectEvent extends CustomSyntaxEvent {
     private final static HandlerList handlers = new HandlerList();
@@ -93,8 +85,42 @@ public class CustomEffect {
     private String which;
 
     @Override
+    public boolean init(Literal<?>[] args, int matchedPattern,
+                        SkriptParser.ParseResult parseResult) {
+      which = Util.preprocessPattern(parseResult.regexes.get(0).group());
+      if (effects.contains(which)) {
+        Skript.error(String.format("The custom effect '%s' already has a handler.", which));
+        return false;
+      }
+      effects.add(which);
+
+      SectionNode node = (SectionNode) SkriptLogger.getNode();
+      boolean ok = EFFECT_DECLARATION.validate(node);
+
+      if (!ok) {
+        unregister(null);
+        return false;
+      }
+
+      register(node);
+      return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void register(SectionNode node) {
+      node.convertToEntries(0);
+
+      ScriptLoader.setCurrentEvent("custom efffect trigger", EffectEvent.class);
+      Util.getItemsFromNode(node, "trigger").ifPresent(items ->
+        effectHandlers.put(which, new Trigger(ScriptLoader.currentScript.getFile(), "effect " + which, this, items))
+      );
+
+      Util.clearSectionNode(node);
+      updateEffects();
+    }
+
+    @Override
     public void register(Trigger t) {
-      effectHandlers.put(which, t);
     }
 
     @Override
@@ -109,18 +135,6 @@ public class CustomEffect {
       effects.clear();
       effectHandlers.clear();
       updateEffects();
-    }
-
-    @Override
-    public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-      which = Util.preprocessPattern(parseResult.regexes.get(0).group());
-      if (effects.contains(which)) {
-        Skript.error(String.format("The custom effect '%s' already has a handler.", which));
-        return false;
-      }
-      effects.add(which);
-      updateEffects();
-      return true;
     }
 
     @Override

@@ -1,28 +1,19 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import com.btk5h.skriptmirror.Util;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.validate.SectionValidator;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.util.Kleenean;
+import java.util.*;
 
 public class CustomCondition {
   static {
@@ -45,6 +36,8 @@ public class CustomCondition {
   }
 
   private static SyntaxElementInfo<?> thisInfo;
+  private static final SectionValidator CONDITION_DECLARATION = new SectionValidator()
+      .addSection("check", false);
 
   private static SyntaxInfo createSyntaxInfo(String pattern, boolean inverted) {
     return new SyntaxInfo(Util.preprocessPattern(pattern), inverted);
@@ -150,14 +143,35 @@ public class CustomCondition {
           Skript.error(String.format("The custom condition '%s' already has a handler.", pattern));
         }
       });
-      updateConditions();
 
+      SectionNode node = (SectionNode) SkriptLogger.getNode();
+      boolean ok = CONDITION_DECLARATION.validate(node);
+
+      if (!ok) {
+        unregister(null);
+        return false;
+      }
+
+      register(node);
       return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void register(SectionNode node) {
+      node.convertToEntries(0);
+
+      ScriptLoader.setCurrentEvent("custom condition check", ConditionEvent.class);
+      Util.getItemsFromNode(node, "check").ifPresent(items ->
+          whiches.forEach(which -> conditionHandlers.put(which,
+              new Trigger(ScriptLoader.currentScript.getFile(), "condition " + which, this, items)))
+      );
+
+      Util.clearSectionNode(node);
+      updateConditions();
     }
 
     @Override
     public void register(Trigger t) {
-      whiches.forEach(which -> conditionHandlers.put(which, t));
     }
 
     @Override

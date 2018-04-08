@@ -1,47 +1,34 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
-
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.validate.SectionValidator;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.btk5h.skriptmirror.Util;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+
+import java.util.*;
+import java.util.stream.StreamSupport;
 
 public class CustomExpression {
   static {
     //noinspection unchecked
     Skript.registerEvent("*Define Expression", CustomExpression.EventHandler.class,
         new Class[]{ExpressionGetEvent.class, ExpressionChangeEvent.class},
-        "(get|1¦change) [(2¦(plural|non(-|[ ])single|multi[ple]))] expression <.+>",
-        "(get|1¦change) [(2¦(plural|non(-|[ ])single|multi[ple]))] %*classinfo% property <.+>");
+        "[(1¦(plural|non(-|[ ])single|multi[ple]))] expression <.+>",
+        "[(1¦(plural|non(-|[ ])single|multi[ple]))] %*classinfo% property <.+>");
 
     //noinspection unchecked
     Skript.registerExpression(ExpressionHandler.class, Object.class,
@@ -59,6 +46,17 @@ public class CustomExpression {
   }
 
   private static SyntaxElementInfo<?> thisInfo;
+  private static final SectionValidator EXPRESSION_DECLARATION;
+
+  static {
+    EXPRESSION_DECLARATION =
+        new SectionValidator()
+            .addEntry("return type", true)
+            .addSection("get", true);
+    Arrays.stream(Changer.ChangeMode.values())
+        .map(mode -> mode.name().replace("_", " ").toLowerCase())
+        .forEach(mode -> EXPRESSION_DECLARATION.addSection(mode, true));
+  }
 
   private static class SyntaxInfo {
     private final String pattern;
@@ -146,14 +144,11 @@ public class CustomExpression {
   public static class ExpressionChangeEvent extends CustomSyntaxEvent {
     private final static HandlerList handlers = new HandlerList();
     private final Object[] delta;
-    private final Changer.ChangeMode mode;
 
     public ExpressionChangeEvent(Event event, Expression<?>[] expressions,
-                                 SkriptParser.ParseResult parseResult, Object[] delta,
-                                 Changer.ChangeMode mode) {
+                                 SkriptParser.ParseResult parseResult, Object[] delta) {
       super(event, expressions, parseResult);
       this.delta = delta;
-      this.mode = mode;
     }
 
     public static HandlerList getHandlerList() {
@@ -164,10 +159,6 @@ public class CustomExpression {
       return delta;
     }
 
-    public Changer.ChangeMode getMode() {
-      return mode;
-    }
-
     @Override
     public HandlerList getHandlers() {
       return handlers;
@@ -176,8 +167,10 @@ public class CustomExpression {
 
   private static List<String> expressions = new ArrayList<>();
   private static Map<String, SyntaxInfo> expressionInfos = new HashMap<>();
+  private static Map<SyntaxInfo, Class<?>> returnTypes = new HashMap<>();
   private static Map<SyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
-  private static Map<SyntaxInfo, Trigger> changerHandlers = new HashMap<>();
+  private static Map<SyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers =
+      new HashMap<>();
 
   private static void updateExpressions() {
     Util.setPatterns(thisInfo, expressions.toArray(new String[0]));
@@ -185,18 +178,15 @@ public class CustomExpression {
 
   public static class EventHandler extends SelfRegisteringSkriptEvent {
     private List<SyntaxInfo> whiches = new ArrayList<>();
-    private boolean isChanger;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Literal<?>[] args, int matchedPattern,
                         SkriptParser.ParseResult parseResult) {
-      isChanger = (parseResult.mark & 1) == 1;
-
       String what = parseResult.regexes.get(0).group();
       switch (matchedPattern) {
         case 0:
-          whiches.add(createSyntaxInfo(what, (parseResult.mark & 2) == 2, false));
+          whiches.add(createSyntaxInfo(what, (parseResult.mark & 1) == 1, false));
           break;
         case 1:
           String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
@@ -205,40 +195,84 @@ public class CustomExpression {
           break;
       }
 
-      Map<SyntaxInfo, Trigger> handlerMap = isChanger ? changerHandlers : expressionHandlers;
-
       whiches.forEach(which -> {
         String pattern = which.getPattern();
         if (!expressions.contains(pattern)) {
-          expressions.add(pattern);
-          expressionInfos.put(pattern, which);
-          if (handlerMap.containsKey(which)) {
+          if (expressions.contains(pattern)) {
             Skript.error(String.format("The custom expression '%s' already has a handler.",
                 pattern));
+          } else {
+            expressions.add(pattern);
+            expressionInfos.put(pattern, which);
           }
         }
       });
-      updateExpressions();
+
+      SectionNode node = (SectionNode) SkriptLogger.getNode();
+      boolean ok = EXPRESSION_DECLARATION.validate(node);
+
+      if (!ok) {
+        unregister(null);
+        return false;
+      }
+
+      register(node);
 
       return true;
     }
 
+    @SuppressWarnings("unchecked")
+    private void register(SectionNode node) {
+      node.convertToEntries(0);
+
+      String userReturnType = node.getValue("return type");
+      if (userReturnType != null) {
+        Class returnType =
+            Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
+        whiches.forEach(which -> returnTypes.put(which, returnType));
+      }
+
+      ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
+      Util.getItemsFromNode(node, "get").ifPresent(items ->
+          whiches.forEach(which ->
+              expressionHandlers.put(which,
+                  new Trigger(ScriptLoader.currentScript.getFile(), "get " + which.getPattern(),
+                      this, items))
+          )
+      );
+
+      Arrays.stream(Changer.ChangeMode.values())
+          .forEach(mode -> {
+            String name = mode.name().replace("_", " ").toLowerCase();
+            ScriptLoader.setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
+            Util.getItemsFromNode(node, name).ifPresent(items ->
+                whiches.forEach(which -> {
+                      Map<Changer.ChangeMode, Trigger> changerMap =
+                          changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
+                      changerMap.put(mode,
+                          new Trigger(ScriptLoader.currentScript.getFile(),
+                              String.format("%s %s", name, which.getPattern()), this, items));
+                    }
+                )
+            );
+          });
+
+      Util.clearSectionNode(node);
+      updateExpressions();
+    }
+
     @Override
     public void register(Trigger t) {
-      Map<SyntaxInfo, Trigger> handlerMap = isChanger ? changerHandlers : expressionHandlers;
-      whiches.forEach(which -> handlerMap.put(which, t));
     }
 
     @Override
     public void unregister(Trigger t) {
       whiches.forEach(which -> {
-        Map<SyntaxInfo, Trigger> handlerMap = isChanger ? changerHandlers : expressionHandlers;
-        handlerMap.remove(which);
-
-        if (!expressionHandlers.containsKey(which) && !changerHandlers.containsKey(which)) {
-          expressions.remove(which.getPattern());
-          expressionInfos.remove(which.getPattern());
-        }
+        expressionHandlers.remove(which);
+        changerHandlers.remove(which);
+        returnTypes.remove(which);
+        expressions.remove(which.getPattern());
+        expressionInfos.remove(which.getPattern());
       });
       updateExpressions();
     }
@@ -247,6 +281,7 @@ public class CustomExpression {
     public void unregisterAll() {
       expressions.clear();
       expressionInfos.clear();
+      returnTypes.clear();
       expressionHandlers.clear();
       changerHandlers.clear();
       updateExpressions();
@@ -300,17 +335,17 @@ public class CustomExpression {
 
     @Override
     public T[] getAll(Event e) {
-      Trigger trigger = expressionHandlers.get(which);
+      Trigger getter = expressionHandlers.get(which);
       ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, parseResult);
 
-      if (trigger == null) {
+      if (getter == null) {
         Skript.error(
             String.format("The custom expression '%s' no longer has a get handler.",
                 which.getPattern())
         );
         return Util.newArray(superType, 0);
       } else {
-        trigger.execute(expressionEvent);
+        getter.execute(expressionEvent);
       }
 
       if (expressionEvent.getOutput() == null) {
@@ -344,6 +379,11 @@ public class CustomExpression {
 
     @Override
     public <R> Expression<? extends R> getConvertedExpression(Class<R>[] to) {
+      if (returnTypes.containsKey(which)
+          && !Converters.converterExists(returnTypes.get(which), to)) {
+        return null;
+      }
+
       return new ExpressionHandler<>(this, to);
     }
 
@@ -404,22 +444,21 @@ public class CustomExpression {
 
     @Override
     public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-      return changerHandlers.containsKey(which) ? new Class[]{Object[].class} : null;
+      return changerHandlers.containsKey(which) && changerHandlers.get(which).containsKey(mode)
+          ? new Class[]{Object[].class} : null;
     }
 
     @Override
     public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
-      Trigger trigger = changerHandlers.get(which);
-      ExpressionChangeEvent expressionEvent =
-          new ExpressionChangeEvent(e, exprs, parseResult, delta, mode);
+      Trigger changer = changerHandlers.getOrDefault(which, Collections.emptyMap()).get(mode);
 
-      if (trigger == null) {
+      if (changer == null) {
         Skript.error(
-            String.format("The custom expression '%s' no longer has a change handler.",
-                which.getPattern())
+            String.format("The custom expression '%s' no longer has a %s handler.",
+                which.getPattern(), mode.name())
         );
       } else {
-        trigger.execute(expressionEvent);
+        changer.execute(new ExpressionChangeEvent(e, exprs, parseResult, delta));
       }
     }
 
@@ -441,7 +480,6 @@ public class CustomExpression {
       this.parseResult = parseResult;
       return Util.canInitSafely(this.exprs);
     }
-
   }
 
   private static SyntaxInfo createSyntaxInfo(String pattern, boolean alwaysPlural,

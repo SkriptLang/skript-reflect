@@ -1,29 +1,18 @@
 package com.btk5h.skriptmirror;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.function.Parameter;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.lang.reflect.*;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.UnparsedLiteral;
-import ch.njol.skript.lang.function.Parameter;
 
 public final class Util {
   public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
@@ -179,6 +168,19 @@ public final class Util {
         .noneMatch(Util::hasUnparsedLiteral);
   }
 
+  public static Optional<List<TriggerItem>> getItemsFromNode(SectionNode node, String key) {
+    Node subNode = node.get(key);
+    if (!(subNode instanceof SectionNode)) {
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.of(ScriptLoader.loadItems(((SectionNode) subNode)));
+    } finally {
+      ScriptLoader.deleteCurrentEvent();
+    }
+  }
+
   @FunctionalInterface
   public interface ExceptionalFunction<T, R> {
     R apply(T t) throws Exception;
@@ -192,7 +194,7 @@ public final class Util {
       } catch (Exception e) {
         Skript.warning(
             String.format("skript-mirror encountered a %s: %s%n" +
-                "Run Skript with the verbosity 'very high' for the stack trace.",
+                    "Run Skript with the verbosity 'very high' for the stack trace.",
                 e.getClass().getSimpleName(), e.getMessage()));
 
         if (Skript.logVeryHigh()) {
@@ -219,5 +221,11 @@ public final class Util {
 
   public static String getDebugName(Class<?> cls) {
     return Skript.logVeryHigh() ? cls.getName() : cls.getSimpleName();
+  }
+
+  public static void clearSectionNode(SectionNode node) {
+    List<Node> subNodes = new ArrayList<>();
+    node.forEach(subNodes::add);
+    subNodes.forEach(Node::remove);
   }
 }
