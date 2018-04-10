@@ -1,25 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import com.btk5h.skriptmirror.Descriptor;
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.LRUCache;
-import com.btk5h.skriptmirror.Null;
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
@@ -34,6 +14,16 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.btk5h.skriptmirror.*;
+import org.bukkit.event.Event;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ExprJavaCall<T> implements Expression<T> {
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
@@ -157,6 +147,11 @@ public class ExprJavaCall<T> implements Expression<T> {
     T returnedValue = null;
 
     Class<?> targetClass = Util.toClass(target);
+
+    if (baseDescriptor == null)  {
+      return Util.newArray(superType, 0);
+    }
+
     Descriptor descriptor = specifyDescriptor(baseDescriptor, targetClass);
 
     if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
@@ -259,7 +254,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         if (!suppressErrors) {
           Skript.exception(ex);
         }
-        return Descriptor.create(null);
+        return null;
       }
     }
 
