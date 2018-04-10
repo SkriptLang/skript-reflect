@@ -6,6 +6,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Parameter;
+import ch.njol.skript.log.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -41,6 +42,7 @@ public final class Util {
 
   private static Field PATTERNS;
   private static Field PARAMETERS;
+  private static Field HANDLERS;
 
   static {
     Field _FIELD = null;
@@ -60,6 +62,14 @@ public final class Util {
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's parameters field could not be resolved. " +
           "Class proxies will not work.");
+    }
+
+    try {
+      _FIELD = SkriptLogger.class.getDeclaredField("handlers");
+      _FIELD.setAccessible(true);
+      HANDLERS = _FIELD;
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's handlers field could not be resolved. Some Skript warnings may not be available.");
     }
   }
 
@@ -174,10 +184,36 @@ public final class Util {
       return Optional.empty();
     }
 
+    RetainingLogHandler log = SkriptLogger.startRetainingLog();
     try {
       return Optional.of(ScriptLoader.loadItems(((SectionNode) subNode)));
     } finally {
+      printLog(log);
       ScriptLoader.deleteCurrentEvent();
+    }
+  }
+
+  private static void printLog(RetainingLogHandler logger) {
+    logger.stop();
+    if (HANDLERS != null) {
+      HandlerList handler;
+      try {
+        handler = (HandlerList) HANDLERS.get(logger);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+        return;
+      }
+
+      Iterator<LogHandler> handlers = handler.iterator();
+      LogHandler nextHandler;
+      List<LogHandler> parseLogs = new ArrayList<>();
+
+      while (handlers.hasNext() && (nextHandler = handlers.next()) instanceof ParseLogHandler) {
+        parseLogs.add(nextHandler);
+      }
+
+      parseLogs.forEach(LogHandler::stop);
+      SkriptLogger.logAll(logger.getLog());
     }
   }
 
