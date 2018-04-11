@@ -1,17 +1,15 @@
 package com.btk5h.skriptmirror.skript;
 
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.util.Arrays;
-
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.Util;
+import org.bukkit.event.Event;
+
+import java.util.Arrays;
 
 public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   static {
@@ -24,7 +22,7 @@ public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   @Override
   protected JavaType[] get(Event e) {
     return Arrays.stream(target.getArray(e))
-        .map(Object::getClass)
+        .map(Util::getClass)
         .map(JavaType::new)
         .toArray(JavaType[]::new);
   }

@@ -202,6 +202,10 @@ public class ExprJavaCall<T> implements Expression<T> {
       return Util.newArray(superType, 0);
     }
 
+    if ((superType == Object.class || superType == ArrayWrapper.class) && returnedValue.getClass().isArray()) {
+      returnedValue = (T) new ArrayWrapper(((Object[]) returnedValue));
+    }
+
     T converted = Converters.convert(returnedValue, types);
 
     if (converted == null) {
@@ -235,7 +239,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   private String toString(Object... arguments) {
     return Arrays.stream(arguments)
         .map(arg -> String.format("%s (%s)",
-            Classes.toString(arg), Util.getDebugName(arg.getClass())))
+            Classes.toString(arg), Util.getDebugName(Util.getClass(arg))))
         .collect(Collectors.joining(", "));
   }
 
@@ -291,6 +295,10 @@ public class ExprJavaCall<T> implements Expression<T> {
       Class<?> param = params[i];
       Object arg = args[i];
 
+      if (arg instanceof ArrayWrapper) {
+        arg = ((ArrayWrapper) arg).getArray();
+      }
+
       if (!param.isInstance(arg)) {
         if (arg instanceof Number && Util.NUMERIC_CLASSES.contains(param)) {
           continue;
@@ -326,6 +334,10 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     for (int i = 0; i < params.length; i++) {
       Class<?> param = params[i];
+
+      if (args[i] instanceof ArrayWrapper) {
+        args[i] = ((ArrayWrapper) args[i]).getArray();
+      }
 
       if (param.isPrimitive() && args[i] instanceof Number) {
         if (param == byte.class) {

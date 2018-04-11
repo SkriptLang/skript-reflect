@@ -264,4 +264,11 @@ public final class Util {
     node.forEach(subNodes::add);
     subNodes.forEach(Node::remove);
   }
+
+  public static Class<?> getClass(Object o) {
+    if (o instanceof ArrayWrapper) {
+      return ((ArrayWrapper) o).getArray().getClass();
+    }
+    return o.getClass();
+  }
 }

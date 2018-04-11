@@ -1,24 +1,20 @@
 package com.btk5h.skriptmirror.skript;
 
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.LibraryLoader;
-import com.btk5h.skriptmirror.Null;
-
-import org.bukkit.event.Event;
-
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Converter;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
+import com.btk5h.skriptmirror.ArrayWrapper;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.LibraryLoader;
+import com.btk5h.skriptmirror.Null;
+import org.bukkit.event.Event;
+
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Types {
   static {
@@ -206,6 +202,37 @@ public class Types {
           }
         })
         .serializer(new EnumSerializer<>(Changer.ChangeMode.class))
+    );
+
+    Classes.registerClass(new ClassInfo<>(ArrayWrapper.class, "array")
+        .parser(new Parser<ArrayWrapper>() {
+          @Override
+          public ArrayWrapper parse(String s, ParseContext context) {
+            return null;
+          }
+
+          @Override
+          public boolean canParse(ParseContext context) {
+            return false;
+          }
+
+          @Override
+          public String toString(ArrayWrapper o, int flags) {
+            return Arrays.stream(o.getArray())
+                .map(Classes::toString)
+                .collect(Collectors.joining(", "));
+          }
+
+          @Override
+          public String toVariableNameString(ArrayWrapper o) {
+            return Arrays.toString(o.getArray());
+          }
+
+          @Override
+          public String getVariableNamePattern() {
+            return ".+";
+          }
+        })
     );
   }
 }
