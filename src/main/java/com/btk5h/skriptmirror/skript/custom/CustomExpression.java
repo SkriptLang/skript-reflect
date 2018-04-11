@@ -364,7 +364,7 @@ public class CustomExpression {
       getter.execute(expressionEvent);
       if (expressionEvent.getOutput() == null) {
         Skript.error(
-            String.format("The get handler for '%s' did not continue.", which.getPattern())
+            String.format("The get handler for '%s' did not return.", which.getPattern())
         );
         return Util.newArray(superType, 0);
       }
@@ -384,7 +384,7 @@ public class CustomExpression {
         Object[] exprOutput = expressionEvent.getOutput();
         if (exprOutput == null) {
           Skript.error(
-              String.format("The get handler for '%s' did not continue.", which.getPattern())
+              String.format("The get handler for '%s' did not return.", which.getPattern())
           );
           return Util.newArray(superType, 0);
         }
