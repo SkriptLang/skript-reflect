@@ -8,6 +8,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
@@ -63,14 +64,16 @@ public class CustomExpression {
     private final int[] inheritedSingles;
     private final boolean alwaysPlural;
     private final boolean adaptArgument;
+    private final boolean property;
 
 
     private SyntaxInfo(String pattern, int[] inheritedSingles, boolean alwaysPlural,
-                       boolean adaptArgument) {
+                       boolean adaptArgument, boolean property) {
       this.pattern = pattern;
       this.inheritedSingles = inheritedSingles;
       this.alwaysPlural = alwaysPlural;
       this.adaptArgument = adaptArgument;
+      this.property = property;
     }
 
     public String getPattern() {
@@ -89,10 +92,14 @@ public class CustomExpression {
       return adaptArgument;
     }
 
+    public boolean isProperty() {
+      return property;
+    }
+
     @Override
     public String toString() {
-      return String.format("%s (singles: %s, plural: %s, adapt: %s)",
-          pattern, Arrays.toString(inheritedSingles), alwaysPlural, adaptArgument);
+      return String.format("%s (singles: %s, plural: %s, adapt: %s, property: %s)",
+          pattern, Arrays.toString(inheritedSingles), alwaysPlural, adaptArgument, property);
     }
 
     @Override
@@ -186,12 +193,12 @@ public class CustomExpression {
       String what = parseResult.regexes.get(0).group();
       switch (matchedPattern) {
         case 0:
-          whiches.add(createSyntaxInfo(what, (parseResult.mark & 1) == 1, false));
+          whiches.add(createSyntaxInfo(what, (parseResult.mark & 1) == 1, false, false));
           break;
         case 1:
           String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-          whiches.add(createSyntaxInfo("[the] " + what + " of %$" + fromType + "s%", false, true));
-          whiches.add(createSyntaxInfo("%$" + fromType + "s%'[s] " + what, false, false));
+          whiches.add(createSyntaxInfo("[the] " + what + " of %$" + fromType + "s%", false, true, true));
+          whiches.add(createSyntaxInfo("%$" + fromType + "s%'[s] " + what, false, false, true));
           break;
       }
 
@@ -336,7 +343,6 @@ public class CustomExpression {
     @Override
     public T[] getAll(Event e) {
       Trigger getter = expressionHandlers.get(which);
-      ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, parseResult);
 
       if (getter == null) {
         Skript.error(
@@ -344,10 +350,18 @@ public class CustomExpression {
                 which.getPattern())
         );
         return Util.newArray(superType, 0);
-      } else {
-        getter.execute(expressionEvent);
       }
 
+      if (which.isProperty()) {
+        return getByProperty(e, getter);
+      }
+
+      return getByStandard(e, getter);
+    }
+
+    private T[] getByStandard(Event e, Trigger getter) {
+      ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, parseResult);
+      getter.execute(expressionEvent);
       if (expressionEvent.getOutput() == null) {
         Skript.error(
             String.format("The get handler for '%s' did not continue.", which.getPattern())
@@ -356,6 +370,38 @@ public class CustomExpression {
       }
 
       return Converters.convertArray(expressionEvent.getOutput(), types, superType);
+    }
+
+    private T[] getByProperty(Event e, Trigger getter) {
+      List<T> output = new ArrayList<>();
+      for (Object o : exprs[0].getArray(e)) {
+        Expression<?>[] localExprs = Arrays.copyOf(exprs, exprs.length);
+        localExprs[0] = new SimpleLiteral<>(o, false);
+
+        ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, localExprs, parseResult);
+        getter.execute(expressionEvent);
+
+        Object[] exprOutput = expressionEvent.getOutput();
+        if (exprOutput == null) {
+          Skript.error(
+              String.format("The get handler for '%s' did not continue.", which.getPattern())
+          );
+          return Util.newArray(superType, 0);
+        }
+
+        if (exprOutput.length > 1) {
+          Skript.error(
+              String.format("The get handler for '%s' returned more than one value.", which.getPattern())
+          );
+          return Util.newArray(superType, 0);
+        }
+
+        if (exprOutput.length == 1) {
+          output.add(Converters.convert(exprOutput[0], superType));
+        }
+      }
+
+      return output.toArray(Util.newArray(superType, 0));
     }
 
     @Override
@@ -483,7 +529,7 @@ public class CustomExpression {
   }
 
   private static SyntaxInfo createSyntaxInfo(String pattern, boolean alwaysPlural,
-                                             boolean adaptArgument) {
+                                             boolean adaptArgument, boolean property) {
     StringBuilder newPattern = new StringBuilder(pattern.length());
     List<Integer> inheritedSingles = new ArrayList<>();
     String[] parts = pattern.split("%");
@@ -514,7 +560,7 @@ public class CustomExpression {
             .mapToInt(i -> i)
             .toArray(),
         alwaysPlural,
-        adaptArgument
-    );
+        adaptArgument,
+        property);
   }
 }
