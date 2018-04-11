@@ -206,6 +206,14 @@ public class CustomCondition {
     @Override
     public boolean check(Event e) {
       Trigger trigger = conditionHandlers.get(which);
+
+      if (trigger == null) {
+        Skript.error(
+            String.format("The custom condtion '%s' no longer has a check handler.", which.getPattern())
+        );
+        return false;
+      }
+
       ConditionEvent conditionEvent = new ConditionEvent(e, exprs, parseResult);
       trigger.execute(conditionEvent);
       return conditionEvent.isMarkedContinue() == !which.isInverted();
