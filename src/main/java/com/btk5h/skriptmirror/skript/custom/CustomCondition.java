@@ -7,6 +7,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.Util;
@@ -39,17 +40,19 @@ public class CustomCondition {
   private static final SectionValidator CONDITION_DECLARATION = new SectionValidator()
       .addSection("check", false);
 
-  private static SyntaxInfo createSyntaxInfo(String pattern, boolean inverted) {
-    return new SyntaxInfo(Util.preprocessPattern(pattern), inverted);
+  private static SyntaxInfo createSyntaxInfo(String pattern, boolean inverted, boolean property) {
+    return new SyntaxInfo(Util.preprocessPattern(pattern), inverted, property);
   }
 
   private static class SyntaxInfo {
     private final String pattern;
     private final boolean inverted;
+    private final boolean property;
 
-    private SyntaxInfo(String pattern, boolean inverted) {
+    private SyntaxInfo(String pattern, boolean inverted, boolean property) {
       this.pattern = pattern;
       this.inverted = inverted;
+      this.property = property;
     }
 
     public String getPattern() {
@@ -60,9 +63,13 @@ public class CustomCondition {
       return inverted;
     }
 
+    public boolean isProperty() {
+      return property;
+    }
+
     @Override
     public String toString() {
-      return String.format("%s (inverted: %s)", pattern, inverted);
+      return String.format("%s (inverted: %s, property: %s)", pattern, inverted, property);
     }
 
     @Override
@@ -125,12 +132,12 @@ public class CustomCondition {
       String c = parseResult.regexes.get(0).group();
       switch (matchedPattern) {
         case 0:
-          whiches.add(createSyntaxInfo(c, false));
+          whiches.add(createSyntaxInfo(c, false, false));
           break;
         case 1:
           String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-          whiches.add(createSyntaxInfo("%" + type + "% (is|are) " + c, false));
-          whiches.add(createSyntaxInfo("%" + type + "% (isn't|is not|aren't|are not) " + c, true));
+          whiches.add(createSyntaxInfo("%" + type + "% (is|are) " + c, false, true));
+          whiches.add(createSyntaxInfo("%" + type + "% (isn't|is not|aren't|are not) " + c, true, true));
           break;
       }
 
@@ -205,18 +212,37 @@ public class CustomCondition {
 
     @Override
     public boolean check(Event e) {
-      Trigger trigger = conditionHandlers.get(which);
+      Trigger checker = conditionHandlers.get(which);
 
-      if (trigger == null) {
+      if (checker == null) {
         Skript.error(
             String.format("The custom condtion '%s' no longer has a check handler.", which.getPattern())
         );
         return false;
       }
 
+      if (which.isProperty()) {
+        return checkByProperty(e, checker);
+      }
+
+      return checkByStandard(e, checker);
+    }
+
+    private boolean checkByStandard(Event e, Trigger checker) {
       ConditionEvent conditionEvent = new ConditionEvent(e, exprs, parseResult);
-      trigger.execute(conditionEvent);
+      checker.execute(conditionEvent);
       return conditionEvent.isMarkedContinue() == !which.isInverted();
+    }
+
+    private boolean checkByProperty(Event e, Trigger checker) {
+      return exprs[0].check(e, o -> {
+        Expression<?>[] localExprs = Arrays.copyOf(exprs, exprs.length);
+        localExprs[0] = new SimpleLiteral<>(o, false);
+
+        ConditionEvent conditionEvent = new ConditionEvent(e, localExprs, parseResult);
+        checker.execute(conditionEvent);
+        return conditionEvent.isMarkedContinue();
+      }, which.isInverted());
     }
 
     @Override
