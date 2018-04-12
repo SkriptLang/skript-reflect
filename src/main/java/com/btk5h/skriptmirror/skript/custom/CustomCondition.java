@@ -90,6 +90,7 @@ public class CustomCondition {
   public static class ConditionEvent extends CustomSyntaxEvent {
     private final static HandlerList handlers = new HandlerList();
     private boolean markedContinue;
+    private boolean markedNegated;
 
     public ConditionEvent(Event event, Expression<?>[] expressions,
                           SkriptParser.ParseResult parseResult) {
@@ -104,8 +105,16 @@ public class CustomCondition {
       return markedContinue;
     }
 
+    public boolean isMarkedNegated() {
+      return markedNegated;
+    }
+
     public void markContinue() {
       markedContinue = true;
+    }
+
+    public void markNegated() {
+      markedNegated = true;
     }
 
     @Override
@@ -231,7 +240,7 @@ public class CustomCondition {
     private boolean checkByStandard(Event e, Trigger checker) {
       ConditionEvent conditionEvent = new ConditionEvent(e, exprs, parseResult);
       checker.execute(conditionEvent);
-      return conditionEvent.isMarkedContinue() == !which.isInverted();
+      return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated() ^ which.isInverted();
     }
 
     private boolean checkByProperty(Event e, Trigger checker) {
@@ -241,7 +250,7 @@ public class CustomCondition {
 
         ConditionEvent conditionEvent = new ConditionEvent(e, localExprs, parseResult);
         checker.execute(conditionEvent);
-        return conditionEvent.isMarkedContinue();
+        return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated();
       }, which.isInverted());
     }
 
