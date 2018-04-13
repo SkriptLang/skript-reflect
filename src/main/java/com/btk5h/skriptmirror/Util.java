@@ -37,6 +37,9 @@ public final class Util {
     NUMERIC_CLASSES.add(short.class);
   }
 
+  public static final String IDENTIFIER = "[_a-zA-Z$][\\w$]*";
+  public static final String PACKAGE = "(?:" + IDENTIFIER + "\\.)*(?:" + IDENTIFIER + ")";
+
   private Util() {
   }
 
