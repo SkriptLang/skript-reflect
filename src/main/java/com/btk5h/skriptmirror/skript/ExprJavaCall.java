@@ -535,7 +535,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         args[0] = delta[0];
         break;
       case DELETE:
-        args[0] = null;
+        args[0] = Null.getInstance();
         break;
     }
 
