@@ -272,6 +272,11 @@ public final class Util {
     if (o instanceof ArrayWrapper) {
       return ((ArrayWrapper) o).getArray().getClass();
     }
+
+    if (o == null) {
+      return Object.class;
+    }
+
     return o.getClass();
   }
 }
