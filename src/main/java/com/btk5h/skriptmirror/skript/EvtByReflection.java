@@ -1,15 +1,15 @@
 package com.btk5h.skriptmirror.skript;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.WrappedEvent;
-
 import org.bukkit.Bukkit;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
 
 import java.lang.reflect.Array;
@@ -17,16 +17,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
-
 public class EvtByReflection extends SkriptEvent {
   static {
     Skript.registerEvent("Bukkit Event", EvtByReflection.class, BukkitEvent.class,
-        "%strings% [(1¦(at|on|with) priority <.+>)]");
+        "[(1¦all)] %strings% [(at|on|with) priority <.+>]");
   }
 
   private static class PriorityListener implements Listener {
@@ -97,14 +91,14 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static void registerEvent(Class<? extends Event> event, EventPriority priority) {
+  private static void registerEvent(Class<? extends Event> event, EventPriority priority, boolean ignoreCancelled) {
     PriorityListener listener = listeners[priority.ordinal()];
     Set<Class<? extends Event>> events = listener.getEvents();
 
     if (!events.contains(event)) {
       events.add(event);
       Bukkit.getPluginManager()
-          .registerEvent(event, listener, priority, executor, SkriptMirror.getInstance());
+          .registerEvent(event, listener, priority, executor, SkriptMirror.getInstance(), ignoreCancelled);
     }
   }
 
@@ -136,9 +130,7 @@ public class EvtByReflection extends SkriptEvent {
       }
     }
 
-    if (parseResult.mark == 0) {
-      priority = SkriptConfig.defaultEventPriority.value();
-    } else {
+    if (parseResult.regexes.size() > 0) {
       String priorityName = parseResult.regexes.get(0).group().toUpperCase();
       try {
         priority = EventPriority.valueOf(priorityName);
@@ -146,10 +138,14 @@ public class EvtByReflection extends SkriptEvent {
         Skript.error(priorityName + " is not a valid priority level.");
         return false;
       }
+    } else {
+      priority = SkriptConfig.defaultEventPriority.value();
     }
 
+    boolean ignoreCancelled = (parseResult.mark & 1) == 1;
+
     for (Class<? extends Event> cls : classes) {
-      registerEvent(cls, priority);
+      registerEvent(cls, priority, ignoreCancelled);
     }
 
     return true;
