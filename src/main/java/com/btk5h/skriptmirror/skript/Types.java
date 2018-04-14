@@ -1,6 +1,9 @@
 package com.btk5h.skriptmirror.skript;
 
-import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Converter;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
@@ -168,40 +171,6 @@ public class Types {
             return false;
           }
         })
-    );
-
-    Classes.registerClass(new ClassInfo<>(Changer.ChangeMode.class, "changemode")
-        .parser(new Parser<Changer.ChangeMode>() {
-          @Override
-          public Changer.ChangeMode parse(String s, ParseContext context) {
-            s = s.toUpperCase();
-            if (s.startsWith("TO ")) {
-              s = s.substring(3).trim();
-              try {
-                return Changer.ChangeMode.valueOf(s.replace(' ', '_'));
-              } catch (IllegalArgumentException ex) {
-                return null;
-              }
-            }
-            return null;
-          }
-
-          @Override
-          public String toString(Changer.ChangeMode o, int flags) {
-            return "to " + o.name().toLowerCase().replace('_', ' ');
-          }
-
-          @Override
-          public String toVariableNameString(Changer.ChangeMode o) {
-            return "changemode:" + o.name();
-          }
-
-          @Override
-          public String getVariableNamePattern() {
-            return "changemode:.+";
-          }
-        })
-        .serializer(new EnumSerializer<>(Changer.ChangeMode.class))
     );
 
     Classes.registerClass(new ClassInfo<>(ArrayWrapper.class, "array")
