@@ -29,7 +29,7 @@ public class CustomExpression {
     Skript.registerEvent("*Define Expression", CustomExpression.EventHandler.class,
         new Class[]{ExpressionGetEvent.class, ExpressionChangeEvent.class},
         "[(1¦(plural|non(-|[ ])single|multi[ple]))] expression <.+>",
-        "[(1¦(plural|non(-|[ ])single|multi[ple]))] %*classinfo% property <.+>");
+        "%*classinfo% property <.+>");
 
     //noinspection unchecked
     Skript.registerExpression(ExpressionHandler.class, Object.class,
