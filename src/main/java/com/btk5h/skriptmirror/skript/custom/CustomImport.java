@@ -40,6 +40,7 @@ public class CustomImport {
   private static Pattern IMPORT_STATEMENT = Pattern.compile("(" + Util.PACKAGE + ")(?:\\s+as (.+))?");
 
   private static SyntaxElementInfo<?> thisInfo;
+  // Most scripts are associated with files, but according to Skript, file-less configs may also be loaded.
   private static Map<File, Map<String, JavaType>> imports = new HashMap<>();
 
   public static class SectionImport extends SelfRegisteringSkriptEvent {
