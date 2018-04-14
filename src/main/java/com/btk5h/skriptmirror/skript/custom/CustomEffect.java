@@ -95,6 +95,8 @@ public class CustomEffect {
       effects.add(which);
 
       SectionNode node = (SectionNode) SkriptLogger.getNode();
+      node.convertToEntries(0);
+
       boolean ok = EFFECT_DECLARATION.validate(node);
 
       if (!ok) {
@@ -108,8 +110,6 @@ public class CustomEffect {
 
     @SuppressWarnings("unchecked")
     private void register(SectionNode node) {
-      node.convertToEntries(0);
-
       ScriptLoader.setCurrentEvent("custom efffect trigger", EffectEvent.class);
       Util.getItemsFromNode(node, "trigger").ifPresent(items ->
         effectHandlers.put(which, new Trigger(ScriptLoader.currentScript.getFile(), "effect " + which, this, items))

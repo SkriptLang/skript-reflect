@@ -161,6 +161,8 @@ public class CustomCondition {
       });
 
       SectionNode node = (SectionNode) SkriptLogger.getNode();
+      node.convertToEntries(0);
+
       boolean ok = CONDITION_DECLARATION.validate(node);
 
       if (!ok) {
@@ -174,8 +176,6 @@ public class CustomCondition {
 
     @SuppressWarnings("unchecked")
     private void register(SectionNode node) {
-      node.convertToEntries(0);
-
       ScriptLoader.setCurrentEvent("custom condition check", ConditionEvent.class);
       Util.getItemsFromNode(node, "check").ifPresent(items ->
           whiches.forEach(which -> conditionHandlers.put(which,

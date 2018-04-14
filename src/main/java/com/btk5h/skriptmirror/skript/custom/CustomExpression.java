@@ -216,6 +216,8 @@ public class CustomExpression {
       });
 
       SectionNode node = (SectionNode) SkriptLogger.getNode();
+      node.convertToEntries(0);
+
       boolean ok = EXPRESSION_DECLARATION.validate(node);
 
       if (!ok) {
@@ -230,8 +232,6 @@ public class CustomExpression {
 
     @SuppressWarnings("unchecked")
     private void register(SectionNode node) {
-      node.convertToEntries(0);
-
       String userReturnType = node.getValue("return type");
       if (userReturnType != null) {
         Class returnType =
