@@ -220,6 +220,21 @@ public final class Util {
     }
   }
 
+  public static Object boxPrimitiveArray(Object obj) {
+    Class<?> componentType = obj.getClass().getComponentType();
+    if (componentType != null && componentType.isPrimitive()) {
+      int length = Array.getLength(obj);
+      Object[] boxedArray = newArray(WRAPPER_CLASSES.get(componentType), length);
+
+      for (int i = 0; i < length; i++) {
+        boxedArray[i] = Array.get(obj, i);
+      }
+
+      obj = boxedArray;
+    }
+    return obj;
+  }
+
   @FunctionalInterface
   public interface ExceptionalFunction<T, R> {
     R apply(T t) throws Exception;

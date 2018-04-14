@@ -15,7 +15,6 @@ import com.btk5h.skriptmirror.ArrayWrapper;
 import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -80,17 +79,7 @@ public class ExprSpread<T> implements Expression<T> {
       return Util.newArray(superType, 0);
     }
 
-    Class<?> componentType = obj.getClass().getComponentType();
-    if (componentType != null && componentType.isPrimitive()) {
-      int length = Array.getLength(obj);
-      Object[] boxedArray = Util.newArray(Util.WRAPPER_CLASSES.get(componentType), length);
-
-      for (int i = 0; i < length; i++) {
-        boxedArray[i] = Array.get(obj, i);
-      }
-
-      obj = boxedArray;
-    }
+    obj = Util.boxPrimitiveArray(obj);
 
     return Converters.convertArray((Object[]) obj, types, superType);
   }

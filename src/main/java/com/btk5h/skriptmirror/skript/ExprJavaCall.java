@@ -203,7 +203,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     if ((superType == Object.class || superType == ArrayWrapper.class) && returnedValue.getClass().isArray()) {
-      returnedValue = (T) new ArrayWrapper(((Object[]) returnedValue));
+      returnedValue = (T) new ArrayWrapper((Object[]) Util.boxPrimitiveArray(returnedValue));
     }
 
     T converted = Converters.convert(returnedValue, types);
