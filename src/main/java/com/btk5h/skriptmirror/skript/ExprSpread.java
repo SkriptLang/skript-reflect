@@ -1,15 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
@@ -21,6 +11,15 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.btk5h.skriptmirror.ArrayWrapper;
+import com.btk5h.skriptmirror.Util;
+import org.bukkit.event.Event;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public class ExprSpread<T> implements Expression<T> {
   static {
@@ -73,6 +72,8 @@ public class ExprSpread<T> implements Expression<T> {
       obj = toArray(((Iterable) obj).iterator());
     } else if (obj instanceof Iterator) {
       obj = toArray((Iterator<?>) obj);
+    } else if (obj instanceof ArrayWrapper) {
+      obj = ((ArrayWrapper) obj).getArray();
     }
 
     if (obj == null || !obj.getClass().isArray()) {
