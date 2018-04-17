@@ -9,7 +9,7 @@ import org.bukkit.event.Event;
 
 public class EffContinue extends Effect {
   static {
-    Skript.registerEffect(EffContinue.class, "continue [(if|when) (%-boolean%|<.+>)]");
+    Skript.registerEffect(EffContinue.class, "continue [if (%-boolean%|<.+>)]");
   }
 
   private Expression<Boolean> condition;
