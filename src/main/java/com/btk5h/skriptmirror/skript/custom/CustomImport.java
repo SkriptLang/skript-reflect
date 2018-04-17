@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.skript.custom;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
@@ -12,6 +13,7 @@ import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -20,8 +22,11 @@ import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 public class CustomImport {
+  private static Pattern IMPORT_STATEMENT = Pattern.compile("(" + Util.PACKAGE + ")(?:\\s+as (.+))?");
+
   static {
     Skript.registerEvent("*Import", SectionImport.class, Event.class, "import");
+    Skript.registerEffect(EffImport.class, "import <" + IMPORT_STATEMENT.pattern() + ">");
 
     //noinspection unchecked
     Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
@@ -36,8 +41,6 @@ public class CustomImport {
       Skript.warning("Could not find custom import class. Custom imports will not work.");
     }
   }
-
-  private static Pattern IMPORT_STATEMENT = Pattern.compile("(" + Util.PACKAGE + ")(?:\\s+as (.+))?");
 
   private static SyntaxElementInfo<?> thisInfo;
   // Most scripts are associated with files, but according to Skript, file-less configs may also be loaded.
@@ -150,15 +153,37 @@ public class CustomImport {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                         SkriptParser.ParseResult parseResult) {
-      if (ScriptLoader.currentScript != null) {
-        Map<String, JavaType> localImports = imports.get(ScriptLoader.currentScript.getFile());
+      Map<String, JavaType> localImports =
+          imports.get(ScriptLoader.currentScript == null ? null : ScriptLoader.currentScript.getFile());
 
-        if (localImports != null) {
-          type = localImports.get(parseResult.expr);
-        }
+      if (localImports != null) {
+        type = localImports.get(parseResult.expr);
       }
 
       return type != null;
+    }
+  }
+
+  public static class EffImport extends Effect {
+    @Override
+    public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed,
+                        final SkriptParser.ParseResult parseResult) {
+      if (!ScriptLoader.isCurrentEvent(EffectCommandEvent.class)) {
+        return false;
+      }
+
+      registerImport(parseResult.regexes.get(0).group(), null);
+
+      return true;
+    }
+
+    @Override
+    public String toString(@Nullable final Event e, final boolean debug) {
+      return "import";
+    }
+
+    @Override
+    protected void execute(Event e) {
     }
   }
 }
