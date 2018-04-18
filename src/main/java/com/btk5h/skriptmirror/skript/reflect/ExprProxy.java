@@ -1,20 +1,4 @@
-package com.btk5h.skriptmirror.skript;
-
-import com.btk5h.skriptmirror.FunctionWrapper;
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.LibraryLoader;
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
@@ -25,6 +9,16 @@ import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.FunctionWrapper;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.LibraryLoader;
+import com.btk5h.skriptmirror.Util;
+import org.bukkit.event.Event;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.*;
 
 public class ExprProxy extends SimpleExpression<Object> {
   static {

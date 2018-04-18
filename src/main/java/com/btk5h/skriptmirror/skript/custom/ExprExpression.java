@@ -1,11 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.util.Iterator;
-
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
@@ -19,6 +13,14 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
+import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
+import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
+import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
+import org.bukkit.event.Event;
+
+import java.util.Iterator;
 
 public class ExprExpression<T> implements Expression<T> {
   static {
@@ -171,10 +173,10 @@ public class ExprExpression<T> implements Expression<T> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(
-        CustomEffect.EffectEvent.class,
-        CustomExpression.ExpressionGetEvent.class,
-        CustomExpression.ExpressionChangeEvent.class,
-        CustomCondition.ConditionEvent.class
+        EffectTriggerEvent.class,
+        ExpressionGetEvent.class,
+        ExpressionChangeEvent.class,
+        ConditionCheckEvent.class
     )) {
       Skript.error("The expression 'expression' may only be used in a custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);

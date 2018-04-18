@@ -1,4 +1,4 @@
-package com.btk5h.skriptmirror.skript.custom;
+package com.btk5h.skriptmirror.skript.custom.expression;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
@@ -26,9 +26,9 @@ public class EffReturn extends Effect {
   @Override
   protected TriggerItem walk(Event e) {
     if (objects != null) {
-      ((CustomExpression.ExpressionGetEvent) e).setOutput(objects.getAll(e));
+      ((ExpressionGetEvent) e).setOutput(objects.getAll(e));
     } else {
-      ((CustomExpression.ExpressionGetEvent) e).setOutput(new Object[0]);
+      ((ExpressionGetEvent) e).setOutput(new Object[0]);
     }
     return null;
   }
@@ -42,7 +42,7 @@ public class EffReturn extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(CustomExpression.ExpressionGetEvent.class)) {
+    if (!ScriptLoader.isCurrentEvent(ExpressionGetEvent.class)) {
       Skript.error("Return may only be used in custom expression getters.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

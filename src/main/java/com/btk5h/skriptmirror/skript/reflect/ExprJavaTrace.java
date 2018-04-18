@@ -1,8 +1,4 @@
-package com.btk5h.skriptmirror.skript;
-
-import org.bukkit.event.Event;
-
-import java.util.Arrays;
+package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
@@ -10,6 +6,9 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+
+import java.util.Arrays;
 
 public class ExprJavaTrace extends SimpleExpression<String> {
   static {

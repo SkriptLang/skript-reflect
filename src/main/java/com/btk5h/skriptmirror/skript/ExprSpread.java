@@ -23,8 +23,7 @@ import java.util.List;
 public class ExprSpread<T> implements Expression<T> {
   static {
     //noinspection unchecked
-    Skript.registerExpression(ExprSpread.class, Object.class, ExpressionType.COMBINED,
-        "...%object%");
+    Skript.registerExpression(ExprSpread.class, Object.class, ExpressionType.COMBINED, "...%object%");
   }
 
   private Expression<Object> object;

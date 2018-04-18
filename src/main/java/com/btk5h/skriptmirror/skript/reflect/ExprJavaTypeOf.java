@@ -1,4 +1,4 @@
-package com.btk5h.skriptmirror.skript;
+package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -13,8 +13,7 @@ import java.util.Arrays;
 
 public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   static {
-    PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "([java] class|java[ ]type)",
-        "objects");
+    PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "([java] class|java[ ]type)", "objects");
   }
 
   private Expression<Object> target;

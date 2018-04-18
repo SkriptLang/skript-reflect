@@ -1,4 +1,4 @@
-package com.btk5h.skriptmirror.skript;
+package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
@@ -20,6 +20,7 @@ import org.bukkit.event.Event;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,18 +29,24 @@ import java.util.stream.Stream;
 public class ExprJavaCall<T> implements Expression<T> {
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
   private static final Object[] NO_ARGS = new Object[0];
-  private static final Descriptor CONSTRUCTOR_DESCRIPTOR = Descriptor.create("<init>");
+  private static final Descriptor CONSTRUCTOR_DESCRIPTOR = new Descriptor(null, "<init>", null);
+
+  /**
+   * A regular expression that captures potential descriptors without actually validating the descriptor. This is done
+   * both for performance reasons and to provide more helpful error messages when using a malformed descriptor.
+   */
+  private static final String LITE_DESCRIPTOR = "[^!(]*[^!(\\s]";
 
   static {
     //noinspection unchecked
     Skript.registerExpression(ExprJavaCall.class, Object.class,
         ExpressionType.PATTERN_MATCHES_EVERYTHING,
         "%object%..%string%(0¦!|1¦\\([%-objects%]\\))",
-        "%object%.<[\\w$.\\[\\]]+>(0¦!|1¦\\([%-objects%]\\))",
+        "%object%.<" + LITE_DESCRIPTOR + ">(0¦!|1¦\\([%-objects%]\\))",
         "[a] new %javatype%\\([%-objects%]\\)");
   }
 
-  private enum Type {
+  private enum CallType {
     FIELD, METHOD, CONSTRUCTOR;
 
     @Override
@@ -56,7 +63,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   private Expression<Object> targetArg;
   private Expression<Object> args;
 
-  private Type type;
+  private CallType type;
   private boolean isDynamic;
   private boolean suppressErrors = false;
 
@@ -100,7 +107,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     switch (type) {
       case FIELD:
         return Util.fields(javaClass)
-            .filter(f -> f.getName().equals(e.getIdentifier()))
+            .filter(f -> f.getName().equals(e.getName()))
             .peek(f -> f.setAccessible(true))
             .flatMap(Util.propagateErrors(f -> Stream.of(
                 LOOKUP.unreflectGetter(f),
@@ -110,36 +117,27 @@ public class ExprJavaCall<T> implements Expression<T> {
             .limit(2)
             .collect(Collectors.toList());
       case METHOD:
-        return Util.methods(javaClass)
-            .filter(m -> m.getName().equals(e.getIdentifier()))
+        Stream<Method> methodStream = Util.methods(javaClass)
+            .filter(m -> m.getName().equals(e.getName()));
+
+        if (e.getParameterTypes() != null) {
+          methodStream = methodStream.filter(m -> Arrays.equals(m.getParameterTypes(), e.getParameterTypes()));
+        }
+
+        return methodStream
             .peek(m -> m.setAccessible(true))
             .map(Util.propagateErrors(LOOKUP::unreflect))
             .filter(Objects::nonNull)
-            //.map(ExprJavaCall::asSpreader)
             .collect(Collectors.toList());
       case CONSTRUCTOR:
         return Util.constructor(javaClass)
             .peek(c -> c.setAccessible(true))
             .map(Util.propagateErrors(LOOKUP::unreflectConstructor))
             .filter(Objects::nonNull)
-            //.map(ExprJavaCall::asSpreader)
             .collect(Collectors.toList());
       default:
         throw new IllegalStateException();
     }
-  }
-
-  private static MethodHandle asSpreader(MethodHandle mh) {
-    int paramCount = mh.type().parameterCount();
-    if (mh.isVarargsCollector()) {
-      if (paramCount == 1) {
-        return mh;
-      }
-
-      return mh.asSpreader(Object[].class, paramCount - 1);
-    }
-
-    return mh.asSpreader(Object[].class, paramCount);
   }
 
   @SuppressWarnings("unchecked")
@@ -270,7 +268,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       return descriptor;
     }
 
-    return Descriptor.create(cls, descriptor.getIdentifier());
+    return new Descriptor(cls, descriptor.getName(), descriptor.getParameterTypes());
   }
 
   private Optional<MethodHandle> selectMethod(Descriptor descriptor, Object[] args) {
@@ -514,7 +512,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   @Override
   public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-    if (type == Type.FIELD &&
+    if (type == CallType.FIELD &&
         (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)) {
       return new Class<?>[]{Object.class};
     }
@@ -556,13 +554,12 @@ public class ExprJavaCall<T> implements Expression<T> {
     switch (matchedPattern) {
       case 0:
         isDynamic = true;
-        type = parseResult.mark == 0 ? Type.FIELD : Type.METHOD;
-
+        type = parseResult.mark == 0 ? CallType.FIELD : CallType.METHOD;
         dynamicDescriptor = (Expression<String>) exprs[1];
         break;
       case 1:
         isDynamic = false;
-        type = parseResult.mark == 0 ? Type.FIELD : Type.METHOD;
+        type = parseResult.mark == 0 ? CallType.FIELD : CallType.METHOD;
         String desc = parseResult.regexes.get(0).group();
 
         try {
@@ -584,7 +581,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
         break;
       case 2:
-        type = Type.CONSTRUCTOR;
+        type = CallType.CONSTRUCTOR;
         staticDescriptor = CONSTRUCTOR_DESCRIPTOR;
         break;
     }

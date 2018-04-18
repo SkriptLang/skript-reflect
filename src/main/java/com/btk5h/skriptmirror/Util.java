@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 public final class Util {
   public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>();
   public static final Set<Class<?>> NUMERIC_CLASSES = new HashSet<>();
+  public static final Map<String, Class<?>> PRIMITIVE_CLASS_NAMES = new HashMap<>();
 
   static {
     WRAPPER_CLASSES.put(boolean.class, Boolean.class);
@@ -35,6 +36,15 @@ public final class Util {
     NUMERIC_CLASSES.add(int.class);
     NUMERIC_CLASSES.add(long.class);
     NUMERIC_CLASSES.add(short.class);
+
+    PRIMITIVE_CLASS_NAMES.put("boolean", boolean.class);
+    PRIMITIVE_CLASS_NAMES.put("byte", byte.class);
+    PRIMITIVE_CLASS_NAMES.put("char", char.class);
+    PRIMITIVE_CLASS_NAMES.put("double", double.class);
+    PRIMITIVE_CLASS_NAMES.put("float", float.class);
+    PRIMITIVE_CLASS_NAMES.put("int", int.class);
+    PRIMITIVE_CLASS_NAMES.put("long", long.class);
+    PRIMITIVE_CLASS_NAMES.put("short", short.class);
   }
 
   public static final String IDENTIFIER = "[_a-zA-Z$][\\w$]*";

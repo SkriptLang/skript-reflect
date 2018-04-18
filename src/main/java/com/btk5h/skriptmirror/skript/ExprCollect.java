@@ -17,8 +17,7 @@ import java.util.Optional;
 
 public class ExprCollect extends SimpleExpression<ArrayWrapper> {
   static {
-    Skript.registerExpression(ExprCollect.class, ArrayWrapper.class, ExpressionType.COMBINED,
-        "\\[%objects%\\]");
+    Skript.registerExpression(ExprCollect.class, ArrayWrapper.class, ExpressionType.COMBINED, "\\[%objects%\\]");
   }
 
   private Expression<Object> objects;

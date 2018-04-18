@@ -1,4 +1,4 @@
-package com.btk5h.skriptmirror.skript.custom;
+package com.btk5h.skriptmirror.skript.custom.condition;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
@@ -16,7 +16,7 @@ public class EffNegateCondition extends Effect {
 
   @Override
   protected void execute(Event e) {
-    ((CustomCondition.ConditionEvent) e).markNegated();
+    ((ConditionCheckEvent) e).markNegated();
   }
 
   @Override
@@ -27,7 +27,7 @@ public class EffNegateCondition extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(CustomCondition.ConditionEvent.class)) {
+    if (!ScriptLoader.isCurrentEvent(ConditionCheckEvent.class)) {
       Skript.error("The effect 'negate condition' may only be used in a custom condition.",
           ErrorQuality.SEMANTIC_ERROR);
       return false;

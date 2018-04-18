@@ -1,8 +1,4 @@
-package com.btk5h.skriptmirror.skript;
-
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
+package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
@@ -10,6 +6,8 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.Util;
+import org.bukkit.event.Event;
 
 public class ExprTry extends SimpleExpression<Object> {
   static {

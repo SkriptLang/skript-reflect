@@ -1,24 +1,21 @@
 package com.btk5h.skriptmirror.skript;
 
-import com.btk5h.skriptmirror.FunctionWrapper;
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.util.Arrays;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.FunctionWrapper;
+import com.btk5h.skriptmirror.Util;
+import org.bukkit.event.Event;
+
+import java.util.Arrays;
 
 public class ExprFunction extends SimpleExpression<FunctionWrapper> {
   static {
     Skript.registerExpression(ExprFunction.class, FunctionWrapper.class, ExpressionType.PROPERTY,
-        "[the] function(s| [reference[s]]) %strings% " +
-            "[called with [[the] [arg[ument][s]]] %-objects%]");
+        "[the] function(s| [reference[s]]) %strings% [called with [[the] [arg[ument][s]]] %-objects%]");
   }
 
   private Expression<String> refs;

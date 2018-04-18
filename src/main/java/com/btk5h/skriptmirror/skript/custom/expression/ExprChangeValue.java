@@ -1,10 +1,4 @@
-package com.btk5h.skriptmirror.skript.custom;
-
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.util.Iterator;
+package com.btk5h.skriptmirror.skript.custom.expression;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
@@ -19,6 +13,10 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.btk5h.skriptmirror.Util;
+import org.bukkit.event.Event;
+
+import java.util.Iterator;
 
 public class ExprChangeValue<T> implements Expression<T> {
   static {
@@ -68,7 +66,7 @@ public class ExprChangeValue<T> implements Expression<T> {
 
   @Override
   public T[] getAll(Event e) {
-    Object[] delta = ((CustomExpression.ExpressionChangeEvent) e).getDelta();
+    Object[] delta = ((ExpressionChangeEvent) e).getDelta();
     if (delta == null) {
       return Util.newArray(superType, 0);
     }
@@ -165,7 +163,7 @@ public class ExprChangeValue<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(CustomExpression.ExpressionChangeEvent.class)) {
+    if (!ScriptLoader.isCurrentEvent(ExpressionChangeEvent.class)) {
       Skript.error("The change value may only be used in a change handlers.",
           ErrorQuality.SEMANTIC_ERROR);
       return false;

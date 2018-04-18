@@ -1,6 +1,4 @@
-package com.btk5h.skriptmirror.skript;
-
-import org.bukkit.event.Event;
+package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
@@ -8,11 +6,11 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
 
 public class ExprJavaError extends SimpleExpression<String> {
   static {
-    Skript.registerExpression(ExprJavaError.class, String.class, ExpressionType.SIMPLE,
-        "[the] [last] java error");
+    Skript.registerExpression(ExprJavaError.class, String.class, ExpressionType.SIMPLE, "[the] [last] java error");
   }
 
   @Override

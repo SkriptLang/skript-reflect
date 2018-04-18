@@ -1,7 +1,11 @@
-package com.btk5h.skriptmirror.skript;
+package com.btk5h.skriptmirror.skript.reflect;
 
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.Util;
-
 import org.bukkit.event.Event;
 
 import java.lang.reflect.Member;
@@ -9,16 +13,9 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
-
 public class ExprMembers extends SimpleExpression<String> {
   static {
-    PropertyExpression.register(ExprMembers.class, String.class,
-        "(0¦fields|1¦methods|2¦constructors)", "objects");
+    PropertyExpression.register(ExprMembers.class, String.class, "(0¦fields|1¦methods|2¦constructors)", "objects");
   }
 
   private Expression<Object> target;

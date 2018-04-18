@@ -1,4 +1,4 @@
-package com.btk5h.skriptmirror.skript;
+package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;

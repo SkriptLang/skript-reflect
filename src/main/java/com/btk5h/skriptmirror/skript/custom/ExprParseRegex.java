@@ -1,10 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import org.bukkit.event.Event;
-
-import java.util.List;
-import java.util.regex.MatchResult;
-
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
@@ -14,6 +9,14 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
+import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
+import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
+import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
+import org.bukkit.event.Event;
+
+import java.util.List;
+import java.util.regex.MatchResult;
 
 public class ExprParseRegex extends SimpleExpression<String> {
   static {
@@ -60,10 +63,10 @@ public class ExprParseRegex extends SimpleExpression<String> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(
-        CustomEffect.EffectEvent.class,
-        CustomExpression.ExpressionGetEvent.class,
-        CustomExpression.ExpressionChangeEvent.class,
-        CustomCondition.ConditionEvent.class
+        EffectTriggerEvent.class,
+        ExpressionGetEvent.class,
+        ExpressionChangeEvent.class,
+        ConditionCheckEvent.class
         )) {
       Skript.error("The parsed regular expression may only be used in custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);
