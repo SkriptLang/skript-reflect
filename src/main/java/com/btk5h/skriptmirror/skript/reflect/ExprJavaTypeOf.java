@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   static {
-    PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "([java] class|java[ ]type)", "objects");
+    PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "[java] class", "objects");
   }
 
   private Expression<Object> target;

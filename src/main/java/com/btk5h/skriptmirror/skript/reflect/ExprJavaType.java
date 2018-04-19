@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 public class ExprJavaType extends SimpleExpression<JavaType> {
   static {
     Skript.registerExpression(ExprJavaType.class, JavaType.class, ExpressionType.COMBINED,
-        "[the] ([java] class|java[ ]type) %string%");
+        "[the] [java] class %string%");
   }
 
   private Expression<String> className;
