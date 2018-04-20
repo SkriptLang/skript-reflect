@@ -3,7 +3,6 @@ package com.btk5h.skriptmirror.skript.custom;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.EffectCommandEvent;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -66,9 +65,7 @@ public class CustomImport {
     public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
       File currentScript = ScriptLoader.currentScript.getFile();
       SectionNode node = ((SectionNode) SkriptLogger.getNode());
-      for (Node subNode : node) {
-        registerImport(subNode.getKey(), currentScript);
-      }
+      node.forEach(subNode -> registerImport(subNode.getKey(), currentScript));
       Util.clearSectionNode(node);
       return true;
     }
