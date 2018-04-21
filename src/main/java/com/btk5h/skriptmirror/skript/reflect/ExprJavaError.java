@@ -8,25 +8,15 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
-public class ExprJavaError extends SimpleExpression<String> {
+public class ExprJavaError extends SimpleExpression<Throwable> {
   static {
-    Skript.registerExpression(ExprJavaError.class, String.class, ExpressionType.SIMPLE, "[the] [last] java error");
+    Skript.registerExpression(ExprJavaError.class, Throwable.class, ExpressionType.SIMPLE,
+        "[the] [last] [java] (throwable|exception|error)");
   }
 
   @Override
-  protected String[] get(Event e) {
-    Throwable lastError = ExprJavaCall.lastError;
-    if (lastError == null) {
-      if (ExprJavaCall.lastErrorMessage == null) {
-        return new String[0];
-      }
-      return new String[]{ExprJavaCall.lastErrorMessage};
-    }
-    return new String[]{
-        String.format("%s: %s",
-            lastError.getClass().getSimpleName(),
-            lastError.getMessage())
-    };
+  protected Throwable[] get(Event e) {
+    return new Throwable[]{ExprJavaCall.lastError};
   }
 
   @Override
@@ -35,8 +25,8 @@ public class ExprJavaError extends SimpleExpression<String> {
   }
 
   @Override
-  public Class<? extends String> getReturnType() {
-    return String.class;
+  public Class<? extends Throwable> getReturnType() {
+    return Throwable.class;
   }
 
   @Override

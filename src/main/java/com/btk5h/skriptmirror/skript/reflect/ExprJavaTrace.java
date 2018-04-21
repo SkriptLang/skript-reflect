@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class ExprJavaTrace extends SimpleExpression<String> {
   static {
     Skript.registerExpression(ExprJavaTrace.class, String.class, ExpressionType.SIMPLE,
-        "[the] [last] java [stack] trace");
+        "[the] [last] [java] [stack] trace");
   }
 
   @Override

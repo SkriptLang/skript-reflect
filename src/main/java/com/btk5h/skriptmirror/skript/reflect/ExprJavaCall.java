@@ -55,7 +55,6 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
   }
 
-  static String lastErrorMessage;
   static Throwable lastError;
 
   private LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
@@ -182,17 +181,17 @@ public class ExprJavaCall<T> implements Expression<T> {
           }
         }
       } else {
-        lastErrorMessage = String.format("No matching %s: %s%s",
-            type, descriptor, optionalArgs(arguments));
+        lastError = new JavaCallException(String.format("No matching %s: %s%s",
+            type, descriptor, optionalArgs(arguments)));
         if (!suppressErrors) {
-          Skript.warning(lastErrorMessage);
+          Skript.warning(lastError.getMessage());
         }
       }
     } else {
-      lastErrorMessage = String.format("Incompatible %s call: %s on %s",
-          type, descriptor, Util.getDebugName(targetClass));
+      lastError = new JavaCallException(String.format("Incompatible %s call: %s on %s",
+          type, descriptor, Util.getDebugName(targetClass)));
       if (!suppressErrors) {
-        Skript.warning(lastErrorMessage);
+        Skript.warning(lastError.getMessage());
       }
     }
 
@@ -210,15 +209,14 @@ public class ExprJavaCall<T> implements Expression<T> {
       String toClasses = Arrays.stream(types)
           .map(Util::getDebugName)
           .collect(Collectors.joining(", "));
-      lastErrorMessage = String.format("%s %s%s returned %s, which could not be converted to %s",
-          type, descriptor, optionalArgs(arguments), toString(returnedValue), toClasses);
+      lastError = new JavaCallException(String.format("%s %s%s returned %s, which could not be converted to %s",
+          type, descriptor, optionalArgs(arguments), toString(returnedValue), toClasses));
       if (!suppressErrors) {
-        Skript.warning(lastErrorMessage);
+        Skript.warning(lastError.getMessage());
       }
       return Util.newArray(superType, 0);
     }
 
-    lastErrorMessage = null;
     lastError = null;
 
     T[] returnArray = Util.newArray(superType, 1);
