@@ -1,11 +1,13 @@
 package com.btk5h.skriptmirror.skript.custom.expression;
 
+import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-class SyntaxInfo {
+class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
   private final String pattern;
   private final int[] inheritedSingles;
   private final boolean alwaysPlural;
@@ -58,6 +60,7 @@ class SyntaxInfo {
         property);
   }
 
+  @Override
   public String getPattern() {
     return pattern;
   }
