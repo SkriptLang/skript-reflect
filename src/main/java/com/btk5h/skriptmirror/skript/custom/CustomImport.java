@@ -24,7 +24,7 @@ public class CustomImport {
   private static Pattern IMPORT_STATEMENT = Pattern.compile("(" + Util.PACKAGE + ")(?:\\s+as (.+))?");
 
   static {
-    Skript.registerEvent("*Import", SectionImport.class, Event.class, "import");
+    CustomSyntaxSection.register("Import", SectionImport.class, "import");
     Skript.registerEffect(EffImport.class, "import <" + IMPORT_STATEMENT.pattern() + ">");
 
     //noinspection unchecked
@@ -46,7 +46,6 @@ public class CustomImport {
   private static Map<File, Map<String, JavaType>> imports = new HashMap<>();
 
   public static class SectionImport extends SelfRegisteringSkriptEvent {
-
     @Override
     public void register(Trigger t) {
     }
