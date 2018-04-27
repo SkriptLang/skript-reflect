@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   static {
     //noinspection unchecked
-    Skript.registerEvent("*Define Expression", CustomExpressionSection.class, new Class[0],
+    CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
         "[(1¦(plural|non(-|[ ])single|multi[ple]))] expression <.+>",
         "[(1¦(plural|non(-|[ ])single|multi[ple]))] expression",
         "%*classinfo% property <.+>");

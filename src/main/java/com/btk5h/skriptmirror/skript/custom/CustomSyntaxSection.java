@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript.custom;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.*;
@@ -13,6 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxData> extends SelfRegisteringSkriptEvent {
+  @SuppressWarnings("unchecked")
+  public static <E extends SkriptEvent> SkriptEventInfo<E> register(String name, Class<E> c, String... patterns) {
+    return Skript.registerEvent("*" + name, c, new Class[0], patterns);
+  }
+
   public static class DataTracker<T> {
     public DataTracker() {
     }
