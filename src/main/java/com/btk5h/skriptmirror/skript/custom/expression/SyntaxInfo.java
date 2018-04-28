@@ -2,12 +2,14 @@ package com.btk5h.skriptmirror.skript.custom.expression;
 
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
+  private final File script;
   private final String pattern;
   private final int[] inheritedSingles;
   private final boolean alwaysPlural;
@@ -15,8 +17,9 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
   private final boolean property;
 
 
-  private SyntaxInfo(String pattern, int[] inheritedSingles, boolean alwaysPlural,
+  private SyntaxInfo(File script, String pattern, int[] inheritedSingles, boolean alwaysPlural,
              boolean adaptArgument, boolean property) {
+    this.script = script;
     this.pattern = pattern;
     this.inheritedSingles = inheritedSingles;
     this.alwaysPlural = alwaysPlural;
@@ -24,7 +27,7 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
     this.property = property;
   }
 
-  public static SyntaxInfo create(String pattern, boolean alwaysPlural,
+  public static SyntaxInfo create(File script, String pattern, boolean alwaysPlural,
                                   boolean adaptArgument, boolean property) {
     StringBuilder newPattern = new StringBuilder(pattern.length());
     List<Integer> inheritedSingles = new ArrayList<>();
@@ -51,6 +54,7 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
     }
 
     return new SyntaxInfo(
+        script,
         newPattern.toString(),
         inheritedSingles.stream()
             .mapToInt(i -> i)
@@ -58,6 +62,11 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
         alwaysPlural,
         adaptArgument,
         property);
+  }
+
+  @Override
+  public File getScript() {
+    return script;
   }
 
   @Override

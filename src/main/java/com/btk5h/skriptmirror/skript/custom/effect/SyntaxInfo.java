@@ -3,17 +3,25 @@ package com.btk5h.skriptmirror.skript.custom.effect;
 import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 
+import java.io.File;
 import java.util.Objects;
 
 class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
+  private final File script;
   private final String pattern;
 
-  private SyntaxInfo(String pattern) {
+  private SyntaxInfo(File script, String pattern) {
+    this.script = script;
     this.pattern = pattern;
   }
 
-  public static SyntaxInfo create(String pattern) {
-    return new SyntaxInfo(Util.preprocessPattern(pattern));
+  public static SyntaxInfo create(File script, String pattern) {
+    return new SyntaxInfo(script, Util.preprocessPattern(pattern));
+  }
+
+  @Override
+  public File getScript() {
+    return script;
   }
 
   @Override

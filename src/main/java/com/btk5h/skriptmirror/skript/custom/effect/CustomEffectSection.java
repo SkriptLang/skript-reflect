@@ -7,6 +7,7 @@ import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,8 +16,8 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
   static {
     //noinspection unchecked
     CustomSyntaxSection.register("Define Effect", CustomEffectSection.class,
-        "effect <.+>",
-        "effect");
+        "[(1¦local)] effect <.+>",
+        "[(1¦local)] effect");
   }
 
   private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
@@ -48,10 +49,11 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node) {
     SectionNode patterns = (SectionNode) node.get("patterns");
+    File script = (parseResult.mark & 1) == 1 ? Util.getCurrentScript() : null;
 
     switch (matchedPattern) {
       case 0:
-        register(SyntaxInfo.create(parseResult.regexes.get(0).group()));
+        register(SyntaxInfo.create(script, parseResult.regexes.get(0).group()));
         break;
       case 1:
         if (patterns == null) {
@@ -59,7 +61,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
           return false;
         }
 
-        patterns.forEach(subNode -> register(SyntaxInfo.create(subNode.getKey())));
+        patterns.forEach(subNode -> register(SyntaxInfo.create(script, subNode.getKey())));
         break;
     }
 
@@ -77,7 +79,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
     return true;
   }
 
-  public static SyntaxInfo lookup(int matchedPattern) {
-    return dataTracker.lookup(matchedPattern);
+  public static SyntaxInfo lookup(File script, int matchedPattern) {
+    return dataTracker.lookup(script, matchedPattern);
   }
 }

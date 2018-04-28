@@ -9,6 +9,7 @@ import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
@@ -16,9 +17,9 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   static {
     //noinspection unchecked
     CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
-        "[(1¦(plural|non(-|[ ])single|multi[ple]))] expression <.+>",
-        "[(1¦(plural|non(-|[ ])single|multi[ple]))] expression",
-        "%*classinfo% property <.+>");
+        "[(2¦local)] [(1¦(plural|non(-|[ ])single|multi[ple]))] expression <.+>",
+        "[(2¦local)] [(1¦(plural|non(-|[ ])single|multi[ple]))] expression",
+        "[(2¦local)] %*classinfo% property <.+>");
   }
 
   private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
@@ -61,11 +62,12 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   protected boolean init(Literal[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
     String what;
     SectionNode patterns = (SectionNode) node.get("patterns");
+    File script = (parseResult.mark & 2) == 2 ? Util.getCurrentScript() : null;
 
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(SyntaxInfo.create(what, (parseResult.mark & 1) == 1, false, false));
+        register(SyntaxInfo.create(script, what, (parseResult.mark & 1) == 1, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -74,13 +76,13 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
         }
 
         patterns.forEach(subNode ->
-            register(SyntaxInfo.create(subNode.getKey(), (parseResult.mark & 1) == 1, false, false)));
+            register(SyntaxInfo.create(script, subNode.getKey(), (parseResult.mark & 1) == 1, false, false)));
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
         String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        register(SyntaxInfo.create("[the] " + what + " of %$" + fromType + "s%", false, true, true));
-        register(SyntaxInfo.create("%$" + fromType + "s%'[s] " + what, false, false, true));
+        register(SyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", false, true, true));
+        register(SyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, false, false, true));
         break;
     }
 
@@ -117,8 +119,8 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     return true;
   }
 
-  public static SyntaxInfo lookup(int matchedPattern) {
-    return dataTracker.lookup(matchedPattern);
+  public static SyntaxInfo lookup(File script, int matchedPattern) {
+    return dataTracker.lookup(script, matchedPattern);
   }
 }
 

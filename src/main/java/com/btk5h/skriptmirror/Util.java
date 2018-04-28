@@ -2,12 +2,14 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.log.*;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.*;
@@ -303,5 +305,10 @@ public final class Util {
     }
 
     return o.getClass();
+  }
+
+  public static File getCurrentScript() {
+    Config currentScript = ScriptLoader.currentScript;
+    return currentScript == null ? null : currentScript.getFile();
   }
 }

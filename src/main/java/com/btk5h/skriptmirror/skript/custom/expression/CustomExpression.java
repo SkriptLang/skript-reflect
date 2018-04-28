@@ -230,7 +230,11 @@ public class CustomExpression<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomExpressionSection.lookup(matchedPattern);
+    which = CustomExpressionSection.lookup(Util.getCurrentScript(), matchedPattern);
+
+    if (which == null) {
+      return false;
+    }
 
     if (which.shouldAdaptArgument()) {
       Expression<?> lastExpression = exprs[exprs.length - 1];

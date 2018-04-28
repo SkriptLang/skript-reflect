@@ -8,6 +8,7 @@ import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,9 +17,9 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
   static {
     //noinspection unchecked
     CustomSyntaxSection.register("Define Condition", CustomConditionSection.class,
-        "condition <.+>",
-        "condition",
-        "%*classinfo% property condition <.+>");
+        "[(1¦local)] condition <.+>",
+        "[(1¦local)] condition",
+        "[(1¦local)] %*classinfo% property condition <.+>");
   }
 
   private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
@@ -51,11 +52,12 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
                          SectionNode node) {
     String what;
     SectionNode patterns = (SectionNode) node.get("patterns");
+    File script = (parseResult.mark & 1) == 1 ? Util.getCurrentScript() : null;
 
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(SyntaxInfo.create(what, false, false));
+        register(SyntaxInfo.create(script, what, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -63,13 +65,13 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
           return false;
         }
 
-        patterns.forEach(subNode -> register(SyntaxInfo.create(subNode.getKey(), false, false)));
+        patterns.forEach(subNode -> register(SyntaxInfo.create(script, subNode.getKey(), false, false)));
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
         String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        register(SyntaxInfo.create("%" + type + "% (is|are) " + what, false, true));
-        register(SyntaxInfo.create("%" + type + "% (isn't|is not|aren't|are not) " + what, true, true));
+        register(SyntaxInfo.create(script, "%" + type + "% (is|are) " + what, false, true));
+        register(SyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, true, true));
         break;
     }
 
@@ -87,7 +89,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
     return true;
   }
 
-  public static SyntaxInfo lookup(int matchedPattern) {
-    return dataTracker.lookup(matchedPattern);
+  public static SyntaxInfo lookup(File script, int matchedPattern) {
+    return dataTracker.lookup(script, matchedPattern);
   }
 }

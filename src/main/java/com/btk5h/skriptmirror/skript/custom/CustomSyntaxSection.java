@@ -8,10 +8,9 @@ import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxData> extends SelfRegisteringSkriptEvent {
   @SuppressWarnings("unchecked")
@@ -24,8 +23,8 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     }
 
     private final SectionValidator validator = new SectionValidator();
-    private final List<String> patterns = new ArrayList<>();
-    private final Map<String, T> primaryData = new HashMap<>();
+    private List<String> patterns = new ArrayList<>();
+    private final Map<File, Map<String, T>> primaryData = new HashMap<>();
     private final List<Map<T, ?>> managedData = new ArrayList<>();
     private String syntaxType = "syntax";
     private SyntaxElementInfo<?> info;
@@ -38,7 +37,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
       return patterns;
     }
 
-    public Map<String, T> getPrimaryData() {
+    public Map<File, Map<String, T>> getPrimaryData() {
       return primaryData;
     }
 
@@ -54,6 +53,15 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
       return info;
     }
 
+    public void recomputePatterns() {
+      patterns = primaryData.entrySet().stream()
+          .map(Map.Entry::getValue)
+          .map(Map::keySet)
+          .flatMap(Set::stream)
+          .distinct()
+          .collect(Collectors.toList());
+    }
+
     public void addManaged(Map<T, ?> data) {
       managedData.add(data);
     }
@@ -67,13 +75,30 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     }
 
 
-    public final T lookup(int matchedPattern) {
+    public final T lookup(File script, int matchedPattern) {
       String originalSyntax = patterns.get(matchedPattern);
-      return primaryData.get(originalSyntax);
+      Map<String, T> localSyntax = primaryData.get(script);
+
+      if (localSyntax != null) {
+        T privateResult = localSyntax.get(originalSyntax);
+        if (privateResult != null) {
+          return privateResult;
+        }
+      }
+
+      Map<String, T> globalSyntax = primaryData.get(null);
+
+      if (globalSyntax == null || !globalSyntax.containsKey(originalSyntax)) {
+        return null;
+      }
+
+      return globalSyntax.get(originalSyntax);
     }
   }
 
   public interface SyntaxData {
+    File getScript();
+
     String getPattern();
   }
 
@@ -88,8 +113,15 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
   @Override
   public void unregister(Trigger t) {
     whichInfo.forEach(which -> {
-      getDataTracker().getPatterns().remove(which.getPattern());
-      getDataTracker().getPrimaryData().remove(which.getPattern());
+      Map<File, Map<String, T>> primaryData = getDataTracker().getPrimaryData();
+      File script = which.getScript();
+
+      Map<String, T> syntaxes = primaryData.get(script);
+      syntaxes.remove(which.getPattern());
+      if (syntaxes.size() == 0) {
+        primaryData.remove(script);
+      }
+
       getDataTracker().getManagedData().forEach(data -> data.remove(which));
     });
 
@@ -135,6 +167,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
   }
 
   private void update() {
+    getDataTracker().recomputePatterns();
     Util.setPatterns(getDataTracker().getInfo(), getDataTracker().getPatterns().toArray(new String[0]));
   }
 
@@ -143,7 +176,8 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
     whichInfo.add(data);
 
-    getDataTracker().getPatterns().add(pattern);
-    getDataTracker().getPrimaryData().put(pattern, data);
+    getDataTracker().getPrimaryData()
+        .computeIfAbsent(data.getScript(), f -> new HashMap<>())
+        .put(pattern, data);
   }
 }

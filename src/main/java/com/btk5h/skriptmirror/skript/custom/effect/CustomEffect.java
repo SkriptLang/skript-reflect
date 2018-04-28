@@ -49,7 +49,12 @@ public class CustomEffect extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomEffectSection.lookup(matchedPattern);
+    which = CustomEffectSection.lookup(Util.getCurrentScript(), matchedPattern);
+
+    if (which == null) {
+      return false;
+    }
+
     this.exprs = Arrays.stream(exprs)
         .map(Util::defendExpression)
         .toArray(Expression[]::new);
