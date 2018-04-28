@@ -1,10 +1,11 @@
 package com.btk5h.skriptmirror.skript.custom.condition;
 
 import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 
 import java.util.Objects;
 
-class SyntaxInfo {
+class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
   private final String pattern;
   private final boolean inverted;
   private final boolean property;
@@ -19,6 +20,7 @@ class SyntaxInfo {
     return new SyntaxInfo(Util.preprocessPattern(pattern), inverted, property);
   }
 
+  @Override
   public String getPattern() {
     return pattern;
   }

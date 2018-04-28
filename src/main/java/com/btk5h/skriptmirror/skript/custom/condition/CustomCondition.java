@@ -61,8 +61,7 @@ public class CustomCondition extends Condition {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    String pattern = CustomConditionSection.conditions.get(matchedPattern);
-    which = CustomConditionSection.conditionInfos.get(pattern);
+    which = CustomConditionSection.lookup(matchedPattern);
     this.exprs = Arrays.stream(exprs)
         .map(Util::defendExpression)
         .toArray(Expression[]::new);
