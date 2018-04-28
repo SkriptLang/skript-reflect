@@ -47,26 +47,23 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
   @Override
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node) {
+    SectionNode patterns = (SectionNode) node.get("patterns");
+
     switch (matchedPattern) {
       case 0:
         register(SyntaxInfo.create(parseResult.regexes.get(0).group()));
         break;
       case 1:
-        // handled below
+        if (patterns == null) {
+          Skript.error("Custom effects without inline patterns must have a patterns section.");
+          return false;
+        }
+
+        patterns.forEach(subNode -> register(SyntaxInfo.create(subNode.getKey())));
         break;
     }
 
-    SectionNode patterns = ((SectionNode) node.get("patterns"));
-
-    if (matchedPattern == 1) {
-      if (patterns == null) {
-        Skript.error("Custom effects without inline patterns must have a patterns section.");
-        return false;
-      }
-
-      patterns.forEach(subNode -> register(SyntaxInfo.create(subNode.getKey())));
-
-    } else if (patterns != null) {
+    if (matchedPattern != 1 && patterns != null) {
       Skript.error("Custom effects with inline patterns may not have a patterns section.");
       return false;
     }
