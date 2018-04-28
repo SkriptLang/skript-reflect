@@ -9,7 +9,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class CustomEffect extends Effect {
-  private String which;
+  private SyntaxInfo which;
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
 
@@ -32,7 +32,7 @@ public class CustomEffect extends Effect {
 
   private EffectTriggerEvent invokeEffect(Event e) {
     Trigger trigger = CustomEffectSection.effectHandlers.get(which);
-    EffectTriggerEvent effectEvent = new EffectTriggerEvent(e, exprs, parseResult, which, getNext());
+    EffectTriggerEvent effectEvent = new EffectTriggerEvent(e, exprs, parseResult, which.getPattern(), getNext());
     if (trigger == null) {
       Skript.error(String.format("The custom effect '%s' no longer has a handler.", which));
     } else {
@@ -43,13 +43,13 @@ public class CustomEffect extends Effect {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return which;
+    return which.getPattern();
   }
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomEffectSection.effects.get(matchedPattern);
+    which = CustomEffectSection.lookup(matchedPattern);
     this.exprs = Arrays.stream(exprs)
         .map(Util::defendExpression)
         .toArray(Expression[]::new);
