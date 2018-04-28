@@ -60,7 +60,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   @Override
   protected boolean init(Literal[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
     String what;
-    SectionNode patterns = ((SectionNode) node.get("patterns"));
+    SectionNode patterns = (SectionNode) node.get("patterns");
 
     switch (matchedPattern) {
       case 0:
@@ -93,8 +93,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     Util.getItemsFromNode(node, "get").ifPresent(items ->
         whichInfo.forEach(which ->
             expressionHandlers.put(which,
-                new Trigger(ScriptLoader.currentScript.getFile(), "get " + which.getPattern(),
-                    this, items))
+                new Trigger(ScriptLoader.currentScript.getFile(), "get " + which.getPattern(), this, items))
         )
     );
 
