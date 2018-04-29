@@ -1,9 +1,11 @@
 package com.btk5h.skriptmirror.skript.custom.effect;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
@@ -60,6 +62,18 @@ public class CustomEffect extends Effect {
         .toArray(Expression[]::new);
     this.parseResult = parseResult;
 
-    return Util.canInitSafely(this.exprs);
+    if (!Util.canInitSafely(this.exprs)) {
+      return false;
+    }
+
+    Trigger parseHandler = CustomEffectSection.parserHandlers.get(which);
+
+    if (parseHandler != null) {
+      SyntaxParseEvent event = new SyntaxParseEvent(this.exprs, parseResult, ScriptLoader.getCurrentEvents());
+      parseHandler.execute(event);
+      return event.isMarkedContinue();
+    }
+
+    return true;
   }
 }

@@ -8,6 +8,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 
 import java.io.File;
 import java.util.*;
@@ -26,6 +27,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
 
   static Map<SyntaxInfo, Class<?>> returnTypes = new HashMap<>();
   static Map<SyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
+  static Map<SyntaxInfo, Trigger> parserHandlers = new HashMap<>();
   static Map<SyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
 
   static {
@@ -34,7 +36,8 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     dataTracker.getValidator()
         .addEntry("return type", true)
         .addSection("get", true)
-        .addSection("patterns", true);
+        .addSection("patterns", true)
+        .addSection("parse", true);
     Arrays.stream(Changer.ChangeMode.values())
         .map(mode -> mode.name().replace("_", " ").toLowerCase())
         .forEach(mode -> dataTracker.getValidator().addSection(mode, true));
@@ -50,6 +53,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     dataTracker.addManaged(returnTypes);
     dataTracker.addManaged(expressionHandlers);
     dataTracker.addManaged(changerHandlers);
+    dataTracker.addManaged(parserHandlers);
   }
 
   @Override
@@ -99,6 +103,16 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
         )
     );
 
+    SyntaxParseEvent.register(this, node, whichInfo, parserHandlers);
+
+    ScriptLoader.setCurrentEvent("custom expression parser", SyntaxParseEvent.class);
+    Util.getItemsFromNode(node, "parse").ifPresent(items ->
+        whichInfo.forEach(which ->
+            expressionHandlers.put(which,
+                new Trigger(ScriptLoader.currentScript.getFile(), "parse " + which.getPattern(), this, items))
+        )
+    );
+
     Arrays.stream(Changer.ChangeMode.values())
         .forEach(mode -> {
           String name = mode.name().replace("_", " ").toLowerCase();
@@ -114,7 +128,6 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
               )
           );
         });
-
 
     return true;
   }

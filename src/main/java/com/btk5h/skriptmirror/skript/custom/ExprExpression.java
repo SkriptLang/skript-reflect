@@ -176,7 +176,8 @@ public class ExprExpression<T> implements Expression<T> {
         EffectTriggerEvent.class,
         ExpressionGetEvent.class,
         ExpressionChangeEvent.class,
-        ConditionCheckEvent.class
+        ConditionCheckEvent.class,
+        SyntaxParseEvent.class
     )) {
       Skript.error("The expression 'expression' may only be used in a custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);

@@ -7,6 +7,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 
 import java.io.File;
 import java.util.HashMap;
@@ -25,12 +26,14 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
   private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
 
   static Map<SyntaxInfo, Trigger> conditionHandlers = new HashMap<>();
+  static Map<SyntaxInfo, Trigger> parserHandlers = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("condition");
 
     dataTracker.getValidator()
-        .addSection("check", false);
+        .addSection("check", false)
+        .addSection("parse", true);
 
     Skript.registerCondition(CustomCondition.class);
     Optional<SyntaxElementInfo<? extends Condition>> info = Skript.getConditions().stream()
@@ -39,6 +42,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
     info.ifPresent(dataTracker::setInfo);
 
     dataTracker.addManaged(conditionHandlers);
+    dataTracker.addManaged(parserHandlers);
   }
 
   @Override
@@ -85,6 +89,8 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
         whichInfo.forEach(which -> conditionHandlers.put(which,
             new Trigger(ScriptLoader.currentScript.getFile(), "condition " + which, this, items)))
     );
+
+    SyntaxParseEvent.register(this, node, whichInfo, parserHandlers);
 
     return true;
   }

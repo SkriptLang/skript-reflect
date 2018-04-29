@@ -39,6 +39,8 @@ public class EffContinue extends Effect {
       }
     } else if (e instanceof ConditionCheckEvent) {
       ((ConditionCheckEvent) e).markContinue();
+    } else if (e instanceof SyntaxParseEvent) {
+      ((SyntaxParseEvent) e).markContinue();
     }
 
     return null;
@@ -53,7 +55,7 @@ public class EffContinue extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(EffectTriggerEvent.class, ConditionCheckEvent.class)) {
+    if (!ScriptLoader.isCurrentEvent(EffectTriggerEvent.class, ConditionCheckEvent.class, SyntaxParseEvent.class)) {
       Skript.error("Return may only be used in custom effects and conditions.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

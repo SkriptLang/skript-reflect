@@ -6,6 +6,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 
 import java.io.File;
 import java.util.HashMap;
@@ -23,13 +24,15 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
   private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
 
   static final Map<SyntaxInfo, Trigger> effectHandlers = new HashMap<>();
+  static final Map<SyntaxInfo,Trigger> parserHandlers = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("effect");
 
     dataTracker.getValidator()
         .addSection("trigger", false)
-        .addSection("patterns", true);
+        .addSection("patterns", true)
+        .addSection("parse", true);
 
     Skript.registerEffect(CustomEffect.class);
     Optional<SyntaxElementInfo<? extends Effect>> info = Skript.getEffects().stream()
@@ -38,7 +41,9 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
     info.ifPresent(dataTracker::setInfo);
 
     dataTracker.addManaged(effectHandlers);
+    dataTracker.addManaged(parserHandlers);
   }
+
   @Override
   public DataTracker<SyntaxInfo> getDataTracker() {
     return dataTracker;
@@ -75,6 +80,8 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
         .ifPresent(items -> whichInfo.forEach(which ->
             effectHandlers.put(which, new Trigger(ScriptLoader.currentScript.getFile(), "effect " + which, this, items))
         ));
+
+    SyntaxParseEvent.register(this, node, whichInfo, parserHandlers);
 
     return true;
   }
