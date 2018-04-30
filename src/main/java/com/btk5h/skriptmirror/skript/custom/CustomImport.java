@@ -77,7 +77,7 @@ public class CustomImport {
   }
 
   private static void registerImport(String rawStatement, File script) {
-    Matcher statement = IMPORT_STATEMENT.matcher(rawStatement);
+    Matcher statement = IMPORT_STATEMENT.matcher(ScriptLoader.replaceOptions(rawStatement));
     if (!statement.matches()) {
       Skript.warning(rawStatement + " is an invalid import statement.");
       return;
