@@ -42,6 +42,7 @@ public class ExprArrayAccess<T> implements Expression<T> {
 
     if (source != null) {
       this.arrays = source.arrays;
+      this.index = source.index;
     }
 
     this.types = types;
