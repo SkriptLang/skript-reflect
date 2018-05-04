@@ -21,7 +21,8 @@ import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 public class CustomImport {
-  private static Pattern IMPORT_STATEMENT = Pattern.compile("(" + Util.PACKAGE + ")(?:\\s+as (.+))?");
+  private static Pattern IMPORT_STATEMENT =
+      Pattern.compile("(" + Util.PACKAGE + ")(?:\\s+as (" + Util.IDENTIFIER + "))?");
 
   static {
     CustomSyntaxSection.register("Import", SectionImport.class, "import");
