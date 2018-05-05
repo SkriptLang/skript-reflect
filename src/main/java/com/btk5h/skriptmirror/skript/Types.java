@@ -8,10 +8,10 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
-import com.btk5h.skriptmirror.ArrayWrapper;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.Null;
+import com.btk5h.skriptmirror.ObjectWrapper;
 import org.bukkit.event.Event;
 
 import java.io.NotSerializableException;
@@ -173,10 +173,11 @@ public class Types {
         })
     );
 
-    Classes.registerClass(new ClassInfo<>(ArrayWrapper.class, "array")
-        .parser(new Parser<ArrayWrapper>() {
+    Classes.registerClass(new ClassInfo<>(ObjectWrapper.class, "javaobject")
+        .user("javaobjects?")
+        .parser(new Parser<ObjectWrapper>() {
           @Override
-          public ArrayWrapper parse(String s, ParseContext context) {
+          public ObjectWrapper parse(String s, ParseContext context) {
             return null;
           }
 
@@ -186,15 +187,19 @@ public class Types {
           }
 
           @Override
-          public String toString(ArrayWrapper o, int flags) {
-            return Arrays.stream(o.getArray())
-                .map(Classes::toString)
-                .collect(Collectors.joining(", "));
+          public String toString(ObjectWrapper o, int flags) {
+            if (o instanceof ObjectWrapper.OfArray) {
+              return Arrays.stream(((ObjectWrapper.OfArray) o).get())
+                  .map(Classes::toString)
+                  .collect(Collectors.joining(", "));
+            }
+
+            return Classes.toString(o.get());
           }
 
           @Override
-          public String toVariableNameString(ArrayWrapper o) {
-            return Arrays.toString(o.getArray());
+          public String toVariableNameString(ObjectWrapper o) {
+            return o.toString();
           }
 
           @Override

@@ -11,7 +11,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.ArrayWrapper;
+import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
 
@@ -20,10 +20,11 @@ import java.util.Iterator;
 public class ExprArrayAccess<T> implements Expression<T> {
   static {
     //noinspection unchecked
-    Skript.registerExpression(ExprArrayAccess.class, Object.class, ExpressionType.COMBINED, "%array%\\[%number%\\]");
+    Skript.registerExpression(ExprArrayAccess.class, Object.class, ExpressionType.COMBINED,
+        "%javaobject%\\[%number%\\]");
   }
 
-  private Expression<ArrayWrapper> arrays;
+  private Expression<ObjectWrapper> arrays;
   private Expression<Number> index;
 
   private final ExprArrayAccess<?> source;
@@ -51,14 +52,14 @@ public class ExprArrayAccess<T> implements Expression<T> {
 
   @Override
   public T getSingle(Event e) {
-    ArrayWrapper wrapper = arrays.getSingle(e);
+    ObjectWrapper wrapper = arrays.getSingle(e);
     Number i = index.getSingle(e);
 
-    if (wrapper == null || i == null) {
+    if (!(wrapper instanceof ObjectWrapper.OfArray) || i == null) {
       return null;
     }
 
-    Object[] array = wrapper.getArray();
+    Object[] array = ((ObjectWrapper.OfArray) wrapper).get();
 
     try {
       return Converters.convert(array[i.intValue()], types);
@@ -161,14 +162,14 @@ public class ExprArrayAccess<T> implements Expression<T> {
 
   @Override
   public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
-    ArrayWrapper wrapper = arrays.getSingle(e);
+    ObjectWrapper wrapper = arrays.getSingle(e);
     Number i = index.getSingle(e);
 
-    if (wrapper == null || i == null) {
+    if (!(wrapper instanceof ObjectWrapper.OfArray) || i == null) {
       return;
     }
 
-    Object[] array = wrapper.getArray();
+    Object[] array = ((ObjectWrapper.OfArray) wrapper).get();
 
     try {
       switch (mode) {
@@ -196,7 +197,7 @@ public class ExprArrayAccess<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    arrays = (Expression<ArrayWrapper>) exprs[0];
+    arrays = (Expression<ObjectWrapper>) exprs[0];
     index = (Expression<Number>) exprs[1];
     return true;
   }

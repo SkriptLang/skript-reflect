@@ -96,6 +96,16 @@ public class ExprJavaCall<T> implements Expression<T> {
     this.superType = (Class<T>) Utils.getSuperType(types);
   }
 
+  private Object getTargetObject(Event e) {
+    Object obj = targetArg.getSingle(e);
+
+    if (obj instanceof ObjectWrapper) {
+      return ((ObjectWrapper) obj).get();
+    }
+
+    return obj;
+  }
+
   private Collection<MethodHandle> getCallSite(Descriptor e) {
     return callSiteCache.computeIfAbsent(e, this::createCallSite);
   }
@@ -199,8 +209,13 @@ public class ExprJavaCall<T> implements Expression<T> {
       return Util.newArray(superType, 0);
     }
 
-    if ((superType == Object.class || superType == ArrayWrapper.class) && returnedValue.getClass().isArray()) {
-      returnedValue = (T) new ArrayWrapper((Object[]) Util.boxPrimitiveArray(returnedValue));
+    if (superType == Object.class || superType == ObjectWrapper.class) {
+      Class<?> returnedClass = returnedValue.getClass();
+      if (returnedClass.isArray()) {
+        returnedValue = (T) ObjectWrapper.create(Util.boxPrimitiveArray(returnedValue));
+      } else if (Classes.getSuperClassInfo(returnedClass).getC() == Object.class) {
+        returnedValue = (T) ObjectWrapper.create(returnedValue);
+      }
     }
 
     T converted = Converters.convert(returnedValue, types);
@@ -291,8 +306,8 @@ public class ExprJavaCall<T> implements Expression<T> {
       Class<?> param = params[i];
       Object arg = args[i];
 
-      if (arg instanceof ArrayWrapper) {
-        arg = ((ArrayWrapper) arg).getArray();
+      if (arg instanceof ObjectWrapper) {
+        arg = ((ObjectWrapper) arg).get();
       }
 
       if (!param.isInstance(arg)) {
@@ -331,8 +346,8 @@ public class ExprJavaCall<T> implements Expression<T> {
     for (int i = 0; i < params.length; i++) {
       Class<?> param = params[i];
 
-      if (args[i] instanceof ArrayWrapper) {
-        args[i] = ((ArrayWrapper) args[i]).getArray();
+      if (args[i] instanceof ObjectWrapper) {
+        args[i] = ((ObjectWrapper) args[i]).get();
       }
 
       if (param.isPrimitive() && args[i] instanceof Number) {
@@ -395,7 +410,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   @SuppressWarnings("unchecked")
   @Override
   public T[] getAll(Event e) {
-    Object target = targetArg.getSingle(e);
+    Object target = getTargetObject(e);
     Object[] arguments;
 
     if (target == null) {
@@ -519,7 +534,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   @Override
   public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
-    Object target = targetArg.getSingle(e);
+    Object target = getTargetObject(e);
     if (target == null) {
       return;
     }

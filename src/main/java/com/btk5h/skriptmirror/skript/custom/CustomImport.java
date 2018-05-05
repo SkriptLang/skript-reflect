@@ -183,4 +183,14 @@ public class CustomImport {
     protected void execute(Event e) {
     }
   }
+
+  public static JavaType lookup(File script, String identifier) {
+    Map<String, JavaType> localImports = imports.get(script);
+
+    if (localImports == null) {
+      return null;
+    }
+
+    return localImports.get(identifier);
+  }
 }

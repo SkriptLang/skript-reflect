@@ -154,7 +154,7 @@ public final class Util {
         newPattern.append(part);
       } else {
         if (part.startsWith("_")) {
-          part = part.endsWith("s") ? "objects" : "object";
+          part = part.endsWith("s") ? "javaobjects" : "javaobject";
         }
 
         newPattern.append('%');
@@ -296,8 +296,8 @@ public final class Util {
   }
 
   public static Class<?> getClass(Object o) {
-    if (o instanceof ArrayWrapper) {
-      return ((ArrayWrapper) o).getArray().getClass();
+    if (o instanceof ObjectWrapper) {
+      return ((ObjectWrapper) o).get().getClass();
     }
 
     if (o == null) {

@@ -44,7 +44,7 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
         }
 
         if (part.startsWith("_")) {
-          part = part.endsWith("s") ? "objects" : "object";
+          part = part.endsWith("s") ? "javaobject" : "javaobjects";
         }
 
         newPattern.append('%');

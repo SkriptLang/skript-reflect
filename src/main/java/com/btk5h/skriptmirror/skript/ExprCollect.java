@@ -6,8 +6,8 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.ArrayWrapper;
 import com.btk5h.skriptmirror.Null;
+import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
 
@@ -15,15 +15,15 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ExprCollect extends SimpleExpression<ArrayWrapper> {
+public class ExprCollect extends SimpleExpression<ObjectWrapper> {
   static {
-    Skript.registerExpression(ExprCollect.class, ArrayWrapper.class, ExpressionType.COMBINED, "\\[%objects%\\]");
+    Skript.registerExpression(ExprCollect.class, ObjectWrapper.class, ExpressionType.COMBINED, "\\[%objects%\\]");
   }
 
   private Expression<Object> objects;
 
   @Override
-  protected ArrayWrapper[] get(Event e) {
+  protected ObjectWrapper[] get(Event e) {
     Object[] items =
         Arrays.stream(objects.getArray(e))
             .map(o -> o instanceof Null ? null : o)
@@ -32,7 +32,7 @@ public class ExprCollect extends SimpleExpression<ArrayWrapper> {
 
     System.arraycopy(items, 0, castedItems, 0, items.length);
 
-    return new ArrayWrapper[]{new ArrayWrapper(castedItems)};
+    return new ObjectWrapper[]{ObjectWrapper.create(castedItems)};
   }
 
   private static Class<?> getCommonSuperclass(Object[] objects) {
@@ -64,8 +64,8 @@ public class ExprCollect extends SimpleExpression<ArrayWrapper> {
   }
 
   @Override
-  public Class<? extends ArrayWrapper> getReturnType() {
-    return ArrayWrapper.class;
+  public Class<? extends ObjectWrapper> getReturnType() {
+    return ObjectWrapper.class;
   }
 
   @Override

@@ -11,7 +11,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.ArrayWrapper;
+import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.Util;
 import org.bukkit.event.Event;
 
@@ -70,8 +70,8 @@ public class ExprSpread<T> implements Expression<T> {
       obj = toArray(((Iterable) obj).iterator());
     } else if (obj instanceof Iterator) {
       obj = toArray((Iterator<?>) obj);
-    } else if (obj instanceof ArrayWrapper) {
-      obj = ((ArrayWrapper) obj).getArray();
+    } else if (obj instanceof ObjectWrapper.OfArray) {
+      obj = ((ObjectWrapper.OfArray) obj).get();
     }
 
     if (obj == null || !obj.getClass().isArray()) {
