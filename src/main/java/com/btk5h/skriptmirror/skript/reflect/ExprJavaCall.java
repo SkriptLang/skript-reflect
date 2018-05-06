@@ -177,7 +177,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       if (method.isPresent()) {
         MethodHandle mh = method.get();
 
-        convertTypes(mh.type(), arr);
+        convertTypes(mh, arr);
 
         try {
           returnedValue = (T) mh.invokeWithArguments(arr);
@@ -340,11 +340,16 @@ public class ExprJavaCall<T> implements Expression<T> {
     return true;
   }
 
-  private static void convertTypes(MethodType mt, Object[] args) {
-    Class<?>[] params = mt.parameterArray();
+  private static void convertTypes(MethodHandle mh, Object[] args) {
+    Class<?>[] params = mh.type().parameterArray();
 
-    for (int i = 0; i < params.length; i++) {
-      Class<?> param = params[i];
+    for (int i = 0; i < args.length; i++) {
+      Class<?> param;
+      if (mh.isVarargsCollector() && i >= params.length) {
+        param = params[params.length - 1];
+      } else {
+        param = params[i];
+      }
 
       if (args[i] instanceof ObjectWrapper) {
         args[i] = ((ObjectWrapper) args[i]).get();
