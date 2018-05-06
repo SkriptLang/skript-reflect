@@ -18,8 +18,8 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   static {
     //noinspection unchecked
     CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
-        "[(2¦local)] [(1¦(plural|non(-|[ ])single|multi[ple]))] expression <.+>",
-        "[(2¦local)] [(1¦(plural|non(-|[ ])single|multi[ple]))] expression",
+        "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
+        "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression",
         "[(2¦local)] %*classinfo% property <.+>");
   }
 
