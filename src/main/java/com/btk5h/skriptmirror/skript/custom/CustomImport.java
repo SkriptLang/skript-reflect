@@ -65,6 +65,11 @@ public class CustomImport {
     public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
       File currentScript = ScriptLoader.currentScript.getFile();
       SectionNode node = ((SectionNode) SkriptLogger.getNode());
+
+      if (node.getKey().toLowerCase().startsWith("on ")) {
+        return false;
+      }
+
       node.forEach(subNode -> registerImport(subNode.getKey(), currentScript));
       Util.clearSectionNode(node);
       return true;

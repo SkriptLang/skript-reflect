@@ -142,7 +142,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     SectionNode node = (SectionNode) SkriptLogger.getNode();
     node.convertToEntries(0);
 
-    if (!getDataTracker().getValidator().validate(node)) {
+    if (node.getKey().toLowerCase().startsWith("on ") || !getDataTracker().getValidator().validate(node)) {
       return false;
     }
 
