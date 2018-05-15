@@ -113,16 +113,14 @@ public final class Util {
     return Stream.concat(
         Arrays.stream(cls.getFields()),
         Arrays.stream(cls.getDeclaredFields())
-            .filter(Util::notPublic)
-    );
+    ).distinct();
   }
 
   public static Stream<Method> methods(Class<?> cls) {
     return Stream.concat(
         Arrays.stream(cls.getMethods()),
         Arrays.stream(cls.getDeclaredMethods())
-            .filter(Util::notPublic)
-    );
+    ).distinct();
   }
 
   public static Stream<Constructor> constructor(Class<?> cls) {
@@ -138,10 +136,6 @@ public final class Util {
       return ((Constructor) o).toGenericString();
     }
     return null;
-  }
-
-  public static boolean notPublic(Member m) {
-    return !Modifier.isPublic(m.getModifiers());
   }
 
   public static String preprocessPattern(String pattern) {
