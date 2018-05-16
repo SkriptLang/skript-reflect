@@ -105,14 +105,6 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
 
     SyntaxParseEvent.register(this, node, whichInfo, parserHandlers);
 
-    ScriptLoader.setCurrentEvent("custom expression parser", SyntaxParseEvent.class);
-    Util.getItemsFromNode(node, "parse").ifPresent(items ->
-        whichInfo.forEach(which ->
-            expressionHandlers.put(which,
-                new Trigger(ScriptLoader.currentScript.getFile(), "parse " + which.getPattern(), this, items))
-        )
-    );
-
     Arrays.stream(Changer.ChangeMode.values())
         .forEach(mode -> {
           String name = mode.name().replace("_", " ").toLowerCase();
