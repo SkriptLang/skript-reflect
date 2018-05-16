@@ -25,7 +25,7 @@ public class SyntaxParseEvent extends CustomSyntaxEvent {
 
   private static Expression<?>[] wrapRawExpressions(Expression<?>[] expressions) {
     return Arrays.stream(expressions)
-        .map(expr -> new SimpleLiteral<>(expr, false))
+        .map(expr -> expr == null ? null : new SimpleLiteral<>(expr, false))
         .toArray(Expression[]::new);
   }
 
