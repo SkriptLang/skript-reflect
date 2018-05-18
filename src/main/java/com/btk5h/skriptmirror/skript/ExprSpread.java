@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ExprSpread<T> implements Expression<T> {
   static {
@@ -68,6 +69,8 @@ public class ExprSpread<T> implements Expression<T> {
       obj = ((Collection) obj).toArray();
     } else if (obj instanceof Iterable) {
       obj = toArray(((Iterable) obj).iterator());
+    } else if (obj instanceof Stream) {
+      obj = toArray(((Stream) obj).iterator());
     } else if (obj instanceof Iterator) {
       obj = toArray((Iterator<?>) obj);
     } else if (obj instanceof ObjectWrapper.OfArray) {
