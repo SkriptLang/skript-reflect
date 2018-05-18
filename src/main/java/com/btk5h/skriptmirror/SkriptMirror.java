@@ -30,7 +30,8 @@ public class SkriptMirror extends JavaPlugin {
 
   public static SkriptAddon getAddonInstance() {
     if (addonInstance == null) {
-      addonInstance = Skript.registerAddon(getInstance());
+      addonInstance = Skript.registerAddon(getInstance())
+          .setLanguageFileDirectory("lang");
     }
     return addonInstance;
   }
