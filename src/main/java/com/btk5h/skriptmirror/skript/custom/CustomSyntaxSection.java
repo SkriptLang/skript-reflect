@@ -153,7 +153,6 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     }
 
     Util.clearSectionNode(node);
-    update();
 
     return ok;
   }
@@ -179,5 +178,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     getDataTracker().getPrimaryData()
         .computeIfAbsent(data.getScript(), f -> new HashMap<>())
         .put(pattern, data);
+
+    update();
   }
 }
