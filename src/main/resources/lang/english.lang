@@ -1,5 +1,5 @@
 types:
   event: event¦s @an
-  javatype: javatype¦s @a
+  javatype: java class¦es @a
   null: null¦s @a
-  javaobject: javaobject¦s @a
+  javaobject: java object¦s @a
