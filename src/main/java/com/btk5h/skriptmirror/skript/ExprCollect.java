@@ -27,6 +27,7 @@ public class ExprCollect extends SimpleExpression<ObjectWrapper> {
     Object[] items =
         Arrays.stream(objects.getArray(e))
             .map(o -> o instanceof Null ? null : o)
+            .map(o -> o instanceof ObjectWrapper ? ((ObjectWrapper) o).get() : o)
             .toArray();
     Object[] castedItems = Util.newArray(getCommonSuperclass(items), items.length);
 
