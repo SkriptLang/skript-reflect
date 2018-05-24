@@ -12,6 +12,10 @@ public class ObjectWrapper {
   }
 
   public static ObjectWrapper create(Object object) {
+    if (object instanceof ObjectWrapper) {
+      return (ObjectWrapper) object;
+    }
+
     if (object.getClass().isArray()) {
       return new OfArray((Object[]) object);
     }
