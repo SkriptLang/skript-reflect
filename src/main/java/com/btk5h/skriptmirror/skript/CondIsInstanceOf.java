@@ -23,7 +23,7 @@ public class CondIsInstanceOf extends Condition {
   public boolean check(Event e) {
     return objects.check(e, o ->
         type.check(e, t ->
-                t.getJavaClass().isInstance(o),
+                t.getJavaClass().isAssignableFrom(Util.getClass(o)),
             isNegated()
         )
     );
