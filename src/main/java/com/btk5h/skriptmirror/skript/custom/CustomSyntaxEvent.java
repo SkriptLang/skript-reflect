@@ -6,9 +6,6 @@ import org.bukkit.event.Event;
 
 import java.util.Arrays;
 
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-
 public abstract class CustomSyntaxEvent extends WrappedEvent {
   private Expression<?>[] expressions;
   private final SkriptParser.ParseResult parseResult;
