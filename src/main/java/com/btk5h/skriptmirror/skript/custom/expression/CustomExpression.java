@@ -15,6 +15,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
@@ -25,6 +26,7 @@ public class CustomExpression<T> implements Expression<T> {
   private SyntaxInfo which;
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
+  private Event parseEvent;
 
   private final CustomExpression<?> source;
   private final Class<? extends T>[] types;
@@ -82,6 +84,7 @@ public class CustomExpression<T> implements Expression<T> {
 
   private T[] getByStandard(Event e, Trigger getter) {
     ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, parseResult);
+    SkriptReflection.copyVariablesMap(parseEvent, expressionEvent);
     getter.execute(expressionEvent);
     if (expressionEvent.getOutput() == null) {
       Skript.error(
@@ -100,6 +103,7 @@ public class CustomExpression<T> implements Expression<T> {
       localExprs[0] = new SimpleLiteral<>(o, false);
 
       ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, localExprs, parseResult);
+      SkriptReflection.copyVariablesMap(parseEvent, expressionEvent);
       getter.execute(expressionEvent);
 
       Object[] exprOutput = expressionEvent.getOutput();
@@ -226,7 +230,9 @@ public class CustomExpression<T> implements Expression<T> {
               which.getPattern(), mode.name())
       );
     } else {
-      changer.execute(new ExpressionChangeEvent(e, exprs, parseResult, delta));
+      ExpressionChangeEvent changeEvent = new ExpressionChangeEvent(e, exprs, parseResult, delta);
+      SkriptReflection.copyVariablesMap(parseEvent, changeEvent);
+      changer.execute(changeEvent);
     }
   }
 
@@ -259,6 +265,11 @@ public class CustomExpression<T> implements Expression<T> {
     if (parseHandler != null) {
       SyntaxParseEvent event = new SyntaxParseEvent(this.exprs, parseResult, ScriptLoader.getCurrentEvents());
       parseHandler.execute(event);
+
+      if (SkriptReflection.hasLocalVariables(event)) {
+        parseEvent = event;
+      }
+
       return event.isMarkedContinue();
     }
 

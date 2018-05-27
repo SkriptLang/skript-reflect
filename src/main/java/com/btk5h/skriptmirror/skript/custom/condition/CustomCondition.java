@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
@@ -19,6 +20,7 @@ public class CustomCondition extends Condition {
   private SyntaxInfo which;
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
+  private Event parseEvent;
 
   @Override
   public boolean check(Event e) {
@@ -40,6 +42,7 @@ public class CustomCondition extends Condition {
 
   private boolean checkByStandard(Event e, Trigger checker) {
     ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, exprs, parseResult);
+    SkriptReflection.copyVariablesMap(parseEvent, conditionEvent);
     checker.execute(conditionEvent);
     return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated() ^ which.isInverted();
   }
@@ -50,6 +53,7 @@ public class CustomCondition extends Condition {
       localExprs[0] = new SimpleLiteral<>(o, false);
 
       ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, localExprs, parseResult);
+      SkriptReflection.copyVariablesMap(parseEvent, conditionEvent);
       checker.execute(conditionEvent);
       return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated();
     }, which.isInverted());
@@ -83,6 +87,11 @@ public class CustomCondition extends Condition {
     if (parseHandler != null) {
       SyntaxParseEvent event = new SyntaxParseEvent(this.exprs, parseResult, ScriptLoader.getCurrentEvents());
       parseHandler.execute(event);
+
+      if (SkriptReflection.hasLocalVariables(event)) {
+        parseEvent = event;
+      }
+
       return event.isMarkedContinue();
     }
 
