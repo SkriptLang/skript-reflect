@@ -46,47 +46,41 @@ public class SkriptReflection {
   }
 
   public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
-    if (PATTERNS != null) {
-      try {
-        PATTERNS.set(info, patterns);
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
+    try {
+      PATTERNS.set(info, patterns);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
     }
   }
 
   public static Parameter<?>[] getParameters(Function function) {
-    if (PARAMETERS != null) {
-      try {
-        return ((Parameter<?>[]) PARAMETERS.get(function));
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
+    try {
+      return ((Parameter<?>[]) PARAMETERS.get(function));
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
     }
     throw new IllegalStateException();
   }
 
   public static void printLog(RetainingLogHandler logger) {
     logger.stop();
-    if (HANDLERS != null) {
-      HandlerList handler;
-      try {
-        handler = (HandlerList) HANDLERS.get(logger);
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-        return;
-      }
-
-      Iterator<LogHandler> handlers = handler.iterator();
-      LogHandler nextHandler;
-      List<LogHandler> parseLogs = new ArrayList<>();
-
-      while (handlers.hasNext() && (nextHandler = handlers.next()) instanceof ParseLogHandler) {
-        parseLogs.add(nextHandler);
-      }
-
-      parseLogs.forEach(LogHandler::stop);
-      SkriptLogger.logAll(logger.getLog());
+    HandlerList handler;
+    try {
+      handler = (HandlerList) HANDLERS.get(logger);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+      return;
     }
+
+    Iterator<LogHandler> handlers = handler.iterator();
+    LogHandler nextHandler;
+    List<LogHandler> parseLogs = new ArrayList<>();
+
+    while (handlers.hasNext() && (nextHandler = handlers.next()) instanceof ParseLogHandler) {
+      parseLogs.add(nextHandler);
+    }
+
+    parseLogs.forEach(LogHandler::stop);
+    SkriptLogger.logAll(logger.getLog());
   }
 }
