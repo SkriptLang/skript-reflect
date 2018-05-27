@@ -1,4 +1,4 @@
 name: skript-mirror
-version: 0.14.0
+version: 0.14.1
 main: com.btk5h.skriptmirror.SkriptMirror
 depend: [Skript]
