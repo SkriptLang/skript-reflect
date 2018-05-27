@@ -19,6 +19,7 @@ import java.util.Arrays;
 public class CustomCondition extends Condition {
   private SyntaxInfo which;
   private Expression<?>[] exprs;
+  private int matchedPattern;
   private SkriptParser.ParseResult parseResult;
   private Event parseEvent;
 
@@ -41,7 +42,7 @@ public class CustomCondition extends Condition {
   }
 
   private boolean checkByStandard(Event e, Trigger checker) {
-    ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, exprs, parseResult);
+    ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, exprs, matchedPattern, parseResult);
     SkriptReflection.copyVariablesMap(parseEvent, conditionEvent);
     checker.execute(conditionEvent);
     return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated() ^ which.isInverted();
@@ -52,7 +53,7 @@ public class CustomCondition extends Condition {
       Expression<?>[] localExprs = Arrays.copyOf(exprs, exprs.length);
       localExprs[0] = new SimpleLiteral<>(o, false);
 
-      ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, localExprs, parseResult);
+      ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, localExprs, matchedPattern, parseResult);
       SkriptReflection.copyVariablesMap(parseEvent, conditionEvent);
       checker.execute(conditionEvent);
       return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated();
@@ -76,6 +77,7 @@ public class CustomCondition extends Condition {
     this.exprs = Arrays.stream(exprs)
         .map(SkriptUtil::defendExpression)
         .toArray(Expression[]::new);
+    this.matchedPattern = matchedPattern;
     this.parseResult = parseResult;
 
     if (!SkriptUtil.canInitSafely(this.exprs)) {
@@ -85,7 +87,8 @@ public class CustomCondition extends Condition {
     Trigger parseHandler = CustomConditionSection.parserHandlers.get(which);
 
     if (parseHandler != null) {
-      SyntaxParseEvent event = new SyntaxParseEvent(this.exprs, parseResult, ScriptLoader.getCurrentEvents());
+      SyntaxParseEvent event =
+          new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
       parseHandler.execute(event);
 
       if (SkriptReflection.hasLocalVariables(event)) {

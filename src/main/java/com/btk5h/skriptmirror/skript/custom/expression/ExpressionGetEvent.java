@@ -10,9 +10,9 @@ public class ExpressionGetEvent extends CustomSyntaxEvent {
   private final static HandlerList handlers = new HandlerList();
   private Object[] output;
 
-  public ExpressionGetEvent(Event event, Expression<?>[] expressions,
+  public ExpressionGetEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                             SkriptParser.ParseResult parseResult) {
-    super(event, expressions, parseResult);
+    super(event, expressions, matchedPattern, parseResult);
   }
 
   public static HandlerList getHandlerList() {

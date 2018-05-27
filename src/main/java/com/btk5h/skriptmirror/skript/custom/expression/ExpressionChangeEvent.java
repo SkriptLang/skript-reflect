@@ -10,9 +10,9 @@ public class ExpressionChangeEvent extends CustomSyntaxEvent {
   private final static HandlerList handlers = new HandlerList();
   private final Object[] delta;
 
-  public ExpressionChangeEvent(Event event, Expression<?>[] expressions,
+  public ExpressionChangeEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                                SkriptParser.ParseResult parseResult, Object[] delta) {
-    super(event, expressions, parseResult);
+    super(event, expressions, matchedPattern, parseResult);
     this.delta = delta;
   }
 

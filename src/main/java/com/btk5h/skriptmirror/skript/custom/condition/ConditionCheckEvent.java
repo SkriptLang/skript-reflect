@@ -11,9 +11,9 @@ public class ConditionCheckEvent extends CustomSyntaxEvent {
   private boolean markedContinue;
   private boolean markedNegated;
 
-  public ConditionCheckEvent(Event event, Expression<?>[] expressions,
+  public ConditionCheckEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                              SkriptParser.ParseResult parseResult) {
-    super(event, expressions, parseResult);
+    super(event, expressions, matchedPattern, parseResult);
   }
 
   public static HandlerList getHandlerList() {

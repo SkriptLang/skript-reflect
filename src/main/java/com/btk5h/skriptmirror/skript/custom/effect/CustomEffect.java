@@ -14,6 +14,7 @@ import java.util.Arrays;
 public class CustomEffect extends Effect {
   private SyntaxInfo which;
   private Expression<?>[] exprs;
+  private int matchedPattern;
   private SkriptParser.ParseResult parseResult;
   private Event parseEvent;
 
@@ -36,7 +37,8 @@ public class CustomEffect extends Effect {
 
   private EffectTriggerEvent invokeEffect(Event e) {
     Trigger trigger = CustomEffectSection.effectHandlers.get(which);
-    EffectTriggerEvent effectEvent = new EffectTriggerEvent(e, exprs, parseResult, which.getPattern(), getNext());
+    EffectTriggerEvent effectEvent =
+        new EffectTriggerEvent(e, exprs, matchedPattern, parseResult, which.getPattern(), getNext());
     if (trigger == null) {
       Skript.error(String.format("The custom effect '%s' no longer has a handler.", which));
     } else {
@@ -63,6 +65,7 @@ public class CustomEffect extends Effect {
     this.exprs = Arrays.stream(exprs)
         .map(SkriptUtil::defendExpression)
         .toArray(Expression[]::new);
+    this.matchedPattern = matchedPattern;
     this.parseResult = parseResult;
 
     if (!SkriptUtil.canInitSafely(this.exprs)) {
@@ -72,7 +75,8 @@ public class CustomEffect extends Effect {
     Trigger parseHandler = CustomEffectSection.parserHandlers.get(which);
 
     if (parseHandler != null) {
-      SyntaxParseEvent event = new SyntaxParseEvent(this.exprs, parseResult, ScriptLoader.getCurrentEvents());
+      SyntaxParseEvent event =
+          new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
       parseHandler.execute(event);
 
       if (SkriptReflection.hasLocalVariables(event)) {

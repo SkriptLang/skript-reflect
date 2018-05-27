@@ -18,8 +18,9 @@ public class SyntaxParseEvent extends CustomSyntaxEvent {
   private final Class<?>[] eventClasses;
   private boolean markedContinue;
 
-  public SyntaxParseEvent(Expression<?>[] expressions, SkriptParser.ParseResult parseResult, Class<?>[] eventClasses) {
-    super(null, wrapRawExpressions(expressions), parseResult);
+  public SyntaxParseEvent(Expression<?>[] expressions, int matchedPattern, SkriptParser.ParseResult parseResult,
+                          Class<?>[] eventClasses) {
+    super(null, wrapRawExpressions(expressions), matchedPattern, parseResult);
     this.eventClasses = eventClasses;
   }
 

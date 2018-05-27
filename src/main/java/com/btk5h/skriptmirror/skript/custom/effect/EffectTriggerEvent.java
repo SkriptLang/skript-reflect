@@ -13,9 +13,9 @@ public class EffectTriggerEvent extends CustomSyntaxEvent {
   private final TriggerItem next;
   private boolean sync = true;
 
-  public EffectTriggerEvent(Event event, Expression<?>[] expressions,
+  public EffectTriggerEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                             SkriptParser.ParseResult parseResult, String which, TriggerItem next) {
-    super(event, expressions, parseResult);
+    super(event, expressions, matchedPattern, parseResult);
     this.which = which;
     this.next = next;
   }
