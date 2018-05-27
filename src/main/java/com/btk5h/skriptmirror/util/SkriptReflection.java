@@ -55,7 +55,7 @@ public class SkriptReflection {
     }
   }
 
-  public static Parameter<?>[] getParameters(ch.njol.skript.lang.function.Function function) {
+  public static Parameter<?>[] getParameters(Function function) {
     if (PARAMETERS != null) {
       try {
         return ((Parameter<?>[]) PARAMETERS.get(function));
