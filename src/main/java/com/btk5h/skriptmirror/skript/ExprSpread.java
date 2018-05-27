@@ -66,6 +66,10 @@ public class ExprSpread<T> implements Expression<T> {
   public T[] getAll(Event e) {
     Object obj = object.getSingle(e);
 
+    if (obj instanceof ObjectWrapper) {
+      obj = ((ObjectWrapper) obj).get();
+    }
+
     if (obj instanceof Collection) {
       obj = ((Collection) obj).toArray();
     } else if (obj instanceof Iterable) {
@@ -74,8 +78,6 @@ public class ExprSpread<T> implements Expression<T> {
       obj = toArray(((Stream) obj).iterator());
     } else if (obj instanceof Iterator) {
       obj = toArray((Iterator<?>) obj);
-    } else if (obj instanceof ObjectWrapper.OfArray) {
-      obj = ((ObjectWrapper.OfArray) obj).get();
     }
 
     if (obj == null || !obj.getClass().isArray()) {
