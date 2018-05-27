@@ -21,7 +21,7 @@ public class SkriptReflection {
     try {
       _FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
       _FIELD.setAccessible(true);
-      SkriptReflection.PATTERNS = _FIELD;
+      PATTERNS = _FIELD;
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's pattern info field could not be resolved. " +
           "Custom syntax will not work.");
@@ -30,7 +30,7 @@ public class SkriptReflection {
     try {
       _FIELD = Function.class.getDeclaredField("parameters");
       _FIELD.setAccessible(true);
-      SkriptReflection.PARAMETERS = _FIELD;
+      PARAMETERS = _FIELD;
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's parameters field could not be resolved. " +
           "Class proxies will not work.");
@@ -39,7 +39,7 @@ public class SkriptReflection {
     try {
       _FIELD = SkriptLogger.class.getDeclaredField("handlers");
       _FIELD.setAccessible(true);
-      SkriptReflection.HANDLERS = _FIELD;
+      HANDLERS = _FIELD;
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's handlers field could not be resolved. Some Skript warnings may not be available.");
     }
