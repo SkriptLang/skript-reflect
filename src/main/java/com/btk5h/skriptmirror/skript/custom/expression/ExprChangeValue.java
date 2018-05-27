@@ -13,7 +13,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
 
 import java.util.Iterator;
@@ -68,7 +68,7 @@ public class ExprChangeValue<T> implements Expression<T> {
   public T[] getAll(Event e) {
     Object[] delta = ((ExpressionChangeEvent) e).getDelta();
     if (delta == null) {
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
     return Converters.convertArray(delta, types, superType);
   }

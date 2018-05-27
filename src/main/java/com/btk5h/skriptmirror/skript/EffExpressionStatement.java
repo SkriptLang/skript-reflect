@@ -7,7 +7,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 
@@ -54,8 +54,8 @@ public class EffExpressionStatement extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    arg = Util.defendExpression(exprs[0]);
+    arg = SkriptUtil.defendExpression(exprs[0]);
     isAsynchronous = (parseResult.mark & 1) == 1;
-    return Util.canInitSafely(arg);
+    return SkriptUtil.canInitSafely(arg);
   }
 }

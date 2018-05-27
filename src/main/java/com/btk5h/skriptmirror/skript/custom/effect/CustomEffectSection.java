@@ -4,9 +4,9 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
-import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node) {
     SectionNode patterns = (SectionNode) node.get("patterns");
-    File script = (parseResult.mark & 1) == 1 ? Util.getCurrentScript() : null;
+    File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
 
     switch (matchedPattern) {
       case 0:
@@ -76,7 +76,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
     }
 
     ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
-    Util.getItemsFromNode(node, "trigger")
+    SkriptUtil.getItemsFromNode(node, "trigger")
         .ifPresent(items -> whichInfo.forEach(which ->
             effectHandlers.put(which, new Trigger(ScriptLoader.currentScript.getFile(), "effect " + which, this, items))
         ));

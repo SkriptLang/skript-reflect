@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror;
 
 import ch.njol.skript.registrations.Classes;
+import com.btk5h.skriptmirror.util.JavaUtil;
 
 import java.util.Arrays;
 
@@ -26,7 +27,7 @@ public class ObjectWrapper {
   public static Object wrapIfNecessary(Object returnedValue) {
     Class<?> returnedClass = returnedValue.getClass();
     if (returnedClass.isArray()) {
-      returnedValue = create(Util.boxPrimitiveArray(returnedValue));
+      returnedValue = create(JavaUtil.boxPrimitiveArray(returnedValue));
     } else if (Classes.getSuperClassInfo(returnedClass).getC() == Object.class) {
       returnedValue = create(returnedValue);
     }

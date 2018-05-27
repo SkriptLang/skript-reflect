@@ -12,7 +12,7 @@ import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
 
 import java.util.Iterator;
@@ -78,10 +78,10 @@ public class ExprArrayAccess<T> implements Expression<T> {
     T single = getSingle(e);
 
     if (single == null) {
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
-    T[] all = Util.newArray(superType, 1);
+    T[] all = JavaUtil.newArray(superType, 1);
     all[0] = single;
 
     return all;

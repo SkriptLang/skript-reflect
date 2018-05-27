@@ -5,9 +5,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
-import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
 import java.util.HashMap;
@@ -56,7 +56,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
                          SectionNode node) {
     String what;
     SectionNode patterns = (SectionNode) node.get("patterns");
-    File script = (parseResult.mark & 1) == 1 ? Util.getCurrentScript() : null;
+    File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
 
     switch (matchedPattern) {
       case 0:
@@ -85,7 +85,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
     }
 
     ScriptLoader.setCurrentEvent("custom condition check", ConditionCheckEvent.class);
-    Util.getItemsFromNode(node, "check").ifPresent(items ->
+    SkriptUtil.getItemsFromNode(node, "check").ifPresent(items ->
         whichInfo.forEach(which -> conditionHandlers.put(which,
             new Trigger(ScriptLoader.currentScript.getFile(), "condition " + which, this, items)))
     );

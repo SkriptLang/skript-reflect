@@ -1,5 +1,8 @@
 package com.btk5h.skriptmirror;
 
+import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,7 +56,7 @@ public final class Descriptor {
   @Override
   public String toString() {
     return String.format("%s#%s",
-        javaClass == null ? "(unspecified)" : Util.getDebugName(javaClass),
+        javaClass == null ? "(unspecified)" : SkriptMirrorUtil.getDebugName(javaClass),
         name);
   }
 
@@ -88,7 +91,7 @@ public final class Descriptor {
     for (int i = 0; i < rawClasses.length; i++) {
       String userType = rawClasses[i];
       String normalType = userType.trim();
-      Class<?> cls = Util.PRIMITIVE_CLASS_NAMES.get(normalType);
+      Class<?> cls = JavaUtil.PRIMITIVE_CLASS_NAMES.get(normalType);
 
       if (cls == null) {
         cls = LibraryLoader.getClassLoader().loadClass(normalType);

@@ -5,7 +5,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.lang.reflect.Member;
@@ -24,7 +26,7 @@ public class ExprMemberNames extends SimpleExpression<String> {
   @Override
   protected String[] get(Event e) {
     return Arrays.stream(target.getArray(e))
-        .map(Util::toClass)
+        .map(SkriptMirrorUtil::toClass)
         .flatMap(mapper)
         .map(Member::getName)
         .distinct()
@@ -50,17 +52,17 @@ public class ExprMemberNames extends SimpleExpression<String> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    target = Util.defendExpression(exprs[0]);
+    target = SkriptUtil.defendExpression(exprs[0]);
 
     switch (parseResult.mark) {
       case 0:
-        mapper = Util::fields;
+        mapper = JavaUtil::fields;
         break;
       case 1:
-        mapper = Util::methods;
+        mapper = JavaUtil::methods;
         break;
     }
 
-    return Util.canInitSafely(target);
+    return SkriptUtil.canInitSafely(target);
   }
 }

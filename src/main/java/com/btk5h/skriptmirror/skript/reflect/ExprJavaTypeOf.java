@@ -6,7 +6,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
@@ -21,7 +22,7 @@ public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   @Override
   protected JavaType[] get(Event e) {
     return Arrays.stream(target.getArray(e))
-        .map(Util::getClass)
+        .map(SkriptMirrorUtil::getClass)
         .map(JavaType::new)
         .toArray(JavaType[]::new);
   }
@@ -45,7 +46,7 @@ public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    target = Util.defendExpression(exprs[0]);
-    return Util.canInitSafely(target);
+    target = SkriptUtil.defendExpression(exprs[0]);
+    return SkriptUtil.canInitSafely(target);
   }
 }

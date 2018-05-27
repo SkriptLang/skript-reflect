@@ -8,7 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 public class EffReturn extends Effect {
@@ -47,8 +47,8 @@ public class EffReturn extends Effect {
       return false;
     }
 
-    objects = Util.defendExpression(exprs[0]);
+    objects = SkriptUtil.defendExpression(exprs[0]);
 
-    return Util.canInitSafely(objects);
+    return SkriptUtil.canInitSafely(objects);
   }
 }

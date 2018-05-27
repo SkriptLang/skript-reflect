@@ -6,7 +6,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.HandlerList;
 
 import java.util.Arrays;
@@ -55,7 +55,7 @@ public class SyntaxParseEvent extends CustomSyntaxEvent {
                                                                          SectionNode node,
                                                                          List<T> whichInfo, Map<T, Trigger> parserHandlers) {
     ScriptLoader.setCurrentEvent("custom syntax parser", SyntaxParseEvent.class);
-    Util.getItemsFromNode(node, "parse").ifPresent(items ->
+    SkriptUtil.getItemsFromNode(node, "parse").ifPresent(items ->
         whichInfo.forEach(which ->
             parserHandlers.put(which,
                 new Trigger(ScriptLoader.currentScript.getFile(), "parse " + which.getPattern(), section, items))

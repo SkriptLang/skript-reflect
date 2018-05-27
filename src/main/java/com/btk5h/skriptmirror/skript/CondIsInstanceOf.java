@@ -6,7 +6,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 public class CondIsInstanceOf extends Condition {
@@ -23,7 +24,7 @@ public class CondIsInstanceOf extends Condition {
   public boolean check(Event e) {
     return objects.check(e, o ->
         type.check(e, t ->
-                t.getJavaClass().isAssignableFrom(Util.getClass(o)),
+                t.getJavaClass().isAssignableFrom(SkriptMirrorUtil.getClass(o)),
             isNegated()
         )
     );
@@ -37,8 +38,8 @@ public class CondIsInstanceOf extends Condition {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    objects = Util.defendExpression(exprs[0]);
-    type = Util.defendExpression(exprs[1]);
+    objects = SkriptUtil.defendExpression(exprs[0]);
+    type = SkriptUtil.defendExpression(exprs[1]);
     setNegated(matchedPattern == 1);
     return true;
   }

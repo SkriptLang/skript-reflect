@@ -4,8 +4,8 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
@@ -51,18 +51,18 @@ public class CustomEffect extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomEffectSection.lookup(Util.getCurrentScript(), matchedPattern);
+    which = CustomEffectSection.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
     if (which == null) {
       return false;
     }
 
     this.exprs = Arrays.stream(exprs)
-        .map(Util::defendExpression)
+        .map(SkriptUtil::defendExpression)
         .toArray(Expression[]::new);
     this.parseResult = parseResult;
 
-    if (!Util.canInitSafely(this.exprs)) {
+    if (!SkriptUtil.canInitSafely(this.exprs)) {
       return false;
     }
 

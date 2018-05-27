@@ -7,7 +7,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.Iterator;
@@ -141,9 +141,9 @@ public class ExprTry<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    expr = Util.defendExpression(exprs[0]);
+    expr = SkriptUtil.defendExpression(exprs[0]);
 
-    if (!Util.canInitSafely(expr)) {
+    if (!SkriptUtil.canInitSafely(expr)) {
       return false;
     }
 

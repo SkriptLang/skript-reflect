@@ -12,7 +12,8 @@ import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.ArrayList;
@@ -78,10 +79,10 @@ public class ExprSpread<T> implements Expression<T> {
     }
 
     if (obj == null || !obj.getClass().isArray()) {
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
-    obj = Util.boxPrimitiveArray(obj);
+    obj = JavaUtil.boxPrimitiveArray(obj);
 
     return Converters.convertArray((Object[]) obj, types, superType);
   }
@@ -181,7 +182,7 @@ public class ExprSpread<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    object = Util.defendExpression(exprs[0]);
-    return Util.canInitSafely(object);
+    object = SkriptUtil.defendExpression(exprs[0]);
+    return SkriptUtil.canInitSafely(object);
   }
 }

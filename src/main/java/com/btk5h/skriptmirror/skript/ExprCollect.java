@@ -8,7 +8,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class ExprCollect extends SimpleExpression<ObjectWrapper> {
             .map(o -> o instanceof Null ? null : o)
             .map(o -> o instanceof ObjectWrapper ? ((ObjectWrapper) o).get() : o)
             .toArray();
-    Object[] castedItems = Util.newArray(getCommonSuperclass(items), items.length);
+    Object[] castedItems = JavaUtil.newArray(getCommonSuperclass(items), items.length);
 
     System.arraycopy(items, 0, castedItems, 0, items.length);
 
@@ -78,7 +79,7 @@ public class ExprCollect extends SimpleExpression<ObjectWrapper> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    objects = Util.defendExpression(exprs[0]);
-    return Util.canInitSafely(objects);
+    objects = SkriptUtil.defendExpression(exprs[0]);
+    return SkriptUtil.canInitSafely(objects);
   }
 }

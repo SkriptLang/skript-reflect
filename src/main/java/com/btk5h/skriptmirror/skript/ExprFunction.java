@@ -7,7 +7,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.FunctionWrapper;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
@@ -49,12 +49,12 @@ public class ExprFunction extends SimpleExpression<FunctionWrapper> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    refs = Util.defendExpression(exprs[0]);
+    refs = SkriptUtil.defendExpression(exprs[0]);
 
     if (exprs[1] != null) {
-      args = Util.defendExpression(exprs[1]);
+      args = SkriptUtil.defendExpression(exprs[1]);
     }
 
-    return Util.canInitSafely(args);
+    return SkriptUtil.canInitSafely(args);
   }
 }

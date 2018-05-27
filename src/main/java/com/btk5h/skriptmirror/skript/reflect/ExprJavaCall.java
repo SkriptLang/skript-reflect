@@ -15,6 +15,9 @@ import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.*;
+import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.lang.invoke.MethodHandle;
@@ -115,10 +118,10 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     switch (type) {
       case FIELD:
-        return Util.fields(javaClass)
+        return JavaUtil.fields(javaClass)
             .filter(f -> f.getName().equals(e.getName()))
             .peek(f -> f.setAccessible(true))
-            .flatMap(Util.propagateErrors(f -> Stream.of(
+            .flatMap(JavaUtil.propagateErrors(f -> Stream.of(
                 LOOKUP.unreflectGetter(f),
                 LOOKUP.unreflectSetter(f)
             )))
@@ -126,7 +129,7 @@ public class ExprJavaCall<T> implements Expression<T> {
             .limit(2)
             .collect(Collectors.toList());
       case METHOD:
-        Stream<Method> methodStream = Util.methods(javaClass)
+        Stream<Method> methodStream = JavaUtil.methods(javaClass)
             .filter(m -> m.getName().equals(e.getName()));
 
         if (e.getParameterTypes() != null) {
@@ -135,13 +138,13 @@ public class ExprJavaCall<T> implements Expression<T> {
 
         return methodStream
             .peek(m -> m.setAccessible(true))
-            .map(Util.propagateErrors(LOOKUP::unreflect))
+            .map(JavaUtil.propagateErrors(LOOKUP::unreflect))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
       case CONSTRUCTOR:
-        return Util.constructor(javaClass)
+        return JavaUtil.constructor(javaClass)
             .peek(c -> c.setAccessible(true))
-            .map(Util.propagateErrors(LOOKUP::unreflectConstructor))
+            .map(JavaUtil.propagateErrors(LOOKUP::unreflectConstructor))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
       default:
@@ -153,10 +156,10 @@ public class ExprJavaCall<T> implements Expression<T> {
   private T[] invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
     T returnedValue = null;
 
-    Class<?> targetClass = Util.toClass(target);
+    Class<?> targetClass = SkriptMirrorUtil.toClass(target);
 
     if (baseDescriptor == null)  {
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
     Descriptor descriptor = specifyDescriptor(baseDescriptor, targetClass);
@@ -199,14 +202,14 @@ public class ExprJavaCall<T> implements Expression<T> {
       }
     } else {
       lastError = new JavaCallException(String.format("Incompatible %s call: %s on %s",
-          type, descriptor, Util.getDebugName(targetClass)));
+          type, descriptor, SkriptMirrorUtil.getDebugName(targetClass)));
       if (!suppressErrors) {
         Skript.warning(lastError.getMessage());
       }
     }
 
     if (returnedValue == null) {
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
     if (superType == Object.class || superType == ObjectWrapper.class) {
@@ -217,19 +220,19 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     if (converted == null) {
       String toClasses = Arrays.stream(types)
-          .map(Util::getDebugName)
+          .map(SkriptMirrorUtil::getDebugName)
           .collect(Collectors.joining(", "));
       lastError = new JavaCallException(String.format("%s %s%s returned %s, which could not be converted to %s",
           type, descriptor, optionalArgs(arguments), toString(returnedValue), toClasses));
       if (!suppressErrors) {
         Skript.warning(lastError.getMessage());
       }
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
     lastError = null;
 
-    T[] returnArray = Util.newArray(superType, 1);
+    T[] returnArray = JavaUtil.newArray(superType, 1);
     returnArray[0] = converted;
     return returnArray;
   }
@@ -245,7 +248,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   private String toString(Object... arguments) {
     return Arrays.stream(arguments)
         .map(arg -> String.format("%s (%s)",
-            Classes.toString(arg), Util.getDebugName(Util.getClass(arg))))
+            Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
         .collect(Collectors.joining(", "));
   }
 
@@ -306,11 +309,11 @@ public class ExprJavaCall<T> implements Expression<T> {
       }
 
       if (!param.isInstance(arg)) {
-        if (arg instanceof Number && Util.NUMERIC_CLASSES.contains(param)) {
+        if (arg instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(param)) {
           continue;
         }
 
-        if (param.isPrimitive() && Util.WRAPPER_CLASSES.get(param).isInstance(arg)) {
+        if (param.isPrimitive() && JavaUtil.WRAPPER_CLASSES.get(param).isInstance(arg)) {
           continue;
         }
 
@@ -414,7 +417,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     Object[] arguments;
 
     if (target == null) {
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
     if (args != null) {
@@ -557,10 +560,10 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    targetArg = Util.defendExpression(exprs[0]);
-    args = Util.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
+    targetArg = SkriptUtil.defendExpression(exprs[0]);
+    args = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
 
-    if (!Util.canInitSafely(targetArg, args)) {
+    if (!SkriptUtil.canInitSafely(targetArg, args)) {
       return false;
     }
 

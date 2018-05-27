@@ -5,7 +5,8 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.log.SkriptLogger;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptReflection;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.io.File;
@@ -152,7 +153,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
       unregister(null);
     }
 
-    Util.clearSectionNode(node);
+    SkriptUtil.clearSectionNode(node);
 
     return ok;
   }
@@ -167,7 +168,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
   private void update() {
     getDataTracker().recomputePatterns();
-    Util.setPatterns(getDataTracker().getInfo(), getDataTracker().getPatterns().toArray(new String[0]));
+    SkriptReflection.setPatterns(getDataTracker().getInfo(), getDataTracker().getPatterns().toArray(new String[0]));
   }
 
   protected final void register(T data) {

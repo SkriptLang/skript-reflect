@@ -6,9 +6,9 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
-import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
 import java.util.*;
@@ -66,7 +66,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   protected boolean init(Literal[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
     String what;
     SectionNode patterns = (SectionNode) node.get("patterns");
-    File script = (parseResult.mark & 2) == 2 ? Util.getCurrentScript() : null;
+    File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
 
     switch (matchedPattern) {
       case 0:
@@ -96,7 +96,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     }
 
     ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
-    Util.getItemsFromNode(node, "get").ifPresent(items ->
+    SkriptUtil.getItemsFromNode(node, "get").ifPresent(items ->
         whichInfo.forEach(which ->
             expressionHandlers.put(which,
                 new Trigger(ScriptLoader.currentScript.getFile(), "get " + which.getPattern(), this, items))
@@ -109,7 +109,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
         .forEach(mode -> {
           String name = mode.name().replace("_", " ").toLowerCase();
           ScriptLoader.setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
-          Util.getItemsFromNode(node, name).ifPresent(items ->
+          SkriptUtil.getItemsFromNode(node, name).ifPresent(items ->
               whichInfo.forEach(which -> {
                     Map<Changer.ChangeMode, Trigger> changerMap =
                         changerHandlers.computeIfAbsent(which, k -> new HashMap<>());

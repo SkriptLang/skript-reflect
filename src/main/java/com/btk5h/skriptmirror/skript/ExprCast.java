@@ -1,15 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.Null;
-import com.btk5h.skriptmirror.Util;
-
-import org.bukkit.event.Event;
-
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.Function;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -17,6 +7,14 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.Null;
+import com.btk5h.skriptmirror.util.SkriptUtil;
+import org.bukkit.event.Event;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Function;
 
 public class ExprCast extends SimpleExpression<Object> {
   static {
@@ -68,8 +66,8 @@ public class ExprCast extends SimpleExpression<Object> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    source = Util.defendExpression(exprs[0]);
-    type = Util.defendExpression(exprs[1]);
-    return Util.canInitSafely(source);
+    source = SkriptUtil.defendExpression(exprs[0]);
+    type = SkriptUtil.defendExpression(exprs[1]);
+    return SkriptUtil.canInitSafely(source);
   }
 }

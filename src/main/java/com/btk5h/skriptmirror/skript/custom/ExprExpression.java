@@ -13,11 +13,11 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
+import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
 
 import java.util.Iterator;
@@ -73,7 +73,7 @@ public class ExprExpression<T> implements Expression<T> {
     Expression<?> expr = getExpression(e);
 
     if (expr == null) {
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
     return Converters.convertArray(expr.getAll(e), types, superType);

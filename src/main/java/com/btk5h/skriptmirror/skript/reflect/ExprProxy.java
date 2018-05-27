@@ -12,7 +12,8 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.FunctionWrapper;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptReflection;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.lang.reflect.InvocationHandler;
@@ -91,7 +92,7 @@ public class ExprProxy extends SimpleExpression<Object> {
       return function.execute(
           functionEvent,
           params.stream()
-              .limit(Util.getParameters(function).length)
+              .limit(SkriptReflection.getParameters(function).length)
               .toArray(Object[][]::new)
       );
     }
@@ -117,8 +118,8 @@ public class ExprProxy extends SimpleExpression<Object> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    interfaces = Util.defendExpression(exprs[0]);
-    Expression<?> var = Util.defendExpression(exprs[1]);
+    interfaces = SkriptUtil.defendExpression(exprs[0]);
+    Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
 
     if (var instanceof Variable && ((Variable) var).isList()) {
       handler = ((Variable) var);

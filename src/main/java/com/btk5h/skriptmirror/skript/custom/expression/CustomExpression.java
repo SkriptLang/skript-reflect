@@ -13,8 +13,9 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.Util;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.*;
@@ -69,7 +70,7 @@ public class CustomExpression<T> implements Expression<T> {
           String.format("The custom expression '%s' no longer has a get handler.",
               which.getPattern())
       );
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
     if (which.isProperty()) {
@@ -86,7 +87,7 @@ public class CustomExpression<T> implements Expression<T> {
       Skript.error(
           String.format("The get handler for '%s' did not return.", which.getPattern())
       );
-      return Util.newArray(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
     return Converters.convertArray(expressionEvent.getOutput(), types, superType);
@@ -106,14 +107,14 @@ public class CustomExpression<T> implements Expression<T> {
         Skript.error(
             String.format("The get handler for '%s' did not return.", which.getPattern())
         );
-        return Util.newArray(superType, 0);
+        return JavaUtil.newArray(superType, 0);
       }
 
       if (exprOutput.length > 1) {
         Skript.error(
             String.format("The get handler for '%s' returned more than one value.", which.getPattern())
         );
-        return Util.newArray(superType, 0);
+        return JavaUtil.newArray(superType, 0);
       }
 
       if (exprOutput.length == 1) {
@@ -121,7 +122,7 @@ public class CustomExpression<T> implements Expression<T> {
       }
     }
 
-    return output.toArray(Util.newArray(superType, 0));
+    return output.toArray(JavaUtil.newArray(superType, 0));
   }
 
   @Override
@@ -232,7 +233,7 @@ public class CustomExpression<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomExpressionSection.lookup(Util.getCurrentScript(), matchedPattern);
+    which = CustomExpressionSection.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
     if (which == null) {
       return false;
@@ -245,11 +246,11 @@ public class CustomExpression<T> implements Expression<T> {
     }
 
     this.exprs = Arrays.stream(exprs)
-        .map(Util::defendExpression)
+        .map(SkriptUtil::defendExpression)
         .toArray(Expression[]::new);
     this.parseResult = parseResult;
 
-    if (!Util.canInitSafely(this.exprs)) {
+    if (!SkriptUtil.canInitSafely(this.exprs)) {
       return false;
     }
 

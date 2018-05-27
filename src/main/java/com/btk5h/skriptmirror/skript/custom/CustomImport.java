@@ -10,7 +10,9 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
-import com.btk5h.skriptmirror.Util;
+import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import com.btk5h.skriptmirror.util.SkriptReflection;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -22,7 +24,7 @@ import java.util.stream.StreamSupport;
 
 public class CustomImport {
   private static Pattern IMPORT_STATEMENT =
-      Pattern.compile("(" + Util.PACKAGE + ")(?:\\s+as (" + Util.IDENTIFIER + "))?");
+      Pattern.compile("(" + SkriptMirrorUtil.PACKAGE + ")(?:\\s+as (" + SkriptMirrorUtil.IDENTIFIER + "))?");
 
   static {
     CustomSyntaxSection.register("Import", SectionImport.class, "import");
@@ -71,7 +73,7 @@ public class CustomImport {
       }
 
       node.forEach(subNode -> registerImport(subNode.getKey(), currentScript));
-      Util.clearSectionNode(node);
+      SkriptUtil.clearSectionNode(node);
       return true;
     }
 
@@ -126,7 +128,7 @@ public class CustomImport {
         .flatMap(m -> m.keySet().stream())
         .distinct()
         .toArray(String[]::new);
-    Util.setPatterns(thisInfo, patterns);
+    SkriptReflection.setPatterns(thisInfo, patterns);
   }
 
   public static class ImportHandler extends SimpleExpression<JavaType> {
