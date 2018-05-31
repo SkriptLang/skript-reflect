@@ -6,31 +6,18 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import java.io.File;
 import java.util.Objects;
 
-class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
-  private final File script;
-  private final String pattern;
+class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
   private final boolean inverted;
   private final boolean property;
 
   private SyntaxInfo(File script, String pattern, boolean inverted, boolean property) {
-    this.script = script;
-    this.pattern = pattern;
+    super(script, pattern);
     this.inverted = inverted;
     this.property = property;
   }
 
   public static SyntaxInfo create(File script, String pattern, boolean inverted, boolean property) {
     return new SyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), inverted, property);
-  }
-
-  @Override
-  public File getScript() {
-    return script;
-  }
-
-  @Override
-  public String getPattern() {
-    return pattern;
   }
 
   public boolean isInverted() {
@@ -43,7 +30,7 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
 
   @Override
   public String toString() {
-    return String.format("%s (inverted: %s, property: %s)", pattern, inverted, property);
+    return String.format("%s (inverted: %s, property: %s)", getPattern(), inverted, property);
   }
 
   @Override
@@ -52,11 +39,13 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
     if (o == null || getClass() != o.getClass()) return false;
     SyntaxInfo that = (SyntaxInfo) o;
     return inverted == that.inverted &&
-        Objects.equals(pattern, that.pattern);
+        property == that.property &&
+        Objects.equals(getScript(), that.getScript()) &&
+        Objects.equals(getPattern(), that.getPattern());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pattern, inverted);
+    return Objects.hash(inverted, property, getScript(), getPattern());
   }
 }

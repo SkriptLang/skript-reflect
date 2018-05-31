@@ -6,13 +6,9 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import java.io.File;
 import java.util.Objects;
 
-class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
-  private final File script;
-  private final String pattern;
-
+class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
   private SyntaxInfo(File script, String pattern) {
-    this.script = script;
-    this.pattern = pattern;
+    super(script, pattern);
   }
 
   public static SyntaxInfo create(File script, String pattern) {
@@ -20,31 +16,16 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
   }
 
   @Override
-  public File getScript() {
-    return script;
-  }
-
-  @Override
-  public String getPattern() {
-    return pattern;
-  }
-
-  @Override
-  public String toString() {
-    return pattern;
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     SyntaxInfo that = (SyntaxInfo) o;
-    return Objects.equals(pattern, that.pattern);
+    return Objects.equals(getScript(), that.getScript()) &&
+        Objects.equals(getPattern(), that.getPattern());
   }
 
   @Override
   public int hashCode() {
-
-    return Objects.hash(pattern);
+    return Objects.hash(getScript(), getPattern());
   }
 }

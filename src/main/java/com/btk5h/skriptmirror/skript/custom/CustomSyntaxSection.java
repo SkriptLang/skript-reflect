@@ -97,10 +97,27 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     }
   }
 
-  public interface SyntaxData {
-    File getScript();
+  public abstract static class SyntaxData {
+    private final File script;
+    private final String pattern;
 
-    String getPattern();
+    protected SyntaxData(File script, String pattern) {
+      this.script = script;
+      this.pattern = pattern;
+    }
+
+    public File getScript() {
+      return script;
+    }
+
+    public String getPattern() {
+      return pattern;
+    }
+
+    @Override
+    public String toString() {
+      return pattern;
+    }
   }
 
   protected final List<T> whichInfo = new ArrayList<>();

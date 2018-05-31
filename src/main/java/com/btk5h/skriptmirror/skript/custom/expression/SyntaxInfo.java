@@ -8,9 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
-  private final File script;
-  private final String pattern;
+class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
   private final int[] inheritedSingles;
   private final boolean alwaysPlural;
   private final boolean adaptArgument;
@@ -19,8 +17,7 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
 
   private SyntaxInfo(File script, String pattern, int[] inheritedSingles, boolean alwaysPlural,
              boolean adaptArgument, boolean property) {
-    this.script = script;
-    this.pattern = pattern;
+    super(script, pattern);
     this.inheritedSingles = inheritedSingles;
     this.alwaysPlural = alwaysPlural;
     this.adaptArgument = adaptArgument;
@@ -64,16 +61,6 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
         property);
   }
 
-  @Override
-  public File getScript() {
-    return script;
-  }
-
-  @Override
-  public String getPattern() {
-    return pattern;
-  }
-
   public int[] getInheritedSingles() {
     return inheritedSingles;
   }
@@ -93,7 +80,7 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
   @Override
   public String toString() {
     return String.format("%s (singles: %s, plural: %s, adapt: %s, property: %s)",
-        pattern, Arrays.toString(inheritedSingles), alwaysPlural, adaptArgument, property);
+        getPattern(), Arrays.toString(inheritedSingles), alwaysPlural, adaptArgument, property);
   }
 
   @Override
@@ -103,13 +90,15 @@ class SyntaxInfo implements CustomSyntaxSection.SyntaxData {
     SyntaxInfo that = (SyntaxInfo) o;
     return alwaysPlural == that.alwaysPlural &&
         adaptArgument == that.adaptArgument &&
-        Objects.equals(pattern, that.pattern) &&
-        Arrays.equals(inheritedSingles, that.inheritedSingles);
+        property == that.property &&
+        Arrays.equals(inheritedSingles, that.inheritedSingles) &&
+        Objects.equals(getScript(), that.getScript()) &&
+        Objects.equals(getPattern(), that.getPattern());
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(pattern, alwaysPlural, adaptArgument);
+    int result = Objects.hash(alwaysPlural, adaptArgument, property, getScript(), getPattern());
     result = 31 * result + Arrays.hashCode(inheritedSingles);
     return result;
   }
