@@ -24,7 +24,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
   private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
 
   static final Map<SyntaxInfo, Trigger> effectHandlers = new HashMap<>();
-  static final Map<SyntaxInfo,Trigger> parserHandlers = new HashMap<>();
+  static final Map<SyntaxInfo, Trigger> parserHandlers = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("effect");
