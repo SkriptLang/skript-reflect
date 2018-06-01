@@ -6,6 +6,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.registrations.Classes;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -93,6 +94,13 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     if (matchedPattern != 1 && patterns != null) {
       Skript.error("Custom expressions with inline patterns may not have a patterns section.");
       return false;
+    }
+
+    String userReturnType = node.getValue("return type");
+    if (userReturnType != null) {
+      Class returnType =
+          Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
+      whichInfo.forEach(which -> returnTypes.put(which, returnType));
     }
 
     ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
