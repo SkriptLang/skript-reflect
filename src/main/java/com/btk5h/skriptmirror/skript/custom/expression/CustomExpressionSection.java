@@ -30,6 +30,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   static Map<SyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
   static Map<SyntaxInfo, Trigger> parserHandlers = new HashMap<>();
   static Map<SyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
+  static Map<SyntaxInfo, String> loopOfs = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("expression");
@@ -55,6 +56,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     dataTracker.addManaged(expressionHandlers);
     dataTracker.addManaged(changerHandlers);
     dataTracker.addManaged(parserHandlers);
+    dataTracker.addManaged(loopOfs);
   }
 
   @Override
@@ -101,6 +103,11 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
       Class returnType =
           Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
       whichInfo.forEach(which -> returnTypes.put(which, returnType));
+    }
+
+    String loopOf = node.getValue("loop of");
+    if (loopOf != null) {
+      whichInfo.forEach(which -> loopOfs.put(which, loopOf));
     }
 
     ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);

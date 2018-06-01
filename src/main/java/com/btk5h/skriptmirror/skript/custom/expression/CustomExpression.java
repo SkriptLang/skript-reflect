@@ -191,7 +191,7 @@ public class CustomExpression<T> implements Expression<T> {
 
   @Override
   public boolean isLoopOf(String s) {
-    return false;
+    return s.equalsIgnoreCase(CustomExpressionSection.loopOfs.get(which));
   }
 
   @Override
