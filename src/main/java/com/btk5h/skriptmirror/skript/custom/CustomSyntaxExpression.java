@@ -1,19 +1,21 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import org.bukkit.event.Event;
-
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
 
 public class CustomSyntaxExpression extends SimpleExpression<Object> {
   private Expression<?> source;
   private Event realEvent;
+  private Object[] value;
 
   public CustomSyntaxExpression(Expression<?> source, Event realEvent) {
     this.source = source;
     this.realEvent = realEvent;
+    // TODO store more information from the source?
+    this.value = source == null ? new Object[0] : source.getAll(realEvent);
   }
 
   public static CustomSyntaxExpression wrap(Expression<?> source, Event realEvent) {
@@ -25,7 +27,7 @@ public class CustomSyntaxExpression extends SimpleExpression<Object> {
 
   @Override
   protected Object[] get(Event e) {
-    return source == null ? new Object[0] : source.getAll(realEvent);
+    return value;
   }
 
   @Override
