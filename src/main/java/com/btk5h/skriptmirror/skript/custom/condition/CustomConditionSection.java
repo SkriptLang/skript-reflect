@@ -33,6 +33,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
 
     dataTracker.getValidator()
         .addSection("check", false)
+        .addSection("patterns", true)
         .addSection("parse", true);
 
     Skript.registerCondition(CustomCondition.class);
