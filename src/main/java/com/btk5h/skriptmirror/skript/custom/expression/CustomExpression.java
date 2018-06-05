@@ -46,7 +46,9 @@ public class CustomExpression<T> implements Expression<T> {
     if (source != null) {
       this.which = source.which;
       this.exprs = source.exprs;
+      this.matchedPattern = source.matchedPattern;
       this.parseResult = source.parseResult;
+      this.parseEvent = source.parseEvent;
     }
 
     this.types = types;
