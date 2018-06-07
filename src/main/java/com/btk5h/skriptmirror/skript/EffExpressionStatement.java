@@ -7,6 +7,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
+import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
+import com.btk5h.skriptmirror.skript.reflect.ExprTry;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -17,7 +19,7 @@ import java.util.concurrent.Executors;
 
 public class EffExpressionStatement extends Effect {
   static {
-    Skript.registerEffect(EffExpressionStatement.class, "[(1¦await)] %objects%;");
+    Skript.registerEffect(EffExpressionStatement.class, "[(1¦await)] %~javaobject%");
   }
 
   private static final ExecutorService threadPool =
@@ -55,6 +57,11 @@ public class EffExpressionStatement extends Effect {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     arg = SkriptUtil.defendExpression(exprs[0]);
+
+    if (!(arg instanceof ExprJavaCall || arg instanceof ExprTry)) {
+      return false;
+    }
+
     isAsynchronous = (parseResult.mark & 1) == 1;
     return SkriptUtil.canInitSafely(arg);
   }
