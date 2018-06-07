@@ -1,5 +1,5 @@
 group 'com.btk5h.skript-mirror'
-version '0.14.1'
+version '0.15.0'
 
 apply plugin: 'java'
 
