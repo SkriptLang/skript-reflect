@@ -213,7 +213,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     if (superType == Object.class || superType == ObjectWrapper.class) {
-      returnedValue = (T) ObjectWrapper.wrapIfNecessary(returnedValue);
+      returnedValue = (T) ObjectWrapper.wrapIfNecessary(returnedValue, superType == ObjectWrapper.class);
     }
 
     T converted = Converters.convert(returnedValue, types);

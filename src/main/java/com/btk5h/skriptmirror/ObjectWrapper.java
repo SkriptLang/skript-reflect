@@ -24,11 +24,11 @@ public class ObjectWrapper {
     return new ObjectWrapper(object);
   }
 
-  public static Object wrapIfNecessary(Object returnedValue) {
+  public static Object wrapIfNecessary(Object returnedValue, boolean forceWrap) {
     Class<?> returnedClass = returnedValue.getClass();
     if (returnedClass.isArray()) {
       returnedValue = create(JavaUtil.boxPrimitiveArray(returnedValue));
-    } else if (Classes.getSuperClassInfo(returnedClass).getC() == Object.class) {
+    } else if (forceWrap || Classes.getSuperClassInfo(returnedClass).getC() == Object.class) {
       returnedValue = create(returnedValue);
     }
     return returnedValue;
