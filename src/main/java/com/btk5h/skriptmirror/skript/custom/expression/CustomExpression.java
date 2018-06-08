@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
@@ -112,7 +113,8 @@ public class CustomExpression<T> implements Expression<T> {
       Object[] exprOutput = expressionEvent.getOutput();
       if (exprOutput == null) {
         Skript.error(
-            String.format("The get handler for '%s' did not return.", which.getPattern())
+            String.format("The get handler for '%s' did not return for the value %s",
+                which.getPattern(), Classes.toString(o))
         );
         return JavaUtil.newArray(superType, 0);
       }
