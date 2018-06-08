@@ -125,7 +125,11 @@ public class CustomExpression<T> implements Expression<T> {
       }
 
       if (exprOutput.length == 1) {
-        output.add(Converters.convert(exprOutput[0], superType));
+        T converted = Converters.convert(exprOutput[0], superType);
+
+        if (converted != null) {
+          output.add(converted);
+        }
       }
     }
 
