@@ -1,11 +1,14 @@
 package com.btk5h.skriptmirror.skript;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Effect;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import com.btk5h.skriptmirror.skript.reflect.ExprTry;
@@ -17,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class EffExpressionStatement extends Effect {
+public class CondExpressionStatement extends Condition {
   static {
-    Skript.registerEffect(EffExpressionStatement.class, "[(1¦await)] %~javaobject%");
+    Skript.registerCondition(CondExpressionStatement.class, "[(1¦await)] %~javaobject%");
   }
 
   private static final ExecutorService threadPool =
@@ -27,16 +30,28 @@ public class EffExpressionStatement extends Effect {
 
   private Expression<Object> arg;
   private boolean isAsynchronous;
+  private boolean isCondition;
 
   @Override
-  protected void execute(Event e) {
-    arg.getAll(e);
+  public boolean check(Event e) {
+    Object result = arg.getSingle(e);
+    return !isCondition || isTruthy(result);
+  }
+
+  private boolean isTruthy(Object o) {
+    if (o instanceof ObjectWrapper) {
+      o = ((ObjectWrapper) o).get();
+    }
+
+    return o != Boolean.FALSE
+        && o != null
+        && (!(o instanceof Number) || !(((Number) o).doubleValue() == 0 || Double.isNaN(((Number) o).doubleValue())));
   }
 
   @Override
   protected TriggerItem walk(Event e) {
     if (isAsynchronous) {
-      CompletableFuture.runAsync(() -> execute(e), threadPool)
+      CompletableFuture.runAsync(() -> check(e), threadPool)
           .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
             if (getNext() != null) {
               TriggerItem.walk(getNext(), e);
@@ -63,6 +78,13 @@ public class EffExpressionStatement extends Effect {
     }
 
     isAsynchronous = (parseResult.mark & 1) == 1;
+    isCondition = SkriptLogger.getNode() instanceof SectionNode;
+
+    if (isCondition && isAsynchronous) {
+      Skript.error("Asynchronous java calls may not be used as conditions.");
+      return false;
+    }
+
     return SkriptUtil.canInitSafely(arg);
   }
 }
