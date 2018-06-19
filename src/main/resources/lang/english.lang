@@ -1,3 +1,4 @@
+version: 2.2
 types:
   event: event¦s @an
   javatype: java class¦es @a
