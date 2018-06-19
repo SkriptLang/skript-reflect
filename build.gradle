@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 group 'com.btk5h.skript-mirror'
 version '0.15.0'
 
@@ -16,6 +18,12 @@ repositories {
   maven {
     url 'http://maven.njol.ch/repo/'
   }
+}
+
+processResources {
+  inputs.files 'build.gradle'
+  from sourceSets.main.resources.srcDirs
+  filter(ReplaceTokens, tokens: [version: version])
 }
 
 dependencies {
