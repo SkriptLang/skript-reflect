@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class SkriptMirror extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    SkriptReflection.replaceSkriptLogger();
     try {
       getAddonInstance().loadClasses("com.btk5h.skriptmirror.skript");
       LibraryLoader.loadLibraries();

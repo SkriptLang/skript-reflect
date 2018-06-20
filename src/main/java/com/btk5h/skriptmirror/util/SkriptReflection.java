@@ -1,11 +1,14 @@
 package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.log.*;
 import ch.njol.skript.variables.Variables;
+import com.btk5h.skriptmirror.InsertingHandlerList;
+import com.btk5h.skriptmirror.NoMissingAndOrLogger;
 import org.bukkit.event.Event;
 
 import java.lang.reflect.Constructor;
@@ -16,17 +19,27 @@ import java.util.List;
 import java.util.Map;
 
 public class SkriptReflection {
+  public static String MISSING_AND_OR;
+
   private static Field PATTERNS;
   private static Field PARAMETERS;
   private static Field HANDLERS;
   private static Field LOCAL_VARIABLES;
   private static Field VARIABLES_MAP_HASHMAP;
   private static Field VARIABLES_MAP_TREEMAP;
+  private static Field LOG_HANDLERS;
   private static Constructor VARIABLES_MAP;
 
   static {
     Field _FIELD;
     Constructor _CONSTRUCTOR;
+
+    try {
+      _FIELD = SkriptParser.class.getDeclaredField("MISSING_AND_OR");
+      _FIELD.setAccessible(true);
+      MISSING_AND_OR = (String) _FIELD.get(null);
+    } catch (NoSuchFieldException | IllegalAccessException ignored) {
+    }
 
     try {
       _FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
@@ -82,6 +95,17 @@ public class SkriptReflection {
       }
 
       try {
+        _FIELD = SkriptLogger.class.getDeclaredField("handlers");
+        _FIELD.setAccessible(true);
+        JavaReflection.removeFinalModifier(_FIELD);
+        LOG_HANDLERS = _FIELD;
+      } catch (NoSuchFieldException e) {
+        Skript.warning("Skript's log handlers field could not be resolved.");
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
+
+      try {
         _CONSTRUCTOR = variablesMap.getDeclaredConstructor();
         _CONSTRUCTOR.setAccessible(true);
         VARIABLES_MAP = _CONSTRUCTOR;
@@ -124,7 +148,16 @@ public class SkriptReflection {
     LogHandler nextHandler;
     List<LogHandler> parseLogs = new ArrayList<>();
 
-    while (handlers.hasNext() && (nextHandler = handlers.next()) instanceof ParseLogHandler) {
+    while (handlers.hasNext()) {
+      nextHandler = handlers.next();
+
+      if (nextHandler instanceof NoMissingAndOrLogger) {
+        continue;
+      }
+
+      if (!(nextHandler instanceof ParseLogHandler)) {
+        break;
+      }
       parseLogs.add(nextHandler);
     }
 
@@ -160,6 +193,14 @@ public class SkriptReflection {
         ((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(variablesMap))
             .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(originalVariablesMap));
       }
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void replaceSkriptLogger() {
+    try {
+      LOG_HANDLERS.set(null, new InsertingHandlerList(new NoMissingAndOrLogger()));
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
