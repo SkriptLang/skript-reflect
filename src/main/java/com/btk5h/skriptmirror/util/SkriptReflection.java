@@ -27,7 +27,6 @@ public class SkriptReflection {
   private static Field LOCAL_VARIABLES;
   private static Field VARIABLES_MAP_HASHMAP;
   private static Field VARIABLES_MAP_TREEMAP;
-  private static Field LOG_HANDLERS;
   private static Constructor VARIABLES_MAP;
 
   static {
@@ -62,9 +61,12 @@ public class SkriptReflection {
     try {
       _FIELD = SkriptLogger.class.getDeclaredField("handlers");
       _FIELD.setAccessible(true);
+      JavaReflection.removeFinalModifier(_FIELD);
       HANDLERS = _FIELD;
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's handlers field could not be resolved. Some Skript warnings may not be available.");
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
     }
 
     try {
@@ -92,17 +94,6 @@ public class SkriptReflection {
         VARIABLES_MAP_TREEMAP = _FIELD;
       } catch (NoSuchFieldException e) {
         Skript.warning("Skript's tree map field could not be resolved.");
-      }
-
-      try {
-        _FIELD = SkriptLogger.class.getDeclaredField("handlers");
-        _FIELD.setAccessible(true);
-        JavaReflection.removeFinalModifier(_FIELD);
-        LOG_HANDLERS = _FIELD;
-      } catch (NoSuchFieldException e) {
-        Skript.warning("Skript's log handlers field could not be resolved.");
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
       }
 
       try {
@@ -200,7 +191,7 @@ public class SkriptReflection {
 
   public static void replaceSkriptLogger() {
     try {
-      LOG_HANDLERS.set(null, new InsertingHandlerList(new NoMissingAndOrLogger()));
+      HANDLERS.set(null, new InsertingHandlerList(new NoMissingAndOrLogger()));
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
