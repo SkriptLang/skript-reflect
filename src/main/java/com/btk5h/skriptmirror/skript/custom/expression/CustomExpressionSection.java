@@ -15,7 +15,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
-public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
+public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSyntaxInfo> {
   static {
     //noinspection unchecked
     CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
@@ -24,13 +24,13 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
         "[(2¦local)] %*classinfo% property <.+>");
   }
 
-  private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
+  private static DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
 
-  static Map<SyntaxInfo, Class<?>> returnTypes = new HashMap<>();
-  static Map<SyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
-  static Map<SyntaxInfo, Trigger> parserHandlers = new HashMap<>();
-  static Map<SyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
-  static Map<SyntaxInfo, String> loopOfs = new HashMap<>();
+  static Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
+  static Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
+  static Map<ExpressionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
+  static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
+  static Map<ExpressionSyntaxInfo, String> loopOfs = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("expression");
@@ -60,7 +60,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
   }
 
   @Override
-  protected DataTracker<SyntaxInfo> getDataTracker() {
+  protected DataTracker<ExpressionSyntaxInfo> getDataTracker() {
     return dataTracker;
   }
 
@@ -74,7 +74,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(SyntaxInfo.create(script, what, (parseResult.mark & 1) == 1, false, false));
+        register(ExpressionSyntaxInfo.create(script, what, (parseResult.mark & 1) == 1, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -83,13 +83,13 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
         }
 
         patterns.forEach(subNode ->
-            register(SyntaxInfo.create(script, subNode.getKey(), (parseResult.mark & 1) == 1, false, false)));
+            register(ExpressionSyntaxInfo.create(script, subNode.getKey(), (parseResult.mark & 1) == 1, false, false)));
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
         String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        register(SyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", false, true, true));
-        register(SyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, false, false, true));
+        register(ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", false, true, true));
+        register(ExpressionSyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, false, false, true));
         break;
     }
 
@@ -139,7 +139,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<SyntaxInfo> {
     return true;
   }
 
-  public static SyntaxInfo lookup(File script, int matchedPattern) {
+  public static ExpressionSyntaxInfo lookup(File script, int matchedPattern) {
     return dataTracker.lookup(script, matchedPattern);
   }
 }

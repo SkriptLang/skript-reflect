@@ -17,7 +17,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class CustomCondition extends Condition {
-  private SyntaxInfo which;
+  private ConditionSyntaxInfo which;
   private Expression<?>[] exprs;
   private int matchedPattern;
   private SkriptParser.ParseResult parseResult;

@@ -12,7 +12,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class CustomEffect extends Effect {
-  private SyntaxInfo which;
+  private EffectSyntaxInfo which;
   private Expression<?>[] exprs;
   private int matchedPattern;
   private SkriptParser.ParseResult parseResult;

@@ -6,18 +6,18 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import java.io.File;
 import java.util.Objects;
 
-class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
+public class ConditionSyntaxInfo extends CustomSyntaxSection.SyntaxData {
   private final boolean inverted;
   private final boolean property;
 
-  private SyntaxInfo(File script, String pattern, boolean inverted, boolean property) {
+  private ConditionSyntaxInfo(File script, String pattern, boolean inverted, boolean property) {
     super(script, pattern);
     this.inverted = inverted;
     this.property = property;
   }
 
-  public static SyntaxInfo create(File script, String pattern, boolean inverted, boolean property) {
-    return new SyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), inverted, property);
+  public static ConditionSyntaxInfo create(File script, String pattern, boolean inverted, boolean property) {
+    return new ConditionSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), inverted, property);
   }
 
   public boolean isInverted() {
@@ -37,7 +37,7 @@ class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    SyntaxInfo that = (SyntaxInfo) o;
+    ConditionSyntaxInfo that = (ConditionSyntaxInfo) o;
     return inverted == that.inverted &&
         property == that.property &&
         Objects.equals(getScript(), that.getScript()) &&

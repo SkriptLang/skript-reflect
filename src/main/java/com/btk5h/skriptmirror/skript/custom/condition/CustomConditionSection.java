@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
+public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxInfo> {
   static {
     //noinspection unchecked
     CustomSyntaxSection.register("Define Condition", CustomConditionSection.class,
@@ -23,10 +23,10 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
         "[(1¦local)] %*classinfo% property condition <.+>");
   }
 
-  private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
+  private static DataTracker<ConditionSyntaxInfo> dataTracker = new DataTracker<>();
 
-  static Map<SyntaxInfo, Trigger> conditionHandlers = new HashMap<>();
-  static Map<SyntaxInfo, Trigger> parserHandlers = new HashMap<>();
+  static Map<ConditionSyntaxInfo, Trigger> conditionHandlers = new HashMap<>();
+  static Map<ConditionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("condition");
@@ -47,7 +47,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
   }
 
   @Override
-  public DataTracker<SyntaxInfo> getDataTracker() {
+  public DataTracker<ConditionSyntaxInfo> getDataTracker() {
     return dataTracker;
   }
 
@@ -62,7 +62,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(SyntaxInfo.create(script, what, false, false));
+        register(ConditionSyntaxInfo.create(script, what, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -70,13 +70,13 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
           return false;
         }
 
-        patterns.forEach(subNode -> register(SyntaxInfo.create(script, subNode.getKey(), false, false)));
+        patterns.forEach(subNode -> register(ConditionSyntaxInfo.create(script, subNode.getKey(), false, false)));
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
         String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        register(SyntaxInfo.create(script, "%" + type + "% (is|are) " + what, false, true));
-        register(SyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, true, true));
+        register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + what, false, true));
+        register(ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, true, true));
         break;
     }
 
@@ -96,7 +96,7 @@ public class CustomConditionSection extends CustomSyntaxSection<SyntaxInfo> {
     return true;
   }
 
-  public static SyntaxInfo lookup(File script, int matchedPattern) {
+  public static ConditionSyntaxInfo lookup(File script, int matchedPattern) {
     return dataTracker.lookup(script, matchedPattern);
   }
 }

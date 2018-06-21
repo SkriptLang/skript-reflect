@@ -8,15 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
+public class ExpressionSyntaxInfo extends CustomSyntaxSection.SyntaxData {
   private final int[] inheritedSingles;
   private final boolean alwaysPlural;
   private final boolean adaptArgument;
   private final boolean property;
 
 
-  private SyntaxInfo(File script, String pattern, int[] inheritedSingles, boolean alwaysPlural,
-             boolean adaptArgument, boolean property) {
+  private ExpressionSyntaxInfo(File script, String pattern, int[] inheritedSingles, boolean alwaysPlural,
+                               boolean adaptArgument, boolean property) {
     super(script, pattern);
     this.inheritedSingles = inheritedSingles;
     this.alwaysPlural = alwaysPlural;
@@ -24,8 +24,8 @@ class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
     this.property = property;
   }
 
-  public static SyntaxInfo create(File script, String pattern, boolean alwaysPlural,
-                                  boolean adaptArgument, boolean property) {
+  public static ExpressionSyntaxInfo create(File script, String pattern, boolean alwaysPlural,
+                                            boolean adaptArgument, boolean property) {
     StringBuilder newPattern = new StringBuilder(pattern.length());
     List<Integer> inheritedSingles = new ArrayList<>();
     String[] parts = pattern.split("%");
@@ -50,7 +50,7 @@ class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
       }
     }
 
-    return new SyntaxInfo(
+    return new ExpressionSyntaxInfo(
         script,
         newPattern.toString(),
         inheritedSingles.stream()
@@ -87,7 +87,7 @@ class SyntaxInfo extends CustomSyntaxSection.SyntaxData {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    SyntaxInfo that = (SyntaxInfo) o;
+    ExpressionSyntaxInfo that = (ExpressionSyntaxInfo) o;
     return alwaysPlural == that.alwaysPlural &&
         adaptArgument == that.adaptArgument &&
         property == that.property &&

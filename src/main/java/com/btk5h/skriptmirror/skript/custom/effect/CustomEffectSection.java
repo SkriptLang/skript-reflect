@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
+public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
   static {
     //noinspection unchecked
     CustomSyntaxSection.register("Define Effect", CustomEffectSection.class,
@@ -21,10 +21,10 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
         "[(1¦local)] effect");
   }
 
-  private static DataTracker<SyntaxInfo> dataTracker = new DataTracker<>();
+  private static DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
 
-  static final Map<SyntaxInfo, Trigger> effectHandlers = new HashMap<>();
-  static final Map<SyntaxInfo, Trigger> parserHandlers = new HashMap<>();
+  static final Map<EffectSyntaxInfo, Trigger> effectHandlers = new HashMap<>();
+  static final Map<EffectSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("effect");
@@ -45,7 +45,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
   }
 
   @Override
-  public DataTracker<SyntaxInfo> getDataTracker() {
+  public DataTracker<EffectSyntaxInfo> getDataTracker() {
     return dataTracker;
   }
 
@@ -58,7 +58,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
 
     switch (matchedPattern) {
       case 0:
-        register(SyntaxInfo.create(script, parseResult.regexes.get(0).group()));
+        register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group()));
         break;
       case 1:
         if (patterns == null) {
@@ -66,7 +66,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
           return false;
         }
 
-        patterns.forEach(subNode -> register(SyntaxInfo.create(script, subNode.getKey())));
+        patterns.forEach(subNode -> register(EffectSyntaxInfo.create(script, subNode.getKey())));
         break;
     }
 
@@ -86,7 +86,7 @@ public class CustomEffectSection extends CustomSyntaxSection<SyntaxInfo> {
     return true;
   }
 
-  public static SyntaxInfo lookup(File script, int matchedPattern) {
+  public static EffectSyntaxInfo lookup(File script, int matchedPattern) {
     return dataTracker.lookup(script, matchedPattern);
   }
 }

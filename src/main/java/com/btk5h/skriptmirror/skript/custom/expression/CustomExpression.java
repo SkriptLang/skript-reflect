@@ -24,7 +24,7 @@ import java.util.*;
 
 
 public class CustomExpression<T> implements Expression<T> {
-  private SyntaxInfo which;
+  private ExpressionSyntaxInfo which;
   private Expression<?>[] exprs;
   private int matchedPattern;
   private SkriptParser.ParseResult parseResult;
