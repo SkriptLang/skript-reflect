@@ -15,16 +15,16 @@ public class ExpressionSyntaxInfo extends CustomSyntaxSection.SyntaxData {
   private final boolean property;
 
 
-  private ExpressionSyntaxInfo(File script, String pattern, int[] inheritedSingles, boolean alwaysPlural,
-                               boolean adaptArgument, boolean property) {
-    super(script, pattern);
+  private ExpressionSyntaxInfo(File script, String pattern, int matchedPattern, int[] inheritedSingles,
+                               boolean alwaysPlural, boolean adaptArgument, boolean property) {
+    super(script, pattern, matchedPattern);
     this.inheritedSingles = inheritedSingles;
     this.alwaysPlural = alwaysPlural;
     this.adaptArgument = adaptArgument;
     this.property = property;
   }
 
-  public static ExpressionSyntaxInfo create(File script, String pattern, boolean alwaysPlural,
+  public static ExpressionSyntaxInfo create(File script, String pattern, int matchedPattern, boolean alwaysPlural,
                                             boolean adaptArgument, boolean property) {
     StringBuilder newPattern = new StringBuilder(pattern.length());
     List<Integer> inheritedSingles = new ArrayList<>();
@@ -53,6 +53,7 @@ public class ExpressionSyntaxInfo extends CustomSyntaxSection.SyntaxData {
     return new ExpressionSyntaxInfo(
         script,
         newPattern.toString(),
+        matchedPattern,
         inheritedSingles.stream()
             .mapToInt(i -> i)
             .toArray(),

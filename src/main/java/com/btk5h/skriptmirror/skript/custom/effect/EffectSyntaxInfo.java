@@ -7,12 +7,12 @@ import java.io.File;
 import java.util.Objects;
 
 class EffectSyntaxInfo extends CustomSyntaxSection.SyntaxData {
-  private EffectSyntaxInfo(File script, String pattern) {
-    super(script, pattern);
+  private EffectSyntaxInfo(File script, String pattern, int matchedPattern) {
+    super(script, pattern, matchedPattern);
   }
 
-  public static EffectSyntaxInfo create(File script, String pattern) {
-    return new EffectSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern));
+  public static EffectSyntaxInfo create(File script, String pattern, int matchedPattern) {
+    return new EffectSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), matchedPattern);
   }
 
   @Override

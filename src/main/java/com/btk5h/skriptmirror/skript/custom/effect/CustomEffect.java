@@ -14,7 +14,6 @@ import java.util.Arrays;
 public class CustomEffect extends Effect {
   private EffectSyntaxInfo which;
   private Expression<?>[] exprs;
-  private int matchedPattern;
   private SkriptParser.ParseResult parseResult;
   private Event parseEvent;
 
@@ -38,7 +37,7 @@ public class CustomEffect extends Effect {
   private EffectTriggerEvent invokeEffect(Event e) {
     Trigger trigger = CustomEffectSection.effectHandlers.get(which);
     EffectTriggerEvent effectEvent =
-        new EffectTriggerEvent(e, exprs, matchedPattern, parseResult, which.getPattern(), getNext());
+        new EffectTriggerEvent(e, exprs, which.getMatchedPattern(), parseResult, which.getPattern(), getNext());
     if (trigger == null) {
       Skript.error(String.format("The custom effect '%s' no longer has a handler.", which));
     } else {
@@ -65,7 +64,6 @@ public class CustomEffect extends Effect {
     this.exprs = Arrays.stream(exprs)
         .map(SkriptUtil::defendExpression)
         .toArray(Expression[]::new);
-    this.matchedPattern = matchedPattern;
     this.parseResult = parseResult;
 
     if (!SkriptUtil.canInitSafely(this.exprs)) {

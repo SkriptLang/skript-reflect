@@ -26,7 +26,6 @@ import java.util.*;
 public class CustomExpression<T> implements Expression<T> {
   private ExpressionSyntaxInfo which;
   private Expression<?>[] exprs;
-  private int matchedPattern;
   private SkriptParser.ParseResult parseResult;
   private Event parseEvent;
 
@@ -47,7 +46,6 @@ public class CustomExpression<T> implements Expression<T> {
     if (source != null) {
       this.which = source.which;
       this.exprs = source.exprs;
-      this.matchedPattern = source.matchedPattern;
       this.parseResult = source.parseResult;
       this.parseEvent = source.parseEvent;
     }
@@ -87,7 +85,7 @@ public class CustomExpression<T> implements Expression<T> {
   }
 
   private T[] getByStandard(Event e, Trigger getter) {
-    ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, matchedPattern, parseResult);
+    ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, which.getMatchedPattern(), parseResult);
     SkriptReflection.copyVariablesMap(parseEvent, expressionEvent);
     getter.execute(expressionEvent);
     if (expressionEvent.getOutput() == null) {
@@ -106,7 +104,8 @@ public class CustomExpression<T> implements Expression<T> {
       Expression<?>[] localExprs = Arrays.copyOf(exprs, exprs.length);
       localExprs[0] = new SimpleLiteral<>(o, false);
 
-      ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, localExprs, matchedPattern, parseResult);
+      ExpressionGetEvent expressionEvent =
+          new ExpressionGetEvent(e, localExprs, which.getMatchedPattern(), parseResult);
       SkriptReflection.copyVariablesMap(parseEvent, expressionEvent);
       getter.execute(expressionEvent);
 
@@ -239,7 +238,8 @@ public class CustomExpression<T> implements Expression<T> {
               which.getPattern(), mode.name())
       );
     } else {
-      ExpressionChangeEvent changeEvent = new ExpressionChangeEvent(e, exprs, matchedPattern, parseResult, delta);
+      ExpressionChangeEvent changeEvent =
+          new ExpressionChangeEvent(e, exprs, which.getMatchedPattern(), parseResult, delta);
       SkriptReflection.copyVariablesMap(parseEvent, changeEvent);
       changer.execute(changeEvent);
     }
@@ -263,7 +263,6 @@ public class CustomExpression<T> implements Expression<T> {
     this.exprs = Arrays.stream(exprs)
         .map(SkriptUtil::defendExpression)
         .toArray(Expression[]::new);
-    this.matchedPattern = matchedPattern;
     this.parseResult = parseResult;
 
     if (!SkriptUtil.canInitSafely(this.exprs)) {

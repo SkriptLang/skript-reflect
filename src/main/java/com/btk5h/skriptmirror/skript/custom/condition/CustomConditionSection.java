@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript.custom.condition;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
@@ -62,7 +63,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(ConditionSyntaxInfo.create(script, what, false, false));
+        register(ConditionSyntaxInfo.create(script, what, 0, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -70,13 +71,17 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
           return false;
         }
 
-        patterns.forEach(subNode -> register(ConditionSyntaxInfo.create(script, subNode.getKey(), false, false)));
+        int i = 0;
+        for (Node subNode : patterns) {
+          register(ConditionSyntaxInfo.create(script, subNode.getKey(), i++, false, false));
+        }
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
         String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + what, false, true));
-        register(ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, true, true));
+        register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + what, 0, false, true));
+        register(
+            ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, 0, true, true));
         break;
     }
 

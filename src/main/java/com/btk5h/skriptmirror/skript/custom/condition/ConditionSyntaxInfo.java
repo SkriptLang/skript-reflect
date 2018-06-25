@@ -10,14 +10,16 @@ public class ConditionSyntaxInfo extends CustomSyntaxSection.SyntaxData {
   private final boolean inverted;
   private final boolean property;
 
-  private ConditionSyntaxInfo(File script, String pattern, boolean inverted, boolean property) {
-    super(script, pattern);
+  private ConditionSyntaxInfo(File script, String pattern, int matchedPattern, boolean inverted, boolean property) {
+    super(script, pattern, matchedPattern);
     this.inverted = inverted;
     this.property = property;
   }
 
-  public static ConditionSyntaxInfo create(File script, String pattern, boolean inverted, boolean property) {
-    return new ConditionSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), inverted, property);
+  public static ConditionSyntaxInfo create(File script, String pattern, int matchedPattern,
+                                           boolean inverted, boolean property) {
+    return new ConditionSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), matchedPattern,
+        inverted, property);
   }
 
   public boolean isInverted() {

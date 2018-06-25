@@ -100,10 +100,12 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
   public abstract static class SyntaxData {
     private final File script;
     private final String pattern;
+    private final int matchedPattern;
 
-    protected SyntaxData(File script, String pattern) {
+    protected SyntaxData(File script, String pattern, int matchedPattern) {
       this.script = script;
       this.pattern = pattern;
+      this.matchedPattern = matchedPattern;
     }
 
     public File getScript() {
@@ -112,6 +114,10 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
     public String getPattern() {
       return pattern;
+    }
+
+    public int getMatchedPattern() {
+      return matchedPattern;
     }
 
     @Override

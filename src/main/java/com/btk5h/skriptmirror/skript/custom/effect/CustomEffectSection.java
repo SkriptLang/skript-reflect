@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.skript.custom.effect;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
@@ -58,7 +59,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
     switch (matchedPattern) {
       case 0:
-        register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group()));
+        register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group(), 0));
         break;
       case 1:
         if (patterns == null) {
@@ -66,7 +67,10 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
           return false;
         }
 
-        patterns.forEach(subNode -> register(EffectSyntaxInfo.create(script, subNode.getKey())));
+        int i = 0;
+        for (Node subNode : patterns) {
+          register(EffectSyntaxInfo.create(script, subNode.getKey(), i++));
+        }
         break;
     }
 

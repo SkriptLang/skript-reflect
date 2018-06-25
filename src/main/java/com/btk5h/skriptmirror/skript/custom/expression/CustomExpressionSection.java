@@ -4,6 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.Classes;
@@ -74,7 +75,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(ExpressionSyntaxInfo.create(script, what, (parseResult.mark & 1) == 1, false, false));
+        register(ExpressionSyntaxInfo.create(script, what, 0, (parseResult.mark & 1) == 1, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -82,14 +83,19 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
           return false;
         }
 
-        patterns.forEach(subNode ->
-            register(ExpressionSyntaxInfo.create(script, subNode.getKey(), (parseResult.mark & 1) == 1, false, false)));
+        int i = 0;
+        for (Node subNode : patterns) {
+          register(
+              ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, (parseResult.mark & 1) == 1, false, false));
+        }
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
         String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        register(ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", false, true, true));
-        register(ExpressionSyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, false, false, true));
+        register(
+            ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", 0, false, true, true));
+        register(
+            ExpressionSyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, 0, false, false, true));
         break;
     }
 
