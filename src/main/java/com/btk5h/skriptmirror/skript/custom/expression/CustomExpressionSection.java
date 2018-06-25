@@ -75,7 +75,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(ExpressionSyntaxInfo.create(script, what, 0, (parseResult.mark & 1) == 1, false, false));
+        register(ExpressionSyntaxInfo.create(script, what, 1, (parseResult.mark & 1) == 1, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -83,7 +83,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
           return false;
         }
 
-        int i = 0;
+        int i = 1;
         for (Node subNode : patterns) {
           register(
               ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, (parseResult.mark & 1) == 1, false, false));
@@ -93,9 +93,9 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         what = parseResult.regexes.get(0).group();
         String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
         register(
-            ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", 0, false, true, true));
+            ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", 1, false, true, true));
         register(
-            ExpressionSyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, 0, false, false, true));
+            ExpressionSyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, 1, false, false, true));
         break;
     }
 

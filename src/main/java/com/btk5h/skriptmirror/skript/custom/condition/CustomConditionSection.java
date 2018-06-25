@@ -63,7 +63,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(ConditionSyntaxInfo.create(script, what, 0, false, false));
+        register(ConditionSyntaxInfo.create(script, what, 1, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -71,7 +71,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
           return false;
         }
 
-        int i = 0;
+        int i = 1;
         for (Node subNode : patterns) {
           register(ConditionSyntaxInfo.create(script, subNode.getKey(), i++, false, false));
         }
@@ -79,9 +79,9 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
       case 2:
         what = parseResult.regexes.get(0).group();
         String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + what, 0, false, true));
+        register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + what, 1, false, true));
         register(
-            ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, 0, true, true));
+            ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, 1, true, true));
         break;
     }
 

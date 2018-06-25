@@ -59,7 +59,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
     switch (matchedPattern) {
       case 0:
-        register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group(), 0));
+        register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group(), 1));
         break;
       case 1:
         if (patterns == null) {
@@ -67,7 +67,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
           return false;
         }
 
-        int i = 0;
+        int i = 1;
         for (Node subNode : patterns) {
           register(EffectSyntaxInfo.create(script, subNode.getKey(), i++));
         }
