@@ -26,7 +26,7 @@ public class ExprExpression<T> implements Expression<T> {
   static {
     //noinspection unchecked
     Skript.registerExpression(ExprExpression.class, Object.class, ExpressionType.SIMPLE,
-        "[the] expr[ession][(1¦s)](-| )<(\\d+)>");
+        "[the] expr[ession][(1¦s)](-| )<\\d+>");
   }
 
   private int index;
@@ -184,7 +184,7 @@ public class ExprExpression<T> implements Expression<T> {
       return false;
     }
 
-    index = Utils.parseInt(parseResult.regexes.get(0).group(1));
+    index = Utils.parseInt(parseResult.regexes.get(0).group(0));
     if (index <= 0) {
       Skript.error("The expression index must be a natural number.", ErrorQuality.SEMANTIC_ERROR);
       return false;
