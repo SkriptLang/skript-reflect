@@ -10,7 +10,7 @@ Adding `try` before a Java call prevents errors from being logged to the console
 {% code-tabs-item title="example.sk" %}
 ```text
 set {_second item in list} to try {_list}.get(1)
-try {_connection}.setUseCaches(true);
+try {_connection}.setUseCaches(true)
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
