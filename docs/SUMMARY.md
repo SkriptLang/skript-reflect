@@ -1,7 +1,7 @@
 # Table of contents
 
 * [skript-mirror](../README.md)
-* [Getting Started](introduction.md)
+* [Getting Started](getting-started.md)
 * [Basics](basics/README.md)
   * [Importing classes](basics/importing-classes.md)
   * [Running Java code](basics/running-java-code.md)
