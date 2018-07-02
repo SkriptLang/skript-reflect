@@ -14,6 +14,6 @@
     * [Effects](advanced/custom-syntax/effects.md)
     * [Conditions](advanced/custom-syntax/conditions.md)
     * [Expressions](advanced/custom-syntax/expressions.md)
-* [Frequently Asked Questions](frequently-asked-questions.md)
 * [Code Conventions](code-conventions.md)
+* [Frequently Asked Questions](frequently-asked-questions.md)
 
