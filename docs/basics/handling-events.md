@@ -1,7 +1,5 @@
 # Handling events
 
-In some cases,
-
 ## Listening to events
 
 You may listen to any Bukkit-based event \(including events added by other plugins\) using the event's fully qualified name. For example, if you wanted to listen to [org.bukkit.event.entity.EnderDragonChangePhaseEvent](https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EnderDragonChangePhaseEvent.html):

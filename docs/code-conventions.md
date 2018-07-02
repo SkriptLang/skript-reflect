@@ -64,7 +64,7 @@ Especially when copying Java code and translating it for skript-mirror, you may 
 {% hint style="danger" %}
 ```text
 set {_mod count field} to {_map}.getClass().getDeclaredField("modCount")
-{_mod count field}.setAccessible(true)se
+{_mod count field}.setAccessible(true)
 set {_mod count} to {_mod count field}.get({_map})
 ```
 {% endhint %}
