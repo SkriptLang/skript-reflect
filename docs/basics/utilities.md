@@ -6,11 +6,12 @@
 {% code-tabs-item title="Syntax" %}
 ```text
 [%objects%]
+[%objects% as %javatype%]
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-Creates an array containing the specified objects.
+Creates an array containing the specified objects. Specifying a type determines the component type of the resulting array.
 
 {% hint style="info" %}
 The brackets in this syntax are literal, not representing an optional group.
