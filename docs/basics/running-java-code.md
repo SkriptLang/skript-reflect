@@ -59,7 +59,7 @@ A descriptor may contain both a declaring class and a list of parameters.
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-%object%.<descriptor>([%objects%])
+%object%.<descriptor>(%objects%)
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
@@ -83,7 +83,7 @@ References to fields must end in `!` due to limitations in Skript's parser.
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[a] new %javatype%([%objects%])
+[a] new %javatype%(%objects%)
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
