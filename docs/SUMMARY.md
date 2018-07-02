@@ -1,0 +1,19 @@
+# Table of contents
+
+* [skript-mirror](../README.md)
+* [Getting Started](introduction.md)
+* [Basics](basics/README.md)
+  * [Importing classes](basics/importing-classes.md)
+  * [Running Java code](basics/running-java-code.md)
+  * [Handling events](basics/handling-events.md)
+  * [Utilities](basics/utilities.md)
+* [Advanced](advanced/README.md)
+  * [Error handling](advanced/error-handling.md)
+  * [Loading external libraries](advanced/loading-external-libraries.md)
+  * [Custom syntax](advanced/custom-syntax/README.md)
+    * [Effects](advanced/custom-syntax/effects.md)
+    * [Conditions](advanced/custom-syntax/conditions.md)
+    * [Expressions](advanced/custom-syntax/expressions.md)
+* [Frequently Asked Questions](frequently-asked-questions.md)
+* [Code Conventions](code-conventions.md)
+
