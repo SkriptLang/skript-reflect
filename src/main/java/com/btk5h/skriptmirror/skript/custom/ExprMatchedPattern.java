@@ -10,7 +10,6 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
-import com.btk5h.skriptmirror.skript.custom.expression.ConstantGetEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
