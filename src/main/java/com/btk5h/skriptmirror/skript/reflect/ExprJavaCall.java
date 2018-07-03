@@ -238,6 +238,10 @@ public class ExprJavaCall<T> implements Expression<T> {
   }
 
   private String optionalArgs(Object... arguments) {
+    if (type == CallType.FIELD) {
+      return "";
+    }
+
     if (arguments.length == 0) {
       return " called without arguments";
     }
