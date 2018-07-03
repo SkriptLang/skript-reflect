@@ -156,7 +156,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   private T[] invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
     T returnedValue = null;
 
-    Class<?> targetClass = SkriptMirrorUtil.toClass(target);
+    Class<?> targetClass = SkriptMirrorUtil.toClassUnwrapJavaTypes(target);
 
     if (baseDescriptor == null)  {
       return JavaUtil.newArray(superType, 0);

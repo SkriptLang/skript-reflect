@@ -8,11 +8,12 @@ public class SkriptMirrorUtil {
   public static final String IDENTIFIER = "[_a-zA-Z$][\\w$]*";
   public static final String PACKAGE = "(?:" + IDENTIFIER + "\\.)*(?:" + IDENTIFIER + ")";
 
-  public static Class<?> toClass(Object o) {
+  public static Class<?> toClassUnwrapJavaTypes(Object o) {
     if (o instanceof JavaType) {
       return ((JavaType) o).getJavaClass();
     }
-    return o.getClass();
+
+    return getClass(o);
   }
 
   public static String getDebugName(Class<?> cls) {

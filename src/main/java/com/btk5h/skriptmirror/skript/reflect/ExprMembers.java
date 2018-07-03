@@ -26,7 +26,7 @@ public class ExprMembers extends SimpleExpression<String> {
   @Override
   protected String[] get(Event e) {
     return Arrays.stream(target.getArray(e))
-        .map(SkriptMirrorUtil::toClass)
+        .map(SkriptMirrorUtil::toClassUnwrapJavaTypes)
         .flatMap(mapper)
         .map(JavaUtil::toGenericString)
         .distinct()
