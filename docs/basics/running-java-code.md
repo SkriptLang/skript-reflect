@@ -2,7 +2,7 @@
 
 ## Descriptors
 
-In skript-mirror, a descriptor describes a particular field or method. A descriptor must contain a name and may optionally contain a declaring class and/or list of parameters.
+In skript-mirror, a descriptor is a name that identifies a particular method or field. A descriptor must contain a name and may optionally contain a declaring class and/or list of parameters.
 
 {% tabs %}
 {% tab title="Name Only" %}
@@ -29,7 +29,13 @@ The simplest and most common form of descriptor simply contains the name of a me
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-A descriptor may specify the declaring class or a field or method before the name. This is useful when referring to non-public members that may have been shadowed by a subclass.
+A descriptor may specify the declaring class of a field or method before the name.
+
+{% hint style="info" %}
+The declaring class must be specified when the field or method is not public.
+
+Since non-public members are not inherited, the declaring class must be provided to proper
+{% endhint %}
 {% endtab %}
 
 {% tab title="Name + Parameters" %}
@@ -51,6 +57,12 @@ A descriptor may specify a list of parameters after the name. This is useful whe
 ```
 
 A descriptor may contain both a declaring class and a list of parameters.
+
+{% hint style="info" %}
+The declaring class must be specified when the field or method is not public.
+
+Since non-public members are not inherited, the declaring class must be provided to properly resolve the member.
+{% endhint %}
 {% endtab %}
 {% endtabs %}
 
