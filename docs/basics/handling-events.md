@@ -59,3 +59,33 @@ The `event` expression may also be used in normal Skript events.
 
 ## Setting a priority level
 
+The priority level of an event may be set to control when a particular event handler is run relative to other event handlers.
+
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+on "org.bukkit.event.entity.EnderDragonChangePhaseEvent" with priority highest:
+  # your code
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+Any event priorities defined in [org.bukkit.event.EventPriority](https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/EventPriority.html) may be used. Lower priority event handlers are run before higher priority event handlers.
+
+{% code-tabs %}
+{% code-tabs-item title="Event Priorities" %}
+```text
+lowest
+low
+normal
+high
+highest
+monitor
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+{% hint style="warning" %}
+`highest` is the highest priority event handler you should use if you are modifying the contents of an event. If you only care about the final result of the event, use `monitor`.
+{% endhint %}
+
