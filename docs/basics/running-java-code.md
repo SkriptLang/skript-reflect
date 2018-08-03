@@ -74,6 +74,14 @@ Since non-public members are not inherited, the declaring class must be provided
 %object%.<descriptor>(%objects%)
 ```
 {% endcode-tabs-item %}
+
+{% code-tabs-item title="example.sk" %}
+```
+event-block.breakNaturally()
+(last spawned creeper).setPowered(true)
+player.giveExpLevels({_levels})
+```
+{% endcode-tabs-item %}
 {% endcode-tabs %}
 
 ## Calling fields
@@ -96,6 +104,12 @@ References to fields must end in `!` due to limitations in Skript's parser.
 {% code-tabs-item title="Syntax" %}
 ```text
 [a] new %javatype%(%objects%)
+```
+{% endcode-tabs-item %}
+
+{% code-tabs-item title="example.sk" %}
+```
+new Location(player's world, 0, 0, 0)
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
