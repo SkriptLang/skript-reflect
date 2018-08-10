@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript.custom.expression;
 
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,6 +43,8 @@ public class ExpressionSyntaxInfo extends CustomSyntaxSection.SyntaxData {
 
         if (part.startsWith("_")) {
           part = part.endsWith("s") ? "javaobject" : "javaobjects";
+        } else {
+          part = SkriptMirrorUtil.replaceUserInputPatterns(part);
         }
 
         newPattern.append('%');

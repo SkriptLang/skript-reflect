@@ -1,6 +1,8 @@
 package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.registrations.Classes;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.ObjectWrapper;
 
@@ -43,6 +45,8 @@ public class SkriptMirrorUtil {
       } else {
         if (part.startsWith("_")) {
           part = part.endsWith("s") ? "javaobjects" : "javaobject";
+        } else {
+          part = replaceUserInputPatterns(part);
         }
 
         newPattern.append('%');
@@ -52,5 +56,24 @@ public class SkriptMirrorUtil {
     }
 
     return newPattern.toString();
+  }
+
+  public static String replaceUserInputPatterns(String part) {
+    if (part.length() > 0) {
+      ClassInfo<?> ci;
+      ci = Classes.getClassInfoNoError(part);
+
+      if (ci == null) {
+        ci = Classes.getClassInfoFromUserInput(part);
+      }
+
+      if (ci == null) {
+        Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", part));
+        part = part.endsWith("s") ? "objects" : "object";
+      } else {
+        part = part.endsWith("s") ? ci.getCodeName() + "s" : ci.getCodeName();
+      }
+    }
+    return part;
   }
 }
