@@ -2,7 +2,6 @@ package com.btk5h.skriptmirror.skript.custom.expression;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.util.StringUtils;
@@ -10,7 +9,6 @@ import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -51,9 +49,6 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
   @Override
   protected boolean init(Literal[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
     String what;
-    SectionNode patterns = (SectionNode) node.get("patterns");
-    File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
-
 
     ScriptLoader.setCurrentEvent("custom constant getter", ConstantGetEvent.class);
     Optional<List<TriggerItem>> getterItems = SkriptUtil.getItemsFromNode(node, "get");
@@ -67,26 +62,6 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
           computeOption(what, getter);
         }
         return true;
-      case 1:
-        what = parseResult.regexes.get(0).group();
-        register(ConstantSyntaxInfo.create(script, what, 1));
-        break;
-      case 2:
-        if (patterns == null) {
-          Skript.error("Custom expressions without inline patterns must have a patterns section.");
-          return false;
-        }
-
-        int i = 1;
-        for (Node subNode : patterns) {
-          register(ConstantSyntaxInfo.create(script, subNode.getKey(), i++));
-        }
-        break;
-    }
-
-    if (matchedPattern != 1 && patterns != null) {
-      Skript.error("Custom expressions with inline patterns may not have a patterns section.");
-      return false;
     }
 
     return true;
