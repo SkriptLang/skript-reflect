@@ -89,5 +89,16 @@ monitor
 `highest` is the highest priority event handler you should use if you are modifying the contents of an event. If you only care about the final result of the event, use `monitor`.
 {% endhint %}
 
+## Handling cancelled events
 
+By default, event handlers will not be called if an event is cancelled by a lower priority handler. This behavior can be changed by specifying that the handler should handle `all`  events.
+
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+on all "org.bukkit.event.block.BlockBreakEvent":
+  uncancel event
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
 
