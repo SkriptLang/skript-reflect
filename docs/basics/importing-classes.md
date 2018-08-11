@@ -57,7 +57,7 @@ command /example:
 Aliases must be valid Java identifiers!
 {% endhint %}
 
-## Importing classes from run-time.
+## Importing classes at run-time.
 
 Sometimes, the class reference you need cannot be determined until the script is executed.
 
