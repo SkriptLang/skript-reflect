@@ -25,6 +25,9 @@ NMS packages include the Minecraft version, preventing code referencing NMS clas
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
+import: 
+  org.bukkit.Bukkit 
+
 option nms:
   get: 
     set {_nms version} to Bukkit.getServer().getClass().getPackage().getName().split("\.")[3]
