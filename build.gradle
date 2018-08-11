@@ -27,6 +27,6 @@ processResources {
 }
 
 dependencies {
-  compile 'org.spigotmc:spigot-api:1.11-R0.1-SNAPSHOT'
-  compile 'ch.njol:skript:2.2-SNAPSHOT'
+  implementation 'org.spigotmc:spigot-api:1.11-R0.1-SNAPSHOT'
+  implementation 'ch.njol:skript:2.2-SNAPSHOT'
 }
