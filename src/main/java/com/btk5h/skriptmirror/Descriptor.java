@@ -1,8 +1,10 @@
 package com.btk5h.skriptmirror;
 
+import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 
+import java.io.File;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,7 +62,7 @@ public final class Descriptor {
         name);
   }
 
-  public static Descriptor parse(String desc) throws ClassNotFoundException {
+  public static Descriptor parse(String desc, File script) throws ClassNotFoundException {
     Matcher m = DESCRIPTOR.matcher(desc);
 
     if (m.matches()) {
@@ -72,11 +74,11 @@ public final class Descriptor {
       Class<?>[] parameterTypes = null;
 
       if (cls != null) {
-        javaClass = LibraryLoader.getClassLoader().loadClass(cls);
+        javaClass = lookupClass(script, cls);
       }
 
       if (args != null) {
-        parameterTypes = parseParams(args);
+        parameterTypes = parseParams(args, script);
       }
 
       return new Descriptor(javaClass, name, parameterTypes);
@@ -85,20 +87,29 @@ public final class Descriptor {
     return null;
   }
 
-  private static Class<?>[] parseParams(String args) throws ClassNotFoundException {
+  private static Class<?>[] parseParams(String args, File script) throws ClassNotFoundException {
     String[] rawClasses = args.split(",");
     Class<?>[] parsedClasses = new Class<?>[rawClasses.length];
     for (int i = 0; i < rawClasses.length; i++) {
-      String userType = rawClasses[i];
-      String normalType = userType.trim();
-      Class<?> cls = JavaUtil.PRIMITIVE_CLASS_NAMES.get(normalType);
+      String userType = rawClasses[i].trim();
+      Class<?> cls = JavaUtil.PRIMITIVE_CLASS_NAMES.get(userType);
 
       if (cls == null) {
-        cls = LibraryLoader.getClassLoader().loadClass(normalType);
+        cls = lookupClass(script, userType);
       }
 
       parsedClasses[i] = cls;
     }
     return parsedClasses;
+  }
+
+  private static Class<?> lookupClass(File script, String userType) throws ClassNotFoundException {
+    JavaType customImport = CustomImport.lookup(script, userType);
+
+    if (customImport != null) {
+      return customImport.getJavaClass();
+    } else {
+      return LibraryLoader.getClassLoader().loadClass(userType);
+    }
   }
 }

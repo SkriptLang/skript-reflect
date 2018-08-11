@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
@@ -20,6 +21,7 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
+import java.io.File;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -62,6 +64,8 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   private LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
 
+  private File script;
+
   private Expression<Object> targetArg;
   private Expression<Object> args;
 
@@ -87,6 +91,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     this.source = source;
 
     if (source != null) {
+      this.script = source.script;
       this.targetArg = source.targetArg;
       this.args = source.args;
       this.type = source.type;
@@ -158,7 +163,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     Class<?> targetClass = SkriptMirrorUtil.toClassUnwrapJavaTypes(target);
 
-    if (baseDescriptor == null)  {
+    if (baseDescriptor == null) {
       return JavaUtil.newArray(superType, 0);
     }
 
@@ -266,7 +271,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       }
 
       try {
-        return Descriptor.parse(desc);
+        return Descriptor.parse(desc, script);
       } catch (ClassNotFoundException ex) {
         if (!suppressErrors) {
           Skript.exception(ex);
@@ -564,6 +569,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
+    script = ScriptLoader.currentScript.getFile();
     targetArg = SkriptUtil.defendExpression(exprs[0]);
     args = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
 
@@ -583,7 +589,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         String desc = parseResult.regexes.get(0).group();
 
         try {
-          staticDescriptor = Descriptor.parse(desc);
+          staticDescriptor = Descriptor.parse(desc, script);
 
           if (staticDescriptor == null) {
             Skript.error(desc + " is not a valid descriptor.");
