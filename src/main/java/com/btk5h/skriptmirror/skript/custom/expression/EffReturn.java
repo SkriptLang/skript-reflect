@@ -42,7 +42,7 @@ public class EffReturn extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(ExpressionGetEvent.class)) {
+    if (!ScriptLoader.isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class)) {
       Skript.error("Return may only be used in custom expression getters.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

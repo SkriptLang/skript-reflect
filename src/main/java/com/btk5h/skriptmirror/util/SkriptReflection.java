@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.util;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
@@ -24,6 +25,7 @@ public class SkriptReflection {
   private static Field PATTERNS;
   private static Field PARAMETERS;
   private static Field HANDLERS;
+  private static Field CURRENT_OPTIONS;
   private static Field LOCAL_VARIABLES;
   private static Field VARIABLES_MAP_HASHMAP;
   private static Field VARIABLES_MAP_TREEMAP;
@@ -67,6 +69,14 @@ public class SkriptReflection {
       Skript.warning("Skript's handlers field could not be resolved. Some Skript warnings may not be available.");
     } catch (IllegalAccessException e) {
       e.printStackTrace();
+    }
+
+    try {
+      _FIELD = ScriptLoader.class.getDeclaredField("currentOptions");
+      _FIELD.setAccessible(true);
+      CURRENT_OPTIONS = _FIELD;
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's options field could not be resolved.");
     }
 
     try {
@@ -154,6 +164,16 @@ public class SkriptReflection {
 
     parseLogs.forEach(LogHandler::stop);
     SkriptLogger.logAll(logger.getLog());
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Map<String, String> getCurrentOptions() {
+    try {
+      return (Map<String, String>) CURRENT_OPTIONS.get(null);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+    throw new IllegalStateException();
   }
 
   @SuppressWarnings("unchecked")
