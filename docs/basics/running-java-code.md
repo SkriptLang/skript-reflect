@@ -84,6 +84,8 @@ player.giveExpLevels({_levels})
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
+Methods may be used as effects, expressions, and conditions. If used as a condition, the condition will pass as long as the return value of the method is not `false`, `null`, or `0`.
+
 ## Calling fields
 
 {% code-tabs %}
