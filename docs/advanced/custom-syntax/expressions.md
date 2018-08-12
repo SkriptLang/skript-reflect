@@ -123,6 +123,21 @@ In most cases, explicitly specifying a return type is unnecessary.
 
 ### Option `loop of`
 
+If the expression is non-single, this option specifies an alias that may be used if the expression is looped.
+
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+plural expression test points:
+  loop of: point
+  
+on script load:
+  loop test points:
+    # You may use "loop-point" instead of "loop-value" here
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
 ### Section `parse`
 
 Code in this section is executed whenever the effect is parsed. This section may be used to emit errors if the effect is used in an improper context.
