@@ -569,7 +569,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    script = ScriptLoader.currentScript.getFile();
+    script = ScriptLoader.currentScript == null ? null : ScriptLoader.currentScript.getFile();
     targetArg = SkriptUtil.defendExpression(exprs[0]);
     args = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
 
