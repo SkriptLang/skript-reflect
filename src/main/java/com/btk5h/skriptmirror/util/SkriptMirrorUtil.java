@@ -3,12 +3,21 @@ package com.btk5h.skriptmirror.util;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.NonNullPair;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.ObjectWrapper;
+
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SkriptMirrorUtil {
   public static final String IDENTIFIER = "[_a-zA-Z$][\\w$]*";
   public static final String PACKAGE = "(?:" + IDENTIFIER + "\\.)*(?:" + IDENTIFIER + ")";
+
+  private static final Pattern TYPE_PREFIXES = Pattern.compile("^[-*~]*");
 
   public static Class<?> toClassUnwrapJavaTypes(Object o) {
     if (o instanceof JavaType) {
@@ -46,7 +55,7 @@ public class SkriptMirrorUtil {
         if (part.startsWith("_")) {
           part = part.endsWith("s") ? "javaobjects" : "javaobject";
         } else {
-          part = replaceUserInputPatterns(part);
+          part = processTypes(part);
         }
 
         newPattern.append('%');
@@ -58,22 +67,44 @@ public class SkriptMirrorUtil {
     return newPattern.toString();
   }
 
-  public static String replaceUserInputPatterns(String part) {
+  public static String processTypes(String part) {
     if (part.length() > 0) {
-      ClassInfo<?> ci;
-      ci = Classes.getClassInfoNoError(part);
+      // copy all prefixes
+      String prefixes = "";
+      Matcher prefixMatcher = TYPE_PREFIXES.matcher(part);
+      if (prefixMatcher.find()) {
+        prefixes = prefixMatcher.group();
+      }
+      part = part.substring(prefixes.length());
 
-      if (ci == null) {
-        ci = Classes.getClassInfoFromUserInput(part);
+      // copy all suffixes
+      String suffixes = "";
+      int timeIndex = part.indexOf("@");
+      if (timeIndex != -1) {
+        suffixes = part.substring(timeIndex, part.length());
+        part = part.substring(0, timeIndex);
       }
 
-      if (ci == null) {
-        Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", part));
-        part = part.endsWith("s") ? "objects" : "object";
-      } else {
-        part = part.endsWith("s") ? ci.getCodeName() + "s" : ci.getCodeName();
-      }
+      // replace user input patterns
+      String types = Arrays.stream(part.split("/"))
+          .map(SkriptMirrorUtil::replaceUserInputPatterns)
+          .collect(Collectors.joining("/"));
+
+      return prefixes + types + suffixes;
     }
     return part;
+  }
+
+  private static String replaceUserInputPatterns(String part) {
+    NonNullPair<String, Boolean> info = Utils.getEnglishPlural(part);
+
+    ClassInfo<?> ci = Classes.getClassInfoFromUserInput(info.getFirst());
+
+    if (ci == null) {
+      Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", part));
+      return info.getSecond() ? "objects" : "object";
+    }
+
+    return Utils.toEnglishPlural(ci.getCodeName(), info.getSecond());
   }
 }

@@ -44,7 +44,7 @@ public class ExpressionSyntaxInfo extends CustomSyntaxSection.SyntaxData {
         if (part.startsWith("_")) {
           part = part.endsWith("s") ? "javaobject" : "javaobjects";
         } else {
-          part = SkriptMirrorUtil.replaceUserInputPatterns(part);
+          part = SkriptMirrorUtil.processTypes(part);
         }
 
         newPattern.append('%');
