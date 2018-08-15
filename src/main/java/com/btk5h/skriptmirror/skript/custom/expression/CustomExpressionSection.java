@@ -8,6 +8,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -92,10 +93,15 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
       case 2:
         what = parseResult.regexes.get(0).group();
         String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
+        boolean isPlural = Utils.getEnglishPlural(fromType).getSecond();
+        if (!isPlural) {
+          fromType = Utils.toEnglishPlural(fromType);
+        }
+
         register(
-            ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "s%", 1, false, true, true));
+            ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "%", 1, false, true, true));
         register(
-            ExpressionSyntaxInfo.create(script, "%$" + fromType + "s%'[s] " + what, 1, false, false, true));
+            ExpressionSyntaxInfo.create(script, "%$" + fromType + "%'[s] " + what, 1, false, false, true));
         break;
     }
 
