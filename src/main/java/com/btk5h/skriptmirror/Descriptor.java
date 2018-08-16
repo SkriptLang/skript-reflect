@@ -5,7 +5,6 @@ import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -114,7 +113,6 @@ public final class Descriptor {
       parsedClasses[i] = cls;
     }
 
-    System.out.println(Arrays.toString(parsedClasses));
     return parsedClasses;
   }
 
