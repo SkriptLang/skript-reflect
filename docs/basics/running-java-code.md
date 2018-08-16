@@ -1,77 +1,11 @@
 # Running Java code
 
-## Descriptors
-
-In skript-mirror, a descriptor is a name that identifies a particular method or field. A descriptor must contain a name and may optionally contain a declaring class and/or list of parameters.
-
-{% tabs %}
-{% tab title="Name Only" %}
-{% code-tabs %}
-{% code-tabs-item title="Examples" %}
-```text
-getPlayer
-setCancelled
-size
-```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
-
-The simplest and most common form of descriptor simply contains the name of a method or field. In most cases, this is enough for skript-mirror to correctly find the method or field you're referring to.
-{% endtab %}
-
-{% tab title="Name + Class" %}
-{% code-tabs %}
-{% code-tabs-item title="Examples" %}
-```text
-[java.util.HashMap]modCount
-[java.util.Random]seed
-```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
-
-A descriptor may specify the declaring class of a field or method before the name.
-
-{% hint style="info" %}
-The declaring class must be specified when the field or method is not public.
-
-Since non-public members are not inherited, the declaring class must be provided to proper
-{% endhint %}
-{% endtab %}
-
-{% tab title="Name + Parameters" %}
-{% code-tabs %}
-{% code-tabs-item title="Examples" %}
-```text
-max[int, int]
-println[java.lang.Object]
-```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
-
-A descriptor may specify a list of parameters after the name. This is useful when trying to distinguish between similar overloaded methods.
-{% endtab %}
-
-{% tab title="Name + Class + Parameters" %}
-```text
-[java.util.ArrayList]ensureExplicitCapacity[int]
-```
-
-A descriptor may contain both a declaring class and a list of parameters.
-
-{% hint style="info" %}
-The declaring class must be specified when the field or method is not public.
-
-Since non-public members are not inherited, the declaring class must be provided to properly resolve the member.
-{% endhint %}
-{% endtab %}
-{% endtabs %}
-
 ## Calling methods
 
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-%object%.<descriptor>(%objects%)
+%object%.<method name>(%objects%)
 ```
 {% endcode-tabs-item %}
 
@@ -86,6 +20,36 @@ player.giveExpLevels({_levels})
 
 Methods may be used as effects, expressions, and conditions. If used as a condition, the condition will pass as long as the return value of the method is not `false`, `null`, or `0`.
 
+### Calling non-public methods
+
+If the method you're trying to invoke is not public, you must prefix the method name with the declaring class in brackets. Since an object may have a non-public method with the same name in multiple superclasses, you must explicitly specify where to find the method.
+
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+{_arraylist}.[java.util.ArrayList]fastRemove(1)
+# or, if you have the declaring class imported:
+{_arraylist}.[ArrayList]fastRemove(1)
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+### Calling overloaded methods
+
+Generally, skript-mirror can infer the correct overloaded method to call from the arguments passed at runtime. If you need to use a certain implementation of a method, you may append a comma separated list to the end of the method name surrounded in brackets. 
+
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+System.out!.println[java.lang.Object]({_something})
+# or, if you have the parameter classes imported:
+System.out!.println[Object]({_something})
+
+Math.max[int, int](0, {_value})
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
 ## Calling fields
 
 {% code-tabs %}
@@ -99,6 +63,20 @@ Methods may be used as effects, expressions, and conditions. If used as a condit
 {% hint style="info" %}
 References to fields must end in `!` due to limitations in Skript's parser.
 {% endhint %}
+
+### Calling non-public fields
+
+If the field you're trying to use is not public, you must prefix the field name with the declaring class in brackets. Since an object may have a non-public field with the same name in multiple superclasses, you must explicitly specify where to find the field.
+
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+{_hashmap}.[java.util.HashMap]modCount!
+# or, if you have the declaring class imported:
+{_hashmap}.[HashMap]modCount!
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
 
 ## Calling constructors
 
