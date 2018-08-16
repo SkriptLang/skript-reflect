@@ -5,6 +5,7 @@ import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,11 +13,13 @@ import java.util.regex.Pattern;
 public final class Descriptor {
   private static final String IDENTIFIER = "[_a-zA-Z$][\\w$]*";
   private static final String PACKAGE = "(?:" + IDENTIFIER + "\\.)*(?:" + IDENTIFIER + ")";
+  private static final String PACKAGE_ARRAY = PACKAGE + "(?:\\[])*";
+  private static final Pattern PACKAGE_ARRAY_SINGLE = Pattern.compile("\\[]");
   private static final Pattern DESCRIPTOR =
       Pattern.compile("" +
           "(?:\\[(" + PACKAGE + ")])?" +
           "(" + IDENTIFIER + ")" +
-          "(?:\\[((?:" + PACKAGE + "\\s*,\\s*)*(?:" + PACKAGE + "))])?"
+          "(?:\\[((?:" + PACKAGE_ARRAY + "\\s*,\\s*)*(?:" + PACKAGE_ARRAY + "))])?"
       );
 
   private final Class<?> javaClass;
@@ -92,14 +95,26 @@ public final class Descriptor {
     Class<?>[] parsedClasses = new Class<?>[rawClasses.length];
     for (int i = 0; i < rawClasses.length; i++) {
       String userType = rawClasses[i].trim();
+
+      Matcher arrayDepthMatcher = PACKAGE_ARRAY_SINGLE.matcher(userType);
+      int arrayDepth = 0;
+      while (arrayDepthMatcher.find()) {
+        arrayDepth++;
+      }
+      userType = userType.substring(0, userType.length() - (2 * arrayDepth));
+
       Class<?> cls = JavaUtil.PRIMITIVE_CLASS_NAMES.get(userType);
 
       if (cls == null) {
         cls = lookupClass(script, userType);
       }
 
+      cls = JavaUtil.getArrayClass(cls, arrayDepth);
+
       parsedClasses[i] = cls;
     }
+
+    System.out.println(Arrays.toString(parsedClasses));
     return parsedClasses;
   }
 

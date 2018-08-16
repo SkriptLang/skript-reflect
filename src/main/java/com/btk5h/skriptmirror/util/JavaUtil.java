@@ -116,4 +116,16 @@ public final class JavaUtil {
     return (T[]) Array.newInstance(type, length);
   }
 
+  @SuppressWarnings("unchecked")
+  private static <T> Class<?> getArrayClass(Class<T> type) {
+    return Array.newInstance(type, 0).getClass();
+  }
+
+  public static Class<?> getArrayClass(Class<?> type, int layers) {
+    for (int i = 0; i < layers; i++) {
+      type = getArrayClass(type);
+    }
+
+    return type;
+  }
 }
