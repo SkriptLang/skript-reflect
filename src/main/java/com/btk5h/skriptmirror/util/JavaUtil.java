@@ -85,6 +85,73 @@ public final class JavaUtil {
     return obj;
   }
 
+  public static Object convertNumericArray(Object array, Class<?> to) {
+    Class<?> componentType = array.getClass().getComponentType();
+    int length = Array.getLength(array);
+
+    Object newArray;
+
+    if (componentType.isArray()) {
+      newArray = Array.newInstance(componentType, length);
+
+      for (int i = 0; i < length; i++) {
+        Object innerArray = Array.get(array, i);
+
+        if (innerArray == null) {
+          innerArray = Array.newInstance(componentType.getComponentType(), 0);
+          Array.set(newArray, i, innerArray);
+        } else {
+          Array.set(newArray, i, convertNumericArray(innerArray, to));
+        }
+      }
+    } else {
+      newArray = Array.newInstance(to, length);
+
+      for (int i = 0; i < length; i++) {
+        Object what = Array.get(array, i);
+
+        if (to == byte.class || to == Byte.class) {
+          what = ((Number) what).byteValue();
+        } else if (to == double.class || to == Double.class) {
+          what = ((Number) what).doubleValue();
+        } else if (to == float.class || to == Float.class) {
+          what = ((Number) what).floatValue();
+        } else if (to == int.class || to == Integer.class) {
+          what = ((Number) what).intValue();
+        } else if (to == long.class || to == Long.class) {
+          what = ((Number) what).longValue();
+        } else if (to == short.class || to == Short.class) {
+          what = ((Number) what).shortValue();
+        }
+
+        Array.set(newArray, i , what);
+      }
+    }
+
+    return newArray;
+  }
+
+  public static int getArrayDepth(Class<?> cls) {
+    int depth = 0;
+
+    while (cls.isArray()) {
+      cls = cls.getComponentType();
+      depth++;
+    }
+
+    return depth;
+  }
+
+  public static Class<?> getBaseComponent(Class<?> obj) {
+    Class<?> componentType = obj.getComponentType();
+
+    while (componentType.isArray()) {
+      componentType = componentType.getComponentType();
+    }
+
+    return componentType;
+  }
+
   @FunctionalInterface
   public interface ExceptionalFunction<T, R> {
     R apply(T t) throws Exception;

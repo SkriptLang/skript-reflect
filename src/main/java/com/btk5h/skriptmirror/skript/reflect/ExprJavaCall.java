@@ -322,6 +322,16 @@ public class ExprJavaCall<T> implements Expression<T> {
           continue;
         }
 
+        if (param.isArray() && JavaUtil.getArrayDepth(param) == JavaUtil.getArrayDepth(arg.getClass())) {
+          Class<?> paramComponent = JavaUtil.getBaseComponent(param);
+          Class<?> argComponent = JavaUtil.getBaseComponent(arg.getClass());
+
+          if ((Number.class.isAssignableFrom(paramComponent) || JavaUtil.NUMERIC_CLASSES.contains(paramComponent))
+              && (Number.class.isAssignableFrom(argComponent) || JavaUtil.NUMERIC_CLASSES.contains(argComponent))) {
+            continue;
+          }
+        }
+
         if (param.isPrimitive() && JavaUtil.WRAPPER_CLASSES.get(param).isInstance(arg)) {
           continue;
         }
@@ -376,6 +386,10 @@ public class ExprJavaCall<T> implements Expression<T> {
         } else if (param == short.class) {
           args[i] = ((Number) args[i]).shortValue();
         }
+      }
+
+      if (param.isArray() && param != args[i].getClass()) {
+        args[i] = JavaUtil.convertNumericArray(args[i], JavaUtil.getBaseComponent(param));
       }
 
       if (args[i] instanceof String
