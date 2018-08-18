@@ -61,7 +61,7 @@ Aliases must be valid Java identifiers!
 
 Since NMS packages change with each Minecraft version, you should generate the package prefix dynamically. See [Computed Options](../advanced/computed-options.md#using-computed-options-for-nms-imports) for more details.
 
-## Importing classes at run-time.
+## Importing classes at runtime
 
 Sometimes, the class reference you need cannot be determined until the script is executed.
 
