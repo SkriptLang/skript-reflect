@@ -98,7 +98,11 @@ public class SkriptMirrorUtil {
   private static String replaceUserInputPatterns(String part) {
     NonNullPair<String, Boolean> info = Utils.getEnglishPlural(part);
 
-    ClassInfo<?> ci = Classes.getClassInfoFromUserInput(info.getFirst());
+    ClassInfo<?> ci = Classes.getClassInfoNoError(info.getFirst());
+
+    if (ci == null) {
+      ci = Classes.getClassInfoFromUserInput(info.getFirst());
+    }
 
     if (ci == null) {
       Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", part));
