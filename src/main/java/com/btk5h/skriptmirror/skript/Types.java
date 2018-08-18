@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.Parser;
@@ -12,8 +13,10 @@ import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
+import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import org.bukkit.event.Event;
 
+import java.io.File;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
@@ -55,12 +58,14 @@ public class Types {
         .parser(new Parser<JavaType>() {
           @Override
           public JavaType parse(String s, ParseContext context) {
-            return null;
+            File script = ScriptLoader.currentScript == null ? null : ScriptLoader.currentScript.getFile();
+            return CustomImport.lookup(script, s);
           }
 
           @Override
           public boolean canParse(ParseContext context) {
-            return false;
+            // default context handled in CustomImport$ImportHandler
+            return context != ParseContext.DEFAULT;
           }
 
           @Override
