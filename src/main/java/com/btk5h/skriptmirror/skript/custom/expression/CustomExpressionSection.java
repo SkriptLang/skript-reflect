@@ -15,6 +15,7 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSyntaxInfo> {
@@ -23,7 +24,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
         "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
         "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression",
-        "[(2¦local)] %*classinfo% property <.+>");
+        "[(2¦local)] %*classinfos% property <.+>");
   }
 
   private static DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
@@ -92,11 +93,18 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
-        String fromType = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
-        boolean isPlural = Utils.getEnglishPlural(fromType).getSecond();
-        if (!isPlural) {
-          fromType = Utils.toEnglishPlural(fromType);
-        }
+        String fromType = Arrays.stream(((Literal<ClassInfo>) args[0]).getArray())
+            .map(ClassInfo::getCodeName)
+            .map(codeName -> {
+              boolean isPlural = Utils.getEnglishPlural(codeName).getSecond();
+
+              if (!isPlural) {
+                return Utils.toEnglishPlural(codeName);
+              }
+
+              return codeName;
+            })
+            .collect(Collectors.joining("/"));
 
         register(
             ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "%", 1, false, true, true));

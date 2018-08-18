@@ -6,14 +6,17 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.util.Utils;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxInfo> {
   static {
@@ -21,7 +24,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
     CustomSyntaxSection.register("Define Condition", CustomConditionSection.class,
         "[(1¦local)] condition <.+>",
         "[(1¦local)] condition",
-        "[(1¦local)] %*classinfo% property condition <.+>");
+        "[(1¦local)] %*classinfos% property condition <.+>");
   }
 
   private static DataTracker<ConditionSyntaxInfo> dataTracker = new DataTracker<>();
@@ -78,7 +81,18 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
-        String type = ((Literal<ClassInfo>) args[0]).getSingle().getCodeName();
+        String type = Arrays.stream(((Literal<ClassInfo>) args[0]).getArray())
+            .map(ClassInfo::getCodeName)
+            .map(codeName -> {
+              boolean isPlural = Utils.getEnglishPlural(codeName).getSecond();
+
+              if (!isPlural) {
+                return Utils.toEnglishPlural(codeName);
+              }
+
+              return codeName;
+            })
+            .collect(Collectors.joining("/"));
         register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + what, 1, false, true));
         register(
             ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + what, 1, true, true));
