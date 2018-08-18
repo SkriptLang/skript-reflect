@@ -5,14 +5,13 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
-import com.btk5h.skriptmirror.LibraryLoader;
+import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.WrappedEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +19,7 @@ import java.util.Set;
 public class EvtByReflection extends SkriptEvent {
   static {
     Skript.registerEvent("Bukkit Event", EvtByReflection.class, BukkitEvent.class,
-        "[(1¦all)] %strings% [(at|on|with) priority <.+>]");
+        "[(1¦all)] %javatypes% [(at|on|with) priority <.+>]");
   }
 
   private static class PriorityListener implements Listener {
@@ -108,27 +107,9 @@ public class EvtByReflection extends SkriptEvent {
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-    String[] events = ((Literal<String>) args[0]).getArray();
-
-    classes = (Class<? extends Event>[]) Array.newInstance(Class.class, events.length);
-
-    for (int i = 0; i < events.length; i++) {
-      String event = events[i];
-
-      try {
-        Class<?> eventClass = LibraryLoader.getClassLoader().loadClass(event);
-
-        if (!Event.class.isAssignableFrom(eventClass)) {
-          Skript.error(event + " is not an event.");
-          return false;
-        }
-
-        classes[i] = (Class<? extends Event>) eventClass;
-      } catch (ClassNotFoundException e) {
-        Skript.error(event + " refers to a non-existent class.");
-        return false;
-      }
-    }
+    classes = Arrays.stream(((Literal<JavaType>) args[0]).getArray())
+        .map(JavaType::getJavaClass)
+        .toArray(Class[]::new);
 
     if (parseResult.regexes.size() > 0) {
       String priorityName = parseResult.regexes.get(0).group().toUpperCase();
