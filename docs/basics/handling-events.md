@@ -2,12 +2,15 @@
 
 ## Listening to events
 
-You may listen to any Bukkit-based event \(including events added by other plugins\) using the event's fully qualified name. For example, if you wanted to listen to [org.bukkit.event.entity.EnderDragonChangePhaseEvent](https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EnderDragonChangePhaseEvent.html):
+You may listen to any Bukkit-based event \(including events added by other plugins\) by referencing the imported class. For example, if you wanted to listen to [org.bukkit.event.entity.EnderDragonChangePhaseEvent](https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EnderDragonChangePhaseEvent.html):
 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-on "org.bukkit.event.entity.EnderDragonChangePhaseEvent":
+import:
+  org.bukkit.event.entity.EnderDragonChangePhaseEvent
+
+on EnderDragonChangePhaseEvent:
   # your code
 ```
 {% endcode-tabs-item %}
@@ -24,7 +27,11 @@ You may also listen to multiple events with the same handler. The events do not 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-on "org.bukkit.event.entity.ProjectileLaunchEvent" and "org.bukkit.event.entity.ProjectileHitEvent":
+import:
+  org.bukkit.event.entity.ProjectileLaunchEvent
+  org.bukkit.event.entity.ProjectileHitEvent  
+
+on ProjectileLaunchEvent and ProjectileHitEvent:
   # your code
 ```
 {% endcode-tabs-item %}
@@ -44,11 +51,12 @@ skript-mirror exposes an `event` expression, allowing you to access event values
 {% code-tabs-item title="example.sk" %}
 ```
 import:
-  org.bukkit.entity.EnderDragon$Phase
+  org.bukkit.event.entity.EnderDragonChangePhaseEvent
+  org.bukkit.entity.EnderDragon$Phase as EnderDragonPhase
  
-on "org.bukkit.event.entity.EnderDragonChangePhaseEvent":
-  if event.getNewPhase() is Phase.CIRCLING!:
-    event.setNewPhase(Phase.CHARGE_PLAYER!)
+on EnderDragonChangePhaseEvent:
+  if event.getNewPhase() is EnderDragonPhase.CIRCLING!:
+    event.setNewPhase(EnderDragonPhase.CHARGE_PLAYER!)
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
@@ -64,7 +72,10 @@ The priority level of an event may be set to control when a particular event han
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-on "org.bukkit.event.entity.EnderDragonChangePhaseEvent" with priority highest:
+import:
+  org.bukkit.event.entity.EnderDragonChangePhaseEvent
+  
+on EnderDragonChangePhaseEvent with priority highest:
   # your code
 ```
 {% endcode-tabs-item %}
@@ -96,7 +107,10 @@ By default, event handlers will not be called if an event is cancelled by a lowe
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-on all "org.bukkit.event.block.BlockBreakEvent":
+import:
+  org.bukkit.event.block.BlockBreakEvent
+
+on all BlockBreakEvent:
   uncancel event
 ```
 {% endcode-tabs-item %}
