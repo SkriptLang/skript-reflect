@@ -57,6 +57,30 @@ Variables are the exception to this rule and may contain spaces and/or other exp
 ```
 {% endhint %}
 
+## Avoid aliasing classes for aesthetic purposes
+
+The purpose of import aliases is to avoid conflicts with other imports and expressions. Do not alias imports in order to make them look like Skript events.
+
+{% hint style="danger" %}
+```text
+import:
+  org.bukkit.event.player.PlayerMoveEvent as move
+  
+on move:
+  # code
+```
+{% endhint %}
+
+{% hint style="success" %}
+```text
+import:
+   org.bukkit.event.player.PlayerMoveEvent
+
+on PlayerMoveEvent:
+  # code
+```
+{% endhint %}
+
 ## Avoid unnecessary uses of Java reflection
 
 Especially when copying Java code and translating it for skript-mirror, you may run into instances where you need to use reflection to access a private method, field, or constructor. In skript-mirror, private members are visible and accessible by default.
