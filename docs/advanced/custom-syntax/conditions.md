@@ -81,3 +81,7 @@ condition example:
 
 ### Section `check`
 
+Code in this section is executed whenever the condition is checked. This section must [`continue`](./#continue) if the condition is met. \(The section may exit normally if the condition fails.\)
+
+
+
