@@ -30,6 +30,20 @@
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 {% endtab %}
+
+{% tab title="Property condition" %}
+{% code-tabs %}
+{% code-tabs-item title="Syntax" %}
+```text
+[local] <skript type> property condition <pattern>:
+  parse:
+    # code, optional
+  check:
+    # code, required
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+{% endtab %}
 {% endtabs %}
 
 ### Flag `local`
