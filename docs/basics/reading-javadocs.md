@@ -14,3 +14,10 @@ Javadocs do not describe everything available in a library. Most libraries inclu
 
 skript-mirror has built-in tools for dumping all of the available members of an object. If you need a list of these members, including their return types and input parameters, you can use the [Members](utilities.md#members) expression. If you only need a list of names, you can use the [Member Names](utilities.md#member-names) expression.
 
+### Source code
+
+The best way to learn about how a library works is to read the source code! Many libraries will have their source code easily available online, though you may have to resort to decompiling libraries that are not open source.
+
+[Craftbukkit source code](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse)  
+[Online Java decompiler](http://www.javadecompilers.com/)
+
