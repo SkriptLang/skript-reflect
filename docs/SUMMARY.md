@@ -3,6 +3,7 @@
 * [skript-mirror](../README.md)
 * [Getting Started](getting-started.md)
 * [Basics](basics/README.md)
+  * [Reading Javadocs](basics/reading-javadocs.md)
   * [Importing classes](basics/importing-classes.md)
   * [Running Java code](basics/running-java-code.md)
   * [Handling events](basics/handling-events.md)
