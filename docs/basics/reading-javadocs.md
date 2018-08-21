@@ -12,7 +12,15 @@ A fully qualified name is composed of a class's package and name. On the Javadoc
 
 ![The fully qualified name of this class is org.bukkit.entity.Player ](../.gitbook/assets/screen-shot-2018-08-20-at-7.57.53-pm.png)
 
-![Classes may have an inheritance hierarchy which shows the fully qualified name of the class.](../.gitbook/assets/screen-shot-2018-08-20-at-7.58.41-pm.png)
+![Classes may have an inheritance hierarchy which shows the fully qualified name of the class](../.gitbook/assets/screen-shot-2018-08-20-at-7.58.41-pm.png)
+
+If the name of the class contains a `.`, that is because the class is nested within another class. When referring to these classes, you must replace the `.` with a `$`.
+
+![The fully qualified name of this class is org.bukkit.Effect$Type](../.gitbook/assets/screen-shot-2018-08-20-at-8.07.22-pm.png)
+
+{% hint style="info" %}
+Typically, nested classes should be [imported under an alias](importing-classes.md#dealing-with-nested-classes)!
+{% endhint %}
 
 ## Non-public APIs
 
