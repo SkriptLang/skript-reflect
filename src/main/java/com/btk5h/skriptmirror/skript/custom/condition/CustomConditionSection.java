@@ -12,10 +12,7 @@ import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxInfo> {
@@ -34,11 +31,6 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
 
   static {
     dataTracker.setSyntaxType("condition");
-
-    dataTracker.getValidator()
-        .addSection("check", false)
-        .addSection("patterns", true)
-        .addSection("parse", true);
 
     Skript.registerCondition(CustomCondition.class);
     Optional<SyntaxElementInfo<? extends Condition>> info = Skript.getConditions().stream()
@@ -104,15 +96,32 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
       return false;
     }
 
-    ScriptLoader.setCurrentEvent("custom condition check", ConditionCheckEvent.class);
-    SkriptUtil.getItemsFromNode(node, "check").ifPresent(items ->
-        whichInfo.forEach(which -> conditionHandlers.put(which,
-            new Trigger(ScriptLoader.currentScript.getFile(), "condition " + which, this, items)))
-    );
 
-    SyntaxParseEvent.register(this, node, whichInfo, parserHandlers);
+    return handleEntriesAndSections(node,
+        entryNode -> false,
+        sectionNode -> {
+          String key = sectionNode.getKey();
 
-    return true;
+          if (key.equalsIgnoreCase("patterns")) {
+            return true;
+          }
+
+          if (key.equalsIgnoreCase("check")) {
+            ScriptLoader.setCurrentEvent("custom condition check", ConditionCheckEvent.class);
+            List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+            whichInfo.forEach(which -> conditionHandlers.put(which,
+                new Trigger(ScriptLoader.currentScript.getFile(), "condition " + which, this, items)));
+
+            return true;
+          }
+
+          if (key.equalsIgnoreCase("parse")) {
+            SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+            return true;
+          }
+
+          return false;
+        });
   }
 
   public static ConditionSyntaxInfo lookup(File script, int matchedPattern) {

@@ -47,15 +47,10 @@ public class SkriptUtil {
         .noneMatch(SkriptUtil::hasUnparsedLiteral);
   }
 
-  public static Optional<List<TriggerItem>> getItemsFromNode(SectionNode node, String key) {
-    Node subNode = node.get(key);
-    if (!(subNode instanceof SectionNode)) {
-      return Optional.empty();
-    }
-
+  public static List<TriggerItem> getItemsFromNode(SectionNode node) {
     RetainingLogHandler log = SkriptLogger.startRetainingLog();
     try {
-      return Optional.of(ScriptLoader.loadItems(((SectionNode) subNode)));
+      return ScriptLoader.loadItems(node);
     } finally {
       SkriptReflection.printLog(log);
       ScriptLoader.deleteCurrentEvent();
@@ -73,20 +68,34 @@ public class SkriptUtil {
     return currentScript == null ? null : currentScript.getFile();
   }
 
-  public static String replaceUserInputPatterns(String part) {
-    NonNullPair<String, Boolean> info = Utils.getEnglishPlural(part);
+  public static ClassInfo<?> getUserClassInfo(String name) {
+    NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
 
-    ClassInfo<?> ci = Classes.getClassInfoNoError(info.getFirst());
+    ClassInfo<?> ci = Classes.getClassInfoNoError(wordData.getFirst());
 
     if (ci == null) {
-      ci = Classes.getClassInfoFromUserInput(info.getFirst());
+      ci = Classes.getClassInfoFromUserInput(wordData.getFirst());
     }
 
     if (ci == null) {
-      Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", part));
-      return info.getSecond() ? "objects" : "object";
+      Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", name));
+      return Classes.getExactClassInfo(Object.class);
     }
 
-    return Utils.toEnglishPlural(ci.getCodeName(), info.getSecond());
+    return ci;
+  }
+
+  public static NonNullPair<ClassInfo<?>, Boolean> getUserClassInfoAndPlural(String name) {
+    NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
+    ClassInfo<?> ci = getUserClassInfo(name);
+
+    return new NonNullPair<>(ci, wordData.getSecond());
+  }
+
+  public static String replaceUserInputPatterns(String name) {
+    NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
+    ClassInfo<?> ci = getUserClassInfo(name);
+
+    return Utils.toEnglishPlural(ci.getCodeName(), wordData.getSecond());
   }
 }

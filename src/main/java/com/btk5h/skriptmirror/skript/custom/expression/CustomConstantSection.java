@@ -28,9 +28,6 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
   static {
     dataTracker.setSyntaxType("constant");
 
-    dataTracker.getValidator()
-        .addSection("get", false);
-
     // noinspection unchecked
     Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.SIMPLE);
     Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
@@ -50,21 +47,31 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
   protected boolean init(Literal[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
     String what;
 
-    ScriptLoader.setCurrentEvent("custom constant getter", ConstantGetEvent.class);
-    Optional<List<TriggerItem>> getterItems = SkriptUtil.getItemsFromNode(node, "get");
 
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        if (getterItems.isPresent()) {
-          Trigger getter =
-              new Trigger(ScriptLoader.currentScript.getFile(), "get {@" + what + "}", this, getterItems.get());
-          computeOption(what, getter);
-        }
-        return true;
+        return handleEntriesAndSections(node,
+            entryNode -> false,
+            sectionNode -> {
+              String key = sectionNode.getKey();
+
+              if (key.equalsIgnoreCase("get")) {
+                ScriptLoader.setCurrentEvent("custom constant getter", ConstantGetEvent.class);
+                List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+                Trigger getter =
+                    new Trigger(ScriptLoader.currentScript.getFile(), "get {@" + what + "}", this, items);
+                
+                computeOption(what, getter);
+
+                return true;
+              }
+
+              return false;
+            });
     }
 
-    return true;
+    return false;
   }
 
   private static void computeOption(String option, Trigger getter) {

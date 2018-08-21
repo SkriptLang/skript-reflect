@@ -223,9 +223,14 @@ public class CustomExpression<T> implements Expression<T> {
 
   @Override
   public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-    return CustomExpressionSection.changerHandlers.containsKey(which)
-        && CustomExpressionSection.changerHandlers.get(which).containsKey(mode)
-        ? new Class[]{Object[].class} : null;
+    if (CustomExpressionSection.changerHandlers.containsKey(which)
+        && CustomExpressionSection.changerHandlers.get(which).containsKey(mode)) {
+      return CustomExpressionSection.changerTypes
+          .getOrDefault(which, Collections.emptyMap())
+          .getOrDefault(mode, new Class[]{Object[].class});
+    }
+
+    return null;
   }
 
   @Override

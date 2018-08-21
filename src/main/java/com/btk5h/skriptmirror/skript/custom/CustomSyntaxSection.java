@@ -1,8 +1,9 @@
 package com.btk5h.skriptmirror.skript.custom;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.EntryNode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -11,9 +12,11 @@ import org.bukkit.event.Event;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxData> extends SelfRegisteringSkriptEvent {
+public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxData>
+    extends SelfRegisteringSkriptEvent {
   @SuppressWarnings("unchecked")
   public static <E extends SkriptEvent> SkriptEventInfo<E> register(String name, Class<E> c, String... patterns) {
     return Skript.registerEvent("*" + name, c, new Class[0], patterns);
@@ -23,16 +26,11 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     public DataTracker() {
     }
 
-    private final SectionValidator validator = new SectionValidator();
     private List<String> patterns = new ArrayList<>();
     private final Map<File, Map<String, T>> primaryData = new HashMap<>();
     private final List<Map<T, ?>> managedData = new ArrayList<>();
     private String syntaxType = "syntax";
     private SyntaxElementInfo<?> info;
-
-    public SectionValidator getValidator() {
-      return validator;
-    }
 
     public List<String> getPatterns() {
       return patterns;
@@ -166,23 +164,53 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     SectionNode node = (SectionNode) SkriptLogger.getNode();
     node.convertToEntries(0);
 
-    if (node.getKey().toLowerCase().startsWith("on ") || !getDataTracker().getValidator().validate(node)) {
+    if (node.getKey().toLowerCase().startsWith("on ")) {
       return false;
     }
 
     boolean ok = init(args, matchedPattern, parseResult, node);
 
+    SkriptUtil.clearSectionNode(node);
+
     if (!ok) {
       unregister(null);
     }
-
-    SkriptUtil.clearSectionNode(node);
 
     return ok;
   }
 
   protected abstract boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                                   SectionNode node);
+
+  protected static boolean handleEntriesAndSections(SectionNode node,
+                                                    Predicate<EntryNode> entryHandler,
+                                                    Predicate<SectionNode> sectionHandler) {
+    boolean ok = true;
+
+    for (Node subNode : node) {
+      SkriptLogger.setNode(subNode);
+
+      if (subNode instanceof EntryNode) {
+        if (!entryHandler.test(((EntryNode) subNode))) {
+          Skript.error(String.format("Unexpected entry '%s'. Check whether it's spelled correctly or remove it.",
+              subNode.getKey()));
+          ok = false;
+        }
+      } else if (subNode instanceof SectionNode) {
+        if (!sectionHandler.test(((SectionNode) subNode))) {
+          Skript.error(String.format("Unexpected section '%s'. Check whether it's spelled correctly or remove it.",
+              subNode.getKey()));
+          ok = false;
+        }
+      } else {
+        throw new IllegalStateException();
+      }
+
+      SkriptLogger.setNode(null);
+    }
+
+    return ok;
+  }
 
   @Override
   public String toString(Event e, boolean debug) {

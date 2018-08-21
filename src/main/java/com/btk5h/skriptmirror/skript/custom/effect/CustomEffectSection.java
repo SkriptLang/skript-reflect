@@ -11,6 +11,7 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,11 +30,6 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
   static {
     dataTracker.setSyntaxType("effect");
-
-    dataTracker.getValidator()
-        .addSection("trigger", false)
-        .addSection("patterns", true)
-        .addSection("parse", true);
 
     Skript.registerEffect(CustomEffect.class);
     Optional<SyntaxElementInfo<? extends Effect>> info = Skript.getEffects().stream()
@@ -79,15 +75,31 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
       return false;
     }
 
-    ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
-    SkriptUtil.getItemsFromNode(node, "trigger")
-        .ifPresent(items -> whichInfo.forEach(which ->
-            effectHandlers.put(which, new Trigger(ScriptLoader.currentScript.getFile(), "effect " + which, this, items))
-        ));
+    return handleEntriesAndSections(node,
+        entryNode -> false,
+        sectionNode -> {
+          String key = sectionNode.getKey();
 
-    SyntaxParseEvent.register(this, node, whichInfo, parserHandlers);
+          if (key.equalsIgnoreCase("patterns")) {
+            return true;
+          }
 
-    return true;
+          if (key.equalsIgnoreCase("trigger")) {
+            ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
+            List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+            whichInfo.forEach(which ->
+                effectHandlers.put(which,
+                    new Trigger(ScriptLoader.currentScript.getFile(), "effect " + which, this, items)));
+            return true;
+          }
+
+          if (key.equalsIgnoreCase("parse")) {
+            SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+            return true;
+          }
+
+          return false;
+        });
   }
 
   public static EffectSyntaxInfo lookup(File script, int matchedPattern) {
