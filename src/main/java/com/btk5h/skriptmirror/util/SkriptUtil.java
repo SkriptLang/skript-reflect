@@ -1,15 +1,23 @@
 package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.NonNullPair;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class SkriptUtil {
   @SuppressWarnings("unchecked")
@@ -63,5 +71,22 @@ public class SkriptUtil {
   public static File getCurrentScript() {
     Config currentScript = ScriptLoader.currentScript;
     return currentScript == null ? null : currentScript.getFile();
+  }
+
+  public static String replaceUserInputPatterns(String part) {
+    NonNullPair<String, Boolean> info = Utils.getEnglishPlural(part);
+
+    ClassInfo<?> ci = Classes.getClassInfoNoError(info.getFirst());
+
+    if (ci == null) {
+      ci = Classes.getClassInfoFromUserInput(info.getFirst());
+    }
+
+    if (ci == null) {
+      Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", part));
+      return info.getSecond() ? "objects" : "object";
+    }
+
+    return Utils.toEnglishPlural(ci.getCodeName(), info.getSecond());
   }
 }

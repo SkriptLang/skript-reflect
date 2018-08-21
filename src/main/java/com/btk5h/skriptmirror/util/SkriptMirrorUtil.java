@@ -1,10 +1,6 @@
 package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Utils;
-import ch.njol.util.NonNullPair;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.ObjectWrapper;
 
@@ -87,7 +83,7 @@ public class SkriptMirrorUtil {
 
       // replace user input patterns
       String types = Arrays.stream(part.split("/"))
-          .map(SkriptMirrorUtil::replaceUserInputPatterns)
+          .map(SkriptUtil::replaceUserInputPatterns)
           .collect(Collectors.joining("/"));
 
       return prefixes + types + suffixes;
@@ -95,20 +91,4 @@ public class SkriptMirrorUtil {
     return part;
   }
 
-  private static String replaceUserInputPatterns(String part) {
-    NonNullPair<String, Boolean> info = Utils.getEnglishPlural(part);
-
-    ClassInfo<?> ci = Classes.getClassInfoNoError(info.getFirst());
-
-    if (ci == null) {
-      ci = Classes.getClassInfoFromUserInput(info.getFirst());
-    }
-
-    if (ci == null) {
-      Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", part));
-      return info.getSecond() ? "objects" : "object";
-    }
-
-    return Utils.toEnglishPlural(ci.getCodeName(), info.getSecond());
-  }
 }
