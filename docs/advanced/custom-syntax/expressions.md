@@ -62,7 +62,7 @@
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[local] <skript type> property <pattern>:
+[local] <skript types> property <pattern>:
   return type: <skript type> # optional
   parse:
     # code, optional
@@ -83,6 +83,19 @@
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
+
+Property expressions have two patterns:
+
+```text
+[the] <pattern> of %$<skript types>%
+%$<skript types>%'[s] <pattern>
+```
+
+When property expressions are used, if multiple inputs are passed, the `get` section is called multiple times with each individual input passed as the first expression.
+
+{% hint style="info" %}
+`expression-1` is always the object the property belongs to, even when the`[the] <pattern> of %$<skript types>%` form is used.
+{% endhint %}
 {% endtab %}
 {% endtabs %}
 
