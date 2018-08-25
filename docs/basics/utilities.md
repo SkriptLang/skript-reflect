@@ -114,3 +114,16 @@ If you need a list of field or method names without modifier or parameter detail
 
 Returns a list of the the fields or methods of an object.
 
+## Is Instance
+
+{% code-tabs %}
+{% code-tabs-item title="Syntax" %}
+```text
+%objects% (is|are) [a[n]] instance[s] of %javatypes%
+%objects% (is not|isn't|are not|aren't) [a[n]] instance[s] of %javatypes%
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+Checks whether objects are instances of the given java types.
+
