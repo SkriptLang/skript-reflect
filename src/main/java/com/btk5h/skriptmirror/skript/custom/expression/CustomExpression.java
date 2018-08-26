@@ -118,20 +118,15 @@ public class CustomExpression<T> implements Expression<T> {
         return JavaUtil.newArray(superType, 0);
       }
 
-      if (exprOutput.length > 1) {
+      if (!which.isAlwaysPlural() && exprOutput.length > 1) {
         Skript.error(
             String.format("The get handler for '%s' returned more than one value.", which.getPattern())
         );
         return JavaUtil.newArray(superType, 0);
       }
 
-      if (exprOutput.length == 1) {
-        T converted = Converters.convert(exprOutput[0], superType);
-
-        if (converted != null) {
-          output.add(converted);
-        }
-      }
+      T[] converted = Converters.convertArray(exprOutput, superType);
+      output.addAll(Arrays.asList(converted));
     }
 
     return output.toArray(JavaUtil.newArray(superType, 0));

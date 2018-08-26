@@ -25,7 +25,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
         "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
         "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression",
-        "[(2¦local)] %*classinfos% property <.+>");
+        "[(2¦local)] [(1¦(plural|non(-|[ ])single))] %*classinfos% property <.+>");
   }
 
   private static DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
@@ -67,11 +67,12 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     String what;
     SectionNode patterns = (SectionNode) node.get("patterns");
     File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
+    boolean alwaysPlural = (parseResult.mark & 1) == 1;
 
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        register(ExpressionSyntaxInfo.create(script, what, 1, (parseResult.mark & 1) == 1, false, false));
+        register(ExpressionSyntaxInfo.create(script, what, 1, alwaysPlural, false, false));
         break;
       case 1:
         if (patterns == null) {
@@ -82,7 +83,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         int i = 1;
         for (Node subNode : patterns) {
           register(
-              ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, (parseResult.mark & 1) == 1, false, false));
+              ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, alwaysPlural, false, false));
         }
         break;
       case 2:
@@ -100,10 +101,14 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
             })
             .collect(Collectors.joining("/"));
 
+        if (alwaysPlural) {
+          fromType = "$" + fromType;
+        }
+
         register(
-            ExpressionSyntaxInfo.create(script, "[the] " + what + " of %$" + fromType + "%", 1, false, true, true));
+            ExpressionSyntaxInfo.create(script, "[the] " + what + " of %" + fromType + "%", 1, alwaysPlural, true, true));
         register(
-            ExpressionSyntaxInfo.create(script, "%$" + fromType + "%'[s] " + what, 1, false, false, true));
+            ExpressionSyntaxInfo.create(script, "%" + fromType + "%'[s] " + what, 1, alwaysPlural, false, true));
         break;
     }
 
@@ -145,7 +150,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
             whichInfo.forEach(which ->
                 expressionHandlers.put(which,
                     new Trigger(ScriptLoader.currentScript.getFile(), "get " + which.getPattern(), this, items)));
-            
+
             return true;
           }
 
