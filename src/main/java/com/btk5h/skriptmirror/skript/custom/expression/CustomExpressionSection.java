@@ -101,7 +101,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
             })
             .collect(Collectors.joining("/"));
 
-        if (alwaysPlural) {
+        if (!alwaysPlural) {
           fromType = "$" + fromType;
         }
 
