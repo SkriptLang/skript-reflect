@@ -3,6 +3,9 @@ package com.btk5h.skriptmirror;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.SyntaxElementInfo;
+import com.btk5h.skriptmirror.skript.EffExpressionStatement;
+import com.btk5h.skriptmirror.skript.custom.condition.CustomCondition;
+import com.btk5h.skriptmirror.skript.custom.effect.CustomEffect;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,9 +13,9 @@ import java.util.Optional;
 
 public class ParseOrderWorkarounds {
   private static String[] PARSE_ORDER = {
-      "com.btk5h.skriptmirror.skript.CondExpressionStatement",
-      "com.btk5h.skriptmirror.skript.custom.effect.CustomEffect",
-      "com.btk5h.skriptmirror.skript.custom.condition.CustomCondition",
+      EffExpressionStatement.class.getCanonicalName(),
+      CustomEffect.class.getCanonicalName(),
+      CustomCondition.class.getCanonicalName(),
       "com.w00tmast3r.skquery.elements.conditions.CondBoolean",
       "com.pie.tlatoani.Miscellaneous.CondBoolean"
   };
