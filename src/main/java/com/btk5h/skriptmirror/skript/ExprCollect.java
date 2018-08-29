@@ -31,7 +31,7 @@ public class ExprCollect extends SimpleExpression<ObjectWrapper> {
   protected ObjectWrapper[] get(Event e) {
     Stream<Object> objectStream = Arrays.stream(objects.getArray(e))
         .map(o -> o instanceof Null ? null : o)
-        .map(o -> o instanceof ObjectWrapper ? ((ObjectWrapper) o).get() : o);
+        .map(ObjectWrapper::unwrapIfNecessary);
 
     if (type != null) {
       JavaType componentType = type.getSingle(e);

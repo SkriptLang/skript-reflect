@@ -33,15 +33,11 @@ public class CondExpressionStatement extends Condition {
 
   @Override
   public boolean check(Event e) {
-    Object result = arg.getSingle(e);
+    Object result = ObjectWrapper.unwrapIfNecessary(arg.getSingle(e));
     return !isCondition || isTruthy(result);
   }
 
   private boolean isTruthy(Object o) {
-    if (o instanceof ObjectWrapper) {
-      o = ((ObjectWrapper) o).get();
-    }
-
     return o != Boolean.FALSE
         && o != null
         && (!(o instanceof Number) || !(((Number) o).doubleValue() == 0 || Double.isNaN(((Number) o).doubleValue())));

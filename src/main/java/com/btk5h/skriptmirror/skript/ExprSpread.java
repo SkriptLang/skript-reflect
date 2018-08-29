@@ -64,11 +64,7 @@ public class ExprSpread<T> implements Expression<T> {
 
   @Override
   public T[] getAll(Event e) {
-    Object obj = object.getSingle(e);
-
-    if (obj instanceof ObjectWrapper) {
-      obj = ((ObjectWrapper) obj).get();
-    }
+    Object obj = ObjectWrapper.unwrapIfNecessary(object.getSingle(e));
 
     if (obj instanceof Collection) {
       obj = ((Collection) obj).toArray();

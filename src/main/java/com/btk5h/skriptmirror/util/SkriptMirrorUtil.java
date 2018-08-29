@@ -29,9 +29,7 @@ public class SkriptMirrorUtil {
   }
 
   public static Class<?> getClass(Object o) {
-    if (o instanceof ObjectWrapper) {
-      return ((ObjectWrapper) o).get().getClass();
-    }
+    o = ObjectWrapper.unwrapIfNecessary(o);
 
     if (o == null) {
       return Object.class;
