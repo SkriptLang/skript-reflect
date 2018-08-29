@@ -11,6 +11,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * Explicitly declares the relative parse orders of different statement types. Classes at the start of the list should
+ * be parsed before classes at the end of the list.
+ *
+ * This class should only be used to guarantee that skript-mirror's syntax is parsed before other addons. It cannot
+ * guarantee that another addon's syntax will be parsed before skript-mirror.
+ */
 public class ParseOrderWorkarounds {
   private static String[] PARSE_ORDER = {
       EffExpressionStatement.class.getCanonicalName(),
