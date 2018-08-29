@@ -11,7 +11,6 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
-import com.btk5h.skriptmirror.skript.reflect.ExprTry;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -73,7 +72,7 @@ public class CondExpressionStatement extends Condition {
                       SkriptParser.ParseResult parseResult) {
     arg = SkriptUtil.defendExpression(exprs[0]);
 
-    if (!(arg instanceof ExprJavaCall || arg instanceof ExprTry)) {
+    if (!(arg instanceof ExprJavaCall)) {
       return false;
     }
 

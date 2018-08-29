@@ -85,15 +85,14 @@ public class Types {
         })
         .serializer(new Serializer<JavaType>() {
           @Override
-          public Fields serialize(JavaType cls) throws NotSerializableException {
+          public Fields serialize(JavaType cls) {
             Fields f = new Fields();
             f.putObject("type", cls.getJavaClass().getName());
             return f;
           }
 
           @Override
-          public void deserialize(JavaType o, Fields f) throws StreamCorruptedException,
-              NotSerializableException {
+          public void deserialize(JavaType o, Fields f) {
 
           }
 
@@ -150,19 +149,17 @@ public class Types {
         })
         .serializer(new Serializer<Null>() {
           @Override
-          public Fields serialize(Null o) throws NotSerializableException {
+          public Fields serialize(Null o) {
             return new Fields();
           }
 
           @Override
-          public void deserialize(Null o, Fields f) throws StreamCorruptedException,
-              NotSerializableException {
+          public void deserialize(Null o, Fields f) {
 
           }
 
           @Override
-          protected Null deserialize(Fields fields) throws StreamCorruptedException,
-              NotSerializableException {
+          protected Null deserialize(Fields fields) {
             return Null.getInstance();
           }
 

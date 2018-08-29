@@ -12,12 +12,14 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
+import org.bukkit.event.Event;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class SkriptUtil {
   @SuppressWarnings("unchecked")
@@ -97,5 +99,9 @@ public class SkriptUtil {
     ClassInfo<?> ci = getUserClassInfo(name);
 
     return Utils.toEnglishPlural(ci.getCodeName(), wordData.getSecond());
+  }
+
+  public static Function<Expression, Object> unwrapWithEvent(Event e) {
+    return expr -> expr.isSingle() ? expr.getSingle(e) : expr.getArray(e);
   }
 }

@@ -64,6 +64,14 @@ public final class Descriptor {
         name);
   }
 
+  public Descriptor orDefaultClass(Class<?> cls) {
+    if (getJavaClass() != null) {
+      return this;
+    }
+
+    return new Descriptor(cls, getName(), getParameterTypes());
+  }
+
   public static Descriptor parse(String desc, File script) throws ClassNotFoundException {
     Matcher m = DESCRIPTOR.matcher(desc);
 

@@ -25,9 +25,9 @@ import java.io.File;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,9 +46,9 @@ public class ExprJavaCall<T> implements Expression<T> {
     //noinspection unchecked
     Skript.registerExpression(ExprJavaCall.class, Object.class,
         ExpressionType.PATTERN_MATCHES_EVERYTHING,
-        "%object%..%string%(0¦!|1¦\\([%-objects%]\\))",
-        "%object%.<" + LITE_DESCRIPTOR + ">(0¦!|1¦\\([%-objects%]\\))",
-        "[a] new %javatype%\\([%-objects%]\\)");
+        "[(2¦try)] %object%..%string%(0¦!|1¦\\([%-objects%]\\))",
+        "[(2¦try)] %object%.<" + LITE_DESCRIPTOR + ">(0¦!|1¦\\([%-objects%]\\))",
+        "[(2¦try)] [a] new %javatype%\\([%-objects%]\\)");
   }
 
   private enum CallType {
@@ -65,16 +65,14 @@ public class ExprJavaCall<T> implements Expression<T> {
   private LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
 
   private File script;
-
-  private Expression<Object> targetArg;
-  private Expression<Object> args;
-
+  private boolean suppressErrors;
   private CallType type;
-  private boolean isDynamic;
-  private boolean suppressErrors = false;
 
   private Descriptor staticDescriptor;
   private Expression<String> dynamicDescriptor;
+
+  private Expression<Object> rawTarget;
+  private Expression<Object> rawArgs;
 
   private final ExprJavaCall<?> source;
   private final Class<? extends T>[] types;
@@ -92,26 +90,241 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     if (source != null) {
       this.script = source.script;
-      this.targetArg = source.targetArg;
-      this.args = source.args;
-      this.type = source.type;
       this.suppressErrors = source.suppressErrors;
+      this.type = source.type;
       this.staticDescriptor = source.staticDescriptor;
       this.dynamicDescriptor = source.dynamicDescriptor;
+      this.rawTarget = source.rawTarget;
+      this.rawArgs = source.rawArgs;
     }
 
     this.types = types;
     this.superType = (Class<T>) Utils.getSuperType(types);
   }
 
-  private Object getTargetObject(Event e) {
-    Object obj = targetArg.getSingle(e);
+  @Override
+  public T getSingle(Event e) {
+    Object target = ObjectWrapper.unwrapIfNecessary(rawTarget.getSingle(e));
+    Object[] arguments;
 
-    if (obj instanceof ObjectWrapper) {
-      return ((ObjectWrapper) obj).get();
+    if (target == null) {
+      return null;
     }
 
-    return obj;
+    if (rawArgs != null) {
+      if (rawArgs instanceof ExpressionList && rawArgs.getAnd()) {
+        // In a 'comma/and' separated list, manually unwrap each expression and convert nulls to Null wrappers
+        // This ensures that expressions that return null do not change the arity of the invoked method
+        arguments = Arrays.stream(((ExpressionList) rawArgs).getExpressions())
+            .map(SkriptUtil.unwrapWithEvent(e))
+            .map(SkriptMirrorUtil::reifyIfNull)
+            .toArray(Object[]::new);
+      } else if (rawArgs.isSingle()) {
+        // A special case of the above, since a single argument will not be wrapped in a list
+        // Directly wrap the argument in an array to ensure the unary method is invoked
+        arguments = new Object[]{rawArgs.getSingle(e)};
+      } else {
+        // If the user is using a non-single non-list expression, assume the number of arguments is correct
+        arguments = rawArgs.getArray(e);
+      }
+    } else {
+      arguments = NO_ARGS;
+    }
+
+    return invoke(target, arguments, getDescriptor(e));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public T[] getArray(Event e) {
+    T returnValue = getSingle(e);
+
+    if (returnValue == null) {
+      return (T[]) Array.newInstance(superType, 0);
+    }
+
+    T[] arr = (T[]) Array.newInstance(superType, 1);
+    arr[0] = returnValue;
+
+    return arr;
+  }
+
+  @Override
+  public T[] getAll(Event e) {
+    return getArray(e);
+  }
+
+  @Override
+  public boolean isSingle() {
+    return true;
+  }
+
+  @Override
+  public boolean check(Event e, Checker<? super T> c, boolean negated) {
+    return SimpleExpression.check(getAll(e), c, negated, getAnd());
+  }
+
+  @Override
+  public boolean check(Event e, Checker<? super T> c) {
+    return SimpleExpression.check(getAll(e), c, false, getAnd());
+  }
+
+  @SafeVarargs
+  @Override
+  public final <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+    return new ExprJavaCall<>(this, to);
+  }
+
+  @Override
+  public Class<? extends T> getReturnType() {
+    return superType;
+  }
+
+  @Override
+  public boolean getAnd() {
+    return true;
+  }
+
+  @Override
+  public boolean setTime(int time) {
+    return false;
+  }
+
+  @Override
+  public int getTime() {
+    return 0;
+  }
+
+  @Override
+  public boolean isDefault() {
+    return false;
+  }
+
+  @Override
+  public Iterator<? extends T> iterator(Event e) {
+    return new ArrayIterator<>(getAll(e));
+  }
+
+  @Override
+  public boolean isLoopOf(String s) {
+    return false;
+  }
+
+  @Override
+  public Expression<?> getSource() {
+    return source == null ? this : source;
+  }
+
+  @Override
+  public Expression<? extends T> simplify() {
+    return this;
+  }
+
+  @Override
+  public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+    if (type == CallType.FIELD &&
+        (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)) {
+      return new Class<?>[]{Object.class};
+    }
+    return null;
+  }
+
+  @Override
+  public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
+    Object target = ObjectWrapper.unwrapIfNecessary(rawTarget.getSingle(e));
+
+    if (target == null) {
+      return;
+    }
+
+    Object[] args = new Object[1];
+
+    switch (mode) {
+      case SET:
+        args[0] = delta[0];
+        break;
+      case DELETE:
+        args[0] = Null.getInstance();
+        break;
+    }
+
+    invoke(target, args, getDescriptor(e));
+  }
+
+  @Override
+  public String toString(Event e, boolean debug) {
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+    script = ScriptLoader.currentScript == null ? null : ScriptLoader.currentScript.getFile();
+    suppressErrors = (parseResult.mark & 2) == 2;
+
+    rawTarget = SkriptUtil.defendExpression(exprs[0]);
+    rawArgs = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
+
+    if (!SkriptUtil.canInitSafely(rawTarget, rawArgs)) {
+      return false;
+    }
+
+    switch (matchedPattern) {
+      case 0:
+        type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
+        dynamicDescriptor = (Expression<String>) exprs[1];
+        break;
+      case 1:
+        type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
+        String desc = parseResult.regexes.get(0).group();
+
+        try {
+          staticDescriptor = Descriptor.parse(desc, script);
+
+          if (staticDescriptor == null) {
+            Skript.error(desc + " is not a valid descriptor.");
+            return false;
+          }
+
+          if (staticDescriptor.getJavaClass() != null
+              && getCallSite(staticDescriptor).size() == 0) {
+            Skript.error(desc + " refers to a non-existent method/field.");
+            return false;
+          }
+        } catch (ClassNotFoundException e) {
+          Skript.error(desc + " refers to a non-existent class.");
+          return false;
+        }
+        break;
+      case 2:
+        type = CallType.CONSTRUCTOR;
+        staticDescriptor = CONSTRUCTOR_DESCRIPTOR;
+        break;
+    }
+    return true;
+  }
+
+  private void error(Throwable error, String message) {
+    lastError = error;
+
+    directError(message);
+  }
+
+  private void error(String message) {
+    lastError = new JavaCallException(message);
+
+    directError(message);
+  }
+
+  private void directError(String message) {
+    if (!suppressErrors) {
+      Skript.warning(message);
+    }
+  }
+
+  private boolean hasDynamicDescriptor() {
+    return staticDescriptor == null;
   }
 
   private Collection<MethodHandle> getCallSite(Descriptor e) {
@@ -158,65 +371,56 @@ public class ExprJavaCall<T> implements Expression<T> {
   }
 
   @SuppressWarnings("unchecked")
-  private T[] invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
-    T returnedValue = null;
-
-    Class<?> targetClass = SkriptMirrorUtil.toClassUnwrapJavaTypes(target);
-
+  private T invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
     if (baseDescriptor == null) {
-      return JavaUtil.newArray(superType, 0);
+      return null;
     }
 
-    Descriptor descriptor = specifyDescriptor(baseDescriptor, targetClass);
+    T returnedValue = null;
+    Class<?> targetClass = SkriptMirrorUtil.toClassUnwrapJavaTypes(target);
+    Descriptor descriptor = baseDescriptor.orDefaultClass(targetClass);
 
-    if (descriptor.getJavaClass().isAssignableFrom(targetClass)) {
-      Object[] arr;
-      if (target instanceof JavaType) {
-        arr = new Object[arguments.length];
-        System.arraycopy(arguments, 0, arr, 0, arguments.length);
-      } else {
-        arr = new Object[arguments.length + 1];
-        arr[0] = target;
-        System.arraycopy(arguments, 0, arr, 1, arguments.length);
-      }
-
-      Optional<MethodHandle> method = selectMethod(descriptor, arr);
-
-      if (method.isPresent()) {
-        MethodHandle mh = method.get();
-
-        convertTypes(mh, arr);
-
-        try {
-          returnedValue = (T) mh.invokeWithArguments(arr);
-        } catch (Throwable throwable) {
-          lastError = throwable;
-          if (!suppressErrors) {
-            Skript.warning(
-                String.format("%s %s%s threw a %s: %s%n",
-                    type, descriptor, optionalArgs(arguments),
-                    throwable.getClass().getSimpleName(), throwable.getMessage()));
-          }
-        }
-      } else {
-        lastError = new JavaCallException(String.format("No matching %s: %s%s",
-            type, descriptor, optionalArgs(arguments)));
-        if (!suppressErrors) {
-          Skript.warning(lastError.getMessage());
-        }
-      }
-    } else {
-      lastError = new JavaCallException(String.format("Incompatible %s call: %s on %s",
+    // If a declaring class is explicitly written, check if the target is a subclass
+    if (!descriptor.getJavaClass().isAssignableFrom(targetClass)) {
+      error(String.format("Incompatible %s call: %s on %s",
           type, descriptor, SkriptMirrorUtil.getDebugName(targetClass)));
-      if (!suppressErrors) {
-        Skript.warning(lastError.getMessage());
-      }
+      return null;
+    }
+
+    // Copy arguments so that the original array isn't modified by type conversions
+    // For instance methods, the target of the call must be added to the start of the arguments array
+    Object[] argumentsCopy;
+    if (target instanceof JavaType) {
+      argumentsCopy = createStaticArgumentsCopy(arguments);
+    } else {
+      argumentsCopy = createInstanceArgumentsCopy(target, arguments);
+    }
+
+    Optional<MethodHandle> method = findCompatibleMethod(descriptor, argumentsCopy);
+
+    if (!method.isPresent()) {
+      error(String.format("No matching %s: %s%s",
+          type, descriptor, argumentsMessage(arguments)));
+      return null;
+    }
+
+    MethodHandle mh = method.get();
+
+    convertTypes(mh, argumentsCopy);
+
+    try {
+      returnedValue = (T) mh.invokeWithArguments(argumentsCopy);
+    } catch (Throwable throwable) {
+      error(throwable, String.format("%s %s%s threw a %s: %s%n",
+          type, descriptor, argumentsMessage(arguments),
+          throwable.getClass().getSimpleName(), throwable.getMessage()));
     }
 
     if (returnedValue == null) {
-      return JavaUtil.newArray(superType, 0);
+      return null;
     }
 
+    // Wrap the return value if it isn't recognized by Skript
     if (superType == Object.class || superType == ObjectWrapper.class) {
       returnedValue = (T) ObjectWrapper.wrapIfNecessary(returnedValue, superType == ObjectWrapper.class);
     }
@@ -227,55 +431,37 @@ public class ExprJavaCall<T> implements Expression<T> {
       String toClasses = Arrays.stream(types)
           .map(SkriptMirrorUtil::getDebugName)
           .collect(Collectors.joining(", "));
-      lastError = new JavaCallException(String.format("%s %s%s returned %s, which could not be converted to %s",
-          type, descriptor, optionalArgs(arguments), toString(returnedValue), toClasses));
-      if (!suppressErrors) {
-        Skript.warning(lastError.getMessage());
-      }
-      return JavaUtil.newArray(superType, 0);
+      error(String.format("%s %s%s returned %s, which could not be converted to %s",
+          type, descriptor, argumentsMessage(arguments), argumentsToString(returnedValue), toClasses));
+      return null;
     }
 
     lastError = null;
 
-    T[] returnArray = JavaUtil.newArray(superType, 1);
-    returnArray[0] = converted;
-    return returnArray;
+    return converted;
   }
 
-  private String optionalArgs(Object... arguments) {
-    if (type == CallType.FIELD) {
-      return "";
-    }
-
-    if (arguments.length == 0) {
-      return " called without arguments";
-    }
-
-    return " called with (" + toString(arguments) + ")";
-  }
-
-  private String toString(Object... arguments) {
-    return Arrays.stream(arguments)
-        .map(arg -> String.format("%s (%s)",
-            Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
-        .collect(Collectors.joining(", "));
-  }
-
-  @SuppressWarnings("ThrowableNotThrown")
   private Descriptor getDescriptor(Event e) {
-    if (isDynamic) {
+    if (hasDynamicDescriptor()) {
       String desc = dynamicDescriptor.getSingle(e);
 
       if (desc == null) {
+        error(String.format("Dynamic descriptor %s returned null", dynamicDescriptor.toString(e, false)));
         return null;
       }
 
       try {
-        return Descriptor.parse(desc, script);
-      } catch (ClassNotFoundException ex) {
-        if (!suppressErrors) {
-          Skript.exception(ex);
+        Descriptor parsedDescriptor = Descriptor.parse(desc, script);
+
+        if (parsedDescriptor == null) {
+          error(String.format("Invalid dynamic descriptor %s (%s)", dynamicDescriptor.toString(e, false), desc));
+          return null;
         }
+
+        return parsedDescriptor;
+      } catch (ClassNotFoundException ex) {
+        error(ex, String.format("Class could not be found while parsing the dynamic descriptor %s (%s)",
+            dynamicDescriptor.toString(e, false), desc));
         return null;
       }
     }
@@ -283,15 +469,18 @@ public class ExprJavaCall<T> implements Expression<T> {
     return staticDescriptor;
   }
 
-  private static Descriptor specifyDescriptor(Descriptor descriptor, Class<?> cls) {
-    if (descriptor.getJavaClass() != null) {
-      return descriptor;
-    }
-
-    return new Descriptor(cls, descriptor.getName(), descriptor.getParameterTypes());
+  private static Object[] createStaticArgumentsCopy(Object[] args) {
+    return Arrays.copyOf(args, args.length);
   }
 
-  private Optional<MethodHandle> selectMethod(Descriptor descriptor, Object[] args) {
+  private static Object[] createInstanceArgumentsCopy(Object target, Object[] arguments) {
+    Object[] copy = new Object[arguments.length + 1];
+    copy[0] = target;
+    System.arraycopy(arguments, 0, copy, 1, arguments.length);
+    return copy;
+  }
+
+  private Optional<MethodHandle> findCompatibleMethod(Descriptor descriptor, Object[] args) {
     return getCallSite(descriptor).stream()
         .filter(mh -> matchesArgs(args, mh))
         .findFirst();
@@ -299,23 +488,27 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   private static boolean matchesArgs(Object[] args, MethodHandle mh) {
     MethodType mt = mh.type();
-    if (mt.parameterCount() != args.length && !mh.isVarargsCollector()) {
+    int parameterCount = mt.parameterCount();
+    boolean hasVarargs = mh.isVarargsCollector();
+
+    // Fail early if there is an arity mismatch
+    // If the method has varargs, make sure args has the minimum arity (exclude the varargs parameter)
+    if (args.length != parameterCount
+        && !(hasVarargs && args.length >= (parameterCount - 1))) {
       return false;
     }
 
     Class<?>[] params = mt.parameterArray();
 
-    for (int i = 0; i < params.length; i++) {
-      if (i == params.length - 1 && mh.isVarargsCollector()) {
-        break;
+    for (int i = 0; i < args.length; i++) {
+      Class<?> param;
+      if (hasVarargs && i >= (params.length - 1)) {
+        param = params[params.length - 1].getComponentType();
+      } else {
+        param = params[i];
       }
 
-      Class<?> param = params[i];
-      Object arg = args[i];
-
-      if (arg instanceof ObjectWrapper) {
-        arg = ((ObjectWrapper) arg).get();
-      }
+      Object arg = ObjectWrapper.unwrapIfNecessary(args[i]);
 
       if (!param.isInstance(arg)) {
         if (arg instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(param)) {
@@ -362,15 +555,13 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     for (int i = 0; i < args.length; i++) {
       Class<?> param;
-      if (mh.isVarargsCollector() && i >= params.length) {
-        param = params[params.length - 1];
+      if (mh.isVarargsCollector() && i >= (params.length - 1)) {
+        param = params[params.length - 1].getComponentType();
       } else {
         param = params[i];
       }
 
-      if (args[i] instanceof ObjectWrapper) {
-        args[i] = ((ObjectWrapper) args[i]).get();
-      }
+      args[i] = ObjectWrapper.unwrapIfNecessary(args[i]);
 
       if (param.isPrimitive() && args[i] instanceof Number) {
         if (param == byte.class) {
@@ -411,221 +602,22 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
   }
 
-  void setSuppressErrors(boolean suppressErrors) {
-    this.suppressErrors = suppressErrors;
-
-    if (targetArg instanceof ExprJavaCall) {
-      ((ExprJavaCall) targetArg).setSuppressErrors(suppressErrors);
-    }
-  }
-
-  @Override
-  public T getSingle(Event e) {
-    T[] all = getArray(e);
-    if (all.length == 0) {
-      return null;
-    }
-    return all[0];
-  }
-
-  @Override
-  public T[] getArray(Event e) {
-    return getAll(e);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public T[] getAll(Event e) {
-    Object target = getTargetObject(e);
-    Object[] arguments;
-
-    if (target == null) {
-      return JavaUtil.newArray(superType, 0);
+  private String argumentsMessage(Object... arguments) {
+    if (type == CallType.FIELD) {
+      return "";
     }
 
-    if (args != null) {
-      if (args instanceof ExpressionList) {
-        arguments = Arrays.stream(((ExpressionList) args).getExpressions())
-            .map(unwrapExpression(e))
-            .toArray(Object[]::new);
-      } else {
-        arguments = args.getArray(e);
-      }
-    } else {
-      arguments = NO_ARGS;
+    if (arguments.length == 0) {
+      return " called without arguments";
     }
 
-    return invoke(target, arguments, getDescriptor(e));
+    return " called with (" + argumentsToString(arguments) + ")";
   }
 
-  private static Function<Expression, Object> unwrapExpression(Event e) {
-    return expr -> {
-      if (expr.isSingle()) {
-        Object value = expr.getSingle(e);
-        return value == null ? Null.getInstance() : value;
-      }
-      return expr.getArray(e);
-    };
-  }
-
-  @Override
-  public boolean isSingle() {
-    return true;
-  }
-
-  @Override
-  public boolean check(Event e, Checker<? super T> c, boolean negated) {
-    return SimpleExpression.check(getAll(e), c, negated, getAnd());
-  }
-
-  @Override
-  public boolean check(Event e, Checker<? super T> c) {
-    return SimpleExpression.check(getAll(e), c, false, getAnd());
-  }
-
-  @Override
-  public <R> Expression<? extends R> getConvertedExpression(Class<R>[] to) {
-    return new ExprJavaCall<>(this, to);
-  }
-
-  @Override
-  public Class<T> getReturnType() {
-    return superType;
-  }
-
-  @Override
-  public boolean getAnd() {
-    return true;
-  }
-
-  @Override
-  public boolean setTime(int time) {
-    return false;
-  }
-
-  @Override
-  public int getTime() {
-    return 0;
-  }
-
-  @Override
-  public boolean isDefault() {
-    return false;
-  }
-
-  @Override
-  public Iterator<? extends T> iterator(Event e) {
-    return new ArrayIterator<>(getAll(e));
-  }
-
-  @Override
-  public boolean isLoopOf(String s) {
-    return false;
-  }
-
-  @Override
-  public Expression<?> getSource() {
-    return source == null ? this : source;
-  }
-
-  @Override
-  public Expression<? extends T> simplify() {
-    return this;
-  }
-
-  @Override
-  public String toString(Event e, boolean debug) {
-    Descriptor descriptor = getDescriptor(e);
-
-    if (descriptor == null) {
-      return "java call";
-    }
-
-    return descriptor.toString();
-  }
-
-  @Override
-  public String toString() {
-    return toString(null, false);
-  }
-
-  @Override
-  public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-    if (type == CallType.FIELD &&
-        (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)) {
-      return new Class<?>[]{Object.class};
-    }
-    return null;
-  }
-
-  @Override
-  public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
-    Object target = getTargetObject(e);
-    if (target == null) {
-      return;
-    }
-
-    Object[] args = new Object[1];
-
-    switch (mode) {
-      case SET:
-        args[0] = delta[0];
-        break;
-      case DELETE:
-        args[0] = Null.getInstance();
-        break;
-    }
-
-    invoke(target, args, getDescriptor(e));
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    script = ScriptLoader.currentScript == null ? null : ScriptLoader.currentScript.getFile();
-    targetArg = SkriptUtil.defendExpression(exprs[0]);
-    args = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
-
-    if (!SkriptUtil.canInitSafely(targetArg, args)) {
-      return false;
-    }
-
-    switch (matchedPattern) {
-      case 0:
-        isDynamic = true;
-        type = parseResult.mark == 0 ? CallType.FIELD : CallType.METHOD;
-        dynamicDescriptor = (Expression<String>) exprs[1];
-        break;
-      case 1:
-        isDynamic = false;
-        type = parseResult.mark == 0 ? CallType.FIELD : CallType.METHOD;
-        String desc = parseResult.regexes.get(0).group();
-
-        try {
-          staticDescriptor = Descriptor.parse(desc, script);
-
-          if (staticDescriptor == null) {
-            Skript.error(desc + " is not a valid descriptor.");
-            return false;
-          }
-
-          if (staticDescriptor.getJavaClass() != null
-              && getCallSite(staticDescriptor).size() == 0) {
-            Skript.error(desc + " refers to a non-existent method/field.");
-            return false;
-          }
-        } catch (ClassNotFoundException e) {
-          Skript.error(desc + " refers to a non-existent class.");
-          return false;
-        }
-        break;
-      case 2:
-        type = CallType.CONSTRUCTOR;
-        staticDescriptor = CONSTRUCTOR_DESCRIPTOR;
-        break;
-    }
-
-    return true;
+  private static String argumentsToString(Object... arguments) {
+    return Arrays.stream(arguments)
+        .map(arg -> String.format("%s (%s)",
+            Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
+        .collect(Collectors.joining(", "));
   }
 }

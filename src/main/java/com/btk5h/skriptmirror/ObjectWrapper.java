@@ -34,6 +34,14 @@ public class ObjectWrapper {
     return returnedValue;
   }
 
+  public static Object unwrapIfNecessary(Object o) {
+    if (o instanceof ObjectWrapper) {
+      return ((ObjectWrapper) o).get();
+    }
+
+    return o;
+  }
+
   public Object get() {
     return object;
   }

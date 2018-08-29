@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.Skript;
 import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
 
 import java.util.Arrays;
@@ -77,7 +78,7 @@ public class SkriptMirrorUtil {
       String suffixes = "";
       int timeIndex = part.indexOf("@");
       if (timeIndex != -1) {
-        suffixes = part.substring(timeIndex, part.length());
+        suffixes = part.substring(timeIndex);
         part = part.substring(0, timeIndex);
       }
 
@@ -91,4 +92,7 @@ public class SkriptMirrorUtil {
     return part;
   }
 
+  public static Object reifyIfNull(Object o) {
+    return o == null ? Null.getInstance() : o;
+  }
 }
