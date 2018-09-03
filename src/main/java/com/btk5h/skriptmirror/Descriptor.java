@@ -10,14 +10,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Descriptor {
-  private static final String IDENTIFIER = "[_a-zA-Z$][\\w$]*";
-  private static final String PACKAGE = "(?:" + IDENTIFIER + "\\.)*(?:" + IDENTIFIER + ")";
-  private static final String PACKAGE_ARRAY = PACKAGE + "(?:\\[])*";
+  private static final String PACKAGE_ARRAY = SkriptMirrorUtil.PACKAGE + "(?:\\[])*";
   private static final Pattern PACKAGE_ARRAY_SINGLE = Pattern.compile("\\[]");
   private static final Pattern DESCRIPTOR =
       Pattern.compile("" +
-          "(?:\\[(" + PACKAGE + ")])?" +
-          "(" + IDENTIFIER + ")" +
+          "(?:\\[(" + SkriptMirrorUtil.PACKAGE + ")])?" +
+          "(" + SkriptMirrorUtil.IDENTIFIER + ")" +
           "(?:\\[((?:" + PACKAGE_ARRAY + "\\s*,\\s*)*(?:" + PACKAGE_ARRAY + "))])?"
       );
 
