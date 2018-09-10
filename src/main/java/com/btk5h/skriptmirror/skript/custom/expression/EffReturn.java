@@ -47,7 +47,7 @@ public class EffReturn extends Effect {
       return false;
     }
 
-    if (isDelayed != Kleenean.FALSE) {
+    if (!isDelayed.isTrue()) {
       Skript.error("Return may not be used if the code before it contains any delays.", ErrorQuality.SEMANTIC_ERROR);
     }
 
