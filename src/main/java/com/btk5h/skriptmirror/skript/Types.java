@@ -1,10 +1,12 @@
 package com.btk5h.skriptmirror.skript;
 
 import ch.njol.skript.ScriptLoader;
-import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Converter;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
 import com.btk5h.skriptmirror.JavaType;
@@ -208,18 +210,5 @@ public class Types {
           }
         })
     );
-
-    Comparators.registerComparator(ObjectWrapper.class, ObjectWrapper.class,
-        new Comparator<ObjectWrapper, ObjectWrapper>() {
-          @Override
-          public Relation compare(ObjectWrapper o1, ObjectWrapper o2) {
-            return Relation.get(o1.get().equals(o2.get()));
-          }
-
-          @Override
-          public boolean supportsOrdering() {
-            return false;
-          }
-        });
   }
 }

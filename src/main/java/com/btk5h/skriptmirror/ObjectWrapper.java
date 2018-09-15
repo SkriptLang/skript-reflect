@@ -4,6 +4,7 @@ import ch.njol.skript.registrations.Classes;
 import com.btk5h.skriptmirror.util.JavaUtil;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ObjectWrapper {
   protected Object object;
@@ -49,6 +50,19 @@ public class ObjectWrapper {
   @Override
   public String toString() {
     return object.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ObjectWrapper that = (ObjectWrapper) o;
+    return Objects.equals(object, that.object);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(object);
   }
 
   public static class OfArray extends ObjectWrapper {
