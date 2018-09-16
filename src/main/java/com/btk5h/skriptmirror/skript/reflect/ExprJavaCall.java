@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
@@ -260,7 +259,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    script = ScriptLoader.currentScript == null ? null : ScriptLoader.currentScript.getFile();
+    script = SkriptUtil.getCurrentScript();
     suppressErrors = (parseResult.mark & 2) == 2;
 
     rawTarget = SkriptUtil.defendExpression(exprs[0]);

@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.Parser;
@@ -14,6 +13,7 @@ import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.skript.custom.CustomImport;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.io.File;
@@ -58,7 +58,7 @@ public class Types {
         .parser(new Parser<JavaType>() {
           @Override
           public JavaType parse(String s, ParseContext context) {
-            File script = ScriptLoader.currentScript == null ? null : ScriptLoader.currentScript.getFile();
+            File script = SkriptUtil.getCurrentScript();
             return CustomImport.lookup(script, s);
           }
 

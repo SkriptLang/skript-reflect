@@ -110,7 +110,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
             ScriptLoader.setCurrentEvent("custom condition check", ConditionCheckEvent.class);
             List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
             whichInfo.forEach(which -> conditionHandlers.put(which,
-                new Trigger(ScriptLoader.currentScript.getFile(), "condition " + which, this, items)));
+                new Trigger(SkriptUtil.getCurrentScript(), "condition " + which, this, items)));
 
             return true;
           }

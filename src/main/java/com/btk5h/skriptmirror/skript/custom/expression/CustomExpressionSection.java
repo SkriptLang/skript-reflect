@@ -149,7 +149,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
             List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
             whichInfo.forEach(which ->
                 expressionHandlers.put(which,
-                    new Trigger(ScriptLoader.currentScript.getFile(), "get " + which.getPattern(), this, items)));
+                    new Trigger(SkriptUtil.getCurrentScript(), "get " + which.getPattern(), this, items)));
 
             return true;
           }
@@ -171,7 +171,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
                     changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
 
                 changerMap.put(mode,
-                    new Trigger(ScriptLoader.currentScript.getFile(),
+                    new Trigger(SkriptUtil.getCurrentScript(),
                         String.format("%s %s", name, which.getPattern()), this, items));
               });
 

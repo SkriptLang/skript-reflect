@@ -61,6 +61,6 @@ public class SyntaxParseEvent extends CustomSyntaxEvent {
 
     whichInfo.forEach(which ->
         parserHandlers.put(which,
-            new Trigger(ScriptLoader.currentScript.getFile(), "parse " + which.getPattern(), section, items)));
+            new Trigger(SkriptUtil.getCurrentScript(), "parse " + which.getPattern(), section, items)));
   }
 }
