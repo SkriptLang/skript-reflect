@@ -1,0 +1,24 @@
+# Experiments
+
+{% hint style="danger" %}
+These features are experimental and are subject to change in the future!
+{% endhint %}
+
+In order to enable experimental features, add the following section to your script:
+
+{% code-tabs %}
+{% code-tabs-item title="Consent section" %}
+```text
+skript-mirror, I know what I'm doing:
+  I understand that the following features are experimental and may change in the future.
+  I have read about this at https://skript-mirror.gitbook.io/docs/advanced/experiments
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+Individual features may be enabled by adding the codename of the feature on new lines following the consent section.
+
+## `proxies`
+
+## `deferred-parsing`
+

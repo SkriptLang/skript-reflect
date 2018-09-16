@@ -16,6 +16,7 @@
     * [Conditions](advanced/custom-syntax/conditions.md)
     * [Expressions](advanced/custom-syntax/expressions.md)
   * [Computed Options](advanced/computed-options.md)
+  * [Experiments](advanced/experiments.md)
 * [Code Conventions](code-conventions.md)
 * [Frequently Asked Questions](frequently-asked-questions.md)
 
