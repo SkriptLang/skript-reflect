@@ -99,6 +99,6 @@ public class Consent extends SelfRegisteringSkriptEvent {
 
   @Override
   public String toString(Event e, boolean debug) {
-    return "import";
+    return "experimental consent notice";
   }
 }
