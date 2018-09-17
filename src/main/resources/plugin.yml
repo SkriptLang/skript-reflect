@@ -1,4 +1,8 @@
 name: skript-mirror
 version: @version@
+description: Reflection utilities for Skript
+author: Bryan Terce <bryan.terce@gmail.com>
+website: https://github.com/btk5h/skript-mirror
+
 main: com.btk5h.skriptmirror.SkriptMirror
 depend: [Skript]
