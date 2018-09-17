@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.FunctionWrapper;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
+import com.btk5h.skriptmirror.skript.Consent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
@@ -118,6 +119,10 @@ public class ExprProxy extends SimpleExpression<Object> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
+    if (!Consent.Feature.PROXIES.hasConsent(SkriptUtil.getCurrentScript())) {
+      return false;
+    }
+
     interfaces = SkriptUtil.defendExpression(exprs[0]);
     Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
 

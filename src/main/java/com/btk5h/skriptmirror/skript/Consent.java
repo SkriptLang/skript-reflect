@@ -21,6 +21,7 @@ public class Consent extends SelfRegisteringSkriptEvent {
   }
 
   public enum Feature {
+    PROXIES("proxies"),
     DEFERRED_PARSING("deferred-parsing");
 
     private String codeName;
