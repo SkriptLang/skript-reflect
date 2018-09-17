@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.ScriptLoaderState;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 public class CondParseLater extends Condition {
@@ -51,6 +52,10 @@ public class CondParseLater extends Condition {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
+    if (!Consent.Feature.DEFERRED_PARSING.hasConsent(SkriptUtil.getCurrentScript())) {
+      return false;
+    }
+
     statement = parseResult.regexes.get(0).group();
     scriptLoaderState = ScriptLoaderState.copyOfCurrentState();
     return true;
