@@ -178,6 +178,10 @@ public final class JavaUtil {
     };
   }
 
+  public static boolean isNumericClass(Class<?> cls) {
+    return Number.class.isAssignableFrom(cls) || JavaUtil.NUMERIC_CLASSES.contains(cls);
+  }
+
   @SuppressWarnings("unchecked")
   public static <T> T[] newArray(Class<? extends T> type, int length) {
     return (T[]) Array.newInstance(type, length);

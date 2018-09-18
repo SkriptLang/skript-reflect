@@ -405,7 +405,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     MethodHandle mh = method.get();
 
-    convertTypes(mh, argumentsCopy);
+    argumentsCopy = convertTypes(mh, argumentsCopy);
 
     try {
       returnedValue = (T) mh.invokeWithArguments(argumentsCopy);
@@ -487,58 +487,31 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   private static boolean matchesArgs(Object[] args, MethodHandle mh) {
     MethodType mt = mh.type();
-    int parameterCount = mt.parameterCount();
+    Class<?>[] params = mt.parameterArray();
+    int varargsIndex = params.length - 1;
     boolean hasVarargs = mh.isVarargsCollector();
 
     // Fail early if there is an arity mismatch
     // If the method has varargs, make sure args has the minimum arity (exclude the varargs parameter)
-    if (args.length != parameterCount
-        && !(hasVarargs && args.length >= (parameterCount - 1))) {
+    if (args.length != params.length
+        && !(hasVarargs && args.length >= varargsIndex)) {
       return false;
     }
 
-    Class<?>[] params = mt.parameterArray();
-
     for (int i = 0; i < args.length; i++) {
       Class<?> param;
-      if (hasVarargs && i >= (params.length - 1)) {
-        param = params[params.length - 1].getComponentType();
+      boolean loopAtVarargs = hasVarargs && i >= varargsIndex;
+
+      if (loopAtVarargs) {
+        param = params[varargsIndex].getComponentType();
       } else {
         param = params[i];
       }
 
       Object arg = ObjectWrapper.unwrapIfNecessary(args[i]);
 
-      if (!param.isInstance(arg)) {
-        if (arg instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(param)) {
-          continue;
-        }
-
-        if (param.isArray() && JavaUtil.getArrayDepth(param) == JavaUtil.getArrayDepth(arg.getClass())) {
-          Class<?> paramComponent = JavaUtil.getBaseComponent(param);
-          Class<?> argComponent = JavaUtil.getBaseComponent(arg.getClass());
-
-          if ((Number.class.isAssignableFrom(paramComponent) || JavaUtil.NUMERIC_CLASSES.contains(paramComponent))
-              && (Number.class.isAssignableFrom(argComponent) || JavaUtil.NUMERIC_CLASSES.contains(argComponent))) {
-            continue;
-          }
-        }
-
-        if (param.isPrimitive() && JavaUtil.WRAPPER_CLASSES.get(param).isInstance(arg)) {
-          continue;
-        }
-
-        if (arg instanceof String
-            && (param == char.class || param == Character.class)
-            && ((String) arg).length() == 1) {
-          continue;
-        }
-
-        if (param == Class.class && (arg instanceof JavaType || arg instanceof ClassInfo)) {
-          continue;
-        }
-
-        if (!param.isPrimitive() && arg instanceof Null) {
+      if (!canCoerceType(arg, param)) {
+        if (loopAtVarargs && args.length == params.length && canCoerceType(arg, params[i])) {
           continue;
         }
 
@@ -549,18 +522,71 @@ public class ExprJavaCall<T> implements Expression<T> {
     return true;
   }
 
-  private static void convertTypes(MethodHandle mh, Object[] args) {
+  private static boolean canCoerceType(Object o, Class<?> to) {
+    if (to.isInstance(o)) {
+      return true;
+    }
+
+    if (o instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(to)) {
+      return true;
+    }
+
+    if (to.isArray() && JavaUtil.getArrayDepth(to) == JavaUtil.getArrayDepth(o.getClass())) {
+      Class<?> paramComponent = JavaUtil.getBaseComponent(to);
+      Class<?> argComponent = JavaUtil.getBaseComponent(o.getClass());
+
+      if (JavaUtil.isNumericClass(paramComponent) && JavaUtil.isNumericClass(argComponent)) {
+        return true;
+      }
+    }
+
+    if (to.isPrimitive() && JavaUtil.WRAPPER_CLASSES.get(to).isInstance(o)) {
+      return true;
+    }
+
+    if (o instanceof String
+        && (to == char.class || to == Character.class)
+        && ((String) o).length() == 1) {
+      return true;
+    }
+
+    if (to == Class.class && (o instanceof JavaType || o instanceof ClassInfo)) {
+      return true;
+    }
+
+    if (!to.isPrimitive() && o instanceof Null) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static Object[] convertTypes(MethodHandle mh, Object[] args) {
     Class<?>[] params = mh.type().parameterArray();
+    int varargsIndex = params.length - 1;
+    boolean hasVarargs = mh.isVarargsCollector();
 
     for (int i = 0; i < args.length; i++) {
       Class<?> param;
-      if (mh.isVarargsCollector() && i >= (params.length - 1)) {
-        param = params[params.length - 1].getComponentType();
+      boolean loopAtVarargs = hasVarargs && i >= varargsIndex;
+
+      if (loopAtVarargs) {
+        param = params[varargsIndex].getComponentType();
       } else {
         param = params[i];
       }
 
       args[i] = ObjectWrapper.unwrapIfNecessary(args[i]);
+
+      if (loopAtVarargs && args.length == params.length && params[i].isInstance(args[i])) {
+        Object varargsArray = args[i];
+        int varargsLength = Array.getLength(varargsArray);
+
+        args = Arrays.copyOf(args, args.length - 1 + varargsLength);
+
+        //noinspection SuspiciousSystemArraycopy
+        System.arraycopy(varargsArray, 0, args, varargsIndex, varargsLength);
+      }
 
       if (param.isPrimitive() && args[i] instanceof Number) {
         if (param == byte.class) {
@@ -578,7 +604,9 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
       }
 
-      if (param.isArray() && param != args[i].getClass()) {
+      if (param.isArray()
+          && JavaUtil.getArrayDepth(param) == JavaUtil.getArrayDepth(args[i].getClass())
+          && JavaUtil.isNumericClass(JavaUtil.getBaseComponent(param))) {
         args[i] = JavaUtil.convertNumericArray(args[i], JavaUtil.getBaseComponent(param));
       }
 
@@ -599,6 +627,8 @@ public class ExprJavaCall<T> implements Expression<T> {
         args[i] = null;
       }
     }
+
+    return args;
   }
 
   private String argumentsMessage(Object... arguments) {
