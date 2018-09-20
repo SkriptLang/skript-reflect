@@ -39,6 +39,8 @@ public class LibraryLoader {
       LibraryVisitor visitor = new LibraryVisitor();
       Files.walkFileTree(dataFolder, visitor);
       classLoader = new URLClassLoader(visitor.getUrls(), LibraryLoader.class.getClassLoader());
+    } else {
+      Files.createDirectory(dataFolder);
     }
   }
 
