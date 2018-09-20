@@ -1,19 +1,14 @@
 package com.btk5h.skriptmirror;
 
+import ch.njol.skript.Skript;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-
-import ch.njol.skript.Skript;
 
 public class LibraryLoader {
   private static ClassLoader classLoader = LibraryLoader.class.getClassLoader();
@@ -38,16 +33,12 @@ public class LibraryLoader {
     }
   }
 
-  public static void loadLibraries() {
+  public static void loadLibraries() throws IOException {
     Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
     if (Files.isDirectory(dataFolder)) {
-      try {
-        LibraryVisitor visitor = new LibraryVisitor();
-        Files.walkFileTree(dataFolder, visitor);
-        classLoader = new URLClassLoader(visitor.getUrls(), LibraryLoader.class.getClassLoader());
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      LibraryVisitor visitor = new LibraryVisitor();
+      Files.walkFileTree(dataFolder, visitor);
+      classLoader = new URLClassLoader(visitor.getUrls(), LibraryLoader.class.getClassLoader());
     }
   }
 
