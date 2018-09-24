@@ -111,8 +111,6 @@ Local expressions are guaranteed to be parsed before other custom expressions, b
 
 Specifying that an expression is `plural` or `non-single` indicates that the expression may return more than one value regardless of context.
 
-This flag is unavailable in property expressions.
-
 #### `$` type modifier
 
 If the expression is single or non-single depending on whether the input is single or non-single, you may prefix the type with a `$`.
