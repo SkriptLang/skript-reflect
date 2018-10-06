@@ -18,14 +18,14 @@ import com.btk5h.skriptmirror.*;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
+import com.btk5h.skriptmirror.util.StringSimilarity;
 import org.bukkit.event.Event;
 
 import java.io.File;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -400,6 +400,10 @@ public class ExprJavaCall<T> implements Expression<T> {
     if (!method.isPresent()) {
       error(String.format("No matching %s: %s%s",
           type, descriptor, argumentsMessage(arguments)));
+
+      suggestParameters(descriptor);
+      suggestTypo(descriptor);
+      
       return null;
     }
 
@@ -629,6 +633,79 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     return args;
+  }
+
+  private void suggestParameters(Descriptor descriptor) {
+    if (!(type == CallType.CONSTRUCTOR || type == CallType.METHOD)) {
+      return;
+    }
+
+    String guess = descriptor.getName();
+    Class<?> javaClass = descriptor.getJavaClass();
+
+    Stream<? extends Executable> members = getExecutables(javaClass);
+
+    List<String> matches = members
+        .filter(e -> e.getName().equals(guess))
+        .map(Executable::getParameters)
+        .map(params ->
+            Arrays.stream(params)
+                .map(Parameter::getType)
+                .map(Class::getTypeName)
+                .collect(Collectors.joining(","))
+        )
+        .collect(Collectors.toList());
+
+    if (!matches.isEmpty()) {
+      directError(String.format("Did you pass the wrong parameters? Here are the parameter signatures for %s:", guess));
+      matches.forEach(parameterList -> directError(String.format("* %s(%s)", guess, parameterList)));
+    }
+  }
+
+  private void suggestTypo(Descriptor descriptor) {
+    String guess = descriptor.getName();
+    Class<?> javaClass = descriptor.getJavaClass();
+
+    Stream<? extends Member> members = getMembers(javaClass);
+
+    List<String> matches = members
+        .map(Member::getName)
+        .filter(m -> !m.equals(guess)) // this would be a parameter mismatch, not a typo
+        .distinct()
+        .map(m -> StringSimilarity.compare(guess, m, 3))
+        .filter(Objects::nonNull)
+        .sorted()
+        .map(StringSimilarity.Result::getRight)
+        .collect(Collectors.toList());
+
+    if (!matches.isEmpty()) {
+      directError(String.format("Did you misspell the %s? You may have meant to type one of the following:", type));
+      matches.forEach(name -> directError("* " + name));
+    }
+  }
+
+  private Stream<? extends Executable> getExecutables(Class<?> javaClass) {
+    switch (type) {
+      case METHOD:
+        return JavaUtil.methods(javaClass);
+      case CONSTRUCTOR:
+        return JavaUtil.constructor(javaClass);
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  private Stream<? extends Member> getMembers(Class<?> javaClass) {
+    switch (type) {
+      case FIELD:
+        return JavaUtil.fields(javaClass);
+      case METHOD:
+        return JavaUtil.methods(javaClass);
+      case CONSTRUCTOR:
+        return JavaUtil.constructor(javaClass);
+      default:
+        throw new IllegalStateException();
+    }
   }
 
   private String argumentsMessage(Object... arguments) {
