@@ -111,7 +111,7 @@ public class SkriptReflection {
         _CONSTRUCTOR.setAccessible(true);
         VARIABLES_MAP = _CONSTRUCTOR;
       } catch (NoSuchMethodException e) {
-        Skript.warning("Skript's variables map constructor could not be resolved.");
+        Skript.warning("Skript's variables map constructors could not be resolved.");
       }
     } catch (ClassNotFoundException e) {
       Skript.warning("Skript's variables map class could not be resolved.");

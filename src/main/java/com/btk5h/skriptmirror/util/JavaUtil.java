@@ -55,7 +55,7 @@ public final class JavaUtil {
     ).distinct();
   }
 
-  public static Stream<Constructor> constructor(Class<?> cls) {
+  public static Stream<Constructor> constructors(Class<?> cls) {
     return Arrays.stream(cls.getDeclaredConstructors());
   }
 

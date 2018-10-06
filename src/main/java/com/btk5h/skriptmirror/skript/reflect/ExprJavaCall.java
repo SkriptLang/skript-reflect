@@ -359,7 +359,7 @@ public class ExprJavaCall<T> implements Expression<T> {
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
       case CONSTRUCTOR:
-        return JavaUtil.constructor(javaClass)
+        return JavaUtil.constructors(javaClass)
             .peek(c -> c.setAccessible(true))
             .map(JavaUtil.propagateErrors(LOOKUP::unreflectConstructor))
             .filter(Objects::nonNull)
@@ -689,7 +689,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       case METHOD:
         return JavaUtil.methods(javaClass);
       case CONSTRUCTOR:
-        return JavaUtil.constructor(javaClass);
+        return JavaUtil.constructors(javaClass);
       default:
         throw new IllegalStateException();
     }
@@ -702,7 +702,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       case METHOD:
         return JavaUtil.methods(javaClass);
       case CONSTRUCTOR:
-        return JavaUtil.constructor(javaClass);
+        return JavaUtil.constructors(javaClass);
       default:
         throw new IllegalStateException();
     }

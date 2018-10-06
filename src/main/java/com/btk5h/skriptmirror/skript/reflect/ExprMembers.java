@@ -63,7 +63,7 @@ public class ExprMembers extends SimpleExpression<String> {
         mapper = JavaUtil::methods;
         break;
       case 2:
-        mapper = JavaUtil::constructor;
+        mapper = JavaUtil::constructors;
         break;
     }
 
