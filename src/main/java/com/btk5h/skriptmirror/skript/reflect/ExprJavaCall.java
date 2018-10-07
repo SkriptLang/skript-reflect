@@ -403,7 +403,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
       suggestParameters(descriptor);
       suggestTypo(descriptor);
-      
+
       return null;
     }
 
@@ -515,6 +515,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       Object arg = ObjectWrapper.unwrapIfNecessary(args[i]);
 
       if (!canCoerceType(arg, param)) {
+        // allow varargs arrays to be spread
         if (loopAtVarargs && args.length == params.length && canCoerceType(arg, params[i])) {
           continue;
         }
@@ -531,10 +532,12 @@ public class ExprJavaCall<T> implements Expression<T> {
       return true;
     }
 
+    // coerce numeric types
     if (o instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(to)) {
       return true;
     }
 
+    // coerce arrays of numeric types
     if (to.isArray() && JavaUtil.getArrayDepth(to) == JavaUtil.getArrayDepth(o.getClass())) {
       Class<?> paramComponent = JavaUtil.getBaseComponent(to);
       Class<?> argComponent = JavaUtil.getBaseComponent(o.getClass());
@@ -544,20 +547,24 @@ public class ExprJavaCall<T> implements Expression<T> {
       }
     }
 
+    // allow boxed numbers
     if (to.isPrimitive() && JavaUtil.WRAPPER_CLASSES.get(to).isInstance(o)) {
       return true;
     }
 
+    // coerce single character strings to chars
     if (o instanceof String
         && (to == char.class || to == Character.class)
         && ((String) o).length() == 1) {
       return true;
     }
 
+    // coerce javaclasses and classinfos into classes
     if (to == Class.class && (o instanceof JavaType || o instanceof ClassInfo)) {
       return true;
     }
 
+    // unwrap null wrapper
     if (!to.isPrimitive() && o instanceof Null) {
       return true;
     }
@@ -574,6 +581,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       Class<?> param;
       boolean loopAtVarargs = hasVarargs && i >= varargsIndex;
 
+      // varargs parameters are always arrays, but the method handle expects the array to be spread before called
       if (loopAtVarargs) {
         param = params[varargsIndex].getComponentType();
       } else {
@@ -582,6 +590,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
       args[i] = ObjectWrapper.unwrapIfNecessary(args[i]);
 
+      // spread varargs arrays
       if (loopAtVarargs && args.length == params.length && params[i].isInstance(args[i])) {
         Object varargsArray = args[i];
         int varargsLength = Array.getLength(varargsArray);
@@ -592,6 +601,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         System.arraycopy(varargsArray, 0, args, varargsIndex, varargsLength);
       }
 
+      // coerce numeric types
       if (param.isPrimitive() && args[i] instanceof Number) {
         if (param == byte.class) {
           args[i] = ((Number) args[i]).byteValue();
@@ -608,17 +618,20 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
       }
 
+      // coerce arrays of numeric types
       if (param.isArray()
           && JavaUtil.getArrayDepth(param) == JavaUtil.getArrayDepth(args[i].getClass())
           && JavaUtil.isNumericClass(JavaUtil.getBaseComponent(param))) {
         args[i] = JavaUtil.convertNumericArray(args[i], JavaUtil.getBaseComponent(param));
       }
 
+      // coerce single character strings to chars
       if (args[i] instanceof String
           && (param == char.class || param == Character.class)) {
         args[i] = ((String) args[i]).charAt(0);
       }
 
+      // coerce javatypes and classinfos into classes
       if (param == Class.class) {
         if (args[i] instanceof JavaType) {
           args[i] = ((JavaType) args[i]).getJavaClass();
@@ -627,6 +640,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
       }
 
+      // unwrap null wrapper
       if (args[i] instanceof Null) {
         args[i] = null;
       }
