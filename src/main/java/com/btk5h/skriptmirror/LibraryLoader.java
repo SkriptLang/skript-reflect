@@ -33,8 +33,7 @@ public class LibraryLoader {
     }
   }
 
-  public static void loadLibraries() throws IOException {
-    Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
+  public static void loadLibraries(Path dataFolder) throws IOException {
     if (Files.isDirectory(dataFolder)) {
       LibraryVisitor visitor = new LibraryVisitor();
       Files.walkFileTree(dataFolder, visitor);

@@ -6,6 +6,7 @@ import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class SkriptMirror extends JavaPlugin {
   private static SkriptMirror instance;
@@ -24,7 +25,10 @@ public class SkriptMirror extends JavaPlugin {
     SkriptReflection.replaceSkriptLogger();
     try {
       getAddonInstance().loadClasses("com.btk5h.skriptmirror.skript");
-      LibraryLoader.loadLibraries();
+
+      Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
+      LibraryLoader.loadLibraries(dataFolder);
+
       ParseOrderWorkarounds.reorderSyntax();
     } catch (IOException e) {
       e.printStackTrace();
