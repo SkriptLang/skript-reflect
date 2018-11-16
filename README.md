@@ -2,7 +2,7 @@
 
 skript-mirror is a robust reflection addon for advanced scripters. It aims to combine the capabilities of Java with the easy-to-use development environment of Skript.
 
-[Documentation](https://skript-mirror.gitbook.io/docs/) \| [Source](https://github.com/btk5h/skript-mirror)
+[Documentation](https://skript-mirror.gitbook.io/docs/v/2.x/) \| [Source](https://github.com/btk5h/skript-mirror)
 
 ## Looking for skript-mirror 1.x?
 
