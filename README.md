@@ -4,6 +4,10 @@ skript-mirror is a robust reflection addon for advanced scripters. It aims to co
 
 [Documentation](https://skript-mirror.gitbook.io/docs/) \| [Source](https://github.com/btk5h/skript-mirror)
 
+## Looking for skript-mirror 1.x?
+
+skript-mirror 1.x is currently being maintained at the [1.x branch](https://github.com/btk5h/skript-mirror/tree/1.x).
+
 ## Should I use skript-mirror?
 
 If you were given a script or a code snippet that requires skript-mirror, the answer is: absolutely!
