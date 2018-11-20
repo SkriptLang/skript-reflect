@@ -44,6 +44,11 @@ public class FunctionWrapper {
     public Object[] execute(FunctionEvent e, Object[][] params) {
       return null;
     }
+
+    @Override
+    public boolean resetReturnValue() {
+      return false;
+    }
   }
 }
 

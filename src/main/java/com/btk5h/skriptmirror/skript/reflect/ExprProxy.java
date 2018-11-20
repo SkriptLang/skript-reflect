@@ -88,7 +88,7 @@ public class ExprProxy extends SimpleExpression<Object> {
           .map(arg -> new Object[]{arg})
           .forEach(params::add);
 
-      FunctionEvent functionEvent = new FunctionEvent();
+      FunctionEvent functionEvent = new FunctionEvent(null);
 
       return function.execute(
           functionEvent,

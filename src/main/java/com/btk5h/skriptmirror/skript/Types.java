@@ -115,6 +115,11 @@ public class Types {
           public boolean canBeInstantiated(Class<? extends JavaType> aClass) {
             return false;
           }
+
+          @Override
+          protected boolean canBeInstantiated() {
+            return false;
+          }
         }));
 
     Converters.registerConverter(ClassInfo.class, JavaType.class,
@@ -170,6 +175,11 @@ public class Types {
 
           @Override
           public boolean canBeInstantiated(Class<? extends Null> c) {
+            return false;
+          }
+
+          @Override
+          protected boolean canBeInstantiated() {
             return false;
           }
         })
