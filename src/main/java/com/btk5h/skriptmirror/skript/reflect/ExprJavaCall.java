@@ -39,14 +39,14 @@ public class ExprJavaCall<T> implements Expression<T> {
    * A regular expression that captures potential descriptors without actually validating the descriptor. This is done
    * both for performance reasons and to provide more helpful error messages when using a malformed descriptor.
    */
-  private static final String LITE_DESCRIPTOR = "[^!(]*[^!(\\s]";
+  private static final String LITE_DESCRIPTOR = "[^.]+\\b";
 
   static {
     //noinspection unchecked
     Skript.registerExpression(ExprJavaCall.class, Object.class,
         ExpressionType.PATTERN_MATCHES_EVERYTHING,
-        "[(2¦try)] %object%..%string%(0¦!|1¦\\([%-objects%]\\))",
-        "[(2¦try)] %object%.<" + LITE_DESCRIPTOR + ">(0¦!|1¦\\([%-objects%]\\))",
+        "[(2¦try)] %object%..%string%[\\((1¦[%-objects%])\\)]",
+        "[(2¦try)] %object%.<" + LITE_DESCRIPTOR + ">[\\((1¦[%-objects%])\\)])",
         "[(2¦try)] [a] new %javatype%\\([%-objects%]\\)");
   }
 
