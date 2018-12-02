@@ -8,8 +8,6 @@ import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.log.*;
 import ch.njol.skript.variables.Variables;
-import com.btk5h.skriptmirror.InsertingHandlerList;
-import com.btk5h.skriptmirror.NoMissingAndOrLogger;
 import org.bukkit.event.Event;
 
 import java.lang.reflect.Constructor;
@@ -152,10 +150,6 @@ public class SkriptReflection {
     while (handlers.hasNext()) {
       nextHandler = handlers.next();
 
-      if (nextHandler instanceof NoMissingAndOrLogger) {
-        continue;
-      }
-
       if (!(nextHandler instanceof ParseLogHandler)) {
         break;
       }
@@ -204,14 +198,6 @@ public class SkriptReflection {
         ((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(variablesMap))
             .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(originalVariablesMap));
       }
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public static void replaceSkriptLogger() {
-    try {
-      HANDLERS.set(null, new InsertingHandlerList(new NoMissingAndOrLogger()));
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
