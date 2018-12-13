@@ -35,10 +35,12 @@ public class EffReturn extends Effect {
 
   @Override
   public String toString(Event e, boolean debug) {
+    if (objects == null) {
+      return "empty return";
+    }
     return "return " + objects.toString(e, debug);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
