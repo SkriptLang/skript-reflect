@@ -18,3 +18,4 @@ jobs:
           command: ./gradlew build
       - store_artifacts:
           path: build/libs/
+          destination: /
