@@ -112,7 +112,7 @@ If you need a list of field or method names without modifier or parameter detail
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-Returns a list of the the fields or methods of an object.
+Returns a list of the fields or methods of an object.
 
 ## Is Instance
 
