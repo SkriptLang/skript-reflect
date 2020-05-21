@@ -16,11 +16,12 @@ public class ExprEventClasses extends SimpleExpression<JavaType> {
   static {
     Skript.registerExpression(ExprEventClasses.class, JavaType.class, ExpressionType.SIMPLE, "event-classes");
   }
+
   @Override
   protected JavaType[] get(Event e) {
     return Arrays.stream(((SyntaxParseEvent) e).getEventClasses())
-        .map(JavaType::new)
-        .toArray(JavaType[]::new);
+      .map(JavaType::new)
+      .toArray(JavaType[]::new);
   }
 
   @Override

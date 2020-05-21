@@ -39,3 +39,5 @@ dependencies {
   implementation 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT'
   implementation 'com.github.SkriptLang:Skript:master'
 }
+
+compileJava.options.encoding = "UTF-8"

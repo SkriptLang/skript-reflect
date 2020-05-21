@@ -22,6 +22,8 @@ import com.btk5h.skriptmirror.util.StringSimilarity;
 import org.bukkit.event.Event;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -335,16 +337,37 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     switch (type) {
       case FIELD:
-        return JavaUtil.fields(javaClass)
-            .filter(f -> f.getName().equals(e.getName()))
-            .peek(f -> f.setAccessible(true))
-            .flatMap(JavaUtil.propagateErrors(f -> Stream.of(
-                LOOKUP.unreflectGetter(f),
-                LOOKUP.unreflectSetter(f)
-            )))
-            .filter(Objects::nonNull)
-            .limit(2)
-            .collect(Collectors.toList());
+        ArrayList<MethodHandle> methodHandles = new ArrayList<>();
+
+        JavaUtil.fields(javaClass)
+          .filter(f -> f.getName().equals(e.getName()))
+          .peek(f -> f.setAccessible(true))
+          .forEach(field -> {
+            try {
+              methodHandles.add(LOOKUP.unreflectGetter(field));
+            } catch (IllegalAccessException ex) {
+              Skript.warning(
+                String.format("skript-mirror encountered a %s: %s%n" +
+                    "Run Skript with the verbosity 'very high' for the stack trace.",
+                  ex.getClass().getSimpleName(), ex.getMessage()));
+
+              if (Skript.logVeryHigh()) {
+                StringWriter errors = new StringWriter();
+                ex.printStackTrace(new PrintWriter(errors));
+                Skript.warning(errors.toString());
+              }
+            }
+
+            // Suppress this due to https://github.com/TPGamesNL/skript-mirror/issues/7
+            try {
+              methodHandles.add(LOOKUP.unreflectSetter(field));
+            } catch (IllegalAccessException ignored) { }
+          });
+
+        return methodHandles.stream()
+          .filter(Objects::nonNull)
+          .limit(2)
+          .collect(Collectors.toList());
       case METHOD:
         Stream<Method> methodStream = JavaUtil.methods(javaClass)
             .filter(m -> m.getName().equals(e.getName()));

@@ -58,7 +58,7 @@ public class EvtByReflection extends SkriptEvent {
     private final EventPriority priority;
 
     public BukkitEvent(Event event, EventPriority priority) {
-      super(event);
+      super(event, event.isAsynchronous());
       this.priority = priority;
     }
 

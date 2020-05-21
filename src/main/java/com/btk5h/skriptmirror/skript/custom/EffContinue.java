@@ -11,11 +11,8 @@ import org.bukkit.event.Event;
 
 public class EffContinue extends Effect {
   static {
-    Skript.registerEffect(EffContinue.class, "continue [if (%-boolean%|<.+>)]");
+    Skript.registerEffect(EffContinue.class, "continue");
   }
-
-  private Expression<Boolean> condition;
-  private Condition skriptCondition;
 
   @Override
   protected void execute(Event e) {
@@ -24,11 +21,6 @@ public class EffContinue extends Effect {
 
   @Override
   protected TriggerItem walk(Event e) {
-    if (skriptCondition != null && !skriptCondition.check(e)
-        || condition != null && condition.getSingle(e) != Boolean.TRUE) {
-      return null;
-    }
-
     if (e instanceof EffectTriggerEvent) {
       if (((EffectTriggerEvent) e).isSync()) {
         Skript.warning("Synchronous events should not be continued. " +
@@ -58,15 +50,6 @@ public class EffContinue extends Effect {
     if (!ScriptLoader.isCurrentEvent(EffectTriggerEvent.class, ConditionCheckEvent.class, SyntaxParseEvent.class)) {
       Skript.error("Return may only be used in custom effects and conditions.", ErrorQuality.SEMANTIC_ERROR);
       return false;
-    }
-
-    condition = (Expression<Boolean>) exprs[0];
-
-    if (parseResult.regexes.size() > 0) {
-      String group = parseResult.regexes.get(0).group();
-      skriptCondition = Condition.parse(group, "Can't understand this condition: " + group);
-
-      return skriptCondition != null;
     }
 
     return true;

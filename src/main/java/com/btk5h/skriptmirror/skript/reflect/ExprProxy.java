@@ -90,12 +90,14 @@ public class ExprProxy extends SimpleExpression<Object> {
 
       FunctionEvent functionEvent = new FunctionEvent(null);
 
-      return function.execute(
-          functionEvent,
-          params.stream()
-              .limit(SkriptReflection.getParameters(function).length)
-              .toArray(Object[][]::new)
+      Object[] returnValue = function.execute(
+        functionEvent,
+        params.stream()
+          .limit(SkriptReflection.getParameters(function).length)
+          .toArray(Object[][]::new)
       );
+
+      return returnValue == null ? null : returnValue[0];
     }
   }
 

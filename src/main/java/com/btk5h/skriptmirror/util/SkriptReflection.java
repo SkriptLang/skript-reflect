@@ -53,20 +53,14 @@ public class SkriptReflection {
       _FIELD = Function.class.getDeclaredField("parameters");
       _FIELD.setAccessible(true);
       PARAMETERS = _FIELD;
-    } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's parameters field could not be resolved. " +
-          "Class proxies will not work.");
-    }
+    } catch (NoSuchFieldException ignored) { }
 
     try {
       _FIELD = SkriptLogger.class.getDeclaredField("handlers");
       _FIELD.setAccessible(true);
-      JavaReflection.removeFinalModifier(_FIELD);
       HANDLERS = _FIELD;
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's handlers field could not be resolved. Some Skript warnings may not be available.");
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
     }
 
     try {
@@ -124,13 +118,17 @@ public class SkriptReflection {
     }
   }
 
-  public static Parameter<?>[] getParameters(Function function) {
-    try {
-      return ((Parameter<?>[]) PARAMETERS.get(function));
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
+  public static Parameter<?>[] getParameters(Function<?> function) {
+    if (PARAMETERS == null) {
+      return function.getParameters();
+    } else {
+      try {
+        return ((Parameter<?>[]) PARAMETERS.get(function));
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
+      throw new IllegalStateException();
     }
-    throw new IllegalStateException();
   }
 
   public static void printLog(RetainingLogHandler logger) {

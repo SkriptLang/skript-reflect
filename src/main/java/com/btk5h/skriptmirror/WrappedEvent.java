@@ -9,6 +9,11 @@ public abstract class WrappedEvent extends Event {
     this.event = event;
   }
 
+  protected WrappedEvent(Event event, boolean isAsynchronous) {
+    super(isAsynchronous);
+    this.event = event;
+  }
+
   public Event getEvent() {
     return event instanceof WrappedEvent ? ((WrappedEvent) event).getEvent() : event;
   }
