@@ -10,7 +10,6 @@ import com.btk5h.skriptmirror.WrappedEvent;
 import org.bukkit.event.Event;
 
 public class ExprEvent extends SimpleExpression<Event> {
-  // test comment for github action :)
   static {
     Skript.registerExpression(ExprEvent.class, Event.class, ExpressionType.SIMPLE, "[the] event");
   }
