@@ -19,9 +19,6 @@ repositories {
     url 'https://repo.destroystokyo.com/repository/maven-public/'
   }
   maven {
-    url 'http://nexus.hc.to/content/repositories/pub_releases'
-  }
-  maven {
     url 'http://maven.sk89q.com/repo/'
   }
   maven {
