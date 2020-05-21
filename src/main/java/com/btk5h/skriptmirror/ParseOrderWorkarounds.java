@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffReturn;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
@@ -24,7 +25,8 @@ public class ParseOrderWorkarounds {
     CustomEffect.class.getCanonicalName(),
     CustomCondition.class.getCanonicalName(),
     "com.w00tmast3r.skquery.elements.conditions.CondBoolean",
-    "com.pie.tlatoani.Miscellaneous.CondBoolean"
+    "com.pie.tlatoani.Miscellaneous.CondBoolean",
+    EffReturn.class.getCanonicalName()
   };
 
   public static void reorderSyntax() {
