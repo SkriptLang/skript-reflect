@@ -1,3 +1,5 @@
+# GitHub action to build and store artifact
+
 name: Java CI
 
 on:
