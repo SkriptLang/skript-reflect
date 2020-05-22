@@ -1,9 +1,10 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.Option;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
@@ -11,7 +12,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.util.ScriptOptions;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -264,8 +264,15 @@ public class ExprJavaCall<T> implements Expression<T> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
 
-    if (ScriptLoader.currentScript != null) {
-      ScriptOptions.getInstance().setSuppressWarning(ScriptLoader.currentScript.getFile(), "conjunction");
+    Option<Boolean> option = SkriptConfig.disableMissingAndOrWarnings;
+    if (!option.value()) {
+      try {
+        Field field = Option.class.getDeclaredField("parsedValue");
+        field.setAccessible(true);
+        field.set(option, true);
+      } catch (NoSuchFieldException | IllegalAccessException e) {
+        e.printStackTrace();
+      }
     }
 
     script = SkriptUtil.getCurrentScript();
