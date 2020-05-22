@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
@@ -10,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.util.ScriptOptions;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -63,7 +65,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   static Throwable lastError;
 
-  private LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
+  private final LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
 
   private File script;
   private boolean suppressErrors;
@@ -116,7 +118,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       if (rawArgs instanceof ExpressionList && rawArgs.getAnd()) {
         // In a 'comma/and' separated list, manually unwrap each expression and convert nulls to Null wrappers
         // This ensures that expressions that return null do not change the arity of the invoked method
-        arguments = Arrays.stream(((ExpressionList) rawArgs).getExpressions())
+        arguments = Arrays.stream(((ExpressionList<Object>) rawArgs).getExpressions())
             .map(SkriptUtil.unwrapWithEvent(e))
             .map(SkriptMirrorUtil::reifyIfNull)
             .toArray(Object[]::new);
@@ -261,6 +263,11 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
+
+    if (ScriptLoader.currentScript != null) {
+      ScriptOptions.getInstance().setSuppressWarning(ScriptLoader.currentScript.getFile(), "conjunction");
+    }
+
     script = SkriptUtil.getCurrentScript();
     suppressErrors = (parseResult.mark & 2) == 2;
 
@@ -588,11 +595,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     // unwrap null wrapper
-    if (!to.isPrimitive() && o instanceof Null) {
-      return true;
-    }
-
-    return false;
+    return !to.isPrimitive() && o instanceof Null;
   }
 
   private static Object[] convertTypes(MethodHandle mh, Object[] args) {
