@@ -4,10 +4,6 @@ skript-mirror is a robust reflection addon for advanced scripters. It aims to co
 
 [Documentation](https://skript-mirror.gitbook.io/docs/v/2.x/) \| [Source](https://github.com/btk5h/skript-mirror)
 
-## Looking for skript-mirror 1.x?
-
-skript-mirror 1.x is currently being maintained at the [1.x branch](https://github.com/btk5h/skript-mirror/tree/1.x).
-
 ## Should I use skript-mirror?
 
 If you were given a script or a code snippet that requires skript-mirror, the answer is: absolutely!
@@ -21,5 +17,9 @@ Are you considering writing an addon for Skript? Consider implementing your feat
 * Some features may require you to use reflection to access private methods, fields, and constructors. skript-mirror's built-in reflection allows you to access these private members seamlessly.
 * One of Skript's essential features is its customizability. Extensions written in skript-mirror promote this, allowing users to quickly make changes to your code, if necessary.
 
-
-
+## What's been changed in this fork:
+* Support for more Java versions (Java 13, Java 14, OpenJ9)
+* Support for listening to asynchronous events
+* Suppression of and/or warnings
+* Class proxy fixes
+* Some smaller changes
