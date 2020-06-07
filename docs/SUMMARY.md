@@ -15,6 +15,7 @@
     * [Effects](advanced/custom-syntax/effects.md)
     * [Conditions](advanced/custom-syntax/conditions.md)
     * [Expressions](advanced/custom-syntax/expressions.md)
+    * [Events](advanced/custom-syntax/events.md)
   * [Computed Options](advanced/computed-options.md)
   * [Experiments](advanced/experiments.md)
 * [Code Conventions](code-conventions.md)
