@@ -18,6 +18,7 @@ Are you considering writing an addon for Skript? Consider implementing your feat
 * One of Skript's essential features is its customizability. Extensions written in skript-mirror promote this, allowing users to quickly make changes to your code, if necessary.
 
 ## What's been changed in this fork:
+* Custom events (unstable)
 * Support for more Java versions (Java 13, Java 14, OpenJ9)
 * Support for listening to asynchronous events
 * Suppression of and/or warnings
