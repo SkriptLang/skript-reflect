@@ -6,11 +6,13 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
@@ -27,7 +29,7 @@ public class CustomExpression<T> implements Expression<T> {
   private ExpressionSyntaxInfo which;
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
-  private Event parseEvent;
+  private Object variablesMap;
 
   private final CustomExpression<?> source;
   private final Class<? extends T>[] types;
@@ -47,7 +49,7 @@ public class CustomExpression<T> implements Expression<T> {
       this.which = source.which;
       this.exprs = source.exprs;
       this.parseResult = source.parseResult;
-      this.parseEvent = source.parseEvent;
+      this.variablesMap = source.variablesMap;
     }
 
     this.types = types;
@@ -86,7 +88,7 @@ public class CustomExpression<T> implements Expression<T> {
 
   private T[] getByStandard(Event e, Trigger getter) {
     ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, which.getMatchedPattern(), parseResult);
-    SkriptReflection.copyVariablesMap(parseEvent, expressionEvent);
+    SkriptReflection.copyVariablesMapFromMap(variablesMap, expressionEvent);
     getter.execute(expressionEvent);
     if (expressionEvent.getOutput() == null) {
       Skript.error(
@@ -106,7 +108,7 @@ public class CustomExpression<T> implements Expression<T> {
 
       ExpressionGetEvent expressionEvent =
           new ExpressionGetEvent(e, localExprs, which.getMatchedPattern(), parseResult);
-      SkriptReflection.copyVariablesMap(parseEvent, expressionEvent);
+      SkriptReflection.copyVariablesMapFromMap(variablesMap, expressionEvent);
       getter.execute(expressionEvent);
 
       Object[] exprOutput = expressionEvent.getOutput();
@@ -240,7 +242,7 @@ public class CustomExpression<T> implements Expression<T> {
     } else {
       ExpressionChangeEvent changeEvent =
           new ExpressionChangeEvent(e, exprs, which.getMatchedPattern(), parseResult, delta);
-      SkriptReflection.copyVariablesMap(parseEvent, changeEvent);
+      SkriptReflection.copyVariablesMapFromMap(variablesMap, changeEvent);
       changer.execute(changeEvent);
     }
   }
@@ -274,11 +276,11 @@ public class CustomExpression<T> implements Expression<T> {
     if (parseHandler != null) {
       SyntaxParseEvent event =
           new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
-      parseHandler.execute(event);
 
-      if (SkriptReflection.hasLocalVariables(event)) {
-        parseEvent = event;
-      }
+      // Because of link below, Trigger#execute removes local variables
+      // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
+      TriggerItem.walk(parseHandler, event);
+      variablesMap = Variables.removeLocals(event);
 
       return event.isMarkedContinue();
     }

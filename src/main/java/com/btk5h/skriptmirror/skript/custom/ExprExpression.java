@@ -15,6 +15,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
+import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import com.btk5h.skriptmirror.util.JavaUtil;
@@ -177,7 +178,8 @@ public class ExprExpression<T> implements Expression<T> {
         ExpressionGetEvent.class,
         ExpressionChangeEvent.class,
         ConditionCheckEvent.class,
-        SyntaxParseEvent.class
+        SyntaxParseEvent.class,
+        EventTriggerEvent.class
     )) {
       Skript.error("The expression 'expression' may only be used in a custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);

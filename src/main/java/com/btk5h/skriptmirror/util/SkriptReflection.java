@@ -169,33 +169,21 @@ public class SkriptReflection {
   }
 
   @SuppressWarnings("unchecked")
-  public static boolean hasLocalVariables(Event e) {
-    try {
-      return ((Map<Event, Object>) LOCAL_VARIABLES.get(null)).containsKey(e);
-    } catch (IllegalAccessException ex) {
-      return false;
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public static void copyVariablesMap(Event from, Event to) {
-    if (from == null) {
+  public static void copyVariablesMapFromMap(Object originalVariablesMap, Event to) {
+    if (originalVariablesMap == null) {
       return;
     }
 
     try {
       Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
-      Object originalVariablesMap = localVariables.get(from);
 
-      if (originalVariablesMap != null) {
-        Object variablesMap = localVariables
-            .computeIfAbsent(to, JavaUtil.propagateErrors(e -> VARIABLES_MAP.newInstance()));
+      Object variablesMap = localVariables
+        .computeIfAbsent(to, JavaUtil.propagateErrors(e -> VARIABLES_MAP.newInstance()));
 
-        ((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(variablesMap))
-            .putAll((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(originalVariablesMap));
-        ((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(variablesMap))
-            .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(originalVariablesMap));
-      }
+      ((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(variablesMap))
+        .putAll((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(originalVariablesMap));
+      ((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(variablesMap))
+        .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(originalVariablesMap));
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }

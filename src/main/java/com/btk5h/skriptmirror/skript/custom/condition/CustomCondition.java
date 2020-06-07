@@ -3,11 +3,9 @@ package com.btk5h.skriptmirror.skript.custom.condition;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -21,6 +19,7 @@ public class CustomCondition extends Condition {
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
   private Event parseEvent;
+  private Object variablesMap;
 
   @Override
   public boolean check(Event e) {
@@ -28,7 +27,7 @@ public class CustomCondition extends Condition {
 
     if (checker == null) {
       Skript.error(
-          String.format("The custom condtion '%s' no longer has a check handler.", which.getPattern())
+          String.format("The custom condition '%s' no longer has a check handler.", which.getPattern())
       );
       return false;
     }
@@ -42,7 +41,7 @@ public class CustomCondition extends Condition {
 
   private boolean checkByStandard(Event e, Trigger checker) {
     ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, exprs, which.getMatchedPattern(), parseResult);
-    SkriptReflection.copyVariablesMap(parseEvent, conditionEvent);
+    SkriptReflection.copyVariablesMapFromMap(variablesMap, conditionEvent);
     checker.execute(conditionEvent);
     return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated() ^ which.isInverted();
   }
@@ -54,7 +53,7 @@ public class CustomCondition extends Condition {
 
       ConditionCheckEvent conditionEvent =
           new ConditionCheckEvent(e, localExprs, which.getMatchedPattern(), parseResult);
-      SkriptReflection.copyVariablesMap(parseEvent, conditionEvent);
+      SkriptReflection.copyVariablesMapFromMap(variablesMap, conditionEvent);
       checker.execute(conditionEvent);
       return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated();
     }, which.isInverted());
@@ -88,11 +87,11 @@ public class CustomCondition extends Condition {
     if (parseHandler != null) {
       SyntaxParseEvent event =
           new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
-      parseHandler.execute(event);
 
-      if (SkriptReflection.hasLocalVariables(event)) {
-        parseEvent = event;
-      }
+      // Because of link below, Trigger#execute removes local variables
+      // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
+      TriggerItem.walk(parseHandler, event);
+      variablesMap = Variables.removeLocals(event);
 
       return event.isMarkedContinue();
     }

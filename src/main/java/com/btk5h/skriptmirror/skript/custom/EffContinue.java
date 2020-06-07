@@ -7,6 +7,7 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
+import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import org.bukkit.event.Event;
 
 public class EffContinue extends Effect {
@@ -33,6 +34,8 @@ public class EffContinue extends Effect {
       ((ConditionCheckEvent) e).markContinue();
     } else if (e instanceof SyntaxParseEvent) {
       ((SyntaxParseEvent) e).markContinue();
+    } else if (e instanceof EventTriggerEvent) {
+      ((EventTriggerEvent) e).markContinue();
     }
 
     return null;
@@ -43,11 +46,10 @@ public class EffContinue extends Effect {
     return "continue";
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(EffectTriggerEvent.class, ConditionCheckEvent.class, SyntaxParseEvent.class)) {
+    if (!ScriptLoader.isCurrentEvent(EffectTriggerEvent.class, ConditionCheckEvent.class, SyntaxParseEvent.class, EventTriggerEvent.class)) {
       Skript.error("Return may only be used in custom effects and conditions.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

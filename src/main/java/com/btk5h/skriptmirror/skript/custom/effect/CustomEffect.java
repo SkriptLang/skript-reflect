@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript.custom.effect;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -16,6 +17,7 @@ public class CustomEffect extends Effect {
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
   private Event parseEvent;
+  private Object variablesMap;
 
   @Override
   protected void execute(Event e) {
@@ -41,7 +43,7 @@ public class CustomEffect extends Effect {
     if (trigger == null) {
       Skript.error(String.format("The custom effect '%s' no longer has a handler.", which));
     } else {
-      SkriptReflection.copyVariablesMap(parseEvent, effectEvent);
+      SkriptReflection.copyVariablesMapFromMap(variablesMap, effectEvent);
       trigger.execute(effectEvent);
     }
     return effectEvent;
@@ -75,11 +77,11 @@ public class CustomEffect extends Effect {
     if (parseHandler != null) {
       SyntaxParseEvent event =
           new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
-      parseHandler.execute(event);
 
-      if (SkriptReflection.hasLocalVariables(event)) {
-        parseEvent = event;
-      }
+      // Because of link below, Trigger#execute removes local variables
+      // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
+      TriggerItem.walk(parseHandler, event);
+      variablesMap = Variables.removeLocals(event);
 
       return event.isMarkedContinue();
     }

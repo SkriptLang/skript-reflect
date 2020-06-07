@@ -10,6 +10,7 @@ public class EventTriggerEvent extends CustomSyntaxEvent {
 
   private final static HandlerList handlers = new HandlerList();
   private final String which;
+  private boolean markedContinue;
 
   public EventTriggerEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                            SkriptParser.ParseResult parseResult, String which) {
@@ -19,6 +20,14 @@ public class EventTriggerEvent extends CustomSyntaxEvent {
 
   public String getWhich() {
     return which;
+  }
+
+  public boolean isMarkedContinue() {
+    return markedContinue;
+  }
+
+  public void markContinue() {
+    markedContinue = true;
   }
 
   public static HandlerList getHandlerList() {
