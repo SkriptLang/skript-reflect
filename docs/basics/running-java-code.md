@@ -36,14 +36,14 @@ If the method you're trying to invoke is not public, you must prefix the method 
 
 ### Calling overloaded methods
 
-Generally, skript-mirror can infer the correct overloaded method to call from the arguments passed at runtime. If you need to use a certain implementation of a method, you may append a comma separated list to the end of the method name surrounded in brackets. 
+Generally, skript-mirror can infer the correct overloaded method to call from the arguments passed at runtime. If you need to use a certain implementation of a method, you may append a comma separated list to the end of the method name surrounded in brackets.
 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-System.out!.println[java.lang.Object]({_something})
+System.out.println[java.lang.Object]({_something})
 # or, if you have the parameter classes imported:
-System.out!.println[Object]({_something})
+System.out.println[Object]({_something})
 
 Math.max[int, int](0, {_value})
 ```
@@ -55,14 +55,10 @@ Math.max[int, int](0, {_value})
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-%object%.<descriptor>!
+%object%.<descriptor>
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
-
-{% hint style="info" %}
-References to fields must end in `!` due to limitations in Skript's parser.
-{% endhint %}
 
 ### Calling non-public fields
 
@@ -71,9 +67,9 @@ If the field you're trying to use is not public, you must prefix the field name 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-{_hashmap}.[java.util.HashMap]modCount!
+{_hashmap}.[java.util.HashMap]modCount
 # or, if you have the declaring class imported:
-{_hashmap}.[HashMap]modCount!
+{_hashmap}.[HashMap]modCount
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}

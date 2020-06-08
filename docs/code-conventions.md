@@ -65,7 +65,7 @@ The purpose of import aliases is to avoid conflicts with other imports and expre
 ```text
 import:
   org.bukkit.event.player.PlayerMoveEvent as move
-  
+
 on move:
   # code
 ```
@@ -95,7 +95,7 @@ set {_mod count} to {_mod count field}.get({_map})
 
 {% hint style="success" %}
 ```text
-set {_mod count} to {_map}.modCount!
+set {_mod count} to {_map}.modCount
 ```
 {% endhint %}
 

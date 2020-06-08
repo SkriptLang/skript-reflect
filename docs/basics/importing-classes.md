@@ -1,6 +1,6 @@
 # Importing classes
 
-Many of skript-mirror's reflection features require a reference to a java class. 
+Many of skript-mirror's reflection features require a reference to a java class.
 
 ## Importing classes at parse-time \(recommended\)
 
@@ -29,11 +29,11 @@ To avoid conflicts, expressions created by import blocks are only available to t
 ```text
 import:
     java.lang.System
-    
+
 command /example:
     trigger:
         message "%System%" # java.lang.System
-        System.out!.println("test");
+        System.out.println("test");
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
@@ -45,7 +45,7 @@ In most cases, expressions created by import blocks will not conflict with each 
 ```text
 import:
     java.lang.String as JavaString
-    
+
 command /example:
     trigger:
         message JavaString.format("Hello %%s", sender)

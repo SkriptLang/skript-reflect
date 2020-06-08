@@ -55,6 +55,7 @@ Local variables created in this section are copied by-value to other sections.
 effect example:
   parse:
     set {_test} to 1
+    continue
   trigger:
     # {_test} always starts at 1 here
     add 1 to {_test}

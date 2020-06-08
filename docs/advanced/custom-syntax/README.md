@@ -59,7 +59,7 @@ event-classes
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-continue [if (%boolean%|%condition%)]
+continue
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}

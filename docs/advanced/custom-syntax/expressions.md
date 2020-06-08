@@ -141,7 +141,7 @@ If the expression is non-single, this option specifies an alias that may be used
 ```text
 plural expression test points:
   loop of: point
-  
+
 on script load:
   loop test points:
     # You may use "loop-point" instead of "loop-value" here
@@ -161,13 +161,14 @@ Local variables created in this section are copied by-value to other sections.
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-effect example:
+expression example:
   parse:
-      set {_test} to 1
+    set {_test} to 1
+    continue
   get:
     # {_test} always starts at 1 here
     add 1 to {_test}
-    # 2 is always returned 
+    # 2 is always returned
     return {_test}
 ```
 {% endcode-tabs-item %}
