@@ -7,10 +7,12 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -46,12 +48,16 @@ public class CondExpressionStatement extends Condition {
   @Override
   protected TriggerItem walk(Event e) {
     if (isAsynchronous) {
-      CompletableFuture.runAsync(() -> check(e), threadPool)
-          .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
-            if (getNext() != null) {
-              TriggerItem.walk(getNext(), e);
-            }
-          }));
+      Object localVariables = Variables.removeLocals(e);
+      CompletableFuture.runAsync(() -> {
+        SkriptReflection.copyVariablesMapFromMap(localVariables, e);
+        check(e);
+      }, threadPool)
+        .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
+          if (getNext() != null) {
+            TriggerItem.walk(getNext(), e);
+          }
+        }));
       return null;
     }
     return super.walk(e);

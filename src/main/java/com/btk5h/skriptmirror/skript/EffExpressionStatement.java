@@ -5,9 +5,11 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -35,7 +37,11 @@ public class EffExpressionStatement extends Effect {
   @Override
   protected TriggerItem walk(Event e) {
     if (isAsynchronous) {
-      CompletableFuture.runAsync(() -> execute(e), threadPool)
+      Object localVariables = Variables.removeLocals(e);
+      CompletableFuture.runAsync(() -> {
+        SkriptReflection.copyVariablesMapFromMap(localVariables, e);
+        execute(e);
+      }, threadPool)
           .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
             if (getNext() != null) {
               TriggerItem.walk(getNext(), e);
@@ -51,7 +57,6 @@ public class EffExpressionStatement extends Effect {
     return arg.toString(e, debug);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
