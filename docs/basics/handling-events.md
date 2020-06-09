@@ -29,7 +29,7 @@ You may also listen to multiple events with the same handler. The events do not 
 ```text
 import:
   org.bukkit.event.entity.ProjectileLaunchEvent
-  org.bukkit.event.entity.ProjectileHitEvent  
+  org.bukkit.event.entity.ProjectileHitEvent
 
 on ProjectileLaunchEvent and ProjectileHitEvent:
   # your code
@@ -53,10 +53,10 @@ skript-mirror exposes an `event` expression, allowing you to access event values
 import:
   org.bukkit.event.entity.EnderDragonChangePhaseEvent
   org.bukkit.entity.EnderDragon$Phase as EnderDragonPhase
- 
+
 on EnderDragonChangePhaseEvent:
-  if event.getNewPhase() is EnderDragonPhase.CIRCLING!:
-    event.setNewPhase(EnderDragonPhase.CHARGE_PLAYER!)
+  if event.getNewPhase() is EnderDragonPhase.CIRCLING:
+    event.setNewPhase(EnderDragonPhase.CHARGE_PLAYER)
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
@@ -74,7 +74,7 @@ The priority level of an event may be set to control when a particular event han
 ```text
 import:
   org.bukkit.event.entity.EnderDragonChangePhaseEvent
-  
+
 on EnderDragonChangePhaseEvent with priority highest:
   # your code
 ```

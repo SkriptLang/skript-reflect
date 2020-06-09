@@ -5,7 +5,7 @@
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[(1¦local)] [custom] event <pattern>:
+[local] [custom] event <pattern>:
   name: # unique name, required
   event-values: # list of types, optional
   parse:
@@ -21,7 +21,7 @@
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[(1¦local)] [custom] event:
+[local] [custom] event:
   patterns:
     # patterns, one per line
   name: # unique name, required
@@ -90,7 +90,7 @@ If this section is included, you must also [`continue`](./#continue) if you want
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-call custom event %string% [(with|using) [[event-]values] %-objects%] [(with|using) data %-objects%]
+call custom event %string% [(with|using) [[event-]values] %-objects%] [[and] [(with|using)] data %-objects%]
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
@@ -100,19 +100,19 @@ The first list variable is for [the event-values](#option-event-values), while t
 
 ### Extra data
 
-If the event-values aren't enough for your desire, you can make use of the extra data feature. In the event itself, you can get the extra data with the not-yet-created data expression:
+If the event-values aren't enough for your desire, you can make use of the extra data feature.
 The syntax for adding event-values to a custom event is explained in [the event-values option](#option-event-values), and how to call an event with them is explained in [calling the event](#calling-the-event)
+In the event itself, you can get the extra data with the data expression:
 
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[extra] [event[-]] data %string%
+[extra] [event[-]] data %strings%
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
-In the syntax above, `%string%` is the index.
+In the syntax above, `%strings%` is the index. This doesn't have to be plural, but can be.
 
-{% hint style="danger" %}
-This expression doesn't exist yet, until it is created, you can access it like so: `event.getData(%string%)`, where `%string%` is your index.
-Why did I already document it if it doesn't exist yet? Because there's a decent chance I'll to do so forgot when I create the expression.
+{% hint style="info" %}
+It may look fancier to create a custom expression instead of using extra data. To do so, you need to call `event.getData(%index%)` to get the data value.
 {% endhint %}
