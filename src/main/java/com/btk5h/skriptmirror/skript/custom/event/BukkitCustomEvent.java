@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.skript.custom.event;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -23,6 +24,11 @@ public class BukkitCustomEvent extends Event {
   private final Map<String, Object> dataMap;
 
   public BukkitCustomEvent(String name) {
+    this(name, !Bukkit.isPrimaryThread());
+  }
+
+  public BukkitCustomEvent(String name, boolean isAsync) {
+    super(isAsync);
     this.name = name;
     this.eventValueMap = new HashMap<>();
     this.dataMap = new HashMap<>();

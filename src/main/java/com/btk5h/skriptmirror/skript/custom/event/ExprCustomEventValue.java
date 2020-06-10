@@ -31,10 +31,10 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
 
   @Override
   public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class))
+    if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
       return false;
-    CustomEvent customEvent = CustomEvent.getLastCustomEvent();
-    if (customEvent == null)
+    EventSyntaxInfo which = CustomEvent.getLastWhich();
+    if (which == null)
       return false;
 
     String stringClass = parseResult.regexes.get(0).group();
@@ -43,9 +43,9 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
       return false;
     }
 
-    if (!CustomEventUtils.hasEventValue(customEvent, classInfo)) {
+    if (!CustomEventUtils.hasEventValue(which, classInfo)) {
       Skript.error("There is no " + CustomEventUtils.getName(classInfo) + " in the custom event " +
-        CustomEventUtils.getName(customEvent));
+        CustomEventUtils.getName(which));
       return false;
     }
 
@@ -55,9 +55,14 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
   @SuppressWarnings("unchecked")
   @Override
   public T[] get(Event event) {
-    if (!(event instanceof BukkitCustomEvent))
+    if (!(event instanceof BukkitCustomEvent || event instanceof EventTriggerEvent))
       return null;
-    BukkitCustomEvent bukkitCustomEvent = (BukkitCustomEvent) event;
+    BukkitCustomEvent bukkitCustomEvent;
+    if (event instanceof BukkitCustomEvent) {
+      bukkitCustomEvent = (BukkitCustomEvent) event;
+    } else {
+      bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) event).getEvent();
+    }
 
     T[] tArray = (T[]) Array.newInstance(classInfo.getC(), 1);
     tArray[0] = (T) bukkitCustomEvent.getEventValue(classInfo);

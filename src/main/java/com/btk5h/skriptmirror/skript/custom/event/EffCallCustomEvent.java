@@ -16,7 +16,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffCallCustomEvent extends Effect {
 
   static {
-    Skript.registerEffect(EffCallCustomEvent.class, "call custom event %string% [(with|using) [[event-]values] %-objects%] [(with|using) data %-objects%]");
+    Skript.registerEffect(EffCallCustomEvent.class, "call custom event %string% [(with|using) [[event-]values] %-objects%] [[and] [(with|using)] data %-objects%]");
   }
 
   private Expression<String> customEventName;
@@ -53,8 +53,6 @@ public class EffCallCustomEvent extends Effect {
 
   @Override
   protected void execute(Event e) {
-    // TODO check for async custom event call
-
     BukkitCustomEvent bukkitCustomEvent = new BukkitCustomEvent(this.customEventName.getSingle(e));
 
     if (eventValueVarList != null)

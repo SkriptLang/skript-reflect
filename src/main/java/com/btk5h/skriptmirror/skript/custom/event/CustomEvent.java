@@ -13,12 +13,13 @@ import java.util.Arrays;
 
 /**
  * This is the Skript event for all custom classes.
- * {@link #getLastCustomEvent()} returns the last instance of this class, which is used internally for determining
+ * {@link #getLastWhich()} ()} returns the last EventSyntaxInfo of the last custom event, which is used internally for determining
  * which event-values can be used in parse-time.
  */
 public class CustomEvent extends SkriptEvent {
 
-  private static CustomEvent lastCustomEvent;
+//  private static CustomEvent lastCustomEvent;
+  private static EventSyntaxInfo lastWhich;
 
   private EventSyntaxInfo which;
   private Expression<?>[] exprs;
@@ -42,7 +43,8 @@ public class CustomEvent extends SkriptEvent {
       return false;
     }
 
-    lastCustomEvent = this;
+//    lastCustomEvent = this;
+    lastWhich = which;
 
     Trigger parseHandler = CustomEventSection.parserHandlers.get(which);
 
@@ -83,8 +85,12 @@ public class CustomEvent extends SkriptEvent {
     return which.getPattern();
   }
 
-  public static CustomEvent getLastCustomEvent() {
-    return lastCustomEvent;
+  public static EventSyntaxInfo getLastWhich() {
+    return lastWhich;
+  }
+
+  public static void setLastWhich(EventSyntaxInfo which) {
+    lastWhich = which;
   }
 
   public EventSyntaxInfo getWhich() {

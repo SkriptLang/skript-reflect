@@ -11,7 +11,6 @@ import ch.njol.skript.registrations.Classes;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
-import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -135,6 +134,7 @@ public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
 
         if (key.equalsIgnoreCase("check")) {
           ScriptLoader.setCurrentEvent("custom event trigger", EventTriggerEvent.class);
+          CustomEvent.setLastWhich(whichInfo.get(0));
           List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
           whichInfo.forEach(which ->
             eventHandlers.put(which,

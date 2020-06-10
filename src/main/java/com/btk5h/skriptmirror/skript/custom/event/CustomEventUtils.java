@@ -11,13 +11,11 @@ import java.util.List;
 public class CustomEventUtils {
 
   /**
-   * @param customEvent The CustomEvent which is used
+   * @param which The EventSyntaxInfo that belongs to the used custom event
    * @param classInfo The used ClassInfo
    * @return whether the given CustomEvent supports the given ClassInfo as an event-value.
    */
-  public static boolean hasEventValue(CustomEvent customEvent, ClassInfo<?> classInfo) {
-    EventSyntaxInfo which = customEvent.getWhich();
-
+  public static boolean hasEventValue(EventSyntaxInfo which, ClassInfo<?> classInfo) {
     List<ClassInfo<?>> eventValueClassInfoList = CustomEventSection.eventValueTypes.get(which);
     if (eventValueClassInfoList == null)
       return false;
@@ -40,11 +38,11 @@ public class CustomEventUtils {
   }
 
   /**
-   * @param customEvent The CustomEvent which name is returned
-   * @return The defined name (identifier) of the given CustomEvent.
+   * @param which The EventSyntaxInfo that belongs to the used custom event
+   * @return The defined name (identifier) of the custom event from the given EventSyntaxInfo
    */
-  public static String getName(CustomEvent customEvent) {
-    return CustomEventSection.nameValues.get(customEvent.getWhich());
+  public static String getName(EventSyntaxInfo which) {
+    return CustomEventSection.nameValues.get(which);
   }
 
 }

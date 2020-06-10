@@ -28,8 +28,14 @@ public class ExprReplacedEventValue<T> extends EventValueExpression<T> {
   @Override
   @Nullable
   protected T[] get(final Event e) {
-    if (e instanceof BukkitCustomEvent) {
-      BukkitCustomEvent bukkitCustomEvent = (BukkitCustomEvent) e;
+    if (e instanceof BukkitCustomEvent || e instanceof EventTriggerEvent) {
+      BukkitCustomEvent bukkitCustomEvent;
+      if (e instanceof BukkitCustomEvent) {
+        bukkitCustomEvent = (BukkitCustomEvent) e;
+      } else {
+        bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) e).getEvent();
+      }
+
       Class<?> valueClass = original.getReturnType();
 
       T[] tArray = (T[]) Array.newInstance(valueClass, 1);
@@ -43,10 +49,10 @@ public class ExprReplacedEventValue<T> extends EventValueExpression<T> {
   @SuppressWarnings("null")
   @Override
   public boolean init() {
-    if (ScriptLoader.isCurrentEvent(BukkitCustomEvent.class)) {
-      CustomEvent customEvent = CustomEvent.getLastCustomEvent();
+    if (ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class)) {
+      EventSyntaxInfo which = CustomEvent.getLastWhich();
       ClassInfo<?> classInfo = Classes.getSuperClassInfo(getReturnType());
-      return CustomEventUtils.hasEventValue(customEvent, classInfo);
+      return CustomEventUtils.hasEventValue(which, classInfo);
     } else {
       return original.init();
     }
