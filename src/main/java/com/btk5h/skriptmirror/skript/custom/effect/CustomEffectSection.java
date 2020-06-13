@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
   static {
@@ -75,10 +76,12 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
       return false;
     }
 
-    return handleEntriesAndSections(node,
+    AtomicBoolean hasTrigger = new AtomicBoolean();
+    boolean nodesOkay = handleEntriesAndSections(node,
         entryNode -> false,
         sectionNode -> {
           String key = sectionNode.getKey();
+          assert key != null;
 
           if (key.equalsIgnoreCase("patterns")) {
             return true;
@@ -90,6 +93,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
             whichInfo.forEach(which ->
                 effectHandlers.put(which,
                     new Trigger(SkriptUtil.getCurrentScript(), "effect " + which, this, items)));
+            hasTrigger.set(true);
             return true;
           }
 
@@ -100,6 +104,14 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
           return false;
         });
+
+    if (!nodesOkay)
+      return false;
+
+    if (!hasTrigger.get())
+      Skript.warning("Custom effects are useless without a trigger section");
+
+    return true;
   }
 
   public static EffectSyntaxInfo lookup(File script, int matchedPattern) {

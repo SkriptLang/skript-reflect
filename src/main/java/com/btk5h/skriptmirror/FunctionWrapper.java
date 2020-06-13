@@ -7,18 +7,14 @@ import org.eclipse.jdt.annotation.Nullable;
 
 public class FunctionWrapper {
 
-  private static final Function<?> NO_OP_FUNCTION;
-
-  static {
-    NO_OP_FUNCTION = new JavaFunction<Object>("$noop", new Parameter[0], Classes.getExactClassInfo(Object.class),
-      true) {
-      @Nullable
-      @Override
-      public Object[] execute(FunctionEvent e, Object[][] params) {
-        return null;
-      }
-    };
-  }
+  private static final Function<?> NO_OP_FUNCTION = new JavaFunction<Object>("$noop", new Parameter[0],
+    Classes.getExactClassInfo(Object.class), true) {
+    @Nullable
+    @Override
+    public Object[] execute(FunctionEvent e, Object[][] params) {
+      return null;
+    }
+  };
 
   private final String name;
   private final Object[] arguments;

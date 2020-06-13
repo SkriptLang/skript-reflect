@@ -16,25 +16,25 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSyntaxInfo> {
   static {
-    //noinspection unchecked
     CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
         "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
         "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression",
         "[(2¦local)] [(1¦(plural|non(-|[ ])single))] %*classinfos% property <.+>");
   }
 
-  private static DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
+  private static final DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
 
   static Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
   static Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
   static Map<ExpressionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
   static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
-  static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Class[]>> changerTypes = new HashMap<>();
+  static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Class<?>[]>> changerTypes = new HashMap<>();
   static Map<ExpressionSyntaxInfo, String> loopOfs = new HashMap<>();
 
   static {
@@ -63,7 +63,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
 
   @SuppressWarnings("unchecked")
   @Override
-  protected boolean init(Literal[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
+  protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
     String what;
     SectionNode patterns = (SectionNode) node.get("patterns");
     File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
@@ -83,12 +83,12 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         int i = 1;
         for (Node subNode : patterns) {
           register(
-              ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, alwaysPlural, false, false));
+            ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, alwaysPlural, false, false));
         }
         break;
       case 2:
         what = parseResult.regexes.get(0).group();
-        String fromType = Arrays.stream(((Literal<ClassInfo>) args[0]).getArray())
+        String fromType = Arrays.stream(((Literal<ClassInfo<?>>) args[0]).getArray())
             .map(ClassInfo::getCodeName)
             .map(codeName -> {
               boolean isPlural = Utils.getEnglishPlural(codeName).getSecond();
@@ -117,14 +117,15 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
       return false;
     }
 
-    return handleEntriesAndSections(node,
+    AtomicBoolean hasGetOrSet = new AtomicBoolean();
+    boolean nodesOkay = handleEntriesAndSections(node,
         entryNode -> {
           String key = entryNode.getKey();
+          assert key != null;
 
           if (key.equalsIgnoreCase("return type")) {
             String userReturnType = entryNode.getValue();
-            Class returnType =
-                Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
+            Class<?> returnType = Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
             whichInfo.forEach(which -> returnTypes.put(which, returnType));
             return true;
           }
@@ -139,6 +140,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         },
         sectionNode -> {
           String key = sectionNode.getKey();
+          assert key != null;
 
           if (key.equalsIgnoreCase("patterns")) {
             return true;
@@ -151,6 +153,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
                 expressionHandlers.put(which,
                     new Trigger(SkriptUtil.getCurrentScript(), "get " + which.getPattern(), this, items)));
 
+            hasGetOrSet.set(true);
             return true;
           }
 
@@ -176,7 +179,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
               });
 
               if (rawTypes.length() > 0) {
-                Class[] acceptedClasses = Arrays.stream(rawTypes.split(","))
+                Class<?>[] acceptedClasses = Arrays.stream(rawTypes.split(","))
                     .map(String::trim)
                     .map(SkriptUtil::getUserClassInfoAndPlural)
                     .map(meta -> {
@@ -197,12 +200,21 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
                 });
               }
 
+              hasGetOrSet.set(true);
               return true;
             }
           }
 
           return false;
         });
+
+    if (!nodesOkay)
+      return false;
+
+    if (!hasGetOrSet.get())
+      Skript.warning("Custom expressions are useless without a get / change section");
+
+    return true;
   }
 
   public static ExpressionSyntaxInfo lookup(File script, int matchedPattern) {

@@ -13,17 +13,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.StreamSupport;
 
 public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInfo> {
   static {
-    //noinspection unchecked
     CustomSyntaxSection.register("Define Constant", CustomConstantSection.class,
         "option <.+>");
     // TODO add support for custom constant expressions
   }
 
-  private static DataTracker<ConstantSyntaxInfo> dataTracker = new DataTracker<>();
+  private static final DataTracker<ConstantSyntaxInfo> dataTracker = new DataTracker<>();
 
   static {
     dataTracker.setSyntaxType("constant");
@@ -42,33 +42,41 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
     return dataTracker;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "SwitchStatementWithTooFewBranches"})
   @Override
-  protected boolean init(Literal[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
+  protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
     String what;
-
 
     switch (matchedPattern) {
       case 0:
         what = parseResult.regexes.get(0).group();
-        return handleEntriesAndSections(node,
-            entryNode -> false,
-            sectionNode -> {
-              String key = sectionNode.getKey();
 
-              if (key.equalsIgnoreCase("get")) {
-                ScriptLoader.setCurrentEvent("custom constant getter", ConstantGetEvent.class);
-                List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
-                Trigger getter =
-                    new Trigger(SkriptUtil.getCurrentScript(), "get {@" + what + "}", this, items);
-                
-                computeOption(what, getter);
+        AtomicBoolean hasGetSection = new AtomicBoolean();
+        boolean nodesOkay = handleEntriesAndSections(node,
+          entryNode -> false,
+          sectionNode -> {
+            String key = sectionNode.getKey();
+            assert key != null;
 
-                return true;
-              }
+            if (key.equalsIgnoreCase("get")) {
+              ScriptLoader.setCurrentEvent("custom constant getter", ConstantGetEvent.class);
+              List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+              Trigger getter =
+                  new Trigger(SkriptUtil.getCurrentScript(), "get {@" + what + "}", this, items);
 
-              return false;
-            });
+              computeOption(what, getter);
+
+              hasGetSection.set(true);
+              return true;
+            }
+
+            return false;
+          });
+
+        if (!hasGetSection.get())
+          Skript.warning("Computed options don't work without a get section");
+
+        return nodesOkay;
     }
 
     return false;

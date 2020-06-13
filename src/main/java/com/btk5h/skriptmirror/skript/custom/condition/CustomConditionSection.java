@@ -13,6 +13,7 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxInfo> {
@@ -96,11 +97,12 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
       return false;
     }
 
-
-    return handleEntriesAndSections(node,
+    AtomicBoolean hasCheck = new AtomicBoolean();
+    boolean nodesOkay = handleEntriesAndSections(node,
         entryNode -> false,
         sectionNode -> {
           String key = sectionNode.getKey();
+          assert key != null;
 
           if (key.equalsIgnoreCase("patterns")) {
             return true;
@@ -112,6 +114,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
             whichInfo.forEach(which -> conditionHandlers.put(which,
                 new Trigger(SkriptUtil.getCurrentScript(), "condition " + which, this, items)));
 
+            hasCheck.set(true);
             return true;
           }
 
@@ -122,6 +125,14 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
 
           return false;
         });
+
+    if (!nodesOkay)
+      return false;
+
+    if (!hasCheck.get())
+      Skript.warning("Custom conditions are useless without a check section");
+
+    return true;
   }
 
   public static ConditionSyntaxInfo lookup(File script, int matchedPattern) {
