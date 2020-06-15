@@ -18,7 +18,6 @@ public class CustomCondition extends Condition {
   private ConditionSyntaxInfo which;
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
-  private Event parseEvent;
   private Object variablesMap;
 
   @Override

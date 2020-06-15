@@ -16,7 +16,6 @@ public class CustomEffect extends Effect {
   private EffectSyntaxInfo which;
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
-  private Event parseEvent;
   private Object variablesMap;
 
   @Override

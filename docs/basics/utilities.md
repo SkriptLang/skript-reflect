@@ -86,6 +86,25 @@ This value may be read from and written to.
 
 Returns the underlying object of an expression.
 
+{% hint style="info" %}
+When used with [the expression-expression](../advanced/custom-syntax/README.md#expression), you can set it to a value, which will change the input value from that argument. This can be used to store data in variables in the calling trigger.
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+import:
+	ch.njol.skript.lang.Variable
+
+effect put %objects% in %objects%:
+	parse:
+		expr-2 is an instance of Variable # to check if the second argument is a variable
+		continue
+	trigger:
+		set raw expr-2 to expr-1
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+{% endhint %}
+
 ## Members
 
 {% code-tabs %}

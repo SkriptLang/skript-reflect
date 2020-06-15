@@ -11,11 +11,9 @@ Downloads: https://github.com/TPGamesNL/skript-mirror/actions (click the version
 If you want to talk about this project or something else, contact me on Discord: TPGamesNL#0880
 
 ## What's been changed in this fork:
-* Custom events
-* Support for more Java versions (Java 13, Java 14, OpenJ9)
+* Added custom events
+* Support for more Java versions (Java 13+, OpenJ9)
 * Support for listening to asynchronous events
-* Suppression of and/or warnings
-* Class proxy fixes
-* Some smaller changes
-* Fixed issues where local variables are deleted
-* Updated documentation
+* Class proxy fixes + documentation
+* Fixed multiple issues with local variables
+* And more
