@@ -426,7 +426,8 @@ public class ExprJavaCall<T> implements Expression<T> {
     // Copy arguments so that the original array isn't modified by type conversions
     // For instance methods, the target of the call must be added to the start of the arguments array
     Object[] argumentsCopy;
-    if (target instanceof JavaType) {
+    boolean isStatic = target instanceof JavaType;
+    if (isStatic) {
       argumentsCopy = createStaticArgumentsCopy(arguments);
     } else {
       argumentsCopy = createInstanceArgumentsCopy(target, arguments);
@@ -436,7 +437,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     if (!method.isPresent()) {
       error(String.format("No matching %s: %s%s",
-          type, descriptor, argumentsMessage(arguments)));
+          type, descriptor.toString(isStatic), argumentsMessage(arguments)));
 
       suggestParameters(descriptor);
       suggestTypo(descriptor);

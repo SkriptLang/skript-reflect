@@ -57,9 +57,13 @@ public final class Descriptor {
 
   @Override
   public String toString() {
-    return String.format("%s#%s",
-        javaClass == null ? "(unspecified)" : SkriptMirrorUtil.getDebugName(javaClass),
-        name);
+    return toString(false);
+  }
+
+  public String toString(boolean isStatic) {
+    return String.format("%s" + (isStatic ? "." : "#") + "%s",
+      javaClass == null ? "(unspecified)" : SkriptMirrorUtil.getDebugName(javaClass),
+      name);
   }
 
   public Descriptor orDefaultClass(Class<?> cls) {
