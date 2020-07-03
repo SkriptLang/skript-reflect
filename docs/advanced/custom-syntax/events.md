@@ -87,16 +87,23 @@ If this section is included, you must also [`continue`](./#continue) if you want
 
 ### Calling the event
 
-{% code-tabs %}
-{% code-tabs-item title="Syntax" %}
+You can get an instance of a custom event using the following expression:
 ```text
-call custom event %string% [(with|using) [[event-]values] %-objects%] [[and] [(with|using)] data %-objects%]
+[a] [new] custom event %string% [(with|using) [[event-]values] %-objects%] [[and] [(with|using)] data %-objects%]
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
-
 The first argument should contain the name of the event you want to call. The second argument is a list variable, with each element of the following format: `{list::%type%} = %value%`. The third argument is almost the same, the only difference is that `%type%` is replaced with a string, which is just the index.
 The first list variable is for [the event-values](#option-event-values), while the second is for [the extra data](#extra-data).
+
+You can then call it using the following effect:
+```text
+call [event] %events%
+```
+
+If you want to check if an event has been cancelled, after you've called it, you can use the following condition:
+```text
+%events% (is|are) cancelled
+%events% (isn't|is not|aren't|are not) cancelled
+```
 
 ### Extra data
 

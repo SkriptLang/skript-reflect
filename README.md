@@ -1,4 +1,4 @@
-# skript-mirror(-tp)
+# skript-mirror-tp
 
 This fork of [skript-mirror](https://github.com/btk5h/skript-mirror) aims to fix multiple issues that I believe have been present for too long, and implement some long-wanted features.
 

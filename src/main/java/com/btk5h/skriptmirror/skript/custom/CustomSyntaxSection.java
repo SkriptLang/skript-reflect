@@ -1,9 +1,7 @@
 package com.btk5h.skriptmirror.skript.custom;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.EntryNode;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -187,7 +185,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
                                                     Predicate<SectionNode> sectionHandler) {
     boolean ok = true;
 
-    for (Node subNode : node) {
+    for (Node subNode : SkriptReflection.getNodes(node)) {
       SkriptLogger.setNode(subNode);
 
       if (subNode instanceof EntryNode) {
@@ -202,8 +200,8 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
               subNode.getKey()));
           ok = false;
         }
-      } else {
-        throw new IllegalStateException();
+      } else if (subNode instanceof InvalidNode || !(subNode instanceof VoidNode )) {
+        ok = false;
       }
 
       SkriptLogger.setNode(null);

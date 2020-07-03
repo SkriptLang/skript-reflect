@@ -2,6 +2,10 @@ package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Conditional;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
@@ -18,13 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 public class SkriptReflection {
-  public static String MISSING_AND_OR;
 
   private static Field PATTERNS;
   private static Field PARAMETERS;
   private static Field HANDLERS;
   private static Field CURRENT_OPTIONS;
   private static Field LOCAL_VARIABLES;
+  private static Field NODES;
+  private static Field CONDITION;
   private static Field VARIABLES_MAP_HASHMAP;
   private static Field VARIABLES_MAP_TREEMAP;
   private static Constructor VARIABLES_MAP;
@@ -32,13 +37,6 @@ public class SkriptReflection {
   static {
     Field _FIELD;
     Constructor _CONSTRUCTOR;
-
-    try {
-      _FIELD = SkriptParser.class.getDeclaredField("MISSING_AND_OR");
-      _FIELD.setAccessible(true);
-      MISSING_AND_OR = (String) _FIELD.get(null);
-    } catch (NoSuchFieldException | IllegalAccessException ignored) {
-    }
 
     try {
       _FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
@@ -50,6 +48,7 @@ public class SkriptReflection {
     }
 
     try {
+      //noinspection JavaReflectionMemberAccess
       _FIELD = Function.class.getDeclaredField("parameters");
       _FIELD.setAccessible(true);
       PARAMETERS = _FIELD;
@@ -77,6 +76,22 @@ public class SkriptReflection {
       LOCAL_VARIABLES = _FIELD;
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's local variables field could not be resolved.");
+    }
+
+    try {
+      _FIELD = SectionNode.class.getDeclaredField("nodes");
+      _FIELD.setAccessible(true);
+      NODES = _FIELD;
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's nodes field could not be resolved, therefore sections won't work.");
+    }
+
+    try {
+      _FIELD = Conditional.class.getDeclaredField("cond");
+      _FIELD.setAccessible(true);
+      CONDITION = _FIELD;
+    } catch (NoSuchFieldException e) {
+      e.printStackTrace();
     }
 
     try {
@@ -170,15 +185,18 @@ public class SkriptReflection {
 
   @SuppressWarnings("unchecked")
   public static void copyVariablesMapFromMap(Object originalVariablesMap, Event to) {
-    if (originalVariablesMap == null) {
+    if (originalVariablesMap == null)
       return;
-    }
 
     try {
       Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
 
-      Object variablesMap = localVariables
-        .computeIfAbsent(to, JavaUtil.propagateErrors(e -> VARIABLES_MAP.newInstance()));
+      Object variablesMap;
+      if (!localVariables.containsKey(to)) {
+        variablesMap = JavaUtil.propagateErrors(e -> VARIABLES_MAP.newInstance()).apply(to);
+        localVariables.put(to, variablesMap);
+      } else
+        variablesMap = localVariables.get(to);
 
       ((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(variablesMap))
         .putAll((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(originalVariablesMap));
@@ -188,4 +206,63 @@ public class SkriptReflection {
       e.printStackTrace();
     }
   }
+
+  @SuppressWarnings("unchecked")
+  public static Object removeLocals(Event event) {
+    try {
+      Variables.class.getMethod("removeLocals", Event.class);
+      return Variables.removeLocals(event);
+    } catch (NoSuchMethodException ignored) {
+      try {
+        Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
+        return localVariables.remove(event);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Object getLocals(Event event) {
+    try {
+      Variables.class.getMethod("removeLocals", Event.class);
+      Object variables = Variables.removeLocals(event);
+      Variables.setLocalVariables(event, variables);
+      return variables;
+    } catch (NoSuchMethodException ignored) {
+      try {
+        Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
+        return localVariables.get(event);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static ArrayList<Node> getNodes(SectionNode sectionNode) {
+    try {
+      return (ArrayList<Node>) NODES.get(sectionNode);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+      return new ArrayList<>();
+    }
+  }
+
+  public static Condition getCondition(Conditional conditional) {
+    if (CONDITION == null)
+      return null;
+
+    try {
+      return (Condition) CONDITION.get(conditional);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
 }

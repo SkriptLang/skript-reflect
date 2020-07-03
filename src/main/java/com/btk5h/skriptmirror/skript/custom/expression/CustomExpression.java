@@ -12,7 +12,6 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
@@ -280,7 +279,7 @@ public class CustomExpression<T> implements Expression<T> {
       // Because of link below, Trigger#execute removes local variables
       // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
       TriggerItem.walk(parseHandler, event);
-      variablesMap = Variables.removeLocals(event);
+      variablesMap = SkriptReflection.removeLocals(event);
 
       return event.isMarkedContinue();
     }

@@ -1,11 +1,11 @@
 package com.btk5h.skriptmirror.skript;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
@@ -37,16 +37,17 @@ public class EffExpressionStatement extends Effect {
   @Override
   protected TriggerItem walk(Event e) {
     if (isAsynchronous) {
-      Object localVariables = Variables.removeLocals(e);
+      Object localVariables = SkriptReflection.getLocals(e);
       CompletableFuture.runAsync(() -> {
         SkriptReflection.copyVariablesMapFromMap(localVariables, e);
         execute(e);
       }, threadPool)
-          .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
-            if (getNext() != null) {
-              TriggerItem.walk(getNext(), e);
-            }
-          }));
+        .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
+          if (getNext() != null)
+            TriggerItem.walk(getNext(), e);
+
+          SkriptReflection.removeLocals(e);
+        }));
       return null;
     }
     return super.walk(e);
@@ -67,6 +68,8 @@ public class EffExpressionStatement extends Effect {
     }
 
     isAsynchronous = (parseResult.mark & 1) == 1;
+    if (isAsynchronous)
+      ScriptLoader.hasDelayBefore = Kleenean.TRUE;
     return SkriptUtil.canInitSafely(arg);
   }
 }

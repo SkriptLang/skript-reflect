@@ -2,21 +2,22 @@ package com.btk5h.skriptmirror.skript.custom.event;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.util.SkriptUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-public class EffCallCustomEvent extends Effect {
+public class ExprCustomEvent extends SimpleExpression<Event> {
 
   static {
-    Skript.registerEffect(EffCallCustomEvent.class, "call custom event %string% [(with|using) [[event-]values] %-objects%] [[and] [(with|using)] data %-objects%]");
+    Skript.registerExpression(ExprCustomEvent.class, Event.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
+      "[a] [new] custom event %string% [(with|using) [[event-]values] %-objects%] [[and] [(with|using)] data %-objects%]");
   }
 
   private Expression<String> customEventName;
@@ -26,13 +27,14 @@ public class EffCallCustomEvent extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     this.customEventName = SkriptUtil.defendExpression(exprs[0]);
+
     if (exprs[1] != null) {
       Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
 
       if (var instanceof Variable && ((Variable<?>) var).isList()) {
         this.eventValueVarList = (Variable<?>) var;
       } else {
-        Skript.error(var.toString() + " is not a list variable.");
+        Skript.error(var.toString(null, false) + " is not a list variable.");
         return false;
       }
     }
@@ -43,7 +45,7 @@ public class EffCallCustomEvent extends Effect {
       if (var instanceof Variable && ((Variable<?>) var).isList()) {
         this.dataVarList = (Variable<?>) var;
       } else {
-        Skript.error(var.toString() + " is not a list variable.");
+        Skript.error(var.toString(null, false) + " is not a list variable.");
         return false;
       }
     }
@@ -51,8 +53,9 @@ public class EffCallCustomEvent extends Effect {
     return true;
   }
 
+  @Nullable
   @Override
-  protected void execute(Event e) {
+  protected Event[] get(Event e) {
     BukkitCustomEvent bukkitCustomEvent = new BukkitCustomEvent(this.customEventName.getSingle(e));
 
     if (eventValueVarList != null)
@@ -68,12 +71,22 @@ public class EffCallCustomEvent extends Effect {
         bukkitCustomEvent.setData(pair.getKey(), pair.getValue());
       });
 
-    Bukkit.getPluginManager().callEvent(bukkitCustomEvent);
+    return new Event[] {bukkitCustomEvent};
+  }
+
+  @Override
+  public boolean isSingle() {
+    return true;
+  }
+
+  @Override
+  public Class<? extends Event> getReturnType() {
+    return Event.class;
   }
 
   @Override
   public String toString(@Nullable Event e, boolean debug) {
-    return "call custom event \"" + this.customEventName + "\"";
+    return "new custom event " + customEventName.toString(e, debug);
   }
 
 }

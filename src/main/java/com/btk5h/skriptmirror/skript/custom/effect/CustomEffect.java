@@ -3,7 +3,6 @@ package com.btk5h.skriptmirror.skript.custom.effect;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -80,7 +79,7 @@ public class CustomEffect extends Effect {
       // Because of link below, Trigger#execute removes local variables
       // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
       TriggerItem.walk(parseHandler, event);
-      variablesMap = Variables.removeLocals(event);
+      variablesMap = SkriptReflection.removeLocals(event);
 
       return event.isMarkedContinue();
     }

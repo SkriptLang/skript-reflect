@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
@@ -39,17 +40,18 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static EventExecutor executor =
-      (listener, event) -> Bukkit.getPluginManager()
-          .callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
+  private static EventExecutor executor = (listener, event) -> Bukkit.getPluginManager()
+    .callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
 
   private static PriorityListener[] listeners;
 
   static {
+    SkriptEventHandler.listenCancelled.add(BukkitEvent.class);
+
     listeners = Arrays.stream(EventPriority.values())
-        .mapToInt(EventPriority::ordinal)
-        .mapToObj(PriorityListener::new)
-        .toArray(PriorityListener[]::new);
+      .mapToInt(EventPriority::ordinal)
+      .mapToObj(PriorityListener::new)
+      .toArray(PriorityListener[]::new);
   }
 
   private static class BukkitEvent extends WrappedEvent implements Cancellable {
@@ -99,6 +101,7 @@ public class EvtByReflection extends SkriptEvent {
       Bukkit.getPluginManager()
           .registerEvent(event, listener, priority, executor, SkriptMirror.getInstance(), ignoreCancelled);
     }
+
   }
 
   private Class<? extends Event>[] classes;
@@ -123,7 +126,7 @@ public class EvtByReflection extends SkriptEvent {
       priority = SkriptConfig.defaultEventPriority.value();
     }
 
-    boolean ignoreCancelled = (parseResult.mark & 1) == 1;
+    boolean ignoreCancelled = (parseResult.mark & 1) != 1;
 
     for (Class<? extends Event> cls : classes) {
       registerEvent(cls, priority, ignoreCancelled);

@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Condition;
@@ -7,7 +8,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.SkriptMirror;
@@ -48,15 +48,16 @@ public class CondExpressionStatement extends Condition {
   @Override
   protected TriggerItem walk(Event e) {
     if (isAsynchronous) {
-      Object localVariables = Variables.removeLocals(e);
+      Object localVariables = SkriptReflection.getLocals(e);
       CompletableFuture.runAsync(() -> {
         SkriptReflection.copyVariablesMapFromMap(localVariables, e);
         check(e);
       }, threadPool)
         .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
-          if (getNext() != null) {
+          if (getNext() != null)
             TriggerItem.walk(getNext(), e);
-          }
+
+          SkriptReflection.removeLocals(e);
         }));
       return null;
     }
@@ -85,6 +86,8 @@ public class CondExpressionStatement extends Condition {
       Skript.error("Asynchronous java calls may not be used as conditions.");
       return false;
     }
+    if (isAsynchronous)
+      ScriptLoader.hasDelayBefore = Kleenean.TRUE;
 
     return SkriptUtil.canInitSafely(arg);
   }

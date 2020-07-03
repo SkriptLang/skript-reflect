@@ -187,7 +187,6 @@ public final class JavaUtil {
     return (T[]) Array.newInstance(type, length);
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> Class<?> getArrayClass(Class<T> type) {
     return Array.newInstance(type, 0).getClass();
   }

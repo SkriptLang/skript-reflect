@@ -122,6 +122,7 @@ public class ExprProxy extends SimpleExpression<Object> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!Consent.Feature.PROXIES.hasConsent(SkriptUtil.getCurrentScript())) {
+      Skript.error("This feature requires consent, because it is experimental.");
       return false;
     }
 

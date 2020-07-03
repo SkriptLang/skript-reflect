@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript.custom.event;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -15,13 +16,13 @@ import java.util.Map;
  *
  * If extra data is needed, {@link #setData(String, Object)} and {@link #getData(String)} can be used.
  */
-@SuppressWarnings("unused")
-public class BukkitCustomEvent extends Event {
+public class BukkitCustomEvent extends Event implements Cancellable {
 
   private static final HandlerList HANDLERS = new HandlerList();
   private final String name;
   private final Map<ClassInfo<?>, Object> eventValueMap;
   private final Map<String, Object> dataMap;
+  private boolean isCancelled = false;
 
   public BukkitCustomEvent(String name) {
     this(name, !Bukkit.isPrimaryThread());
@@ -85,4 +86,13 @@ public class BukkitCustomEvent extends Event {
     return HANDLERS;
   }
 
+  @Override
+  public boolean isCancelled() {
+    return isCancelled;
+  }
+
+  @Override
+  public void setCancelled(boolean cancel) {
+    isCancelled = cancel;
+  }
 }

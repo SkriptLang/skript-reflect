@@ -1,20 +1,10 @@
 package com.btk5h.skriptmirror;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.function.*;
-import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.lang.function.Function;
+import ch.njol.skript.lang.function.Functions;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class FunctionWrapper {
-
-  private static final Function<?> NO_OP_FUNCTION = new JavaFunction<Object>("$noop", new Parameter[0],
-    Classes.getExactClassInfo(Object.class), true) {
-    @Nullable
-    @Override
-    public Object[] execute(FunctionEvent e, Object[][] params) {
-      return null;
-    }
-  };
 
   private final String name;
   private final Object[] arguments;
@@ -32,13 +22,9 @@ public class FunctionWrapper {
     return arguments;
   }
 
+  @Nullable
   public Function<?> getFunction() {
-    Function<?> function = Functions.getFunction(name);
-    if (function == null) {
-      Skript.warning(String.format("The function '%s' could not be resolved.", name));
-      return NO_OP_FUNCTION;
-    }
-    return function;
+    return Functions.getFunction(name);
   }
 
 }

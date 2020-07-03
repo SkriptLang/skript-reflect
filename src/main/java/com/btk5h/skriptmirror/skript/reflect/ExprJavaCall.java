@@ -1,14 +1,9 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.Option;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
@@ -17,6 +12,8 @@ import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.*;
+import com.btk5h.skriptmirror.skript.reflect.trycatch.EmptyException;
+import com.btk5h.skriptmirror.skript.reflect.trycatch.SectionTry;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -137,16 +134,15 @@ public class ExprJavaCall<T> implements Expression<T> {
     return invoke(target, arguments, getDescriptor(e));
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public T[] getArray(Event e) {
     T returnValue = getSingle(e);
 
     if (returnValue == null) {
-      return (T[]) Array.newInstance(superType, 0);
+      return JavaUtil.newArray(superType, 0);
     }
 
-    T[] arr = (T[]) Array.newInstance(superType, 1);
+    T[] arr = JavaUtil.newArray(superType, 1);
     arr[0] = returnValue;
 
     return arr;
@@ -256,6 +252,15 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   @Override
   public String toString(Event e, boolean debug) {
+    switch (type) {
+      case FIELD:
+        return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName();
+      case METHOD:
+        return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName() + "(" +
+          (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
+      case CONSTRUCTOR:
+        return "new " + rawTarget.toString(e, debug) + "(" +  (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
+    }
     return null;
   }
 
@@ -263,17 +268,6 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-
-    Option<Boolean> option = SkriptConfig.disableMissingAndOrWarnings;
-    if (!option.value()) {
-      try {
-        Field field = Option.class.getDeclaredField("parsedValue");
-        field.setAccessible(true);
-        field.set(option, true);
-      } catch (NoSuchFieldException | IllegalAccessException e) {
-        e.printStackTrace();
-      }
-    }
 
     script = SkriptUtil.getCurrentScript();
     suppressErrors = (parseResult.mark & 2) == 2;
@@ -293,6 +287,13 @@ public class ExprJavaCall<T> implements Expression<T> {
       case 1:
         type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
         String desc = parseResult.regexes.get(0).group();
+
+        // Invalid warning: https://github.com/btk5h/skript-mirror/issues/122 (numbers shouldn't be attempted to be
+        // parsed as field calls)
+        if (type == CallType.FIELD &&
+          rawTarget instanceof Literal && ((Literal<?>) rawTarget).getSingle() instanceof Number &&
+          Character.getType(desc.charAt(0)) == Character.DECIMAL_DIGIT_NUMBER)
+          return false;
 
         try {
           staticDescriptor = Descriptor.parse(desc, script);
@@ -342,7 +343,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     return staticDescriptor == null;
   }
 
-  private Collection<MethodHandle> getCallSite(Descriptor e) {
+  private synchronized Collection<MethodHandle> getCallSite(Descriptor e) {
     return callSiteCache.computeIfAbsent(e, this::createCallSite);
   }
 
@@ -452,9 +453,15 @@ public class ExprJavaCall<T> implements Expression<T> {
     try {
       returnedValue = (T) mh.invokeWithArguments(argumentsCopy);
     } catch (Throwable throwable) {
-      error(throwable, String.format("%s %s%s threw a %s: %s%n",
+      if (SectionTry.sectionTry == null) {
+        error(throwable, String.format("%s %s%s threw a %s: %s%n",
           type, descriptor, argumentsMessage(arguments),
           throwable.getClass().getSimpleName(), throwable.getMessage()));
+      } else {
+        lastError = throwable;
+        SectionTry.sectionTry.setThrowable(throwable);
+        throw new EmptyException();
+      }
     }
 
     if (returnedValue == null) {
