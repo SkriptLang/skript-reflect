@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.FunctionWrapper;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
+import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.skript.Consent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -97,7 +98,7 @@ public class ExprProxy extends SimpleExpression<Object> {
           .toArray(Object[][]::new)
       );
 
-      return returnValue == null ? null : returnValue[0];
+      return returnValue == null ? null : ObjectWrapper.unwrapIfNecessary(returnValue[0]);
     }
   }
 
