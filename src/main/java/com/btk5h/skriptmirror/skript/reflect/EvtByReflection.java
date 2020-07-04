@@ -92,20 +92,21 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static void registerEvent(Class<? extends Event> event, EventPriority priority, boolean ignoreCancelled) {
+  private static void registerEvent(Class<? extends Event> event, EventPriority priority) {
     PriorityListener listener = listeners[priority.ordinal()];
     Set<Class<? extends Event>> events = listener.getEvents();
 
     if (!events.contains(event)) {
       events.add(event);
       Bukkit.getPluginManager()
-          .registerEvent(event, listener, priority, executor, SkriptMirror.getInstance(), ignoreCancelled);
+        .registerEvent(event, listener, priority, executor, SkriptMirror.getInstance(), false);
     }
 
   }
 
   private Class<? extends Event>[] classes;
   private EventPriority priority;
+  private boolean ignoreCancelled;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -126,10 +127,10 @@ public class EvtByReflection extends SkriptEvent {
       priority = SkriptConfig.defaultEventPriority.value();
     }
 
-    boolean ignoreCancelled = (parseResult.mark & 1) != 1;
+    ignoreCancelled = (parseResult.mark & 1) != 1;
 
     for (Class<? extends Event> cls : classes) {
-      registerEvent(cls, priority, ignoreCancelled);
+      registerEvent(cls, priority);
     }
 
     return true;
@@ -137,7 +138,12 @@ public class EvtByReflection extends SkriptEvent {
 
   @Override
   public boolean check(Event e) {
-    Class<? extends Event> eventClass = ((BukkitEvent) e).getEvent().getClass();
+    Event extractedEvent = ((BukkitEvent) e).getEvent();
+    Class<? extends Event> eventClass = extractedEvent.getClass();
+
+    if (extractedEvent instanceof Cancellable && ((Cancellable) extractedEvent).isCancelled() && ignoreCancelled)
+      return false;
+
     if (priority == ((BukkitEvent) e).getPriority()) {
       for (Class<? extends Event> cls : classes) {
         if (cls == eventClass) {
