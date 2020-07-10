@@ -6,7 +6,7 @@ Documentation: https://skript-mirror-tp.gitbook.io/
 
 Source code: https://github.com/TPGamesNL/skript-mirror
 
-Downloads: https://github.com/TPGamesNL/skript-mirror/actions?query=event%3Apush+is%3Asuccess (click the version you prefer (I recommend the latest) and download the artifact, actual releases might come some time in the future)
+Downloads: [actions](https://github.com/TPGamesNL/skript-mirror/actions?query=event%3Apush+is%3Asuccess+actor%3ATPGamesNL) (I'll probably release an actual version soon).
 
 If you want to talk about this project or something else, contact me on Discord: TPGamesNL#0880
 
