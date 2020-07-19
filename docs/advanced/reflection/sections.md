@@ -30,7 +30,7 @@ the local variables from outside the section.
 ```text
 run section %section% [(1¦async)] [with [arguments] %-objects%] [and store [the] result in %-objects%] [(2¦and wait)]
 ```
-{% end %}
+{% endcode-tabs-item %}
 {% endcode-tabs %}
 
 This effect will run the given section.
@@ -54,7 +54,7 @@ create new section with {_x} stored in {_section}:
 run section {_section} async with 3 and store result in {_result} and wait
 broadcast "Result: %{_result}%" # shows 6
 ```
-{% end %}
+{% endcode-tabs-item %}
 {% endcode-tabs %}
 
 {% hint style="info" %}
