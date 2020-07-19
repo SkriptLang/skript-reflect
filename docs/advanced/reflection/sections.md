@@ -10,7 +10,7 @@ One of the key differences being that sections can be created within a trigger.
 ```text
 create [new] section [with [arguments variables] %-objects%] (and store it|stored) in %objects%
 ```
-{% end %}
+{% endcode-tabs-item %}
 {% endcode-tabs %}
 
 The argument variables are a list of variables that represent the input of the section.
