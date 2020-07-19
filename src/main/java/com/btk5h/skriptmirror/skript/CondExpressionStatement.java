@@ -50,7 +50,7 @@ public class CondExpressionStatement extends Condition {
     if (isAsynchronous) {
       Object localVariables = SkriptReflection.getLocals(e);
       CompletableFuture.runAsync(() -> {
-        SkriptReflection.copyVariablesMapFromMap(localVariables, e);
+        SkriptReflection.putLocals(localVariables, e);
         check(e);
       }, threadPool)
         .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {

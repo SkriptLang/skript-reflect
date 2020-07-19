@@ -15,31 +15,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
   static {
-    //noinspection unchecked
     CustomSyntaxSection.register("Define Effect", CustomEffectSection.class,
-        "[(1¦local)] effect <.+>",
-        "[(1¦local)] effect");
+      "[(1¦local)] effect <.+>",
+      "[(1¦local)] effect");
   }
 
-  private static DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
+  private static final DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
 
   static final Map<EffectSyntaxInfo, Trigger> effectHandlers = new HashMap<>();
   static final Map<EffectSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
+  static final Map<EffectSyntaxInfo, List<Supplier<Boolean>>> usableSuppliers = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("effect");
 
     Skript.registerEffect(CustomEffect.class);
     Optional<SyntaxElementInfo<? extends Effect>> info = Skript.getEffects().stream()
-        .filter(i -> i.c == CustomEffect.class)
-        .findFirst();
+      .filter(i -> i.c == CustomEffect.class)
+      .findFirst();
     info.ifPresent(dataTracker::setInfo);
 
     dataTracker.addManaged(effectHandlers);
     dataTracker.addManaged(parserHandlers);
+    dataTracker.addManaged(usableSuppliers);
   }
 
   @Override
@@ -47,7 +49,6 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
     return dataTracker;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node) {
@@ -78,32 +79,36 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
     AtomicBoolean hasTrigger = new AtomicBoolean();
     boolean nodesOkay = handleEntriesAndSections(node,
-        entryNode -> false,
-        sectionNode -> {
-          String key = sectionNode.getKey();
-          assert key != null;
+      entryNode -> false,
+      sectionNode -> {
+        String key = sectionNode.getKey();
+        assert key != null;
 
-          if (key.equalsIgnoreCase("patterns")) {
-            return true;
-          }
+        if (key.equalsIgnoreCase("patterns")) {
+          return true;
+        }
 
-          if (key.equalsIgnoreCase("trigger")) {
-            ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
-            List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
-            whichInfo.forEach(which ->
-                effectHandlers.put(which,
-                    new Trigger(SkriptUtil.getCurrentScript(), "effect " + which, this, items)));
-            hasTrigger.set(true);
-            return true;
-          }
+        if (key.equalsIgnoreCase("usable in")) {
+          return handleUsableSection(sectionNode, usableSuppliers);
+        }
 
-          if (key.equalsIgnoreCase("parse")) {
-            SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
-            return true;
-          }
+        if (key.equalsIgnoreCase("trigger")) {
+          ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
+          List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+          whichInfo.forEach(which ->
+            effectHandlers.put(which,
+              new Trigger(SkriptUtil.getCurrentScript(), "effect " + which, this, items)));
+          hasTrigger.set(true);
+          return true;
+        }
 
-          return false;
-        });
+        if (key.equalsIgnoreCase("parse")) {
+          SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+          return true;
+        }
+
+        return false;
+      });
 
     if (!nodesOkay)
       return false;

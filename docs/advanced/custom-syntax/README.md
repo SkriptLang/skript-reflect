@@ -1,6 +1,6 @@
 # Custom syntax
 
-Due to Skript and skript-mirror limitations, it is not easy to create custom syntax through Java calls alone. To help with this, skript-mirror offers utilities that simplify the creation of custom syntax.
+Due to Skript and skript-reflect limitations, it is not easy to create custom syntax through Java calls alone. To help with this, skript-reflect offers utilities that simplify the creation of custom syntax.
 
 ## Shared Syntax
 

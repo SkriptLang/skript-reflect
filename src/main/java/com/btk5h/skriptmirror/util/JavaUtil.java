@@ -164,7 +164,7 @@ public final class JavaUtil {
         return function.apply(t);
       } catch (Exception e) {
         Skript.warning(
-            String.format("skript-mirror encountered a %s: %s%n" +
+            String.format("skript-reflect encountered a %s: %s%n" +
                     "Run Skript with the verbosity 'very high' for the stack trace.",
                 e.getClass().getSimpleName(), e.getMessage()));
 

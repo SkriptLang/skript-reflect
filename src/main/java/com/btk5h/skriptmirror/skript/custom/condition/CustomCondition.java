@@ -12,6 +12,8 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class CustomCondition extends Condition {
   private ConditionSyntaxInfo which;
@@ -39,7 +41,7 @@ public class CustomCondition extends Condition {
 
   private boolean checkByStandard(Event e, Trigger checker) {
     ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, exprs, which.getMatchedPattern(), parseResult);
-    SkriptReflection.copyVariablesMapFromMap(variablesMap, conditionEvent);
+    SkriptReflection.putLocals(variablesMap, conditionEvent);
     checker.execute(conditionEvent);
     return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated() ^ which.isInverted();
   }
@@ -51,7 +53,7 @@ public class CustomCondition extends Condition {
 
       ConditionCheckEvent conditionEvent =
           new ConditionCheckEvent(e, localExprs, which.getMatchedPattern(), parseResult);
-      SkriptReflection.copyVariablesMapFromMap(variablesMap, conditionEvent);
+      SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), conditionEvent);
       checker.execute(conditionEvent);
       return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated();
     }, which.isInverted());
@@ -80,14 +82,16 @@ public class CustomCondition extends Condition {
       return false;
     }
 
+    List<Supplier<Boolean>> suppliers = CustomConditionSection.usableSuppliers.get(which);
+    if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
+      return false;
+
     Trigger parseHandler = CustomConditionSection.parserHandlers.get(which);
 
     if (parseHandler != null) {
       SyntaxParseEvent event =
           new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
 
-      // Because of link below, Trigger#execute removes local variables
-      // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
       TriggerItem.walk(parseHandler, event);
       variablesMap = SkriptReflection.removeLocals(event);
 

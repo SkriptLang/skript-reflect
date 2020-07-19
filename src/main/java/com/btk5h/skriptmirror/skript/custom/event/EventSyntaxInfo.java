@@ -6,7 +6,7 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import java.io.File;
 import java.util.Objects;
 
-class EventSyntaxInfo extends CustomSyntaxSection.SyntaxData {
+public class EventSyntaxInfo extends CustomSyntaxSection.SyntaxData {
 
   protected EventSyntaxInfo(File script, String pattern, int matchedPattern) {
     super(script, pattern, matchedPattern);

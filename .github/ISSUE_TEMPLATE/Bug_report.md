@@ -17,11 +17,11 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Server information**
-- skript-mirror: 
-- Skript: 
-- Bukkit: 
-- Minecraft: 
-- Java: 
+- skript-reflect:
+- Skript:
+- Bukkit:
+- Minecraft:
+- Java:
 - OS:
 
 **Additional context**

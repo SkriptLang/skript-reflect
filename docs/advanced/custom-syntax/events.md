@@ -5,8 +5,8 @@
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[local] [custom] event <pattern>:
-  name: # unique name, required
+[local] [custom] event %string%:
+  pattern: # pattern, required
   event-values: # list of types, optional
   parse:
     # code, optional
@@ -21,10 +21,9 @@
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[local] [custom] event:
+[local] [custom] event %string%:
   patterns:
     # patterns, one per line
-  name: # unique name, required
   event-values: # list of types, optional
   parse:
     # code, optional
@@ -44,9 +43,10 @@ Specifying that an event is `local` makes the event only usable from within the 
 Local events are guaranteed to be parsed before other custom events, but not necessarily before events from other addons.
 {% endhint %}
 
-### Option `name`
+### Event identifier
 
-The name you specify here should be used for [`calling the event`](#calling-the-event).
+The string used in the trigger line represents the identifier of this custom event.
+This identifier should be used for [`calling the event`](#calling-the-event).
 
 ### Option `event-values`
 
@@ -56,7 +56,7 @@ The event-values specified here will be available in the event, either as a defa
 
 Code in this section is executed whenever the event is parsed. This section may be used to emit errors if the effect is used in an improper context.
 
-If this section is included, you must also [`continue`](./#continue) if the event was parsed successfully.
+If this section is included, you must also [`continue`](README.md#continue) if the event was parsed successfully.
 
 {% hint style="info" %}
 Local variables created in this section are copied by-value to other sections.
@@ -64,15 +64,15 @@ Local variables created in this section are copied by-value to other sections.
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-event example:
-  name: example
+event "example":
+  pattern: example
   parse:
     set {_test} to 1
     continue
   check:
     # {_test} always starts at 1 here
     add 1 to {_test}
-    # 2 is always broadcast
+    # broadcasts 2
     broadcast "%{_test}%"
 ```
 {% endcode-tabs-item %}
@@ -83,7 +83,7 @@ event example:
 
 Code in this section is executed just before the event is called. This section may be used to stop the event from being called if certain conditions are met.
 
-If this section is included, you must also [`continue`](./#continue) if you want to event to be called.
+If this section is included, you must also [`continue`](README.md#continue) if you want to event to be called.
 
 ### Calling the event
 

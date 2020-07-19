@@ -1,6 +1,6 @@
 # Table of contents
 
-* [skript-mirror](../README.md)
+* [skript-reflect](../README.md)
 * [Getting Started](getting-started.md)
 * [Basics](basics/README.md)
   * [Reading Javadocs](basics/reading-javadocs.md)
@@ -17,6 +17,9 @@
     * [Expressions](advanced/custom-syntax/expressions.md)
     * [Events](advanced/custom-syntax/events.md)
   * [Computed Options](advanced/computed-options.md)
+  * [Reflection](advanced/reflection/README.md)
+    * [Proxies](advanced/reflection/proxies.md)
+    * [Sections](advanced/reflection/sections.md)
   * [Experiments](advanced/experiments.md)
 * [Code Conventions](code-conventions.md)
 * [Frequently Asked Questions](frequently-asked-questions.md)

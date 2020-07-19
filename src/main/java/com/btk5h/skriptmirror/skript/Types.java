@@ -8,11 +8,9 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.LibraryLoader;
-import com.btk5h.skriptmirror.Null;
-import com.btk5h.skriptmirror.ObjectWrapper;
+import com.btk5h.skriptmirror.*;
 import com.btk5h.skriptmirror.skript.custom.CustomImport;
+import com.btk5h.skriptmirror.skript.reflect.sections.Section;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
@@ -219,6 +217,10 @@ public class Types {
             return ".+";
           }
         })
+    );
+
+    Classes.registerClass(new ClassInfo<>(Section.class, "section")
+      .user("sections?")
     );
   }
 }

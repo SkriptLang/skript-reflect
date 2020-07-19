@@ -22,6 +22,7 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 
 public class CustomExpression<T> implements Expression<T> {
@@ -87,7 +88,7 @@ public class CustomExpression<T> implements Expression<T> {
 
   private T[] getByStandard(Event e, Trigger getter) {
     ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, which.getMatchedPattern(), parseResult);
-    SkriptReflection.copyVariablesMapFromMap(variablesMap, expressionEvent);
+    SkriptReflection.putLocals(variablesMap, expressionEvent);
     getter.execute(expressionEvent);
     if (expressionEvent.getOutput() == null) {
       Skript.error(
@@ -107,7 +108,7 @@ public class CustomExpression<T> implements Expression<T> {
 
       ExpressionGetEvent expressionEvent =
           new ExpressionGetEvent(e, localExprs, which.getMatchedPattern(), parseResult);
-      SkriptReflection.copyVariablesMapFromMap(variablesMap, expressionEvent);
+      SkriptReflection.putLocals(variablesMap, expressionEvent);
       getter.execute(expressionEvent);
 
       Object[] exprOutput = expressionEvent.getOutput();
@@ -241,7 +242,7 @@ public class CustomExpression<T> implements Expression<T> {
     } else {
       ExpressionChangeEvent changeEvent =
           new ExpressionChangeEvent(e, exprs, which.getMatchedPattern(), parseResult, delta);
-      SkriptReflection.copyVariablesMapFromMap(variablesMap, changeEvent);
+      SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), changeEvent);
       changer.execute(changeEvent);
     }
   }
@@ -270,14 +271,16 @@ public class CustomExpression<T> implements Expression<T> {
       return false;
     }
 
+    List<Supplier<Boolean>> suppliers = CustomExpressionSection.usableSuppliers.get(which);
+    if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
+      return false;
+
     Trigger parseHandler = CustomExpressionSection.parserHandlers.get(which);
 
     if (parseHandler != null) {
       SyntaxParseEvent event =
           new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
 
-      // Because of link below, Trigger#execute removes local variables
-      // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
       TriggerItem.walk(parseHandler, event);
       variablesMap = SkriptReflection.removeLocals(event);
 

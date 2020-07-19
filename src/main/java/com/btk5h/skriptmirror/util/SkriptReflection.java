@@ -2,24 +2,30 @@ package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
+import ch.njol.skript.config.Option;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Conditional;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.log.*;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
+import com.btk5h.skriptmirror.skript.custom.event.ExprReplacedEventValue;
 import org.bukkit.event.Event;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SkriptReflection {
 
@@ -29,10 +35,11 @@ public class SkriptReflection {
   private static Field CURRENT_OPTIONS;
   private static Field LOCAL_VARIABLES;
   private static Field NODES;
-  private static Field CONDITION;
   private static Field VARIABLES_MAP_HASHMAP;
   private static Field VARIABLES_MAP_TREEMAP;
   private static Constructor VARIABLES_MAP;
+  private static Field DEFAULT_EXPRESSION;
+  private static Field PARSED_VALUE;
 
   static {
     Field _FIELD;
@@ -87,14 +94,6 @@ public class SkriptReflection {
     }
 
     try {
-      _FIELD = Conditional.class.getDeclaredField("cond");
-      _FIELD.setAccessible(true);
-      CONDITION = _FIELD;
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-    }
-
-    try {
       Class<?> variablesMap = Class.forName("ch.njol.skript.variables.VariablesMap");
 
       try {
@@ -122,6 +121,24 @@ public class SkriptReflection {
       }
     } catch (ClassNotFoundException e) {
       Skript.warning("Skript's variables map class could not be resolved.");
+    }
+
+    try {
+      _FIELD = ClassInfo.class.getDeclaredField("defaultExpression");
+      _FIELD.setAccessible(true);
+      DEFAULT_EXPRESSION = _FIELD;
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's default expression field could not be resolved, " +
+        "therefore event-values won't work in custom events");
+    }
+
+    try {
+      _FIELD = Option.class.getDeclaredField("parsedValue");
+      _FIELD.setAccessible(true);
+      PARSED_VALUE = _FIELD;
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's parsed value field could not be resolved, " +
+        "therefore and/or warnings won't be suppressed");
     }
   }
 
@@ -183,85 +200,143 @@ public class SkriptReflection {
     throw new IllegalStateException();
   }
 
+  /**
+   * Sets the local variables of an {@link Event} to the given local variables.
+   */
   @SuppressWarnings("unchecked")
-  public static void copyVariablesMapFromMap(Object originalVariablesMap, Event to) {
+  public static void putLocals(Object originalVariablesMap, Event to) {
     if (originalVariablesMap == null)
-      return;
+      removeLocals(to);
 
     try {
       Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
 
-      Object variablesMap;
-      if (!localVariables.containsKey(to)) {
-        variablesMap = JavaUtil.propagateErrors(e -> VARIABLES_MAP.newInstance()).apply(to);
-        localVariables.put(to, variablesMap);
-      } else
-        variablesMap = localVariables.get(to);
-
-      ((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(variablesMap))
-        .putAll((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(originalVariablesMap));
-      ((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(variablesMap))
-        .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(originalVariablesMap));
+      localVariables.put(to, originalVariablesMap);
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
   }
 
+  /**
+   * Removes and returns the local variables from the given {@link Event}.
+   */
   @SuppressWarnings("unchecked")
   public static Object removeLocals(Event event) {
     try {
-      Variables.class.getMethod("removeLocals", Event.class);
-      return Variables.removeLocals(event);
-    } catch (NoSuchMethodException ignored) {
-      try {
-        Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
-        return localVariables.remove(event);
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
+      Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
+      return localVariables.remove(event);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
     }
-
     return null;
   }
 
+  /**
+   * Retrieves the local variables from an {@link Event}.
+   * @param event The {@link Event} to get the local variables from.
+   * @return The local variables of the given {@link Event}.
+   */
   @SuppressWarnings("unchecked")
   public static Object getLocals(Event event) {
     try {
-      Variables.class.getMethod("removeLocals", Event.class);
-      Object variables = Variables.removeLocals(event);
-      Variables.setLocalVariables(event, variables);
-      return variables;
-    } catch (NoSuchMethodException ignored) {
-      try {
-        Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
-        return localVariables.get(event);
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
+      Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
+      return localVariables.get(event);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
     }
-
     return null;
   }
 
+  /**
+   * Copies the VariablesMap contained in the given {@link Object}.
+   * @param locals The local variables to copy.
+   * @return The copied local variables.
+   */
+  @SuppressWarnings("unchecked")
+  public static Object copyLocals(Object locals) {
+    if (locals == null)
+      return null;
+
+    try {
+      Object copiedLocals = VARIABLES_MAP.newInstance();
+
+      ((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(copiedLocals))
+        .putAll((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(locals));
+      ((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(copiedLocals))
+        .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(locals));
+      return copiedLocals;
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Retrieves the {@link Node}s of a {@link SectionNode}.
+   * @param sectionNode The {@link SectionNode} to get the nodes from.
+   * @return The {@link Node}s of the given {@link SectionNode}
+   */
   @SuppressWarnings("unchecked")
   public static ArrayList<Node> getNodes(SectionNode sectionNode) {
     try {
       return (ArrayList<Node>) NODES.get(sectionNode);
     } catch (IllegalAccessException e) {
       e.printStackTrace();
-      return new ArrayList<>();
+    }
+    return new ArrayList<>();
+  }
+
+  /**
+   * Replaces the event-values of a list of {@link ClassInfo}s with
+   * {@link ExprReplacedEventValue}'s to make them work in custom events.
+   *
+   * @param classInfoList A list of {@link ClassInfo}s to replace
+   */
+  public static void replaceEventValues(List<ClassInfo<?>> classInfoList) {
+    if (DEFAULT_EXPRESSION == null)
+      return;
+
+    try {
+      List<ClassInfo<?>> replaceExtraList = new ArrayList<>();
+      for (ClassInfo<?> classInfo : classInfoList) {
+        DefaultExpression<?> defaultExpression = classInfo.getDefaultExpression();
+        if (defaultExpression instanceof EventValueExpression && !(defaultExpression instanceof ExprReplacedEventValue)) {
+          DEFAULT_EXPRESSION.set(classInfo,
+            new ExprReplacedEventValue<>((EventValueExpression<?>) defaultExpression));
+
+          replaceExtraList.add(classInfo);
+        }
+      }
+
+      replaceExtraList.forEach(SkriptReflection::replaceExtra);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
     }
   }
 
-  public static Condition getCondition(Conditional conditional) {
-    if (CONDITION == null)
-      return null;
+  /**
+   * Replaces {@link ClassInfo}s related to the given {@link ClassInfo}.
+   */
+  public static void replaceExtra(ClassInfo<?> classInfo) {
+    List<ClassInfo<?>> classInfoList = Classes.getClassInfos().stream()
+      .filter(loopedClassInfo -> !(loopedClassInfo.getDefaultExpression() instanceof ExprReplacedEventValue))
+      .filter(loopedClassInfo -> classInfo.getC().isAssignableFrom(loopedClassInfo.getC())
+        || loopedClassInfo.getC().isAssignableFrom(classInfo.getC()))
+      .collect(Collectors.toList());
+    replaceEventValues(classInfoList);
+  }
 
-    try {
-      return (Condition) CONDITION.get(conditional);
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-      return null;
+  /**
+   * Disable Skript's missing and / or warnings.
+   */
+  public static void disableAndOrWarnings() {
+    Option<Boolean> option = SkriptConfig.disableMissingAndOrWarnings;
+    if (!option.value()) {
+      try {
+        PARSED_VALUE.set(option, true);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
     }
   }
 

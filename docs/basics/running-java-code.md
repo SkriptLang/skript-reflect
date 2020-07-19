@@ -36,7 +36,7 @@ If the method you're trying to invoke is not public, you must prefix the method 
 
 ### Calling overloaded methods
 
-Generally, skript-mirror can infer the correct overloaded method to call from the arguments passed at runtime. If you need to use a certain implementation of a method, you may append a comma separated list to the end of the method name surrounded in brackets.
+Generally, skript-reflect can infer the correct overloaded method to call from the arguments passed at runtime. If you need to use a certain implementation of a method, you may append a comma separated list to the end of the method name surrounded in brackets.
 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}

@@ -1,8 +1,8 @@
 # Code Conventions
 
-## Separate complex Skript expressions from skript-mirror calls
+## Separate complex Skript expressions from skript-reflect calls
 
-Combining Skript expressions with skript-mirror calls may make your code difficult to read. Use variables to separate these different types of calls.
+Combining Skript expressions with skript-reflect calls may make your code difficult to read. Use variables to separate these different types of calls.
 
 {% hint style="danger" %}
 ```text
@@ -17,7 +17,7 @@ set {_target} to the player's targeted block
 ```
 {% endhint %}
 
-## Keep the target of a skript-mirror call grouped
+## Keep the target of a skript-reflect call grouped
 
 When calling a method or accessing a field, avoid using spaces when possible.
 
@@ -47,7 +47,7 @@ spawned creeper.isPowered()
 ```
 {% endhint %}
 
-If the target of the expression is not simple \(i.e. contains other expressions\), extract the expression into a local variable. \([rule](code-conventions.md#separate-complex-skript-expressions-from-skript-mirror-calls)\)
+If the target of the expression is not simple \(i.e. contains other expressions\), extract the expression into a local variable. \([rule](code-conventions.md#separate-complex-skript-expressions-from-skript-reflect-calls)\)
 
 Variables are the exception to this rule and may contain spaces and/or other expressions
 
@@ -83,7 +83,7 @@ on PlayerMoveEvent:
 
 ## Avoid unnecessary uses of Java reflection
 
-Especially when copying Java code and translating it for skript-mirror, you may run into instances where you need to use reflection to access a private method, field, or constructor. In skript-mirror, private members are visible and accessible by default.
+Especially when copying Java code and translating it for skript-reflect, you may run into instances where you need to use reflection to access a private method, field, or constructor. In skript-reflect, private members are visible and accessible by default.
 
 {% hint style="danger" %}
 ```text

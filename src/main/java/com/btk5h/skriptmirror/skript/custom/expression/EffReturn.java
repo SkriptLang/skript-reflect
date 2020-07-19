@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
@@ -25,11 +26,12 @@ public class EffReturn extends Effect {
 
   @Override
   protected TriggerItem walk(Event e) {
-    if (objects != null) {
-      ((ExpressionGetEvent) e).setOutput(objects.getAll(e));
-    } else {
-      ((ExpressionGetEvent) e).setOutput(new Object[0]);
+    if (e instanceof SectionEvent) {
+      ((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getAll(e));
+      return null;
     }
+
+    ((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getAll(e));
     return null;
   }
 
@@ -44,7 +46,7 @@ public class EffReturn extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class)) {
+    if (!ScriptLoader.isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)) {
       Skript.error("Return may only be used in custom expression getters.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

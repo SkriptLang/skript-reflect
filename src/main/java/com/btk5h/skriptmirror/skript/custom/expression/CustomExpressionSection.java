@@ -9,14 +9,19 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.skript.custom.event.*;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
+import org.bukkit.event.Event;
 
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -36,6 +41,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
   static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
   static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Class<?>[]>> changerTypes = new HashMap<>();
   static Map<ExpressionSyntaxInfo, String> loopOfs = new HashMap<>();
+  static Map<ExpressionSyntaxInfo, List<Supplier<Boolean>>> usableSuppliers = new HashMap<>();
 
   static {
     dataTracker.setSyntaxType("expression");
@@ -54,6 +60,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     dataTracker.addManaged(changerTypes);
     dataTracker.addManaged(parserHandlers);
     dataTracker.addManaged(loopOfs);
+    dataTracker.addManaged(usableSuppliers);
   }
 
   @Override
@@ -119,94 +126,98 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
 
     AtomicBoolean hasGetOrSet = new AtomicBoolean();
     boolean nodesOkay = handleEntriesAndSections(node,
-        entryNode -> {
-          String key = entryNode.getKey();
-          assert key != null;
+      entryNode -> {
+        String key = entryNode.getKey();
+        assert key != null;
 
-          if (key.equalsIgnoreCase("return type")) {
-            String userReturnType = entryNode.getValue();
-            Class<?> returnType = Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
-            whichInfo.forEach(which -> returnTypes.put(which, returnType));
-            return true;
-          }
+        if (key.equalsIgnoreCase("return type")) {
+          String userReturnType = entryNode.getValue();
+          Class<?> returnType = Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
+          whichInfo.forEach(which -> returnTypes.put(which, returnType));
+          return true;
+        }
 
-          if (key.equalsIgnoreCase("loop of")) {
-            String loopOf = entryNode.getValue();
-            whichInfo.forEach(which -> loopOfs.put(which, loopOf));
-            return true;
-          }
+        if (key.equalsIgnoreCase("loop of")) {
+          String loopOf = entryNode.getValue();
+          whichInfo.forEach(which -> loopOfs.put(which, loopOf));
+          return true;
+        }
 
-          return false;
-        },
-        sectionNode -> {
-          String key = sectionNode.getKey();
-          assert key != null;
+        return false;
+      },
+      sectionNode -> {
+        String key = sectionNode.getKey();
+        assert key != null;
 
-          if (key.equalsIgnoreCase("patterns")) {
-            return true;
-          }
+        if (key.equalsIgnoreCase("patterns")) {
+          return true;
+        }
 
-          if (key.equalsIgnoreCase("get")) {
-            ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
+        if (key.equalsIgnoreCase("get")) {
+          ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
+          List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+          whichInfo.forEach(which ->
+            expressionHandlers.put(which,
+              new Trigger(SkriptUtil.getCurrentScript(), "get " + which.getPattern(), this, items)));
+
+          hasGetOrSet.set(true);
+          return true;
+        }
+
+        if (key.equalsIgnoreCase("parse")) {
+          SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+          return true;
+        }
+
+        if (key.equalsIgnoreCase("usable in")) {
+          return handleUsableSection(sectionNode, usableSuppliers);
+        }
+
+        for (Changer.ChangeMode mode : Changer.ChangeMode.values()) {
+          String name = mode.name().replace("_", " ").toLowerCase();
+          if (key.startsWith(name)) {
+            String rawTypes = key.substring(name.length()).trim();
+
+            ScriptLoader.setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
             List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
-            whichInfo.forEach(which ->
-                expressionHandlers.put(which,
-                    new Trigger(SkriptUtil.getCurrentScript(), "get " + which.getPattern(), this, items)));
+            whichInfo.forEach(which -> {
+              Map<Changer.ChangeMode, Trigger> changerMap =
+                changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
+
+              changerMap.put(mode,
+                new Trigger(SkriptUtil.getCurrentScript(),
+                  String.format("%s %s", name, which.getPattern()), this, items));
+            });
+
+            if (rawTypes.length() > 0) {
+              Class<?>[] acceptedClasses = Arrays.stream(rawTypes.split(","))
+                .map(String::trim)
+                .map(SkriptUtil::getUserClassInfoAndPlural)
+                .map(meta -> {
+                  ClassInfo<?> ci = meta.getFirst();
+                  boolean plural = meta.getSecond();
+
+                  if (plural) {
+                    return JavaUtil.getArrayClass(ci.getC());
+                  }
+
+                  return ci.getC();
+                })
+                .toArray(Class[]::new);
+
+              whichInfo.forEach(which -> {
+                changerTypes.computeIfAbsent(which, k -> new HashMap<>())
+                  .put(mode, acceptedClasses);
+              });
+            }
 
             hasGetOrSet.set(true);
             return true;
           }
+        }
 
-          if (key.equalsIgnoreCase("parse")) {
-            SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
-            return true;
-          }
-
-          for (Changer.ChangeMode mode : Changer.ChangeMode.values()) {
-            String name = mode.name().replace("_", " ").toLowerCase();
-            if (key.startsWith(name)) {
-              String rawTypes = key.substring(name.length()).trim();
-
-              ScriptLoader.setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
-              List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
-              whichInfo.forEach(which -> {
-                Map<Changer.ChangeMode, Trigger> changerMap =
-                    changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
-
-                changerMap.put(mode,
-                    new Trigger(SkriptUtil.getCurrentScript(),
-                        String.format("%s %s", name, which.getPattern()), this, items));
-              });
-
-              if (rawTypes.length() > 0) {
-                Class<?>[] acceptedClasses = Arrays.stream(rawTypes.split(","))
-                    .map(String::trim)
-                    .map(SkriptUtil::getUserClassInfoAndPlural)
-                    .map(meta -> {
-                      ClassInfo<?> ci = meta.getFirst();
-                      boolean plural = meta.getSecond();
-
-                      if (plural) {
-                        return JavaUtil.getArrayClass(ci.getC());
-                      }
-
-                      return ci.getC();
-                    })
-                    .toArray(Class[]::new);
-
-                whichInfo.forEach(which -> {
-                  changerTypes.computeIfAbsent(which, k -> new HashMap<>())
-                      .put(mode, acceptedClasses);
-                });
-              }
-
-              hasGetOrSet.set(true);
-              return true;
-            }
-          }
-
-          return false;
-        });
+        return false;
+      });
 
     if (!nodesOkay)
       return false;
@@ -220,5 +231,6 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
   public static ExpressionSyntaxInfo lookup(File script, int matchedPattern) {
     return dataTracker.lookup(script, matchedPattern);
   }
+
 }
 

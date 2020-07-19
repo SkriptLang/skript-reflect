@@ -1,6 +1,6 @@
 # Error handling
 
-By default, warnings and errors related to your code are logged to the console. Skript-mirror also offers additional tools that give you more control over how errors are handled.
+By default, warnings and errors related to your code are logged to the console. Skript-reflect also offers additional tools that give you more control over how errors are handled.
 
 ## Suppressing errors
 
@@ -31,5 +31,5 @@ In some cases, you may want to handle errors yourself, either to do your own err
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-Returns the last error object thrown by a java call. If there was an issue resolving the method or converting its output, it may be a `com.btk5h.skriptmirror.JavaCallException`. 
+Returns the last error object thrown by a java call. If there was an issue resolving the method or converting its output, it may be a `com.btk5h.skriptmirror.JavaCallException`.
 

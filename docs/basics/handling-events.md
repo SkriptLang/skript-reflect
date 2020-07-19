@@ -39,7 +39,7 @@ on ProjectileLaunchEvent and ProjectileHitEvent:
 
 ## Using the `event` expression
 
-skript-mirror exposes an `event` expression, allowing you to access event values using reflection.
+skript-reflect exposes an `event` expression, allowing you to access event values using reflection.
 
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}

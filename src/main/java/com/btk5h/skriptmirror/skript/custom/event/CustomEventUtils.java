@@ -42,6 +42,9 @@ public class CustomEventUtils {
    * @return The defined name (identifier) of the custom event from the given EventSyntaxInfo
    */
   public static String getName(EventSyntaxInfo which) {
+    if (which == null)
+      return null;
+
     return CustomEventSection.nameValues.get(which);
   }
 

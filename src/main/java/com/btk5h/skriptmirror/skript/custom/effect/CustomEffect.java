@@ -10,6 +10,8 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class CustomEffect extends Effect {
   private EffectSyntaxInfo which;
@@ -41,7 +43,7 @@ public class CustomEffect extends Effect {
     if (trigger == null) {
       Skript.error(String.format("The custom effect '%s' no longer has a handler.", which));
     } else {
-      SkriptReflection.copyVariablesMapFromMap(variablesMap, effectEvent);
+      SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), effectEvent);
       trigger.execute(effectEvent);
     }
     return effectEvent;
@@ -70,14 +72,16 @@ public class CustomEffect extends Effect {
       return false;
     }
 
+    List<Supplier<Boolean>> suppliers = CustomEffectSection.usableSuppliers.get(which);
+    if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
+      return false;
+
     Trigger parseHandler = CustomEffectSection.parserHandlers.get(which);
 
     if (parseHandler != null) {
       SyntaxParseEvent event =
           new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
 
-      // Because of link below, Trigger#execute removes local variables
-      // https://github.com/SkriptLang/Skript/commit/a6661c863bae65e96113b69bebeaab51d814e2b9
       TriggerItem.walk(parseHandler, event);
       variablesMap = SkriptReflection.removeLocals(event);
 

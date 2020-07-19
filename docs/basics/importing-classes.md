@@ -1,10 +1,10 @@
 # Importing classes
 
-Many of skript-mirror's reflection features require a reference to a java class.
+Many of skript-reflect's reflection features require a reference to a java class.
 
 ## Importing classes at parse-time \(recommended\)
 
-In most cases, the exact qualified name of the class you need is known without running the script. If this is the case, you should use skript-mirror's import block.
+In most cases, the exact qualified name of the class you need is known without running the script. If this is the case, you should use skript-reflect's import block.
 
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
@@ -18,7 +18,7 @@ import:
 
 Similar to events, import blocks must be placed at the root of your script \(no indentation before `import`\). Imports must also be placed before the imported classes are referred to in your code, so we recommend you place your imports as far up in your script as possible.
 
-Once you import a class through an import block, skript-mirror will create an expression allowing you to reference the java class by its simple name.
+Once you import a class through an import block, skript-reflect will create an expression allowing you to reference the java class by its simple name.
 
 {% hint style="info" %}
 To avoid conflicts, expressions created by import blocks are only available to the script that imported them. You must import java classes in each script that uses them.

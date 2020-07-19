@@ -1,12 +1,12 @@
-# skript-mirror-tp
+# skript-reflect
 
 This fork of [skript-mirror](https://github.com/btk5h/skript-mirror) aims to fix multiple issues that I believe have been present for too long, and implement some long-wanted features.
 
-Documentation: https://skript-mirror-tp.gitbook.io/
+Documentation: https://tpgamesnl.gitbook.io/skript-reflect
 
-Source code: https://github.com/TPGamesNL/skript-mirror
+Source code: https://github.com/TPGamesNL/skript-reflect
 
-Downloads: [actions](https://github.com/TPGamesNL/skript-mirror/actions?query=event%3Apush+is%3Asuccess+actor%3ATPGamesNL) (I'll probably release an actual version soon).
+Downloads: [actions](https://github.com/TPGamesNL/skript-reflect/actions?query=event%3Apush+is%3Asuccess+actor%3ATPGamesNL) (I'll probably release an actual version soon).
 
 If you want to talk about this project or something else, contact me on Discord: TPGamesNL#0880
 

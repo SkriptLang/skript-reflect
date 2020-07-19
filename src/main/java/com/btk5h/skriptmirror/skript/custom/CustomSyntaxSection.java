@@ -1,9 +1,15 @@
 package com.btk5h.skriptmirror.skript.custom;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.log.SkriptLogger;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.skript.custom.event.BukkitCustomEvent;
+import com.btk5h.skriptmirror.skript.custom.event.CustomEvent;
+import com.btk5h.skriptmirror.skript.custom.event.CustomEventUtils;
+import com.btk5h.skriptmirror.skript.custom.event.EventSyntaxInfo;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
@@ -11,6 +17,7 @@ import org.bukkit.event.Event;
 import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxData>
@@ -231,4 +238,50 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
     update();
   }
+
+  @SuppressWarnings("unchecked")
+  protected boolean handleUsableSection(SectionNode sectionNode, Map<T, List<Supplier<Boolean>>> usableSuppliers) {
+    File currentScript = SkriptUtil.getCurrentScript();
+    for (Node usableNode : sectionNode) {
+      String usableKey = usableNode.getKey();
+      assert usableKey != null;
+
+
+      if (usableKey.startsWith("custom event ")) {
+        String customEventString = usableKey.substring("custom event ".length());
+        VariableString variableString = VariableString.newInstance(
+          customEventString.substring(1, customEventString.length() - 1));
+        if (variableString == null || !variableString.isSimple()) {
+          Skript.error("Custom event identifiers may only be simple strings");
+          return false;
+        } else {
+          String identifier = variableString.toString(null);
+          whichInfo.forEach(which ->
+            usableSuppliers.computeIfAbsent(which, (whichIndex) -> new ArrayList<>())
+              .add(() -> {
+                if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class))
+                  return false;
+                EventSyntaxInfo eventWhich = CustomEvent.lastWhich;
+                return CustomEventUtils.getName(eventWhich).equalsIgnoreCase(identifier);
+              })
+          );
+        }
+      } else {
+        JavaType javaType = CustomImport.lookup(currentScript, usableKey);
+        Class<?> javaClass = javaType == null ? null : javaType.getJavaClass();
+        if (javaClass == null || !Event.class.isAssignableFrom(javaClass)) {
+          Skript.error(javaType + " is not a Bukkit event");
+          return false;
+        }
+        Class<? extends Event> eventClass = (Class<? extends Event>) javaClass;
+
+        whichInfo.forEach(which ->
+          usableSuppliers.computeIfAbsent(which, (whichIndex) -> new ArrayList<>())
+            .add(() -> ScriptLoader.isCurrentEvent(eventClass))
+        );
+      }
+    }
+    return true;
+  }
+
 }

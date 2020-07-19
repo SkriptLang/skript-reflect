@@ -50,7 +50,7 @@ public class ExprReplacedEventValue<T> extends EventValueExpression<T> {
   @Override
   public boolean init() {
     if (ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class)) {
-      EventSyntaxInfo which = CustomEvent.getLastWhich();
+      EventSyntaxInfo which = CustomEvent.lastWhich;
       ClassInfo<?> classInfo = Classes.getSuperClassInfo(getReturnType());
       return CustomEventUtils.hasEventValue(which, classInfo);
     } else {

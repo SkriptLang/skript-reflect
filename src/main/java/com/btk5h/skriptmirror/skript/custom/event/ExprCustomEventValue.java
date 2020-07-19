@@ -33,7 +33,7 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
   public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
       return false;
-    EventSyntaxInfo which = CustomEvent.getLastWhich();
+    EventSyntaxInfo which = CustomEvent.lastWhich;
     if (which == null)
       return false;
 

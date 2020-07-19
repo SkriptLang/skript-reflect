@@ -3,7 +3,10 @@ package com.btk5h.skriptmirror.skript.reflect;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
@@ -12,8 +15,6 @@ import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.*;
-import com.btk5h.skriptmirror.skript.reflect.trycatch.EmptyException;
-import com.btk5h.skriptmirror.skript.reflect.trycatch.SectionTry;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -40,7 +41,7 @@ public class ExprJavaCall<T> implements Expression<T> {
    * A regular expression that captures potential descriptors without actually validating the descriptor. This is done
    * both for performance reasons and to provide more helpful error messages when using a malformed descriptor.
    */
-  private static final String LITE_DESCRIPTOR = "[^.]+\\b";
+  private static final String LITE_DESCRIPTOR = "[^0-9.][^.]*\\b";
 
   static {
     //noinspection unchecked
@@ -288,13 +289,6 @@ public class ExprJavaCall<T> implements Expression<T> {
         type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
         String desc = parseResult.regexes.get(0).group();
 
-        // Invalid warning: https://github.com/btk5h/skript-mirror/issues/122 (numbers shouldn't be attempted to be
-        // parsed as field calls)
-        if (type == CallType.FIELD &&
-          rawTarget instanceof Literal && ((Literal<?>) rawTarget).getSingle() instanceof Number &&
-          Character.getType(desc.charAt(0)) == Character.DECIMAL_DIGIT_NUMBER)
-          return false;
-
         try {
           staticDescriptor = Descriptor.parse(desc, script);
 
@@ -362,7 +356,7 @@ public class ExprJavaCall<T> implements Expression<T> {
               methodHandles.add(LOOKUP.unreflectGetter(field));
             } catch (IllegalAccessException ex) {
               Skript.warning(
-                String.format("skript-mirror encountered a %s: %s%n" +
+                String.format("skript-reflect encountered a %s: %s%n" +
                     "Run Skript with the verbosity 'very high' for the stack trace.",
                   ex.getClass().getSimpleName(), ex.getMessage()));
 
@@ -373,7 +367,6 @@ public class ExprJavaCall<T> implements Expression<T> {
               }
             }
 
-            // Suppress this due to https://github.com/TPGamesNL/skript-mirror/issues/7
             try {
               methodHandles.add(LOOKUP.unreflectSetter(field));
             } catch (IllegalAccessException ignored) { }
@@ -453,15 +446,9 @@ public class ExprJavaCall<T> implements Expression<T> {
     try {
       returnedValue = (T) mh.invokeWithArguments(argumentsCopy);
     } catch (Throwable throwable) {
-      if (SectionTry.sectionTry == null) {
-        error(throwable, String.format("%s %s%s threw a %s: %s%n",
-          type, descriptor, argumentsMessage(arguments),
-          throwable.getClass().getSimpleName(), throwable.getMessage()));
-      } else {
-        lastError = throwable;
-        SectionTry.sectionTry.setThrowable(throwable);
-        throw new EmptyException();
-      }
+      error(throwable, String.format("%s %s%s threw a %s: %s%n",
+        type, descriptor, argumentsMessage(arguments),
+        throwable.getClass().getSimpleName(), throwable.getMessage()));
     }
 
     if (returnedValue == null) {
@@ -677,7 +664,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         if (args[i] instanceof JavaType) {
           args[i] = ((JavaType) args[i]).getJavaClass();
         } else if (args[i] instanceof ClassInfo) {
-          args[i] = ((ClassInfo) args[i]).getC();
+          args[i] = ((ClassInfo<?>) args[i]).getC();
         }
       }
 

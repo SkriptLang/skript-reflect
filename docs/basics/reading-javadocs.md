@@ -24,7 +24,7 @@ Typically, nested classes should be [imported under an alias](importing-classes.
 
 ## Non-public APIs
 
-Javadocs do not describe everything available in a library. Most libraries include private classes, methods, fields, and constructors reserved for internal use. Using skript-mirror, these internal APIs are accessible just like any public API.
+Javadocs do not describe everything available in a library. Most libraries include private classes, methods, fields, and constructors reserved for internal use. Using skript-reflect, these internal APIs are accessible just like any public API.
 
 {% hint style="warning" %}
 Usually, private APIs are private for a reason! Make sure you know what you're doing before you start digging around!
@@ -32,7 +32,7 @@ Usually, private APIs are private for a reason! Make sure you know what you're d
 
 ### Built-in inspection
 
-skript-mirror has built-in tools for dumping all of the available members of an object. If you need a list of these members, including their return types and input parameters, you can use the [Members](utilities.md#members) expression. If you only need a list of names, you can use the [Member Names](utilities.md#member-names) expression.
+skript-reflect has built-in tools for dumping all of the available members of an object. If you need a list of these members, including their return types and input parameters, you can use the [Members](utilities.md#members) expression. If you only need a list of names, you can use the [Member Names](utilities.md#member-names) expression.
 
 ### Source code
 

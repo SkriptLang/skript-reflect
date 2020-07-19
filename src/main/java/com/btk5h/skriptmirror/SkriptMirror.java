@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.Option;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -33,16 +34,7 @@ public class SkriptMirror extends JavaPlugin {
       ParseOrderWorkarounds.reorderSyntax();
 
       // Disable *all* and/or warnings
-      Option<Boolean> option = SkriptConfig.disableMissingAndOrWarnings;
-      if (!option.value()) {
-        try {
-          Field field = Option.class.getDeclaredField("parsedValue");
-          field.setAccessible(true);
-          field.set(option, true);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-          e.printStackTrace();
-        }
-      }
+      SkriptReflection.disableAndOrWarnings();
     } catch (IOException e) {
       e.printStackTrace();
     }
