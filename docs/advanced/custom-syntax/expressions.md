@@ -8,6 +8,8 @@
 [local] [(plural|non(-|[ ])single))] expression <pattern>:
   return type: <skript type (cannot be a java type)> # optional
   loop of: <text> # optional
+  usable in:
+    # events, optional
   parse:
     # code, optional
   get:
@@ -37,6 +39,8 @@
   patterns:
     # patterns, one per line
   return type: <skript type (cannot be a java type)> # optional
+  usable in:
+    # events, optional
   parse:
     # code, optional
   get:
@@ -64,6 +68,8 @@
 ```text
 [local] <skript types> property <pattern>:
   return type: <skript type> # optional
+  usable in:
+    # events, optional
   parse:
     # code, optional
   get:
@@ -149,11 +155,17 @@ on script load:
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
+### Section `usable in`
+
+Each entry in this section should be either an imported class or a custom event \(syntax: `custom event %string%`\).
+
+This condition will error if it is used outside of all the given events.
+
 ### Section `parse`
 
 Code in this section is executed whenever the effect is parsed. This section may be used to emit errors if the effect is used in an improper context.
 
-If this section is included, you must also [`continue`](./#continue) if the effect was parsed successfully.
+If this section is included, you must also [`continue`](README.md#continue) if the effect was parsed successfully.
 
 {% hint style="info" %}
 Local variables created in this section are copied by-value to other sections.
@@ -177,7 +189,7 @@ expression example:
 
 ### Section `get`
 
-Code in this section is executed whenever the expression's value is read. This section must [return](expressions.md#return) a value and must not contain delays.
+Code in this section is executed whenever the expression's value is read. This section must [return](#return) a value and must not contain delays.
 
 #### Return
 

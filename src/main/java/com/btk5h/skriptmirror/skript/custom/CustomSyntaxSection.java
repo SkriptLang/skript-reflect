@@ -246,7 +246,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
       String usableKey = usableNode.getKey();
       assert usableKey != null;
 
-
+      Supplier<Boolean> supplier;
       if (usableKey.startsWith("custom event ")) {
         String customEventString = usableKey.substring("custom event ".length());
         VariableString variableString = VariableString.newInstance(
@@ -256,15 +256,12 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
           return false;
         } else {
           String identifier = variableString.toString(null);
-          whichInfo.forEach(which ->
-            usableSuppliers.computeIfAbsent(which, (whichIndex) -> new ArrayList<>())
-              .add(() -> {
-                if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class))
-                  return false;
-                EventSyntaxInfo eventWhich = CustomEvent.lastWhich;
-                return CustomEventUtils.getName(eventWhich).equalsIgnoreCase(identifier);
-              })
-          );
+          supplier = () -> {
+            if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class))
+              return false;
+            EventSyntaxInfo eventWhich = CustomEvent.lastWhich;
+            return CustomEventUtils.getName(eventWhich).equalsIgnoreCase(identifier);
+          };
         }
       } else {
         JavaType javaType = CustomImport.lookup(currentScript, usableKey);
@@ -275,11 +272,12 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
         }
         Class<? extends Event> eventClass = (Class<? extends Event>) javaClass;
 
-        whichInfo.forEach(which ->
-          usableSuppliers.computeIfAbsent(which, (whichIndex) -> new ArrayList<>())
-            .add(() -> ScriptLoader.isCurrentEvent(eventClass))
-        );
+        supplier = () -> ScriptLoader.isCurrentEvent(eventClass);
       }
+      whichInfo.forEach(which ->
+        usableSuppliers.computeIfAbsent(which, (whichIndex) -> new ArrayList<>())
+          .add(supplier)
+      );
     }
     return true;
   }

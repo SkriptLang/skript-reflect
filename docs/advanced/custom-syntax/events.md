@@ -121,5 +121,7 @@ In the event itself, you can get the extra data with the data expression:
 In the syntax above, `%strings%` is the index. This doesn't have to be plural, but can be.
 
 {% hint style="info" %}
-It may look fancier to create a custom expression instead of using extra data. To do so, you need to call `event.getData(%index%)` to get the data value.
+It may look fancier to create a custom expression instead of using extra data.
+To do so, you need to call `event.getData(%index%)` to get the data value.
+See the `usable in` sections in [effects](effects.md#section-usable-in), [conditions](conditions.md#section-usable-in) and [expressions](expressions.md#section-usable-in).
 {% endhint %}

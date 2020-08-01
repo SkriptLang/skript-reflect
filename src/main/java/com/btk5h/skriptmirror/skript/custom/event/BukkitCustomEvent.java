@@ -16,6 +16,8 @@ import java.util.Map;
  *
  * If extra data is needed, {@link #setData(String, Object)} and {@link #getData(String)} can be used.
  */
+// TODO generics for getters / setters
+// TODO do more checks for init return true vs SkriptUtil#canInitSafely
 public class BukkitCustomEvent extends Event implements Cancellable {
 
   private static final HandlerList HANDLERS = new HandlerList();

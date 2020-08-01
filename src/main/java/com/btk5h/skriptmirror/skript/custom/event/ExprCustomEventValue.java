@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.skript.custom.event;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
@@ -22,13 +23,15 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
     Skript.registerExpression(ExprCustomEventValue.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "[the] [event-]<.+>");
   }
 
-  private ClassInfo<?> classInfo;
+  private ClassInfo<? super T> classInfo;
+  private Changer<? super T> changer;
 
   @SuppressWarnings("unchecked")
   public ExprCustomEventValue() {
     super((Class<? extends T>) Object.class);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
@@ -38,7 +41,7 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
       return false;
 
     String stringClass = parseResult.regexes.get(0).group();
-    classInfo = Classes.getClassInfoFromUserInput(stringClass);
+    classInfo = (ClassInfo<? super T>) Classes.getClassInfoFromUserInput(stringClass);
     if (classInfo == null) {
       return false;
     }
@@ -70,8 +73,21 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
   }
 
   @Override
+  public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+    changer = classInfo.getChanger();
+    return changer == null ? null : changer.acceptChange(mode);
+  }
+
+  @Override
+  public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
+    if (changer == null)
+      throw new UnsupportedOperationException();
+    Changer.ChangerUtils.change(changer, getArray(e), delta, mode);
+  }
+
+  @Override
   public String toString(final @Nullable Event e, final boolean debug) {
-    return "event-" + this.getReturnType();
+    return "event-" + classInfo.getCodeName();
   }
 
   @SuppressWarnings("unchecked")

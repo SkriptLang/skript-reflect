@@ -21,7 +21,7 @@ public class EffCallEvent extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     eventExpr = SkriptUtil.defendExpression(exprs[0]);
-    return true;
+    return SkriptUtil.canInitSafely(eventExpr);
   }
 
   @Override

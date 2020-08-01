@@ -50,13 +50,16 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
       }
     }
 
-    return true;
+    return SkriptUtil.canInitSafely(customEventName, eventValueVarList, dataVarList);
   }
 
   @Nullable
   @Override
   protected Event[] get(Event e) {
-    BukkitCustomEvent bukkitCustomEvent = new BukkitCustomEvent(this.customEventName.getSingle(e));
+    String name = this.customEventName.getSingle(e);
+    if (name == null)
+      return null;
+    BukkitCustomEvent bukkitCustomEvent = new BukkitCustomEvent(name);
 
     if (eventValueVarList != null)
       eventValueVarList.variablesIterator(e).forEachRemaining(pair -> {

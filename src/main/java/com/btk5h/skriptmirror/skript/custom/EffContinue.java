@@ -30,6 +30,7 @@ public class EffContinue extends Effect {
         TriggerItem.walk(((EffectTriggerEvent) e).getNext(),
             ((EffectTriggerEvent) e).getDirectEvent());
       }
+      // TODO make ContinuableEvent interface / abstract class or sth alike
     } else if (e instanceof ConditionCheckEvent) {
       ((ConditionCheckEvent) e).markContinue();
     } else if (e instanceof SyntaxParseEvent) {

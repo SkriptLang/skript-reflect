@@ -6,6 +6,8 @@
 {% code-tabs-item title="Syntax" %}
 ```text
 [local] effect <pattern>:
+  usable in:
+    # events, optional
   parse:
     # code, optional
   trigger:
@@ -20,6 +22,8 @@
 {% code-tabs-item title="Syntax" %}
 ```text
 [local] effect:
+  usable in:
+    # events, optional
   patterns:
     # patterns, one per line
   parse:
@@ -40,11 +44,17 @@ Specifying that an effect is `local` makes the effect only usable from within th
 Local effects are guaranteed to be parsed before other custom effects, but not necessarily before effects from other addons.
 {% endhint %}
 
+### Section `usable in`
+
+Each entry in this section should be either an imported class or a custom event \(syntax: `custom event %string%`\).
+
+This condition will error if it is used outside of all the given events.
+
 ### Section `parse`
 
 Code in this section is executed whenever the effect is parsed. This section may be used to emit errors if the effect is used in an improper context.
 
-If this section is included, you must also [`continue`](./#continue) if the effect was parsed successfully.
+If this section is included, you must also [`continue`](README.md#continue) if the effect was parsed successfully.
 
 {% hint style="info" %}
 Local variables created in this section are copied by-value to other sections.
