@@ -17,7 +17,7 @@ import java.util.Optional;
  * be parsed before classes at the end of the list.
  * <p>
  * This class should only be used to guarantee that skript-mirror's syntax is parsed before other addons. It cannot
- * guarantee that another addon's syntax will be parsed before skript-mirror.
+ * guarantee that another addon's syntax will be parsed before skript-reflect.
  */
 public class ParseOrderWorkarounds {
   private static String[] PARSE_ORDER = {
