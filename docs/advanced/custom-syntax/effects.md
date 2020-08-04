@@ -78,3 +78,10 @@ effect example:
 
 ### Section `trigger`
 
+The code in this section is executed whenever the effect is run. You can delay the execution of this effect with
+the following syntax:
+```text
+delay [the] [current] effect
+```
+After the delay effect has been run, you can use delays in this section. If you're done using delays,
+you can use [the continue effect](README.md#continue) to continue the execution.

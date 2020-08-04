@@ -34,8 +34,6 @@ public class EffRunSection extends Effect {
     sectionExpression = SkriptUtil.defendExpression(exprs[0]);
 
     runsAsync = (parseResult.mark & 0b01) != 0;
-    if (runsAsync)
-      ScriptLoader.hasDelayBefore = Kleenean.TRUE;
 
     Expression<Object> expr = SkriptUtil.defendExpression(exprs[1]);
     arguments = new ArrayList<>();
@@ -54,6 +52,9 @@ public class EffRunSection extends Effect {
     shouldWait = (parseResult.mark & 0b10) != 0;
     if (runsAsync && !shouldWait && variableStore != null)
       Skript.warning("You need to wait until the section is finished if you want to get a result.");
+
+    if (runsAsync && shouldWait)
+      ScriptLoader.hasDelayBefore = Kleenean.TRUE;
 
     return SkriptUtil.canInitSafely(variableStore) &&
       (arguments.size() == 0 || arguments.stream().allMatch(SkriptUtil::canInitSafely));

@@ -6,6 +6,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
@@ -47,12 +48,18 @@ public class EffReturn extends Effect {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)) {
-      Skript.error("Return may only be used in custom expression getters.", ErrorQuality.SEMANTIC_ERROR);
+      if (!isDelayed.isFalse() && ScriptLoader.isCurrentEvent(FunctionEvent.class)) {
+        Skript.error("Return may not be used if the code before it contains any delays.", ErrorQuality.SEMANTIC_ERROR);
+      } else {
+        Skript.error("Return may only be used in custom expression getters, computed options, " +
+          "sections and functions with return types.", ErrorQuality.SEMANTIC_ERROR);
+      }
       return false;
     }
 
-    if (!isDelayed.isTrue()) {
+    if (!isDelayed.isFalse()) {
       Skript.error("Return may not be used if the code before it contains any delays.", ErrorQuality.SEMANTIC_ERROR);
+      return false;
     }
 
     objects = SkriptUtil.defendExpression(exprs[0]);

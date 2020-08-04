@@ -40,7 +40,7 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 
   @Override
   public Class<?>[] acceptChange(Changer.ChangeMode changeMode) {
-    return expr instanceof ExprExpression ? new Class[] {Object.class} : null;
+    return expr instanceof ExprExpression ? new Class[] {Object[].class} : null;
   }
 
   @Override
