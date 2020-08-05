@@ -33,6 +33,14 @@ public class CustomEffect extends Effect {
       return getNext();
     }
 
+    Object localVars = SkriptReflection.getLocals(effectEvent.getDirectEvent());
+    new Thread(() -> {
+      try {
+        Thread.sleep(1);
+        if (!effectEvent.hasContinued())
+          SkriptReflection.putLocals(localVars, effectEvent.getDirectEvent());
+      } catch (InterruptedException ignored) { }
+    }).start();
     return null;
   }
 

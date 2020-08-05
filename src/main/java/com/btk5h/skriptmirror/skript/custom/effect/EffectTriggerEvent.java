@@ -12,6 +12,7 @@ public class EffectTriggerEvent extends CustomSyntaxEvent {
   private final String which;
   private final TriggerItem next;
   private boolean sync = true;
+  private boolean hasContinued = false;
 
   public EffectTriggerEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                             SkriptParser.ParseResult parseResult, String which, TriggerItem next) {
@@ -34,6 +35,14 @@ public class EffectTriggerEvent extends CustomSyntaxEvent {
 
   public void setSync(boolean sync) {
     this.sync = sync;
+  }
+
+  public boolean hasContinued() {
+    return hasContinued;
+  }
+
+  public void setContinued() {
+    hasContinued = true;
   }
 
   public static HandlerList getHandlerList() {

@@ -2,7 +2,10 @@ package com.btk5h.skriptmirror.skript.custom;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
@@ -27,8 +30,9 @@ public class EffContinue extends Effect {
         Skript.warning("Synchronous events should not be continued. " +
             "Call 'delay effect' to delay the effect's execution.");
       } else {
-        TriggerItem.walk(((EffectTriggerEvent) e).getNext(),
-            ((EffectTriggerEvent) e).getDirectEvent());
+        EffectTriggerEvent effectTriggerEvent = (EffectTriggerEvent) e;
+        effectTriggerEvent.setContinued();
+        TriggerItem.walk(effectTriggerEvent.getNext(), effectTriggerEvent.getDirectEvent());
       }
       // TODO make ContinuableEvent interface / abstract class or sth alike
     } else if (e instanceof ConditionCheckEvent) {
