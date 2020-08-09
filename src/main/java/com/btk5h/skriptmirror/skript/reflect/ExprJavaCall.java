@@ -123,7 +123,7 @@ public class ExprJavaCall<T> implements Expression<T> {
       } else if (rawArgs.isSingle()) {
         // A special case of the above, since a single argument will not be wrapped in a list
         // Directly wrap the argument in an array to ensure the unary method is invoked
-        arguments = new Object[]{rawArgs.getSingle(e)};
+        arguments = new Object[]{SkriptMirrorUtil.reifyIfNull(rawArgs.getSingle(e))};
       } else {
         // If the user is using a non-single non-list expression, assume the number of arguments is correct
         arguments = rawArgs.getArray(e);
