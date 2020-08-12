@@ -33,7 +33,7 @@ import:
 command /example:
     trigger:
         message "%System%" # java.lang.System
-        System.out.println("test");
+        System.out.println("test")
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
