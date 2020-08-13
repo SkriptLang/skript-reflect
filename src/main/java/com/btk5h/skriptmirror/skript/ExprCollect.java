@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Name("Collect")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#collect"})
 public class ExprCollect extends SimpleExpression<ObjectWrapper> {
   static {
     Skript.registerExpression(ExprCollect.class, ObjectWrapper.class, ExpressionType.COMBINED,
