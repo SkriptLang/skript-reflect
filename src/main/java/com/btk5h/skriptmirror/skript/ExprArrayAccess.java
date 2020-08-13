@@ -17,6 +17,8 @@ import org.bukkit.event.Event;
 
 import java.util.Iterator;
 
+@Name("Array Access")
+@Description({"For more information on skript-reflect, you can visit the wiki here: https://tpgamesnl.gitbook.io/skript-reflect/"})
 public class ExprArrayAccess<T> implements Expression<T> {
   static {
     //noinspection unchecked
