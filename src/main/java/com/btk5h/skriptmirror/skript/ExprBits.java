@@ -11,6 +11,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
+@Name("Bits")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#bits"})
 public class ExprBits extends SimpleExpression<Number> {
   static {
     // parse mark also indicates the offset of the first argument
