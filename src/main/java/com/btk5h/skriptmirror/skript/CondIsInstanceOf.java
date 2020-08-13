@@ -10,6 +10,8 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
+@Name("Is Instance Of")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#is-instance"})
 public class CondIsInstanceOf extends Condition {
   static {
     Skript.registerCondition(CondIsInstanceOf.class,
