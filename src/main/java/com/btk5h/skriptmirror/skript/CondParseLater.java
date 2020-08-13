@@ -7,6 +7,8 @@ import com.btk5h.skriptmirror.ScriptLoaderState;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
+@Name("Parse Later")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/experiments#deferred-parsing"})
 public class CondParseLater extends Condition {
   static {
     Skript.registerCondition(CondParseLater.class, "\\(parse[d] later\\) <.+>");
