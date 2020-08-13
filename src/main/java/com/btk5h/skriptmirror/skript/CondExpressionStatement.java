@@ -21,6 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Name("Expression Statement")
+@Description({"For more information on skript-reflect, you can visit the wiki here: https://tpgamesnl.gitbook.io/skript-reflect/"})
 public class CondExpressionStatement extends Condition {
   static {
     Skript.registerCondition(CondExpressionStatement.class, "[(1¦await)] %~javaobject%");
