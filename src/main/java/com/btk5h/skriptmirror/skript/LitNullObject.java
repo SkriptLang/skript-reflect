@@ -9,6 +9,8 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.Null;
 import org.bukkit.event.Event;
 
+@Name("Null")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#null"})
 public class LitNullObject extends SimpleLiteral<Null> {
   static {
     Skript.registerExpression(LitNullObject.class, Null.class, ExpressionType.SIMPLE, "null");
