@@ -16,6 +16,8 @@ import org.bukkit.event.Event;
 import java.io.File;
 import java.util.*;
 
+@Name("Is Instance Of")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/experiments"})
 public class Consent extends SelfRegisteringSkriptEvent {
   static {
     CustomSyntaxSection.register("Consent", Consent.class, "skript-(mirror|reflect), I know what I'm doing");
