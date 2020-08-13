@@ -12,6 +12,8 @@ import org.bukkit.event.Event;
 
 import java.util.Arrays;
 
+@Name("Function")
+@Description({"For more information on skript-reflect, you can visit the wiki here: https://tpgamesnl.gitbook.io/skript-reflect/"})
 public class ExprFunction extends SimpleExpression<FunctionWrapper> {
   static {
     Skript.registerExpression(ExprFunction.class, FunctionWrapper.class, ExpressionType.PROPERTY,
