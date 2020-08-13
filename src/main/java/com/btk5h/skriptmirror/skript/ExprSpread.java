@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Name("Spread")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#spread"})
 public class ExprSpread<T> implements Expression<T> {
   static {
     //noinspection unchecked
