@@ -3,7 +3,6 @@ version: @version@
 description: Reflection utilities for Skript
 author: Bryan Terce <bryan.terce@gmail.com>, TPGamesNL
 website: https://github.com/TPGamesNL/skript-reflect
-api-version: 1.15
 
 main: com.btk5h.skriptmirror.SkriptMirror
 depend: [Skript]
