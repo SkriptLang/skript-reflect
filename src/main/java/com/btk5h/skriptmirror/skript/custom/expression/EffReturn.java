@@ -13,6 +13,8 @@ import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
+@Name("Return")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/expressions"})
 public class EffReturn extends Effect {
   static {
     Skript.registerEffect(EffReturn.class, "return [%-objects%]");
