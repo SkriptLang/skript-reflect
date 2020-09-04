@@ -9,6 +9,8 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
+@Name("Negate Condition")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/conditions"})
 public class EffNegateCondition extends Effect {
   static {
     Skript.registerEffect(EffNegateCondition.class, "negate [the] [current] condition");
