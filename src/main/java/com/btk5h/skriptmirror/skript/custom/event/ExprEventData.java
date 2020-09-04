@@ -13,6 +13,8 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 
+@Name("Event Data")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/events#extra-data"})
 public class ExprEventData extends SimpleExpression<Object> {
 
   static {
