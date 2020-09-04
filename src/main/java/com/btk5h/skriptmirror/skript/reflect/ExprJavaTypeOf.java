@@ -12,6 +12,8 @@ import org.bukkit.event.Event;
 
 import java.util.Arrays;
 
+@Name("Java Type Of")
+@Description({"For more information on skript-reflect, you can visit the wiki here: https://tpgamesnl.gitbook.io/skript-reflect/"})
 public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
   static {
     PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "[java] class[es]", "objects");
