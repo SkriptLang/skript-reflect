@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+@Name("Define Effect")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/effects"})
 public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
   static {
     CustomSyntaxSection.register("Define Effect", CustomEffectSection.class,
