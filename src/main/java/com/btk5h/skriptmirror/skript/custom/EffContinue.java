@@ -13,6 +13,8 @@ import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
 import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import org.bukkit.event.Event;
 
+@Name("Continue")
+@Description({"For more information on skript-reflect, you can visit the wiki here: https://tpgamesnl.gitbook.io/skript-reflect/"})
 public class EffContinue extends Effect {
   static {
     Skript.registerEffect(EffContinue.class, "continue");
