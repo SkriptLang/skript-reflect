@@ -8,6 +8,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
+@Name("Java Error")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/error-handling#error-object"})
 public class ExprJavaError extends SimpleExpression<Throwable> {
   static {
     Skript.registerExpression(ExprJavaError.class, Throwable.class, ExpressionType.SIMPLE,
