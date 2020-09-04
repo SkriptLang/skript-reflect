@@ -22,6 +22,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
+@Name("Import")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/importing-classes"})
 public class CustomImport {
   private static Pattern IMPORT_STATEMENT =
       Pattern.compile("(" + SkriptMirrorUtil.PACKAGE + ")(?:\\s+as (" + SkriptMirrorUtil.IDENTIFIER + "))?");
