@@ -13,6 +13,8 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+@Name("Custom Event")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/events#calling-the-event"})
 public class ExprCustomEvent extends SimpleExpression<Event> {
 
   static {
