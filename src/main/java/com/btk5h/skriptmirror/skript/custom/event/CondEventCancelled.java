@@ -7,6 +7,8 @@ import org.bukkit.event.Cancellable;
 // the 'normal' Condition#check(Event) method, which is rightfully declared final in PropertyCondition.
 // They probably should've used some other name then check, but hey, I can't help it without breaking
 // backwards compatibility. And for some reason this works, so I'll keep it.
+@Name("Event Cancelled")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/events"})
 public class CondEventCancelled<T> extends PropertyCondition<T> {
 
   static {
