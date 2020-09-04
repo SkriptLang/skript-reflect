@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+@Name("Member Names")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#member-names"})
 public class ExprMemberNames extends SimpleExpression<String> {
   static {
     PropertyExpression.register(ExprMemberNames.class, String.class, "(0¦field|1¦method) names", "objects");
