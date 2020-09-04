@@ -10,6 +10,8 @@ import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import org.bukkit.event.Event;
 
+@Name("Java Type")
+@Description({"For more information on skript-reflect, you can visit the wiki here: https://tpgamesnl.gitbook.io/skript-reflect/"})
 public class ExprJavaType extends SimpleExpression<JavaType> {
   static {
     Skript.registerExpression(ExprJavaType.class, JavaType.class, ExpressionType.COMBINED,
