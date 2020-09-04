@@ -17,6 +17,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Name("Create Section")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/reflection/sections#creating-a-section"})
 public class CondSection extends Condition {
 
   static {
