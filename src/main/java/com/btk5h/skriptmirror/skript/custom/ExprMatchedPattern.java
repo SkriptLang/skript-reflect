@@ -14,6 +14,8 @@ import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
 
+@Name("Matched Pattern")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax#matched-pattern"})
 public class ExprMatchedPattern extends SimpleExpression<Number> {
   static {
     Skript.registerExpression(ExprMatchedPattern.class, Number.class, ExpressionType.SIMPLE, "[the] [matched] pattern");
