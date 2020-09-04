@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+@Name("On Bukkit Event")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/handling-events#listening-to-events"})
 public class EvtByReflection extends SkriptEvent {
   static {
     Skript.registerEvent("Bukkit Event", EvtByReflection.class, BukkitEvent.class,
