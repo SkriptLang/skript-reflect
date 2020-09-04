@@ -9,6 +9,8 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.WrappedEvent;
 import org.bukkit.event.Event;
 
+@Name("Event")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/handling-events#using-the-event-expression"})
 public class ExprEvent extends SimpleExpression<Event> {
   static {
     Skript.registerExpression(ExprEvent.class, Event.class, ExpressionType.SIMPLE, "[the] event");
