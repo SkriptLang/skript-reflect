@@ -9,6 +9,8 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
+@Name("Delay Effect")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/effects"})
 public class EffDelayEffect extends Effect {
   static {
     Skript.registerEffect(EffDelayEffect.class, "delay [the] [current] effect");
