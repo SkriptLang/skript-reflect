@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Name("Run Section")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/reflection/sections#running-a-section"})
 public class EffRunSection extends Effect {
 
   static {
