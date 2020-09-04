@@ -25,6 +25,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Name("Define Expression")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/expressions"})
 public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSyntaxInfo> {
   static {
     CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
