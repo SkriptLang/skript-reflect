@@ -18,6 +18,8 @@ import org.bukkit.event.Event;
 
 import java.util.Iterator;
 
+@Name("Change Value")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/expressions#change-value"})
 public class ExprChangeValue<T> implements Expression<T> {
   static {
     //noinspection unchecked
