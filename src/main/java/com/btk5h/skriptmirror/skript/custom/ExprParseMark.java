@@ -14,6 +14,8 @@ import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
 
+@Name("Parse Mark")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax#parser-mark"})
 public class ExprParseMark extends SimpleExpression<Number> {
   static {
     Skript.registerExpression(ExprParseMark.class, Number.class, ExpressionType.SIMPLE,
