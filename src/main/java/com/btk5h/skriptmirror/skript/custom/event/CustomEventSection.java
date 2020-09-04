@@ -19,6 +19,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Name("Define Event")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/events"})
 public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
 
   static {
