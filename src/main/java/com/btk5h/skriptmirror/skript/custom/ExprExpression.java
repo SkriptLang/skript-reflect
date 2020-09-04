@@ -23,6 +23,8 @@ import org.bukkit.event.Event;
 
 import java.util.Iterator;
 
+@Name("Expression")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/expressions"})
 public class ExprExpression<T> implements Expression<T> {
   static {
     //noinspection unchecked
