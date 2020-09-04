@@ -11,6 +11,8 @@ import com.btk5h.skriptmirror.WrappedEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
+@Name("Raw Expression")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#raw-expression"})
 public class ExprRawExpression extends SimpleExpression<Expression> {
   static {
     Skript.registerExpression(ExprRawExpression.class, Expression.class, ExpressionType.COMBINED,
