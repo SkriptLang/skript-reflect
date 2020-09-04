@@ -18,6 +18,8 @@ import org.bukkit.event.Event;
 import java.util.List;
 import java.util.regex.MatchResult;
 
+@Name("Parse Regex")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax#parser-regular-expression"})
 public class ExprParseRegex extends SimpleExpression<String> {
   static {
     Skript.registerExpression(ExprParseRegex.class, String.class, ExpressionType.SIMPLE,
