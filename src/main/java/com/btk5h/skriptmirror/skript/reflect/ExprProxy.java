@@ -25,6 +25,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
+@Name("Proxy")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/reflection/proxies"})
 public class ExprProxy extends SimpleExpression<Object> {
   static {
     Skript.registerExpression(ExprProxy.class, Object.class, ExpressionType.COMBINED,
