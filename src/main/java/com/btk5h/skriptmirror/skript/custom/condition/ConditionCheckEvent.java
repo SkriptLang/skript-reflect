@@ -6,8 +6,6 @@ import com.btk5h.skriptmirror.skript.custom.CustomSyntaxEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-@Name("Condition Check Event")
-@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/conditions"})
 public class ConditionCheckEvent extends CustomSyntaxEvent {
   private final static HandlerList handlers = new HandlerList();
   private boolean markedContinue;
