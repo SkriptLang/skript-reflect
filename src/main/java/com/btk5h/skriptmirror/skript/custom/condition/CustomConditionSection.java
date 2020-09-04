@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Name("Define Condition")
+@Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/advanced/custom-syntax/conditions"})
 public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxInfo> {
   static {
     CustomSyntaxSection.register("Define Condition", CustomConditionSection.class,
