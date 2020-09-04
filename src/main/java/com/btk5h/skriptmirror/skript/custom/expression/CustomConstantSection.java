@@ -16,6 +16,8 @@ import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.StreamSupport;
 
+@Name("Define Constant")
+@Description({"For more information on skript-reflect, you can visit the wiki here: https://tpgamesnl.gitbook.io/skript-reflect/"})
 public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInfo> {
   static {
     CustomSyntaxSection.register("Define Constant", CustomConstantSection.class,
