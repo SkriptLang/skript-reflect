@@ -8,6 +8,8 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.FunctionWrapper;
 import com.btk5h.skriptmirror.JavaType;
