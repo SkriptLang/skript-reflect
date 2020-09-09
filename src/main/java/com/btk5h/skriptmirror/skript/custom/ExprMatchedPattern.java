@@ -7,6 +7,8 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
