@@ -9,6 +9,8 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
