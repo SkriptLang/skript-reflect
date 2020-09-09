@@ -7,6 +7,8 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
