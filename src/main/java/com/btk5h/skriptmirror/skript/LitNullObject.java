@@ -5,6 +5,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.Null;
 import org.bukkit.event.Event;
