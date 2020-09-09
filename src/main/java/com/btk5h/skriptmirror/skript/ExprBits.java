@@ -10,6 +10,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 
 @Name("Bits")
 @Description({"You can find more information about this here: https://tpgamesnl.gitbook.io/skript-reflect/basics/utilities#bits"})
