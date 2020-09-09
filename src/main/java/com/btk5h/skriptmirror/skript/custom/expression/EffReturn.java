@@ -8,6 +8,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
