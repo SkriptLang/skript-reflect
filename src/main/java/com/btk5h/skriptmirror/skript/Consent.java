@@ -9,6 +9,8 @@ import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
