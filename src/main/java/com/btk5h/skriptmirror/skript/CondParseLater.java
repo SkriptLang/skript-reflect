@@ -2,6 +2,8 @@ package com.btk5h.skriptmirror.skript;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.ScriptLoaderState;
 import com.btk5h.skriptmirror.util.SkriptUtil;
