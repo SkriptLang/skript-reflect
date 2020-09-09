@@ -4,6 +4,8 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.util.SkriptReflection;
