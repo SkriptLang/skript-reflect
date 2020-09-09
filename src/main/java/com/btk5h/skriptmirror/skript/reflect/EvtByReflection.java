@@ -9,6 +9,8 @@ import ch.njol.skript.lang.SkriptParser;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.WrappedEvent;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import org.bukkit.Bukkit;
 import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
