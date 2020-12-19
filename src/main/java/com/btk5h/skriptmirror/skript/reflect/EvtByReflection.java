@@ -24,8 +24,8 @@ public class EvtByReflection extends SkriptEvent {
   }
 
   private static class PriorityListener implements Listener {
-    private EventPriority priority;
-    private Set<Class<? extends Event>> events = new HashSet<>();
+    private final EventPriority priority;
+    private final Set<Class<? extends Event>> events = new HashSet<>();
 
     public PriorityListener(int priority) {
       this.priority = EventPriority.values()[priority];
@@ -40,10 +40,10 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static EventExecutor executor = (listener, event) -> Bukkit.getPluginManager()
+  private static final EventExecutor executor = (listener, event) -> Bukkit.getPluginManager()
     .callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
 
-  private static PriorityListener[] listeners;
+  private static final PriorityListener[] listeners;
 
   static {
     SkriptEventHandler.listenCancelled.add(BukkitEvent.class);
@@ -146,7 +146,7 @@ public class EvtByReflection extends SkriptEvent {
 
     if (priority == ((BukkitEvent) e).getPriority()) {
       for (Class<? extends Event> cls : classes) {
-        if (cls == eventClass) {
+        if (cls.isAssignableFrom(eventClass)) {
           return true;
         }
       }

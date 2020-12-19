@@ -8,9 +8,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
+import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
-import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import org.bukkit.event.Event;
 
 public class EffContinue extends Effect {
@@ -26,23 +25,16 @@ public class EffContinue extends Effect {
   @Override
   protected TriggerItem walk(Event e) {
     if (e instanceof EffectTriggerEvent) {
-      if (((EffectTriggerEvent) e).isSync()) {
-        Skript.warning("Synchronous events should not be continued. " +
-            "Call 'delay effect' to delay the effect's execution.");
+      EffectTriggerEvent effectTriggerEvent = (EffectTriggerEvent) e;
+      if (effectTriggerEvent.isSync()) {
+        Skript.warning("Synchronous events should not be continued. Call 'delay effect' to delay the effect's execution.");
       } else {
-        EffectTriggerEvent effectTriggerEvent = (EffectTriggerEvent) e;
         effectTriggerEvent.setContinued();
         TriggerItem.walk(effectTriggerEvent.getNext(), effectTriggerEvent.getDirectEvent());
       }
-      // TODO make ContinuableEvent interface / abstract class or sth alike
-    } else if (e instanceof ConditionCheckEvent) {
-      ((ConditionCheckEvent) e).markContinue();
-    } else if (e instanceof SyntaxParseEvent) {
-      ((SyntaxParseEvent) e).markContinue();
-    } else if (e instanceof EventTriggerEvent) {
-      ((EventTriggerEvent) e).markContinue();
+    } else if (e instanceof Continuable) {
+      ((Continuable) e).markContinue();
     }
-
     return null;
   }
 
@@ -54,7 +46,8 @@ public class EffContinue extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(EffectTriggerEvent.class, ConditionCheckEvent.class, SyntaxParseEvent.class, EventTriggerEvent.class)) {
+    if (!(ScriptLoader.isCurrentEvent(EffectTriggerEvent.class)
+      || CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, ScriptLoader.getCurrentEvents()))) {
       Skript.error("Return may only be used in custom effects and conditions.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

@@ -37,6 +37,7 @@ public class EffExpressionStatement extends Effect {
   @Override
   protected TriggerItem walk(Event e) {
     if (isAsynchronous) {
+      // TODO how to implement async, Bukkit or just other Java (CondExpressionStatement#walk(Event))
       Object localVariables = SkriptReflection.getLocals(e);
       CompletableFuture.runAsync(() -> {
         SkriptReflection.putLocals(localVariables, e);

@@ -33,4 +33,5 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
   public SkriptParser.ParseResult getParseResult() {
     return parseResult;
   }
+
 }

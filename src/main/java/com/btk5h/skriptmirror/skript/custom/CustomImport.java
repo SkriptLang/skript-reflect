@@ -2,7 +2,6 @@ package com.btk5h.skriptmirror.skript.custom;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -14,7 +13,6 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -23,14 +21,12 @@ import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 public class CustomImport {
-  private static Pattern IMPORT_STATEMENT =
+  private static final Pattern IMPORT_STATEMENT =
       Pattern.compile("(" + SkriptMirrorUtil.PACKAGE + ")(?:\\s+as (" + SkriptMirrorUtil.IDENTIFIER + "))?");
 
   static {
     CustomSyntaxSection.register("Import", SectionImport.class, "import");
-    Skript.registerEffect(EffImport.class, "import <" + IMPORT_STATEMENT.pattern() + ">");
 
-    //noinspection unchecked
     Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
     Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
@@ -46,7 +42,7 @@ public class CustomImport {
 
   private static SyntaxElementInfo<?> thisInfo;
   // Most scripts are associated with files, but according to Skript, file-less configs may also be loaded.
-  private static Map<File, Map<String, JavaType>> imports = new HashMap<>();
+  private static final Map<File, Map<String, JavaType>> imports = new HashMap<>();
 
   public static class SectionImport extends SelfRegisteringSkriptEvent {
     @Override
@@ -66,7 +62,7 @@ public class CustomImport {
     @Override
     public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
       File currentScript = SkriptUtil.getCurrentScript();
-      SectionNode node = ((SectionNode) SkriptLogger.getNode());
+      SectionNode node = (SectionNode) SkriptLogger.getNode();
 
       if (node.getKey().toLowerCase().startsWith("on ")) {
         return false;
@@ -74,14 +70,15 @@ public class CustomImport {
 
       node.forEach(subNode -> registerImport(subNode.getKey(), currentScript));
       SkriptUtil.clearSectionNode(node);
+
       return true;
     }
-
 
     @Override
     public String toString(Event e, boolean debug) {
       return "import";
     }
+
   }
 
   private static void registerImport(String rawStatement, File script) {
@@ -111,10 +108,8 @@ public class CustomImport {
         .compute(importName,
             (name, oldClass) -> {
               if (oldClass != null) {
-                Skript.warning(
-                    String.format("%s is already mapped to %s. It will not be remapped to %s.",
-                        name, oldClass.getJavaClass(), javaClass)
-                );
+                Skript.warning(name + " is already mapped to " + oldClass.getJavaClass() + ". " +
+                  "It will not be remapped to " + javaClass + ".");
                 return oldClass;
               }
               return new JavaType(javaClass);
@@ -167,35 +162,11 @@ public class CustomImport {
     }
   }
 
-  public static class EffImport extends Effect {
-    @Override
-    public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed,
-                        final SkriptParser.ParseResult parseResult) {
-      if (!ScriptLoader.isCurrentEvent(EffectCommandEvent.class)) {
-        return false;
-      }
-
-      registerImport(parseResult.regexes.get(0).group(), null);
-
-      return true;
-    }
-
-    @Override
-    public String toString(@Nullable final Event e, final boolean debug) {
-      return "import";
-    }
-
-    @Override
-    protected void execute(Event e) {
-    }
-  }
-
   public static JavaType lookup(File script, String identifier) {
     Map<String, JavaType> localImports = imports.get(script);
 
-    if (localImports == null) {
+    if (localImports == null)
       return null;
-    }
 
     return localImports.get(identifier);
   }

@@ -220,8 +220,8 @@ public class CustomExpression<T> implements Expression<T> {
 
   @Override
   public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-    if (CustomExpressionSection.changerHandlers.containsKey(which)
-        && CustomExpressionSection.changerHandlers.get(which).containsKey(mode)) {
+    if (CustomExpressionSection.hasChanger.containsKey(which)
+        && CustomExpressionSection.hasChanger.get(which).get(mode)) {
       return CustomExpressionSection.changerTypes
           .getOrDefault(which, Collections.emptyMap())
           .getOrDefault(mode, new Class[]{Object[].class});
@@ -274,6 +274,12 @@ public class CustomExpression<T> implements Expression<T> {
     List<Supplier<Boolean>> suppliers = CustomExpressionSection.usableSuppliers.get(which);
     if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
       return false;
+
+    Boolean bool = CustomExpressionSection.parseSectionLoaded.get(which);
+    if (bool != null && !bool) {
+      Skript.error("You can't use custom effects with parse sections before they're loaded.");
+      return false;
+    }
 
     Trigger parseHandler = CustomExpressionSection.parserHandlers.get(which);
 

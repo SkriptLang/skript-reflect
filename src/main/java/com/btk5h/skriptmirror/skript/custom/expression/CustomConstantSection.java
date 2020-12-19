@@ -17,17 +17,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.StreamSupport;
 
 public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInfo> {
+
   static {
     CustomSyntaxSection.register("Define Constant", CustomConstantSection.class,
         "option <.+>");
-    // TODO add support for custom constant expressions
   }
 
   private static final DataTracker<ConstantSyntaxInfo> dataTracker = new DataTracker<>();
 
   static {
-    dataTracker.setSyntaxType("constant");
-
     // noinspection unchecked
     Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.SIMPLE);
     Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
@@ -42,9 +40,10 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
     return dataTracker;
   }
 
-  @SuppressWarnings({"unchecked", "SwitchStatementWithTooFewBranches"})
+  @SuppressWarnings({"SwitchStatementWithTooFewBranches"})
   @Override
-  protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
+  protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
+                         SectionNode node, boolean isPreload) {
     String what;
 
     switch (matchedPattern) {
@@ -87,5 +86,6 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
     getter.execute(constantEvent);
     SkriptReflection.getCurrentOptions().put(option, StringUtils.join(constantEvent.getOutput()));
   }
+
 }
 

@@ -1,15 +1,14 @@
 package com.btk5h.skriptmirror.skript;
 
-import org.bukkit.event.Event;
-
-import java.util.Arrays;
-
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+
+import java.util.Arrays;
 
 public class ExprBits extends SimpleExpression<Number> {
   static {

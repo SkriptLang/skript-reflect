@@ -3,8 +3,7 @@
 Most public APIs and libraries offer documentation in the form of Javadocs. Javadocs outline what features of a library are publicly accessible to developers.
 
 Here are a few links to some commonly referenced Javadocs:
-[Java SE 8 Javadocs](https://docs.oracle.com/javase/8/docs/api/overview-summary.html)
-[Spigot Javadocs]https://hub.spigotmc.org/javadocs/spigot/overview-summary.html)
+[Java SE 8 Javadocs](https://docs.oracle.com/javase/8/docs/api/overview-summary.html), [Spigot Javadocs](https://hub.spigotmc.org/javadocs/spigot/overview-summary.html)
 
 ## Fully qualified names
 

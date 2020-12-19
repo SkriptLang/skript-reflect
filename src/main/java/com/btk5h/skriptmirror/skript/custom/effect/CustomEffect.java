@@ -84,6 +84,12 @@ public class CustomEffect extends Effect {
     if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
       return false;
 
+    Boolean bool = CustomEffectSection.parseSectionLoaded.get(which);
+    if (bool != null && !bool) {
+      Skript.error("You can't use custom effects with parse sections before they're loaded.");
+      return false;
+    }
+
     Trigger parseHandler = CustomEffectSection.parserHandlers.get(which);
 
     if (parseHandler != null) {

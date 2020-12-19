@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class SyntaxParseEvent extends CustomSyntaxEvent {
+public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
   private final static HandlerList handlers = new HandlerList();
   private final Class<?>[] eventClasses;
   private boolean markedContinue;
@@ -43,6 +43,7 @@ public class SyntaxParseEvent extends CustomSyntaxEvent {
     return markedContinue;
   }
 
+  @Override
   public void markContinue() {
     markedContinue = true;
   }
@@ -52,7 +53,6 @@ public class SyntaxParseEvent extends CustomSyntaxEvent {
     return handlers;
   }
 
-  @SuppressWarnings("unchecked")
   public static <T extends CustomSyntaxSection.SyntaxData> void register(CustomSyntaxSection<T> section,
                                                                          SectionNode parseNode,
                                                                          List<T> whichInfo, Map<T, Trigger> parserHandlers) {
@@ -63,4 +63,5 @@ public class SyntaxParseEvent extends CustomSyntaxEvent {
         parserHandlers.put(which,
             new Trigger(SkriptUtil.getCurrentScript(), "parse " + which.getPattern(), section, items)));
   }
+
 }

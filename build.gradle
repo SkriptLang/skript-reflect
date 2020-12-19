@@ -1,11 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 group 'com.btk5h.skript-mirror'
-version '2.1.0'
+version '2.2-alpha1'
 
 apply plugin: 'java'
-
-sourceCompatibility = 1.8
 
 repositories {
   mavenCentral()

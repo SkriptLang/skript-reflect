@@ -9,6 +9,8 @@ import ch.njol.skript.config.Option;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.DefaultExpression;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Parameter;
@@ -21,12 +23,14 @@ import org.bukkit.event.Event;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class SkriptReflection {
 
   private static Field PATTERNS;
@@ -40,9 +44,12 @@ public class SkriptReflection {
   private static Constructor VARIABLES_MAP;
   private static Field DEFAULT_EXPRESSION;
   private static Field PARSED_VALUE;
+  private static Method PARSE_I;
+  private static Field EXPRESSIONS;
 
   static {
     Field _FIELD;
+    Method _METHOD;
     Constructor _CONSTRUCTOR;
 
     try {
@@ -139,6 +146,23 @@ public class SkriptReflection {
     } catch (NoSuchFieldException e) {
       Skript.warning("Skript's parsed value field could not be resolved, " +
         "therefore and/or warnings won't be suppressed");
+    }
+
+    try {
+      _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class, int.class, int.class);
+      _METHOD.setAccessible(true);
+      PARSE_I = _METHOD;
+    } catch (NoSuchMethodException e) {
+      Skript.warning("Skript's parse_i method could not be resolved, therefore prioritized loading won't work.");
+    }
+
+    try {
+      _FIELD = Skript.class.getDeclaredField("expressions");
+      _FIELD.setAccessible(true);
+      EXPRESSIONS = _FIELD;
+    } catch (NoSuchFieldException e) {
+      Skript.warning("Skript's expressions field could not be resolved, " +
+        "therefore you might get syntax conflict problems");
     }
   }
 
@@ -338,6 +362,27 @@ public class SkriptReflection {
         e.printStackTrace();
       }
     }
+  }
+
+  public static SkriptParser.ParseResult parse_i(SkriptParser skriptParser, String pattern, int i, int j) {
+    if (PARSE_I == null)
+      return null;
+
+    try {
+      return (SkriptParser.ParseResult) PARSE_I.invoke(skriptParser, pattern, i, j);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  public static List<ExpressionInfo<?, ?>> getExpressions() {
+    try {
+      return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 
 }

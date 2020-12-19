@@ -4,6 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.*;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.skript.custom.event.BukkitCustomEvent;
@@ -21,7 +22,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxData>
-    extends SelfRegisteringSkriptEvent {
+    extends SelfRegisteringSkriptEvent implements PreloadableEvent {
+
   @SuppressWarnings("unchecked")
   public static <E extends SkriptEvent> SkriptEventInfo<E> register(String name, Class<E> c, String... patterns) {
     return Skript.registerEvent("*" + name, c, new Class[0], patterns);
@@ -34,7 +36,6 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     private List<String> patterns = new ArrayList<>();
     private final Map<File, Map<String, T>> primaryData = new HashMap<>();
     private final List<Map<T, ?>> managedData = new ArrayList<>();
-    private String syntaxType = "syntax";
     private SyntaxElementInfo<?> info;
 
     public List<String> getPatterns() {
@@ -49,17 +50,12 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
       return managedData;
     }
 
-    public String getSyntaxType() {
-      return syntaxType;
-    }
-
     public SyntaxElementInfo<?> getInfo() {
       return info;
     }
 
     public void recomputePatterns() {
-      patterns = primaryData.entrySet().stream()
-          .map(Map.Entry::getValue)
+      patterns = primaryData.values().stream()
           .map(Map::keySet)
           .flatMap(Set::stream)
           .distinct()
@@ -70,14 +66,9 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
       managedData.add(data);
     }
 
-    public void setSyntaxType(String syntaxType) {
-      this.syntaxType = syntaxType;
-    }
-
     public void setInfo(SyntaxElementInfo<?> info) {
       this.info = info;
     }
-
 
     public final T lookup(File script, int matchedPattern) {
       String originalSyntax = patterns.get(matchedPattern);
@@ -129,7 +120,15 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
     }
   }
 
-  protected final List<T> whichInfo = new ArrayList<>();
+  private static final Map<SectionNode, CustomSyntaxSection<?>> preloadStorage = new HashMap<>();
+
+  protected List<T> whichInfo = new ArrayList<>();
+
+  protected boolean isPreloaded;
+
+  private boolean preloadSuccess;
+
+  private RetainingLogHandler preloadLogHandler;
 
   protected abstract DataTracker<T> getDataTracker();
 
@@ -166,26 +165,60 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+    return init(args, matchedPattern, parseResult, false);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, boolean isPreload) {
     SectionNode node = (SectionNode) SkriptLogger.getNode();
+    CustomSyntaxSection<T> customSyntaxSection = (CustomSyntaxSection<T>) preloadStorage.get(node);
+    if (customSyntaxSection != null) {
+      this.whichInfo = customSyntaxSection.whichInfo;
+      this.isPreloaded = customSyntaxSection.isPreloaded;
+      this.preloadSuccess = customSyntaxSection.preloadSuccess;
+      this.preloadLogHandler = customSyntaxSection.preloadLogHandler;
+      preloadStorage.remove(node);
+    } else if (isPreload) {
+      preloadStorage.put(node, this);
+    }
+
+    if (isPreloaded && !preloadSuccess) {
+      preloadLogHandler.printLog();
+      return false;
+    }
+
     node.convertToEntries(0);
 
     if (node.getKey().toLowerCase().startsWith("on ")) {
       return false;
     }
 
-    boolean ok = init(args, matchedPattern, parseResult, node);
+    if (isPreload)
+      preloadLogHandler = SkriptLogger.startRetainingLog();
+    preloadSuccess = init(args, matchedPattern, parseResult, node, isPreload);
+    if (isPreload) {
+      preloadLogHandler.stop();
+    } else if (preloadLogHandler != null) {
+      preloadLogHandler.printLog();
+    }
 
-    SkriptUtil.clearSectionNode(node);
 
-    if (!ok) {
+    if (isPreload)
+      isPreloaded = true;
+
+    if (!isPreload)
+      SkriptUtil.clearSectionNode(node);
+
+    if (!preloadSuccess) {
       unregister(null);
     }
 
-    return ok;
+    return preloadSuccess;
   }
 
   protected abstract boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
-                                  SectionNode node);
+                                  SectionNode node, boolean isPreload);
 
   protected static boolean handleEntriesAndSections(SectionNode node,
                                                     Predicate<EntryNode> entryHandler,
@@ -259,6 +292,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
           supplier = () -> {
             if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class))
               return false;
+
             EventSyntaxInfo eventWhich = CustomEvent.lastWhich;
             return CustomEventUtils.getName(eventWhich).equalsIgnoreCase(identifier);
           };

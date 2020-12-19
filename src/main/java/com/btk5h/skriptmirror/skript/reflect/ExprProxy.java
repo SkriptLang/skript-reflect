@@ -13,7 +13,6 @@ import com.btk5h.skriptmirror.FunctionWrapper;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.skript.Consent;
 import com.btk5h.skriptmirror.skript.reflect.sections.Section;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;

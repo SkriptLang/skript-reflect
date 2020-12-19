@@ -2,11 +2,12 @@ package com.btk5h.skriptmirror.skript.custom.condition;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import com.btk5h.skriptmirror.skript.custom.Continuable;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ConditionCheckEvent extends CustomSyntaxEvent {
+public class ConditionCheckEvent extends CustomSyntaxEvent implements Continuable {
   private final static HandlerList handlers = new HandlerList();
   private boolean markedContinue;
   private boolean markedNegated;
@@ -28,6 +29,7 @@ public class ConditionCheckEvent extends CustomSyntaxEvent {
     return markedNegated;
   }
 
+  @Override
   public void markContinue() {
     markedContinue = true;
   }

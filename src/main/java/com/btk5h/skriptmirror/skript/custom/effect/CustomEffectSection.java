@@ -5,7 +5,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+import com.btk5h.skriptmirror.skript.custom.PreloadListener;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
@@ -19,9 +21,12 @@ import java.util.function.Supplier;
 
 public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
   static {
-    CustomSyntaxSection.register("Define Effect", CustomEffectSection.class,
+    String[] syntax = {
       "[(1¦local)] effect <.+>",
-      "[(1¦local)] effect");
+      "[(1¦local)] effect"
+    };
+    CustomSyntaxSection.register("Define Effect", CustomEffectSection.class, syntax);
+    PreloadListener.addSyntax(CustomEffectSection.class, syntax);
   }
 
   private static final DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
@@ -29,10 +34,9 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
   static final Map<EffectSyntaxInfo, Trigger> effectHandlers = new HashMap<>();
   static final Map<EffectSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
   static final Map<EffectSyntaxInfo, List<Supplier<Boolean>>> usableSuppliers = new HashMap<>();
+  static final Map<EffectSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
   static {
-    dataTracker.setSyntaxType("effect");
-
     Skript.registerEffect(CustomEffect.class);
     Optional<SyntaxElementInfo<? extends Effect>> info = Skript.getEffects().stream()
       .filter(i -> i.c == CustomEffect.class)
@@ -42,6 +46,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
     dataTracker.addManaged(effectHandlers);
     dataTracker.addManaged(parserHandlers);
     dataTracker.addManaged(usableSuppliers);
+    dataTracker.addManaged(parseSectionLoaded);
   }
 
   @Override
@@ -51,30 +56,47 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
   @Override
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
-                         SectionNode node) {
-    SectionNode patterns = (SectionNode) node.get("patterns");
-    File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+                         SectionNode node, boolean isPreload) {
+    if (!isPreloaded) {
+      SectionNode patterns = (SectionNode) node.get("patterns");
+      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
 
-    switch (matchedPattern) {
-      case 0:
-        register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group(), 1));
-        break;
-      case 1:
-        if (patterns == null) {
-          Skript.error("Custom effects without inline patterns must have a patterns section.");
+      switch (matchedPattern) {
+        case 0:
+          register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group(), 1));
+          break;
+        case 1:
+          if (patterns == null) {
+            Skript.error("Custom effects without inline patterns must have a patterns section.");
+            return false;
+          }
+
+          int i = 1;
+          for (Node subNode : patterns) {
+            register(EffectSyntaxInfo.create(script, subNode.getKey(), i++));
+          }
+          break;
+      }
+
+      if (matchedPattern != 1 && patterns != null) {
+        Skript.error("Custom effects with inline patterns may not have a patterns section.");
+        return false;
+      }
+
+      if (node.get("parse") != null) {
+        if (node.get("safe parse") != null) {
+          Skript.error("You can't have two parse sections");
           return false;
         }
+        whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
+      } else {
+        SectionNode safeParseNode = (SectionNode) node.get("safe parse");
+        if (safeParseNode != null) {
+          SyntaxParseEvent.register(this, safeParseNode, whichInfo, parserHandlers);
 
-        int i = 1;
-        for (Node subNode : patterns) {
-          register(EffectSyntaxInfo.create(script, subNode.getKey(), i++));
+          whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
         }
-        break;
-    }
-
-    if (matchedPattern != 1 && patterns != null) {
-      Skript.error("Custom effects with inline patterns may not have a patterns section.");
-      return false;
+      }
     }
 
     AtomicBoolean hasTrigger = new AtomicBoolean();
@@ -93,19 +115,15 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
         }
 
         if (key.equalsIgnoreCase("trigger")) {
-          ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
-          List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
-          whichInfo.forEach(which ->
-            effectHandlers.put(which,
-              new Trigger(SkriptUtil.getCurrentScript(), "effect " + which, this, items)));
           hasTrigger.set(true);
           return true;
         }
 
-        if (key.equalsIgnoreCase("parse")) {
-          SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+        if (key.equalsIgnoreCase("parse"))
           return true;
-        }
+
+        if (key.equalsIgnoreCase("safe parse"))
+          return true;
 
         return false;
       });
@@ -115,6 +133,27 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
     if (!hasTrigger.get())
       Skript.warning("Custom effects are useless without a trigger section");
+
+    if (!isPreload) {
+      SectionNode sectionNode = (SectionNode) node.get("parse");
+      if (sectionNode != null) {
+        SkriptLogger.setNode(sectionNode);
+        SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+
+        whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
+      }
+
+      sectionNode = (SectionNode) node.get("trigger");
+      if (sectionNode != null) {
+        SkriptLogger.setNode(sectionNode);
+        ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
+        List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+        whichInfo.forEach(which ->
+          effectHandlers.put(which,
+            new Trigger(SkriptUtil.getCurrentScript(), "effect " + which, this, items)));
+      }
+      SkriptLogger.setNode(null);
+    }
 
     return true;
   }

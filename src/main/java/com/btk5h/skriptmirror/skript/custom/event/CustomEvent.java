@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript.custom.event;
 
 import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -41,18 +42,29 @@ public class CustomEvent extends SkriptEvent {
       return false;
     }
 
-    lastWhich = which;
+    Boolean bool = CustomEventSection.parseSectionLoaded.get(which);
+    if (bool != null && !bool) {
+      Skript.error("You can't use custom effects with parse sections before they're loaded.");
+      return false;
+    }
 
     Trigger parseHandler = CustomEventSection.parserHandlers.get(which);
 
-    if (parseHandler == null)
+    if (parseHandler == null) {
+      setLastWhich(which);
+
       return true;
+    }
 
     SyntaxParseEvent event =
       new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
 
+    setLastWhich(which);
+
     TriggerItem.walk(parseHandler, event);
     variablesMap = SkriptReflection.removeLocals(event);
+
+    setLastWhich(which);
 
     return event.isMarkedContinue();
   }
@@ -73,6 +85,10 @@ public class CustomEvent extends SkriptEvent {
     }
 
     return true;
+  }
+
+  public static void setLastWhich(EventSyntaxInfo which) {
+    lastWhich = which;
   }
 
   @Override

@@ -7,16 +7,14 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+import com.btk5h.skriptmirror.skript.custom.PreloadListener;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
-import com.btk5h.skriptmirror.skript.custom.event.*;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
-import org.bukkit.event.Event;
 
 import java.io.File;
 import java.util.*;
@@ -27,25 +25,28 @@ import java.util.stream.StreamSupport;
 
 public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSyntaxInfo> {
   static {
-    CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class,
-        "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
-        "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression",
-        "[(2¦local)] [(1¦(plural|non(-|[ ])single))] %*classinfos% property <.+>");
+    String[] syntax = {
+      "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
+      "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression",
+      "[(2¦local)] [(1¦(plural|non(-|[ ])single))] %*classinfos% property <.+>"
+    };
+    CustomSyntaxSection.register("Define Expression", CustomExpressionSection.class, syntax);
+    PreloadListener.addSyntax(CustomExpressionSection.class, syntax);
   }
 
   private static final DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
 
-  static Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
-  static Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
-  static Map<ExpressionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
-  static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
-  static Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Class<?>[]>> changerTypes = new HashMap<>();
-  static Map<ExpressionSyntaxInfo, String> loopOfs = new HashMap<>();
-  static Map<ExpressionSyntaxInfo, List<Supplier<Boolean>>> usableSuppliers = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Boolean>> hasChanger = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Class<?>[]>> changerTypes = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, String> loopOfs = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, List<Supplier<Boolean>>> usableSuppliers = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
   static {
-    dataTracker.setSyntaxType("expression");
-
     // noinspection unchecked
     Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING);
     Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
@@ -56,11 +57,13 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
 
     dataTracker.addManaged(returnTypes);
     dataTracker.addManaged(expressionHandlers);
+    dataTracker.addManaged(hasChanger);
     dataTracker.addManaged(changerHandlers);
     dataTracker.addManaged(changerTypes);
     dataTracker.addManaged(parserHandlers);
     dataTracker.addManaged(loopOfs);
     dataTracker.addManaged(usableSuppliers);
+    dataTracker.addManaged(parseSectionLoaded);
   }
 
   @Override
@@ -70,32 +73,34 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
 
   @SuppressWarnings("unchecked")
   @Override
-  protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, SectionNode node) {
-    String what;
-    SectionNode patterns = (SectionNode) node.get("patterns");
-    File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
-    boolean alwaysPlural = (parseResult.mark & 1) == 1;
+  protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
+                         SectionNode node, boolean isPreload) {
+    if (!isPreloaded) {
+      String what;
+      SectionNode patterns = (SectionNode) node.get("patterns");
+      File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
+      boolean alwaysPlural = (parseResult.mark & 1) == 1;
 
-    switch (matchedPattern) {
-      case 0:
-        what = parseResult.regexes.get(0).group();
-        register(ExpressionSyntaxInfo.create(script, what, 1, alwaysPlural, false, false));
-        break;
-      case 1:
-        if (patterns == null) {
-          Skript.error("Custom expressions without inline patterns must have a patterns section.");
-          return false;
-        }
+      switch (matchedPattern) {
+        case 0:
+          what = parseResult.regexes.get(0).group();
+          register(ExpressionSyntaxInfo.create(script, what, 1, alwaysPlural, false, false));
+          break;
+        case 1:
+          if (patterns == null) {
+            Skript.error("Custom expressions without inline patterns must have a patterns section.");
+            return false;
+          }
 
-        int i = 1;
-        for (Node subNode : patterns) {
-          register(
-            ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, alwaysPlural, false, false));
-        }
-        break;
-      case 2:
-        what = parseResult.regexes.get(0).group();
-        String fromType = Arrays.stream(((Literal<ClassInfo<?>>) args[0]).getArray())
+          int i = 1;
+          for (Node subNode : patterns) {
+            register(
+              ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, alwaysPlural, false, false));
+          }
+          break;
+        case 2:
+          what = parseResult.regexes.get(0).group();
+          String fromType = Arrays.stream(((Literal<ClassInfo<?>>) args[0]).getArray())
             .map(ClassInfo::getCodeName)
             .map(codeName -> {
               boolean isPlural = Utils.getEnglishPlural(codeName).getSecond();
@@ -108,23 +113,39 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
             })
             .collect(Collectors.joining("/"));
 
-        if (!alwaysPlural) {
-          fromType = "$" + fromType;
-        }
+          if (!alwaysPlural) {
+            fromType = "$" + fromType;
+          }
 
-        register(
+          register(
             ExpressionSyntaxInfo.create(script, "[the] " + what + " of %" + fromType + "%", 1, alwaysPlural, true, true));
-        register(
+          register(
             ExpressionSyntaxInfo.create(script, "%" + fromType + "%'[s] " + what, 1, alwaysPlural, false, true));
-        break;
+          break;
+      }
+
+      if (matchedPattern != 1 && patterns != null) {
+        Skript.error("Custom expressions with inline patterns may not have a patterns section.");
+        return false;
+      }
+
+      if (node.get("parse") != null) {
+        if (node.get("safe parse") != null) {
+          Skript.error("You can't have two parse sections");
+          return false;
+        }
+        whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
+      } else {
+        SectionNode safeParseNode = (SectionNode) node.get("safe parse");
+        if (safeParseNode != null) {
+          SyntaxParseEvent.register(this, safeParseNode, whichInfo, parserHandlers);
+
+          whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
+        }
+      }
     }
 
-    if (matchedPattern != 1 && patterns != null) {
-      Skript.error("Custom expressions with inline patterns may not have a patterns section.");
-      return false;
-    }
-
-    AtomicBoolean hasGetOrSet = new AtomicBoolean();
+    AtomicBoolean hasGetOrChanger = new AtomicBoolean();
     boolean nodesOkay = handleEntriesAndSections(node,
       entryNode -> {
         String key = entryNode.getKey();
@@ -133,6 +154,10 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         if (key.equalsIgnoreCase("return type")) {
           String userReturnType = entryNode.getValue();
           Class<?> returnType = Classes.getClassFromUserInput(ScriptLoader.replaceOptions(userReturnType));
+          if (returnType == null) {
+            Skript.error("The given return type doesn't exist");
+            return false;
+          }
           whichInfo.forEach(which -> returnTypes.put(which, returnType));
           return true;
         }
@@ -149,25 +174,19 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         String key = sectionNode.getKey();
         assert key != null;
 
-        if (key.equalsIgnoreCase("patterns")) {
+        if (key.equalsIgnoreCase("patterns"))
+          return true;
+
+        if (key.equalsIgnoreCase("get")) { ;
+          hasGetOrChanger.set(true);
           return true;
         }
 
-        if (key.equalsIgnoreCase("get")) {
-          ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
-          List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
-          whichInfo.forEach(which ->
-            expressionHandlers.put(which,
-              new Trigger(SkriptUtil.getCurrentScript(), "get " + which.getPattern(), this, items)));
-
-          hasGetOrSet.set(true);
+        if (key.equalsIgnoreCase("parse"))
           return true;
-        }
 
-        if (key.equalsIgnoreCase("parse")) {
-          SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+        if (key.equalsIgnoreCase("safe parse"))
           return true;
-        }
 
         if (key.equalsIgnoreCase("usable in")) {
           return handleUsableSection(sectionNode, usableSuppliers);
@@ -178,15 +197,11 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
           if (key.startsWith(name)) {
             String rawTypes = key.substring(name.length()).trim();
 
-            ScriptLoader.setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
-            List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
             whichInfo.forEach(which -> {
-              Map<Changer.ChangeMode, Trigger> changerMap =
-                changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
+              Map<Changer.ChangeMode, Boolean> hasChangerMap =
+                hasChanger.computeIfAbsent(which, k -> new HashMap<>());
 
-              changerMap.put(mode,
-                new Trigger(SkriptUtil.getCurrentScript(),
-                  String.format("%s %s", name, which.getPattern()), this, items));
+              hasChangerMap.put(mode, true);
             });
 
             if (rawTypes.length() > 0) {
@@ -210,19 +225,66 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
                   .put(mode, acceptedClasses);
               });
             }
-
-            hasGetOrSet.set(true);
             return true;
           }
         }
 
         return false;
-      });
+      }
+    );
+
+    if (!isPreload) {
+      SectionNode sectionNode = (SectionNode) node.get("parse");
+      if (sectionNode != null) {
+        SkriptLogger.setNode(sectionNode);
+        SyntaxParseEvent.register(this, sectionNode, whichInfo, parserHandlers);
+
+        whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
+      }
+
+      sectionNode = (SectionNode) node.get("get");
+      if (sectionNode != null) {
+        SkriptLogger.setNode(sectionNode);
+        ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
+        List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+        whichInfo.forEach(which ->
+          expressionHandlers.put(which,
+            new Trigger(SkriptUtil.getCurrentScript(), "get " + which.getPattern(), this, items)));
+      }
+
+      for (Node subNode : node) {
+        if (subNode instanceof SectionNode) {
+          for (Changer.ChangeMode mode : Changer.ChangeMode.values()) {
+            String key = subNode.getKey();
+            assert key != null;
+
+            sectionNode = (SectionNode) subNode;
+
+            String name = mode.name().replace("_", " ").toLowerCase();
+            if (key.startsWith(name)) {
+              SkriptLogger.setNode(sectionNode);
+              ScriptLoader.setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
+              List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+              whichInfo.forEach(which -> {
+                Map<Changer.ChangeMode, Trigger> changerMap =
+                  changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
+
+                changerMap.put(mode,
+                  new Trigger(SkriptUtil.getCurrentScript(),
+                    String.format("%s %s", name, which.getPattern()), this, items));
+              });
+            }
+          }
+        }
+      }
+
+      SkriptLogger.setNode(null);
+    }
 
     if (!nodesOkay)
       return false;
 
-    if (!hasGetOrSet.get())
+    if (!hasGetOrChanger.get())
       Skript.warning("Custom expressions are useless without a get / change section");
 
     return true;

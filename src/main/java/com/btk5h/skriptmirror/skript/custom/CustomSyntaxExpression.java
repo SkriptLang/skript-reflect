@@ -7,14 +7,13 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 public class CustomSyntaxExpression extends SimpleExpression<Object> {
-  private Expression<?> source;
-  private Event realEvent;
-  private Object[] value;
+  private final Expression<?> source;
+  private final Event realEvent;
+  private final Object[] value;
 
   public CustomSyntaxExpression(Expression<?> source, Event realEvent) {
     this.source = source;
     this.realEvent = realEvent;
-    // TODO store more information from the source?
     this.value = source == null ? new Object[0] : source.getAll(realEvent);
   }
 
@@ -54,4 +53,5 @@ public class CustomSyntaxExpression extends SimpleExpression<Object> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     throw new UnsupportedOperationException();
   }
+
 }

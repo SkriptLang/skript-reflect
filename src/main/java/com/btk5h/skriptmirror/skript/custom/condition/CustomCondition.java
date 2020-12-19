@@ -86,6 +86,12 @@ public class CustomCondition extends Condition {
     if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
       return false;
 
+    Boolean bool = CustomConditionSection.parseSectionLoaded.get(which);
+    if (bool != null && !bool) {
+      Skript.error("You can't use custom conditions with parse sections before they're loaded.");
+      return false;
+    }
+
     Trigger parseHandler = CustomConditionSection.parserHandlers.get(which);
 
     if (parseHandler != null) {

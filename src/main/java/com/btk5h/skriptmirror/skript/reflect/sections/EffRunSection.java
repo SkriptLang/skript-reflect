@@ -20,20 +20,25 @@ public class EffRunSection extends Effect {
 
   static {
     Skript.registerEffect(EffRunSection.class,
-      "run section %section% [(1¦async)] [with [arguments] %-objects%] [and store [the] result in %-objects%] [(2¦and wait)]");
+      "run section %section% [(1¦sync|2¦async)] [with [arguments] %-objects%] [and store [the] result in %-objects%] [(4¦and wait)]");
   }
 
   private Expression<Section> sectionExpression;
-  private boolean runsAsync;
+  private Kleenean runsAsync;
   private List<Expression<?>> arguments;
-  private Expression<Object> variableStore;
+  private Expression<?> variableStorage;
   private boolean shouldWait;
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     sectionExpression = SkriptUtil.defendExpression(exprs[0]);
 
-    runsAsync = (parseResult.mark & 0b01) != 0;
+    if ((parseResult.mark & 0b0001) != 0)
+      runsAsync = Kleenean.FALSE;
+    else if ((parseResult.mark & 0b0010) != 0)
+      runsAsync = Kleenean.TRUE;
+    else
+      runsAsync = Kleenean.UNKNOWN;
 
     Expression<Object> expr = SkriptUtil.defendExpression(exprs[1]);
     arguments = new ArrayList<>();
@@ -43,45 +48,59 @@ public class EffRunSection extends Effect {
       arguments.add(expr);
     }
 
-    variableStore = SkriptUtil.defendExpression(exprs[2]);
-    if (variableStore != null && !(variableStore instanceof Variable)) {
+    variableStorage = SkriptUtil.defendExpression(exprs[2]);
+    if (variableStorage != null && !(variableStorage instanceof Variable)) {
       Skript.error("The result can only be stored in a variable");
       return false;
     }
 
-    shouldWait = (parseResult.mark & 0b10) != 0;
-    if (runsAsync && !shouldWait && variableStore != null)
+    shouldWait = (parseResult.mark & 0b0100) != 0;
+    if (!runsAsync.isUnknown() && !shouldWait && variableStorage != null)
       Skript.warning("You need to wait until the section is finished if you want to get a result.");
 
-    if (runsAsync && shouldWait)
+    if (!runsAsync.isUnknown() && shouldWait)
       ScriptLoader.hasDelayBefore = Kleenean.TRUE;
 
-    return SkriptUtil.canInitSafely(variableStore) &&
+    return SkriptUtil.canInitSafely(variableStorage) &&
       (arguments.size() == 0 || arguments.stream().allMatch(SkriptUtil::canInitSafely));
   }
 
   @Override
   protected TriggerItem walk(Event e) {
-    if (runsAsync) {
+    if (!runsAsync.isUnknown()) {
       Section section = sectionExpression.getSingle(e);
 
       Object[][] args = getArgs(e);
 
       Object localVars = SkriptReflection.removeLocals(e);
+
+      boolean ranAsync = !Bukkit.isPrimaryThread();
+
       if (section != null) {
-        new Thread(() -> {
+        Runnable runnable = () -> {
           SkriptReflection.putLocals(localVars, e);
 
           section.run(e, args);
           storeResult(section, e);
 
 
-          if (shouldWait && getNext() != null)
-            Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
+          if (shouldWait && getNext() != null) {
+            Runnable continuation = () -> {
               TriggerItem.walk(getNext(), e);
               SkriptReflection.removeLocals(e);
-            });
-        }).start();
+            };
+
+            if (ranAsync)
+              Bukkit.getScheduler().runTaskAsynchronously(SkriptMirror.getInstance(), continuation);
+            else
+              Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), continuation);
+          }
+        };
+
+        if (runsAsync.isTrue())
+          Bukkit.getScheduler().runTaskAsynchronously(SkriptMirror.getInstance(), runnable);
+        else
+          Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), runnable);
       } else {
         return getNext();
       }
@@ -114,10 +133,8 @@ public class EffRunSection extends Effect {
 
   private void storeResult(Section section, Event event) {
     Object[] output = section.getOutput();
-    if (variableStore != null) {
-      // Because it won't accept ChangeMode.SET with delta == null
-      variableStore.change(event, output, output == null ? Changer.ChangeMode.DELETE : Changer.ChangeMode.SET);
-    }
+    if (variableStorage != null && output != null)
+      variableStorage.change(event, output, Changer.ChangeMode.SET);
   }
 
 }
