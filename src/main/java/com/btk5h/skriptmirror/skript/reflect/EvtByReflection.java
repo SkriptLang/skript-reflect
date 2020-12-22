@@ -38,10 +38,24 @@ public class EvtByReflection extends SkriptEvent {
     public Set<Class<? extends Event>> getEvents() {
       return events;
     }
+
   }
 
-  private static final EventExecutor executor = (listener, event) -> Bukkit.getPluginManager()
-    .callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
+  private static class TypeStrictEventExecutor implements EventExecutor {
+
+    private final Class<? extends Event> eventClass;
+
+    public TypeStrictEventExecutor(Class<? extends Event> eventClass) {
+      this.eventClass = eventClass;
+    }
+
+    @Override
+    public void execute(Listener listener, Event event) throws EventException {
+      if (eventClass.isInstance(event))
+        Bukkit.getPluginManager().callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
+    }
+
+  }
 
   private static final PriorityListener[] listeners;
 
@@ -92,14 +106,16 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static void registerEvent(Class<? extends Event> event, EventPriority priority) {
+  private static void registerEvent(Class<? extends Event> eventClass, EventPriority priority) {
     PriorityListener listener = listeners[priority.ordinal()];
-    Set<Class<? extends Event>> events = listener.getEvents();
+    Set<Class<? extends Event>> eventClasses = listener.getEvents();
 
-    if (!events.contains(event)) {
-      events.add(event);
+    if (!eventClasses.contains(eventClass)) {
+      eventClasses.add(eventClass);
+
+      EventExecutor executor = new TypeStrictEventExecutor(eventClass);
       Bukkit.getPluginManager()
-        .registerEvent(event, listener, priority, executor, SkriptMirror.getInstance(), false);
+        .registerEvent(eventClass, listener, priority, executor, SkriptMirror.getInstance(), false);
     }
 
   }
@@ -138,13 +154,14 @@ public class EvtByReflection extends SkriptEvent {
 
   @Override
   public boolean check(Event e) {
-    Event extractedEvent = ((BukkitEvent) e).getEvent();
+    BukkitEvent bukkitEvent = (BukkitEvent) e;
+    Event extractedEvent = bukkitEvent.getEvent();
     Class<? extends Event> eventClass = extractedEvent.getClass();
 
-    if (extractedEvent instanceof Cancellable && ((Cancellable) extractedEvent).isCancelled() && ignoreCancelled)
+    if (ignoreCancelled && extractedEvent instanceof Cancellable && ((Cancellable) extractedEvent).isCancelled())
       return false;
 
-    if (priority == ((BukkitEvent) e).getPriority()) {
+    if (priority == bukkitEvent.getPriority()) {
       for (Class<? extends Event> cls : classes) {
         if (cls.isAssignableFrom(eventClass)) {
           return true;
@@ -158,4 +175,5 @@ public class EvtByReflection extends SkriptEvent {
   public String toString(Event e, boolean debug) {
     return Arrays.toString(classes) + " priority " + priority;
   }
+
 }
