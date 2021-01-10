@@ -23,9 +23,12 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
   protected Expression[] get(Event e) {
     Expression<?> expr = this.expr;
     if (expr instanceof ExprExpression && e instanceof CustomSyntaxEvent) {
-      expr = ((ExprExpression) expr).getExpression(e).getSource();
+      expr = ((ExprExpression) expr).getExpression(e);
+      if (expr == null)
+        return null;
+      expr = expr.getSource();
     }
-    return new Expression[]{expr};
+    return new Expression[] {expr};
   }
 
   @Override
@@ -48,10 +51,13 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
     if (!(expr instanceof ExprExpression && event instanceof CustomSyntaxEvent))
       return;
 
-    Expression<?> expr = ((ExprExpression<?>) this.expr).getExpression(event).getSource();
+    Expression<?> expr = ((ExprExpression<?>) this.expr).getExpression(event);
+    if (expr == null)
+      return;
+    Expression<?> source = expr.getSource();
 
     event = ((WrappedEvent) event).getEvent();
-    expr.change(event, delta, changeMode);
+    source.change(event, delta, changeMode);
   }
 
   @Override

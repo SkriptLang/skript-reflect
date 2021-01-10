@@ -20,6 +20,7 @@ import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Iterator;
 
@@ -80,6 +81,7 @@ public class ExprExpression<T> implements Expression<T> {
     return Converters.convertArray(expr.getAll(e), types, superType);
   }
 
+  @Nullable
   Expression<?> getExpression(Event e) {
     Expression<?>[] expressions = ((CustomSyntaxEvent) e).getExpressions();
     if (index < expressions.length) {
@@ -169,7 +171,6 @@ public class ExprExpression<T> implements Expression<T> {
     return "expression " + (index + 1);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
