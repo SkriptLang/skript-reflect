@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
@@ -20,6 +21,7 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import com.btk5h.skriptmirror.util.StringSimilarity;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -591,6 +593,11 @@ public class ExprJavaCall<T> implements Expression<T> {
       return true;
     }
 
+    // coerce a Skript ItemType to an ItemStack
+    if (o instanceof ItemType && to == ItemStack.class) {
+      return true;
+    }
+
     // coerce javaclasses and classinfos into classes
     if (to == Class.class && (o instanceof JavaType || o instanceof ClassInfo)) {
       return true;
@@ -657,6 +664,11 @@ public class ExprJavaCall<T> implements Expression<T> {
       if (args[i] instanceof String
           && (param == char.class || param == Character.class)) {
         args[i] = ((String) args[i]).charAt(0);
+      }
+
+      // coerce a Skript ItemType to an ItemStack
+      if (args[i] instanceof ItemType && param == ItemStack.class) {
+        args[i] = ((ItemType) args[i]).getRandom();
       }
 
       // coerce javatypes and classinfos into classes
