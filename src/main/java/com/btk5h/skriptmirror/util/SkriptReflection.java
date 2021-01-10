@@ -380,9 +380,8 @@ public class SkriptReflection {
     try {
       return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
 }

@@ -2,9 +2,8 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.EffReturn;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.*;
+import ch.njol.util.Checker;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
 import com.btk5h.skriptmirror.skript.custom.ExprMatchedPattern;
 import com.btk5h.skriptmirror.skript.custom.condition.CustomCondition;
@@ -40,39 +39,23 @@ public class ParseOrderWorkarounds {
   };
 
   public static void reorderSyntax() {
-    Arrays.stream(PARSE_ORDER)
-      .forEach(c -> {
-        ensureLast(Skript.getStatements(), c);
-        ensureLast(Skript.getConditions(), c);
-        ensureLast(Skript.getEffects(), c);
-        ensureLastExpression(c);
-      });
+    for (String c : PARSE_ORDER) {
+      ensureLast(Skript.getStatements(), o -> o.c.getName().equals(c));
+      ensureLast(Skript.getConditions(), o -> o.c.getName().equals(c));
+      ensureLast(Skript.getEffects(), o -> o.c.toString().equals(c));
+      ensureLast(SkriptReflection.getExpressions(), o -> o.c.getName().equals(c));
+      ensureLast(Skript.getEvents(), o -> o.c.getName().equals(c));
+    }
   }
 
-  private static <E extends SyntaxElement> void ensureLast(Collection<SyntaxElementInfo<? extends E>> elements,
-                                                           String element) {
-    Optional<SyntaxElementInfo<? extends E>> optionalElementInfo = elements.stream()
-      .filter(info -> info.c.getName().equals(element))
+  private static <E> void ensureLast(Collection<E> elements, Checker<E> checker) {
+    Optional<E> optionalE = elements.stream()
+      .filter(checker::check)
       .findFirst();
 
-    optionalElementInfo.ifPresent(elementInfo -> {
-      elements.remove(elementInfo);
-      elements.add(elementInfo);
-    });
-  }
-
-  private static void ensureLastExpression(String element) {
-    List<ExpressionInfo<?, ?>> elements = SkriptReflection.getExpressions();
-    if (elements == null)
-      return;
-
-    Optional<ExpressionInfo<?, ?>> optionalExpressionInfo = elements.stream()
-      .filter(info -> info.c.getName().equals(element))
-      .findFirst();
-
-    optionalExpressionInfo.ifPresent(elementInfo -> {
-      elements.remove(elementInfo);
-      elements.add(elementInfo);
+    optionalE.ifPresent(value -> {
+      elements.remove(value);
+      elements.add(value);
     });
   }
 
