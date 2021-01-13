@@ -39,7 +39,6 @@ public class ExprMatchedPattern extends SimpleExpression<Number> {
     return "matched pattern";
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
@@ -50,6 +49,7 @@ public class ExprMatchedPattern extends SimpleExpression<Number> {
         ConditionCheckEvent.class
     )) {
       Skript.error("The matched pattern may only be used in custom syntax.", ErrorQuality.SEMANTIC_ERROR);
+      return false;
     }
     return true;
   }
