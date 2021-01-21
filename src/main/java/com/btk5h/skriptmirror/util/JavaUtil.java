@@ -43,15 +43,15 @@ public final class JavaUtil {
 
   public static Stream<Field> fields(Class<?> cls) {
     return Stream.concat(
-        Arrays.stream(cls.getFields()),
-        Arrays.stream(cls.getDeclaredFields())
+      Arrays.stream(cls.getFields()),
+      Arrays.stream(cls.getDeclaredFields())
     ).distinct();
   }
 
   public static Stream<Method> methods(Class<?> cls) {
     return Stream.concat(
-        Arrays.stream(cls.getMethods()),
-        Arrays.stream(cls.getDeclaredMethods())
+      Arrays.stream(cls.getMethods()),
+      Arrays.stream(cls.getDeclaredMethods())
     ).distinct();
   }
 
@@ -157,22 +157,21 @@ public final class JavaUtil {
     R apply(T t) throws Exception;
   }
 
-  @SuppressWarnings("ThrowableNotThrown")
   public static <T, R> Function<T, R> propagateErrors(ExceptionalFunction<T, R> function) {
     return t -> {
       try {
         return function.apply(t);
       } catch (Exception e) {
-        Skript.warning(
-            String.format("skript-reflect encountered a %s: %s%n" +
-                    "Run Skript with the verbosity 'very high' for the stack trace.",
-                e.getClass().getSimpleName(), e.getMessage()));
+        Skript.warning("skript-reflect encountered a " + e.getClass().getSimpleName() + ": " + e.getMessage());
 
         if (Skript.logVeryHigh()) {
           StringWriter errors = new StringWriter();
           e.printStackTrace(new PrintWriter(errors));
           Skript.warning(errors.toString());
+        } else {
+          Skript.warning("Run Skript with the verbosity 'very high' for the stack trace.");
         }
+
       }
       return null;
     };

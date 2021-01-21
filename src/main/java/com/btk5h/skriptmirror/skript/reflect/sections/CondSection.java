@@ -8,6 +8,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.ScriptLoaderState;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
@@ -43,11 +44,12 @@ public class CondSection extends Condition {
       sectionNode.getLine());
     SkriptReflection.getNodes(newSectionNode).addAll(nodes);
     nodes.clear();
-    Class<? extends Event>[] currentEvents = ScriptLoader.getCurrentEvents();
-    String currentEventName = ScriptLoader.getCurrentEventName();
+
+    ScriptLoaderState previousState = ScriptLoaderState.copyOfCurrentState();
     ScriptLoader.setCurrentEvent("section event", SectionEvent.class);
     List<TriggerItem> triggerItemList = SkriptUtil.getItemsFromNode(newSectionNode);
-    ScriptLoader.setCurrentEvent(currentEventName, currentEvents);
+    previousState.applyToCurrentState();
+
     trigger = new Trigger(SkriptUtil.getCurrentScript(), "section", new SkriptEvent() {
       @Override
       public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {

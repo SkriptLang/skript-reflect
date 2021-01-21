@@ -40,7 +40,6 @@ public class ExprParseMark extends SimpleExpression<Number> {
     return "parser mark";
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
@@ -52,6 +51,7 @@ public class ExprParseMark extends SimpleExpression<Number> {
     )) {
       Skript.error("The parser mark may only be used in custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);
+      return false;
     }
     return true;
   }

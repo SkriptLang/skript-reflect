@@ -6,10 +6,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 public class ScriptLoaderState {
-  private Config currentScript;
-  private String currentEventName;
-  private Class<? extends Event>[] currentEvents;
-  private Kleenean hasDelayBefore;
+  private final Config currentScript;
+  private final String currentEventName;
+  private final Class<? extends Event>[] currentEvents;
+  private final Kleenean hasDelayBefore;
 
   private ScriptLoaderState(Config currentScript, String currentEventName, Class<? extends Event>[] currentEvents,
                             Kleenean hasDelayBefore) {
@@ -27,10 +27,10 @@ public class ScriptLoaderState {
 
   public static ScriptLoaderState copyOfCurrentState() {
     return new ScriptLoaderState(
-        ScriptLoader.currentScript,
-        ScriptLoader.getCurrentEventName(),
-        ScriptLoader.getCurrentEvents(),
-        ScriptLoader.hasDelayBefore
+      ScriptLoader.currentScript,
+      ScriptLoader.getCurrentEventName(),
+      ScriptLoader.getCurrentEvents(),
+      ScriptLoader.hasDelayBefore
     );
   }
 }

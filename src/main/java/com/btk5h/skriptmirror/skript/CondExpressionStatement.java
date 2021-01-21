@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CondExpressionStatement extends Condition {
+
   static {
     Skript.registerCondition(CondExpressionStatement.class, "[(1¦await)] %~javaobject%");
   }
@@ -69,15 +70,13 @@ public class CondExpressionStatement extends Condition {
     return arg.toString(e, debug);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     arg = SkriptUtil.defendExpression(exprs[0]);
 
-    if (!(arg instanceof ExprJavaCall)) {
+    if (!(arg instanceof ExprJavaCall))
       return false;
-    }
 
     isAsynchronous = (parseResult.mark & 1) == 1;
     isCondition = SkriptLogger.getNode() instanceof SectionNode;
@@ -86,6 +85,7 @@ public class CondExpressionStatement extends Condition {
       Skript.error("Asynchronous java calls may not be used as conditions.");
       return false;
     }
+
     if (isAsynchronous)
       ScriptLoader.hasDelayBefore = Kleenean.TRUE;
 

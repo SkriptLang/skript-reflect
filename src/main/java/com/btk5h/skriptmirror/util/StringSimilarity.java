@@ -33,7 +33,14 @@ public class StringSimilarity {
       return getEditDistance() - o.getEditDistance();
     }
   }
-  
+
+  /**
+   * Calculates Levenshtein distance between two strings.
+   * <br>
+   * Source: <a href="https://github.com/apache/commons-text/blob/a7045b5df428284762f2bb9cc4e22422f33d0d73/src/main/java/org/apache/commons/text/similarity/LevenshteinDistance.java#L166">Apache</a>
+   * <br>
+   * See <a href="https://github.com/apache/commons-text/blob/a7045b5df428284762f2bb9cc4e22422f33d0d73/LICENSE.txt">LICENSE.TXT</a> for the license.
+   */
   public static Result compare(String left, String right, int threshold) {
     String first = left;
     String second = right;

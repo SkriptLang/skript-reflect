@@ -64,9 +64,11 @@ public class CondParseLater extends Condition {
 
   private Statement getParsedStatement() {
     if (parsedStatement == null) {
+      ScriptLoaderState previousState = ScriptLoaderState.copyOfCurrentState();
       scriptLoaderState.applyToCurrentState();
-      parsedStatement = Statement.parse(statement,
-          String.format("Could not parse condition/effect at runtime: %s", statement));
+      parsedStatement = Statement.parse(statement, "Could not parse condition/effect at runtime: "
+        + statement);
+      previousState.applyToCurrentState();
 
       if (parsedStatement == null) {
         return null;

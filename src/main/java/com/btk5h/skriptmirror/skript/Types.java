@@ -123,8 +123,7 @@ public class Types {
           }
         }));
 
-    Converters.registerConverter(ClassInfo.class, JavaType.class,
-        ((Converter<ClassInfo, JavaType>) c -> new JavaType(c.getC())));
+    Converters.registerConverter(ClassInfo.class, JavaType.class, c -> new JavaType(c.getC()));
 
     Classes.registerClass(new ClassInfo<>(Null.class, "null")
         .parser(new Parser<Null>() {

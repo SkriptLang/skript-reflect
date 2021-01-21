@@ -11,7 +11,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SkriptMirrorUtil {
+  /**
+   * A word ($ also an allowed char) that doesn't start with a digit.
+   */
   public static final String IDENTIFIER = "[_a-zA-Z$][\\w$]*";
+  /**
+   * A full classname (e.g. java.lang.String)
+   */
   public static final String PACKAGE = "(?:" + IDENTIFIER + "\\.)*(?:" + IDENTIFIER + ")";
 
   private static final Pattern TYPE_PREFIXES = Pattern.compile("^[-*~]*");

@@ -64,13 +64,6 @@ public class PreloadListener implements Listener {
     }
   }
 
-  // TODO docs for all changes
-
-  // TODO error for non-preloadable syntax when attempted to be used on preload
-  // TODO  and have a concrete boolean for whether a custom syntax section is preloadable
-
-  // TODO usable in section (imports)
-
   public static void handleEventNode(SectionNode sectionNode) {
     String key = sectionNode.getKey();
     assert key != null;

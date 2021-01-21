@@ -42,15 +42,18 @@ public class ExprJavaCall<T> implements Expression<T> {
   /**
    * A regular expression that captures potential descriptors without actually validating the descriptor. This is done
    * both for performance reasons and to provide more helpful error messages when using a malformed descriptor.
+   * See Descriptor's {@code DESCRIPTOR} field for the extended version of this.
    */
-  private static final String LITE_DESCRIPTOR = "[^0-9.][^.]*\\b";
+  private static final String LITE_DESCRIPTOR = "(\\[[\\w.$]*])?" +
+    "([^0-9. ][^. ]*\\b)" +
+    "(\\[[\\w.$, ]*])?";
 
   static {
     //noinspection unchecked
     Skript.registerExpression(ExprJavaCall.class, Object.class,
         ExpressionType.PATTERN_MATCHES_EVERYTHING,
         "[(2¦try)] %object%..%string%[\\((1¦[%-objects%])\\)]",
-        "[(2¦try)] %object%.<" + LITE_DESCRIPTOR + ">[\\((1¦[%-objects%])\\)])",
+        "[(2¦try)] %object%.<" + LITE_DESCRIPTOR + ">[\\((1¦[%-objects%])\\)]",
         "[(2¦try)] [a] new %javatype%\\([%-objects%]\\)");
   }
 
@@ -81,7 +84,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   private final Class<? extends T>[] types;
   private final Class<T> superType;
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "unused"})
   public ExprJavaCall() {
     this(null, (Class<? extends T>) Object.class);
   }
@@ -293,21 +296,26 @@ public class ExprJavaCall<T> implements Expression<T> {
 
         try {
           staticDescriptor = Descriptor.parse(desc, script);
-
-          if (staticDescriptor == null) {
-            Skript.error(desc + " is not a valid descriptor.");
-            return false;
-          }
-
-          if (staticDescriptor.getJavaClass() != null
-              && getCallSite(staticDescriptor).size() == 0) {
-            Skript.error(desc + " refers to a non-existent method/field.");
-            return false;
-          }
-        } catch (ClassNotFoundException e) {
-          Skript.error(desc + " refers to a non-existent class.");
+        } catch (ImportNotFoundException e) {
+          Skript.error("The class " + e.getUserType() + " could not be found.");
           return false;
         }
+
+        if (staticDescriptor == null) {
+          Skript.error(desc + " is not a valid descriptor.");
+          return false;
+        }
+
+        if (staticDescriptor.getJavaClass() != null && getCallSite(staticDescriptor).size() == 0) {
+          Skript.error(desc + " refers to a non-existent method/field.");
+          return false;
+        }
+
+        if (staticDescriptor.getParameterTypes() != null && type.equals(CallType.FIELD)) {
+          Skript.error("You can't pass parameter types to a field call.");
+          return false;
+        }
+
         break;
       case 2:
         type = CallType.CONSTRUCTOR;
@@ -333,10 +341,6 @@ public class ExprJavaCall<T> implements Expression<T> {
     if (!suppressErrors) {
       Skript.warning(message);
     }
-  }
-
-  private boolean hasDynamicDescriptor() {
-    return staticDescriptor == null;
   }
 
   private synchronized Collection<MethodHandle> getCallSite(Descriptor e) {
@@ -479,37 +483,42 @@ public class ExprJavaCall<T> implements Expression<T> {
   }
 
   private Descriptor getDescriptor(Event e) {
-    if (hasDynamicDescriptor()) {
-      String desc = dynamicDescriptor.getSingle(e);
+    if (staticDescriptor != null)
+      return staticDescriptor;
 
-      if (desc == null) {
-        error(String.format("Dynamic descriptor %s returned null", dynamicDescriptor.toString(e, false)));
-        return null;
-      }
+    String desc = dynamicDescriptor.getSingle(e);
 
-      try {
-        Descriptor parsedDescriptor = Descriptor.parse(desc, script);
-
-        if (parsedDescriptor == null) {
-          error(String.format("Invalid dynamic descriptor %s (%s)", dynamicDescriptor.toString(e, false), desc));
-          return null;
-        }
-
-        return parsedDescriptor;
-      } catch (ClassNotFoundException ex) {
-        error(ex, String.format("Class could not be found while parsing the dynamic descriptor %s (%s)",
-            dynamicDescriptor.toString(e, false), desc));
-        return null;
-      }
+    if (desc == null) {
+      error(String.format("Dynamic descriptor %s returned null", dynamicDescriptor.toString(e, false)));
+      return null;
     }
 
-    return staticDescriptor;
+    Descriptor parsedDescriptor;
+    try {
+      parsedDescriptor = Descriptor.parse(desc, script);
+    } catch (ImportNotFoundException ex) {
+      error("The class" + ex.getUserType() + " could not be found.");
+      return null;
+    }
+
+    if (parsedDescriptor == null) {
+      error(String.format("Invalid dynamic descriptor %s (%s)", dynamicDescriptor.toString(e, false), desc));
+      return null;
+    }
+
+    return parsedDescriptor;
   }
 
+  /**
+   * Returns an array with the same objects as the given array.
+   */
   private static Object[] createStaticArgumentsCopy(Object[] args) {
     return Arrays.copyOf(args, args.length);
   }
 
+  /**
+   * Returns an array with the target parameter in index 0, and the arguments parameter in the following indices.
+   */
   private static Object[] createInstanceArgumentsCopy(Object target, Object[] arguments) {
     Object[] copy = new Object[arguments.length + 1];
     copy[0] = target;
@@ -517,12 +526,18 @@ public class ExprJavaCall<T> implements Expression<T> {
     return copy;
   }
 
+  /**
+   * Returns an optional {@link MethodHandle} that matches the given {@link Descriptor} with the given arguments.
+   */
   private Optional<MethodHandle> findCompatibleMethod(Descriptor descriptor, Object[] args) {
     return getCallSite(descriptor).stream()
-        .filter(mh -> matchesArgs(args, mh))
-        .findFirst();
+      .filter(mh -> matchesArgs(args, mh))
+      .findFirst();
   }
 
+  /**
+   * Checks if the given arguments match the arguments for the given {@link MethodHandle}.
+   */
   private static boolean matchesArgs(Object[] args, MethodHandle mh) {
     MethodType mt = mh.type();
     Class<?>[] params = mt.parameterArray();
@@ -561,6 +576,9 @@ public class ExprJavaCall<T> implements Expression<T> {
     return true;
   }
 
+  /**
+   * Returns whether the given {@link Object} can be converted to the given class.
+   */
   private static boolean canCoerceType(Object o, Class<?> to) {
     if (to.isInstance(o)) {
       return true;
@@ -607,16 +625,73 @@ public class ExprJavaCall<T> implements Expression<T> {
     return !to.isPrimitive() && o instanceof Null;
   }
 
+  /**
+   * Converts the given {@link Object} to the given class.
+   * If {@link #canCoerceType(Object, Class)} returned {@code false}, this
+   * returns the same {@link Object} as was passed to this method.
+   */
+  private static Object coerceType(Object o, Class<?> to) {
+    // coerce numeric types
+    if (to.isPrimitive() && o instanceof Number) {
+      if (to == byte.class) {
+        return ((Number) o).byteValue();
+      } else if (to == double.class) {
+        return ((Number) o).doubleValue();
+      } else if (to == float.class) {
+        return ((Number) o).floatValue();
+      } else if (to == int.class) {
+        return ((Number) o).intValue();
+      } else if (to == long.class) {
+        return ((Number) o).longValue();
+      } else if (to == short.class) {
+        return ((Number) o).shortValue();
+      }
+    }
+
+    // coerce arrays of numeric types
+    if (to.isArray()
+      && JavaUtil.getArrayDepth(to) == JavaUtil.getArrayDepth(o.getClass())
+      && JavaUtil.isNumericClass(JavaUtil.getBaseComponent(to))) {
+      return JavaUtil.convertNumericArray(o, JavaUtil.getBaseComponent(to));
+    }
+
+    // coerce single character strings to chars
+    if (o instanceof String && (to == char.class || to == Character.class)) {
+      return ((String) o).charAt(0);
+    }
+
+    // coerce a Skript ItemType to an ItemStack
+    if (o instanceof ItemType && to == ItemStack.class) {
+      return ((ItemType) o).getRandom();
+    }
+
+    // coerce javatypes and classinfos into classes
+    if (to == Class.class) {
+      if (o instanceof JavaType) {
+        return ((JavaType) o).getJavaClass();
+      } else if (o instanceof ClassInfo) {
+        return ((ClassInfo<?>) o).getC();
+      }
+    }
+
+    // unwrap null wrapper
+    if (o instanceof Null) {
+      return null;
+    }
+
+    return o;
+  }
+
   private static Object[] convertTypes(MethodHandle mh, Object[] args) {
     Class<?>[] params = mh.type().parameterArray();
     int varargsIndex = params.length - 1;
     boolean hasVarargs = mh.isVarargsCollector();
 
     for (int i = 0; i < args.length; i++) {
-      Class<?> param;
       boolean loopAtVarargs = hasVarargs && i >= varargsIndex;
 
       // varargs parameters are always arrays, but the method handle expects the array to be spread before called
+      Class<?> param;
       if (loopAtVarargs) {
         param = params[varargsIndex].getComponentType();
       } else {
@@ -636,54 +711,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         System.arraycopy(varargsArray, 0, args, varargsIndex, varargsLength);
       }
 
-      // coerce numeric types
-      if (param.isPrimitive() && args[i] instanceof Number) {
-        if (param == byte.class) {
-          args[i] = ((Number) args[i]).byteValue();
-        } else if (param == double.class) {
-          args[i] = ((Number) args[i]).doubleValue();
-        } else if (param == float.class) {
-          args[i] = ((Number) args[i]).floatValue();
-        } else if (param == int.class) {
-          args[i] = ((Number) args[i]).intValue();
-        } else if (param == long.class) {
-          args[i] = ((Number) args[i]).longValue();
-        } else if (param == short.class) {
-          args[i] = ((Number) args[i]).shortValue();
-        }
-      }
-
-      // coerce arrays of numeric types
-      if (param.isArray()
-          && JavaUtil.getArrayDepth(param) == JavaUtil.getArrayDepth(args[i].getClass())
-          && JavaUtil.isNumericClass(JavaUtil.getBaseComponent(param))) {
-        args[i] = JavaUtil.convertNumericArray(args[i], JavaUtil.getBaseComponent(param));
-      }
-
-      // coerce single character strings to chars
-      if (args[i] instanceof String
-          && (param == char.class || param == Character.class)) {
-        args[i] = ((String) args[i]).charAt(0);
-      }
-
-      // coerce a Skript ItemType to an ItemStack
-      if (args[i] instanceof ItemType && param == ItemStack.class) {
-        args[i] = ((ItemType) args[i]).getRandom();
-      }
-
-      // coerce javatypes and classinfos into classes
-      if (param == Class.class) {
-        if (args[i] instanceof JavaType) {
-          args[i] = ((JavaType) args[i]).getJavaClass();
-        } else if (args[i] instanceof ClassInfo) {
-          args[i] = ((ClassInfo<?>) args[i]).getC();
-        }
-      }
-
-      // unwrap null wrapper
-      if (args[i] instanceof Null) {
-        args[i] = null;
-      }
+      args[i] = coerceType(args[i], param);
     }
 
     return args;
@@ -716,6 +744,10 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
   }
 
+  /**
+   * Sends fields / methods with names similar to the called field / method.
+   * Uses {@link StringSimilarity#compare(String, String, int)} for string similarity checks.
+   */
   private void suggestTypo(Descriptor descriptor) {
     String guess = descriptor.getName();
     Class<?> javaClass = descriptor.getJavaClass();
@@ -723,14 +755,14 @@ public class ExprJavaCall<T> implements Expression<T> {
     Stream<? extends Member> members = getMembers(javaClass);
 
     List<String> matches = members
-        .map(Member::getName)
-        .filter(m -> !m.equals(guess)) // this would be a parameter mismatch, not a typo
-        .distinct()
-        .map(m -> StringSimilarity.compare(guess, m, 3))
-        .filter(Objects::nonNull)
-        .sorted()
-        .map(StringSimilarity.Result::getRight)
-        .collect(Collectors.toList());
+      .map(Member::getName)
+      .filter(m -> !m.equals(guess)) // this would be a parameter mismatch, not a typo
+      .distinct()
+      .map(m -> StringSimilarity.compare(guess, m, 3))
+      .filter(Objects::nonNull)
+      .sorted()
+      .map(StringSimilarity.Result::getRight)
+      .collect(Collectors.toList());
 
     if (!matches.isEmpty()) {
       directError(String.format("Did you misspell the %s? You may have meant to type one of the following:", type));
@@ -776,8 +808,8 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   private static String argumentsToString(Object... arguments) {
     return Arrays.stream(arguments)
-        .map(arg -> String.format("%s (%s)",
-            Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
-        .collect(Collectors.joining(", "));
+      .map(arg -> String.format("%s (%s)",
+        Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
+      .collect(Collectors.joining(", "));
   }
 }

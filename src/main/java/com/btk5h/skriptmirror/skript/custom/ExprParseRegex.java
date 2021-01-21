@@ -58,18 +58,18 @@ public class ExprParseRegex extends SimpleExpression<String> {
     return "parser mark";
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(
-        EffectTriggerEvent.class,
-        ExpressionGetEvent.class,
-        ExpressionChangeEvent.class,
-        ConditionCheckEvent.class
-        )) {
+      EffectTriggerEvent.class,
+      ExpressionGetEvent.class,
+      ExpressionChangeEvent.class,
+      ConditionCheckEvent.class
+    )) {
       Skript.error("The parsed regular expression may only be used in custom syntax.",
-          ErrorQuality.SEMANTIC_ERROR);
+        ErrorQuality.SEMANTIC_ERROR);
+      return false;
     }
 
     index = Utils.parseInt(parseResult.regexes.get(0).group(0));
