@@ -38,7 +38,7 @@ public class ExprEventData extends SimpleExpression<Object> {
     if (e instanceof BukkitCustomEvent) {
       bukkitCustomEvent = (BukkitCustomEvent) e;
     } else {
-      bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) e).getEvent();
+      bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) e).getDirectEvent();
     }
 
     if (dataIndex.isSingle()) {

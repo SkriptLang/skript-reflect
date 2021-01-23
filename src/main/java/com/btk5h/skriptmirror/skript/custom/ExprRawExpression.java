@@ -56,7 +56,7 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
       return;
     Expression<?> source = expr.getSource();
 
-    event = ((WrappedEvent) event).getEvent();
+    event = ((WrappedEvent) event).getDirectEvent();
     source.change(event, delta, changeMode);
   }
 

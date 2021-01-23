@@ -93,13 +93,13 @@ public class EvtByReflection extends SkriptEvent {
 
     @Override
     public boolean isCancelled() {
-      Event event = getEvent();
-      return getEvent() instanceof Cancellable && ((Cancellable) event).isCancelled();
+      Event event = getDirectEvent();
+      return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-      Event event = getEvent();
+      Event event = getDirectEvent();
       if (event instanceof Cancellable) {
         ((Cancellable) event).setCancelled(cancel);
       }
@@ -155,7 +155,7 @@ public class EvtByReflection extends SkriptEvent {
   @Override
   public boolean check(Event e) {
     BukkitEvent bukkitEvent = (BukkitEvent) e;
-    Event extractedEvent = bukkitEvent.getEvent();
+    Event extractedEvent = bukkitEvent.getDirectEvent();
     Class<? extends Event> eventClass = extractedEvent.getClass();
 
     if (ignoreCancelled && extractedEvent instanceof Cancellable && ((Cancellable) extractedEvent).isCancelled())

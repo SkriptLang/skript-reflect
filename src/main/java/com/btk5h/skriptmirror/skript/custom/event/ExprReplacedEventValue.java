@@ -33,7 +33,7 @@ public class ExprReplacedEventValue<T> extends EventValueExpression<T> {
       if (e instanceof BukkitCustomEvent) {
         bukkitCustomEvent = (BukkitCustomEvent) e;
       } else {
-        bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) e).getEvent();
+        bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) e).getDirectEvent();
       }
 
       Class<?> valueClass = original.getReturnType();

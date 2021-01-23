@@ -14,10 +14,6 @@ public abstract class WrappedEvent extends Event {
     this.event = event;
   }
 
-  public Event getEvent() {
-    return event instanceof WrappedEvent ? ((WrappedEvent) event).getEvent() : event;
-  }
-
   public Event getDirectEvent() {
     return event;
   }

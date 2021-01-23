@@ -17,7 +17,7 @@ public class ExprEvent extends SimpleExpression<Event> {
   @Override
   protected Event[] get(Event e) {
     if (e instanceof WrappedEvent) {
-      return new Event[]{((WrappedEvent) e).getEvent()};
+      return new Event[]{((WrappedEvent) e).getDirectEvent()};
     }
     return new Event[]{e};
   }

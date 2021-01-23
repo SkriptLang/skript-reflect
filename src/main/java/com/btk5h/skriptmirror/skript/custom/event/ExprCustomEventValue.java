@@ -64,7 +64,7 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
     if (event instanceof BukkitCustomEvent) {
       bukkitCustomEvent = (BukkitCustomEvent) event;
     } else {
-      bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) event).getEvent();
+      bukkitCustomEvent = (BukkitCustomEvent) ((EventTriggerEvent) event).getDirectEvent();
     }
 
     T[] tArray = (T[]) Array.newInstance(classInfo.getC(), 1);
