@@ -20,9 +20,8 @@ public class CondParseLater extends Condition {
   public boolean check(Event e) {
     Condition parsedCondition = getParsedCondition();
 
-    if (parsedCondition == null) {
+    if (parsedCondition == null)
       return false;
-    }
 
     return parsedCondition.check(e);
   }
@@ -31,13 +30,7 @@ public class CondParseLater extends Condition {
   protected TriggerItem walk(Event e) {
     Statement parsedStatement = getParsedStatement();
 
-    if (parsedStatement == null) {
-      return null;
-    }
-
-    TriggerItem.walk(parsedStatement, e);
-
-    return null;
+    return parsedStatement == null ? getNext() : parsedStatement;
   }
 
   @Override
@@ -70,12 +63,10 @@ public class CondParseLater extends Condition {
         + statement);
       previousState.applyToCurrentState();
 
-      if (parsedStatement == null) {
-        return null;
+      if (parsedStatement != null) {
+        parsedStatement.setNext(getNext());
+        parsedStatement.setParent(getParent());
       }
-
-      parsedStatement.setNext(getNext());
-      parsedStatement.setParent(getParent());
     }
 
     return parsedStatement;
@@ -84,22 +75,18 @@ public class CondParseLater extends Condition {
   private Condition getParsedCondition() {
     if (parsedStatement == null) {
       scriptLoaderState.applyToCurrentState();
-      parsedStatement = Condition.parse(statement,
-          String.format("Could not parse condition at runtime: %s", statement));
+      parsedStatement = Condition.parse(statement, "Could not parse condition at runtime: " + statement);
 
-      if (parsedStatement == null) {
-        return null;
+      if (parsedStatement != null) {
+        parsedStatement.setNext(getNext());
+        parsedStatement.setParent(getParent());
       }
-
-      parsedStatement.setNext(getNext());
-      parsedStatement.setParent(getParent());
     }
 
-    if (!(parsedStatement instanceof Condition)) {
-      throw new IllegalStateException(
-          String.format("%s was used as a condition but was parsed as a statement", statement));
+    if (parsedStatement != null && !(parsedStatement instanceof Condition)) {
+      throw new IllegalStateException(statement + " was used as a condition but was parsed as a statement");
     }
 
-    return ((Condition) parsedStatement);
+    return (Condition) parsedStatement;
   }
 }

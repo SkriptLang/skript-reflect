@@ -2,7 +2,6 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.EffReturn;
-import ch.njol.skript.lang.*;
 import ch.njol.util.Checker;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
 import com.btk5h.skriptmirror.skript.custom.ExprMatchedPattern;
@@ -11,9 +10,7 @@ import com.btk5h.skriptmirror.skript.custom.effect.CustomEffect;
 import com.btk5h.skriptmirror.skript.custom.expression.CustomExpression;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 /**

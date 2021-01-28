@@ -187,6 +187,10 @@ public class SkriptReflection {
     }
   }
 
+  /**
+   * Prints the log stored in the given {@link RetainingLogHandler} after closing
+   * all active {@link LogHandler}s, except the {@link ParseLogHandler}s.
+   */
   public static void printLog(RetainingLogHandler logger) {
     logger.stop();
     HandlerList handler;
@@ -214,6 +218,9 @@ public class SkriptReflection {
     SkriptLogger.logAll(logger.getLog());
   }
 
+  /**
+   * @return a {@link Map} of the options currently being loaded by {@link ScriptLoader}.
+   */
   @SuppressWarnings("unchecked")
   public static Map<String, String> getCurrentOptions() {
     try {
@@ -364,6 +371,9 @@ public class SkriptReflection {
     }
   }
 
+  /**
+   * Executes {@link SkriptParser}'s {@code parse_i} method with the given arguments.
+   */
   public static SkriptParser.ParseResult parse_i(SkriptParser skriptParser, String pattern, int i, int j) {
     if (PARSE_I == null)
       return null;
@@ -376,6 +386,9 @@ public class SkriptReflection {
     return null;
   }
 
+  /**
+   * {@return} a list of all of Skript's registered {@link ch.njol.skript.lang.Expression}s.
+   */
   public static List<ExpressionInfo<?, ?>> getExpressions() {
     try {
       return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);

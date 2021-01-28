@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
@@ -78,8 +77,8 @@ public class Consent extends SelfRegisteringSkriptEvent {
 
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-    File currentScript = ScriptLoader.currentScript.getFile();
-    SectionNode node = ((SectionNode) SkriptLogger.getNode());
+    File currentScript = SkriptUtil.getCurrentScript();
+    SectionNode node = (SectionNode) SkriptLogger.getNode();
 
     if (node.getKey().toLowerCase().startsWith("on ")) {
       return false;

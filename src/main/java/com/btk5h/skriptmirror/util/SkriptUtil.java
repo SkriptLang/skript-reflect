@@ -13,6 +13,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,13 +23,18 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class SkriptUtil {
+
+  /**
+   * Returns the given {@link Expression}, unless it is (or has) an {@link UnparsedLiteral},
+   * in which case every {@link UnparsedLiteral} will be parsed, and returned if successful.
+   */
   @SuppressWarnings("unchecked")
   public static <T> Expression<T> defendExpression(Expression<?> expr) {
     if (expr instanceof UnparsedLiteral) {
       Literal<?> parsed = ((UnparsedLiteral) expr).getConvertedExpression(Object.class);
       return (Expression<T>) (parsed == null ? expr : parsed);
     } else if (expr instanceof ExpressionList) {
-      Expression[] exprs = ((ExpressionList) expr).getExpressions();
+      Expression<?>[] exprs = ((ExpressionList<?>) expr).getExpressions();
       for (int i = 0; i < exprs.length; i++) {
         exprs[i] = defendExpression(exprs[i]);
       }
@@ -36,19 +42,38 @@ public class SkriptUtil {
     return (Expression<T>) expr;
   }
 
+  /**
+   * @return whether the given {@link Expression} is / has an {@link UnparsedLiteral}.
+   */
   public static boolean hasUnparsedLiteral(Expression<?> expr) {
-    return expr instanceof UnparsedLiteral ||
-        (expr instanceof ExpressionList &&
-            Arrays.stream(((ExpressionList) expr).getExpressions())
-                .anyMatch(UnparsedLiteral.class::isInstance));
+    if (expr instanceof UnparsedLiteral)
+      return true;
+
+    if (expr instanceof ExpressionList) {
+      Expression<?>[] expressions = ((ExpressionList<?>) expr).getExpressions();
+      for (Expression<?> expression : expressions) {
+        if (expression instanceof UnparsedLiteral)
+          return true;
+      }
+    }
+
+    return false;
   }
 
+  /**
+   * @return whether the given {@link Expression}s contain any {@link UnparsedLiteral},
+   * checked using {@link #hasUnparsedLiteral(Expression)}.
+   */
   public static boolean canInitSafely(Expression<?>... expressions) {
     return Arrays.stream(expressions)
-        .filter(Objects::nonNull)
-        .noneMatch(SkriptUtil::hasUnparsedLiteral);
+      .filter(Objects::nonNull)
+      .noneMatch(SkriptUtil::hasUnparsedLiteral);
   }
 
+  /**
+   * @return the {@link TriggerItem}s in the given {@link SectionNode},
+   * using {@link ScriptLoader#loadItems(SectionNode)}.
+   */
   public static List<TriggerItem> getItemsFromNode(SectionNode node) {
     RetainingLogHandler log = SkriptLogger.startRetainingLog();
     try {
@@ -59,17 +84,28 @@ public class SkriptUtil {
     }
   }
 
+  /**
+   * Deletes all the nodes in the given {@link SectionNode}.
+   */
   public static void clearSectionNode(SectionNode node) {
     List<Node> subNodes = new ArrayList<>();
     node.forEach(subNodes::add);
     subNodes.forEach(Node::remove);
   }
 
+  /**
+   * {@return} the {@link ScriptLoader#currentScript} as a {@link File}.
+   */
   public static File getCurrentScript() {
     Config currentScript = ScriptLoader.currentScript;
     return currentScript == null ? null : currentScript.getFile();
   }
 
+  /**
+   * Gets the {@link ClassInfo} by first converting the given string to a singular.
+   * Returns {@code Object.class}'s if no {@link ClassInfo} can be found for the given type.
+   */
+  @NonNull
   public static ClassInfo<?> getUserClassInfo(String name) {
     NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
 
@@ -87,6 +123,9 @@ public class SkriptUtil {
     return ci;
   }
 
+  /**
+   * @return the pair of the {@link ClassInfo} in the given string, and whether is is singular.
+   */
   public static NonNullPair<ClassInfo<?>, Boolean> getUserClassInfoAndPlural(String name) {
     NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
     ClassInfo<?> ci = getUserClassInfo(name);
@@ -94,6 +133,11 @@ public class SkriptUtil {
     return new NonNullPair<>(ci, wordData.getSecond());
   }
 
+  /**
+   * @return the singular form of the given string type,
+   * converted back to plural if it was plural in the first place.
+   * This causes the string type to always be the default codename for the {@link ClassInfo}.
+   */
   public static String replaceUserInputPatterns(String name) {
     NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
     ClassInfo<?> ci = getUserClassInfo(name);
@@ -101,6 +145,11 @@ public class SkriptUtil {
     return Utils.toEnglishPlural(ci.getCodeName(), wordData.getSecond());
   }
 
+  /**
+   * {@return} a {@link Function} to get a {@link Expression}'s value,
+   * using {@link Expression#getSingle(Event)} if {@link Expression#getSingle(Event)}
+   * returns {@code true}, otherwise returning {@link Expression#getArray(Event)}.
+   */
   public static Function<Expression, Object> unwrapWithEvent(Event e) {
     return expr -> expr.isSingle() ? expr.getSingle(e) : expr.getArray(e);
   }

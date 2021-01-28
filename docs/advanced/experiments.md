@@ -23,7 +23,7 @@ Individual features may be enabled by adding the codename of the feature on new 
 Deferred parsing allows you to prefix any line with `(parse[d] later)` to defer parsing until the first execution of the line. This allows you to circumvent issues where custom syntaxes are used before they are defined.
 
 {% hint style="danger" %}
-This should only be used when two custom syntaxes refer to each other. Other issues should be resolved by reordering custom syntax definitions and ensuring that libraries containing custom syntax load before other scripts.
+This should only be used when two custom syntaxes refer to each other. Other issues should be resolved by reordering custom syntax definitions and ensuring that libraries containing custom syntax load before other scripts, or by using the [preloading feature](#preloading).
 {% endhint %}
 
 

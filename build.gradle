@@ -25,14 +25,14 @@ repositories {
 }
 
 processResources {
-  inputs.files 'build.gradle'
-  from sourceSets.main.resources.srcDirs
-  filter(ReplaceTokens, tokens: [version: version])
+  from ('src/main/resources') {
+    filter(ReplaceTokens, tokens: ["version": version])
+  }
 }
 
 dependencies {
   implementation 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT'
-  implementation 'com.github.SkriptLang:Skript:master-SNAPSHOT'
+  implementation 'com.github.SkriptLang:Skript:2.5.3'
 }
 
 compileJava.options.encoding = "UTF-8"

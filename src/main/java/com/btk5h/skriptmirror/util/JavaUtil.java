@@ -41,6 +41,10 @@ public final class JavaUtil {
     PRIMITIVE_CLASS_NAMES.put("short", short.class);
   }
 
+  /**
+   * @return a {@link Stream} of {@link Field}s, with the fields declared in the given class,
+   * and the public fields of the given class, without duplicates.
+   */
   public static Stream<Field> fields(Class<?> cls) {
     return Stream.concat(
       Arrays.stream(cls.getFields()),
@@ -48,6 +52,10 @@ public final class JavaUtil {
     ).distinct();
   }
 
+  /**
+   * @return a {@link Stream} of {@link Method}s, with the methods declared in the given class
+   * and the public methods of the given class, without duplicates.
+   */
   public static Stream<Method> methods(Class<?> cls) {
     return Stream.concat(
       Arrays.stream(cls.getMethods()),
@@ -55,10 +63,18 @@ public final class JavaUtil {
     ).distinct();
   }
 
+  /**
+   * @return a {@link Stream} of the {@link Constructor}s declared in the given class.
+   */
   public static Stream<Constructor> constructors(Class<?> cls) {
     return Arrays.stream(cls.getDeclaredConstructors());
   }
 
+  /**
+   * Calls {@code toGenericString} on the given {@link Member},
+   * returning {@code null} if the given {@link Member} is not
+   * a {@link Field}, a {@link Method} or a {@link Constructor}.
+   */
   public static String toGenericString(Member o) {
     if (o instanceof Field) {
       return ((Field) o).toGenericString();
@@ -70,6 +86,10 @@ public final class JavaUtil {
     return null;
   }
 
+  /**
+   * @return an array of the wrapper type of the component type of the given array (e.g. {@code int[] -> Integer[]}).
+   * The contents of the array are copied over.
+   */
   public static Object boxPrimitiveArray(Object obj) {
     Class<?> componentType = obj.getClass().getComponentType();
     if (componentType != null && componentType.isPrimitive()) {
@@ -85,6 +105,9 @@ public final class JavaUtil {
     return obj;
   }
 
+  /**
+   * Converts a numeric array to a different numeric class. Also supports arrays with depths higher than {@code 1}.
+   */
   public static Object convertNumericArray(Object array, Class<?> to) {
     Class<?> componentType = array.getClass().getComponentType();
     int length = Array.getLength(array);
@@ -131,6 +154,11 @@ public final class JavaUtil {
     return newArray;
   }
 
+  /**
+   * Gets the array depth of a given class, for example:<br>
+   *   Object[] -> 1<br>
+   *   Object[][][] -> 3
+   */
   public static int getArrayDepth(Class<?> cls) {
     int depth = 0;
 
@@ -142,6 +170,9 @@ public final class JavaUtil {
     return depth;
   }
 
+  /**
+   * @return the component type of the given array class, independent of the depth of the array.
+   */
   public static Class<?> getBaseComponent(Class<?> obj) {
     Class<?> componentType = obj.getComponentType();
 
@@ -152,11 +183,21 @@ public final class JavaUtil {
     return componentType;
   }
 
+  /**
+   * An functional interface with an input and output that may throw an {@link Exception}.
+   * @param <T> the input of the function.
+   * @param <R> the return value of the function.
+   */
   @FunctionalInterface
   public interface ExceptionalFunction<T, R> {
     R apply(T t) throws Exception;
   }
 
+  /**
+   * Converts a {@link ExceptionalFunction} to a normal {@link Function}, by catching the exception
+   * and logging a warning with the simple class name and message of the exception.
+   * If Skript's verbosity is set to 'very high' or above, this will also print the stack trace.
+   */
   public static <T, R> Function<T, R> propagateErrors(ExceptionalFunction<T, R> function) {
     return t -> {
       try {
@@ -177,19 +218,31 @@ public final class JavaUtil {
     };
   }
 
+  /**
+   * @return whether the given class is a numeric class, albeit primitive or a wrapper of a primitive numeric class.
+   */
   public static boolean isNumericClass(Class<?> cls) {
     return Number.class.isAssignableFrom(cls) || JavaUtil.NUMERIC_CLASSES.contains(cls);
   }
 
+  /**
+   * {@return} a new array with the given class as base component type, and the given length as the array length.
+   */
   @SuppressWarnings("unchecked")
   public static <T> T[] newArray(Class<? extends T> type, int length) {
     return (T[]) Array.newInstance(type, length);
   }
 
+  /**
+   * {@return} the array class of the given class.
+   */
   public static <T> Class<?> getArrayClass(Class<T> type) {
     return Array.newInstance(type, 0).getClass();
   }
 
+  /**
+   * @return the array class with the given depth of the given type, using {@link #getArrayClass(Class)}.
+   */
   public static Class<?> getArrayClass(Class<?> type, int layers) {
     for (int i = 0; i < layers; i++) {
       type = getArrayClass(type);
