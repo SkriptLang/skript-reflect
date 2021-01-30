@@ -20,6 +20,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
+
+  public static boolean customEffectsUsed = false;
+
   static {
     String[] syntax = {
       "[(1¦local)] effect <.+>",
@@ -57,6 +60,8 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
   @Override
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node, boolean isPreload) {
+    customEffectsUsed = true;
+
     if (!isPreloaded) {
       SectionNode patterns = (SectionNode) node.get("patterns");
       File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;

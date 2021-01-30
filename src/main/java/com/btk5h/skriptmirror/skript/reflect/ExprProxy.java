@@ -25,6 +25,9 @@ import java.lang.reflect.Proxy;
 import java.util.*;
 
 public class ExprProxy extends SimpleExpression<Object> {
+
+  public static boolean proxiesUsed = false;
+
   static {
     Skript.registerExpression(ExprProxy.class, Object.class, ExpressionType.COMBINED,
         "[a] [new] proxy [instance] of %javatypes% (using|from) %objects%");
@@ -137,6 +140,8 @@ public class ExprProxy extends SimpleExpression<Object> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
+
+    proxiesUsed = true;
 
     interfaces = SkriptUtil.defendExpression(exprs[0]);
     Expression<?> var = SkriptUtil.defendExpression(exprs[1]);

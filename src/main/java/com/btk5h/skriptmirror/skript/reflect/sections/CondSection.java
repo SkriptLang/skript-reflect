@@ -19,6 +19,8 @@ import java.util.List;
 
 public class CondSection extends Condition {
 
+  public static boolean sectionsUsed = false;
+
   static {
     Skript.registerCondition(CondSection.class,
       "create [new] section [with [arguments variables] %-objects%] (and store it|stored) in %objects%");
@@ -70,6 +72,8 @@ public class CondSection extends Condition {
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    sectionsUsed = true;
+
     if (!shouldInit)
       return false;
 

@@ -8,6 +8,8 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 public class CondParseLater extends Condition {
+  public static boolean deferredParsingUsed = false;
+
   static {
     Skript.registerCondition(CondParseLater.class, "\\(parse[d] later\\) <.+>");
   }
@@ -45,6 +47,8 @@ public class CondParseLater extends Condition {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
+    deferredParsingUsed = true;
+
     if (!Consent.Feature.DEFERRED_PARSING.hasConsent(SkriptUtil.getCurrentScript())) {
       Skript.error("This feature requires consent, because it is experimental.");
       return false;

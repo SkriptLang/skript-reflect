@@ -20,6 +20,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxInfo> {
+
+  public static boolean customConditionsUsed = false;
+
   static {
     String[] syntax = {
       "[(1¦local)] condition <.+>",
@@ -59,6 +62,8 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
   @Override
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node, boolean isPreload) {
+    customConditionsUsed = true;
+
     if (!isPreloaded) {
       String what;
       SectionNode patterns = (SectionNode) node.get("patterns");

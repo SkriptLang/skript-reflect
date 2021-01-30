@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.*;
 
 public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
+  public static boolean customEventsUsed = false;
 
   static {
     String[] syntax = {
@@ -59,6 +60,8 @@ public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
   @Override
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node, boolean isPreload) {
+    customEventsUsed = true;
+
     if (!isPreloaded) {
       File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
 

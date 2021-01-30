@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExprJavaCall<T> implements Expression<T> {
+  public static int javaCallsMade = 0;
+
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
   private static final Object[] NO_ARGS = new Object[0];
   private static final Descriptor CONSTRUCTOR_DESCRIPTOR = new Descriptor(null, "<init>", null);
@@ -408,6 +410,8 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   @SuppressWarnings("unchecked")
   private T invoke(Object target, Object[] arguments, Descriptor baseDescriptor) {
+    javaCallsMade++;
+
     if (baseDescriptor == null) {
       return null;
     }

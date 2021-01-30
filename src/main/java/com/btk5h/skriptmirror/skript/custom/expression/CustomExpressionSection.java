@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSyntaxInfo> {
+  public static boolean customExpressionsUsed = false;
+
   static {
     String[] syntax = {
       "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
@@ -75,6 +77,8 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
   @Override
   protected boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
                          SectionNode node, boolean isPreload) {
+    customExpressionsUsed = true;
+
     if (!isPreloaded) {
       String what;
       SectionNode patterns = (SectionNode) node.get("patterns");
