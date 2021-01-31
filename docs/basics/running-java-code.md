@@ -27,8 +27,6 @@ If the method you're trying to invoke is not public, you must prefix the method 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-{_arraylist}.[java.util.ArrayList]fastRemove(1)
-# or, if you have the declaring class imported:
 {_arraylist}.[ArrayList]fastRemove(1)
 ```
 {% endcode-tabs-item %}
@@ -41,8 +39,6 @@ Generally, skript-reflect can infer the correct overloaded method to call from t
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-System.out.println[java.lang.Object]({_something})
-# or, if you have the parameter classes imported:
 System.out.println[Object]({_something})
 
 Math.max[int, int](0, {_value})
@@ -67,8 +63,6 @@ If the field you're trying to use is not public, you must prefix the field name 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-{_hashmap}.[java.util.HashMap]modCount
-# or, if you have the declaring class imported:
 {_hashmap}.[HashMap]modCount
 ```
 {% endcode-tabs-item %}
