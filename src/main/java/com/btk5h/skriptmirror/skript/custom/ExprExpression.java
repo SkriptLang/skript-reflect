@@ -175,12 +175,12 @@ public class ExprExpression<T> implements Expression<T> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(
-        EffectTriggerEvent.class,
-        ExpressionGetEvent.class,
-        ExpressionChangeEvent.class,
-        ConditionCheckEvent.class,
-        SyntaxParseEvent.class,
-        EventTriggerEvent.class
+      SyntaxParseEvent.class,
+      ConditionCheckEvent.class,
+      EffectTriggerEvent.class,
+      EventTriggerEvent.class,
+      ExpressionChangeEvent.class,
+      ExpressionGetEvent.class
     )) {
       Skript.error("The expression 'expression' may only be used in a custom syntax.",
           ErrorQuality.SEMANTIC_ERROR);

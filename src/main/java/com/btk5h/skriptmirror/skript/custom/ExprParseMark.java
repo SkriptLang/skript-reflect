@@ -10,9 +10,12 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
+import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
+
+import java.util.Arrays;
 
 public class ExprParseMark extends SimpleExpression<Number> {
   static {
@@ -44,13 +47,14 @@ public class ExprParseMark extends SimpleExpression<Number> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(
-        EffectTriggerEvent.class,
-        ExpressionGetEvent.class,
-        ExpressionChangeEvent.class,
-        ConditionCheckEvent.class
+      SyntaxParseEvent.class,
+      ConditionCheckEvent.class,
+      EffectTriggerEvent.class,
+      EventTriggerEvent.class,
+      ExpressionChangeEvent.class,
+      ExpressionGetEvent.class
     )) {
-      Skript.error("The parser mark may only be used in custom syntax.",
-          ErrorQuality.SEMANTIC_ERROR);
+      Skript.error("The parser mark may only be used in custom syntax.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }
     return true;

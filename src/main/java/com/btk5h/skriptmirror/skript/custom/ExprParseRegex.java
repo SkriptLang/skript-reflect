@@ -11,6 +11,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
 import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
+import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
@@ -62,10 +63,12 @@ public class ExprParseRegex extends SimpleExpression<String> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
     if (!ScriptLoader.isCurrentEvent(
+      SyntaxParseEvent.class,
+      ConditionCheckEvent.class,
       EffectTriggerEvent.class,
-      ExpressionGetEvent.class,
+      EventTriggerEvent.class,
       ExpressionChangeEvent.class,
-      ConditionCheckEvent.class
+      ExpressionGetEvent.class
     )) {
       Skript.error("The parsed regular expression may only be used in custom syntax.",
         ErrorQuality.SEMANTIC_ERROR);
