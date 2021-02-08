@@ -28,13 +28,13 @@ the local variables from outside the section.
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-run section %section% [(1¦async)] [with [arguments] %-objects%] [and store [the] result in %-objects%] [(2¦and wait)]
+run section %section% [(1¦sync|2¦async)] [with [arguments] %-objects%] [and store [the] result in %-objects%] [(2¦and wait)]
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
 This effect will run the given section.
-If you run the section async, you can choose to wait for it to be done or not, by appending `and wait` or not.
+If you run the section (a)sync, you can choose to wait for it to be done or not, by appending `and wait` or not.
 {% hint style="info" %}
 Note that you can't get output from running an async section without waiting for it to return.
 {% endhint %}

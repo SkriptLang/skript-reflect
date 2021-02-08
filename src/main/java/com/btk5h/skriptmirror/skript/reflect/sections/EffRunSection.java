@@ -67,47 +67,42 @@ public class EffRunSection extends Effect {
 
   @Override
   protected TriggerItem walk(Event e) {
-    if (!runsAsync.isUnknown()) {
-      Section section = sectionExpression.getSingle(e);
+    if (runsAsync.isUnknown())
+      return super.walk(e);
 
-      Object[][] args = getArgs(e);
+    Section section = sectionExpression.getSingle(e);
 
-      Object localVars = SkriptReflection.removeLocals(e);
+    if (section == null)
+      return getNext();
 
-      boolean ranAsync = !Bukkit.isPrimaryThread();
+    Object[][] args = getArgs(e);
 
-      if (section != null) {
-        Runnable runnable = () -> {
+    // Whether the trigger needs to be continued abnormally
+    boolean needsContinue = shouldWait && getNext() != null;
+
+    // If the trigger needs abnormal continuation, remove locals and store whether this trigger was running async.
+    Object localVars = needsContinue ? SkriptReflection.removeLocals(e) : null;
+    boolean ranAsync = !Bukkit.isPrimaryThread();
+
+    Runnable runSection = () -> {
+      section.run(e, args);
+      storeResult(section, e);
+
+      if (needsContinue) {
+        Runnable continuation = () -> {
           SkriptReflection.putLocals(localVars, e);
 
-          section.run(e, args);
-          storeResult(section, e);
-
-
-          if (shouldWait && getNext() != null) {
-            Runnable continuation = () -> {
-              TriggerItem.walk(getNext(), e);
-              SkriptReflection.removeLocals(e);
-            };
-
-            if (ranAsync)
-              Bukkit.getScheduler().runTaskAsynchronously(SkriptMirror.getInstance(), continuation);
-            else
-              Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), continuation);
-          }
+          TriggerItem.walk(getNext(), e);
+          SkriptReflection.removeLocals(e);
         };
 
-        if (runsAsync.isTrue())
-          Bukkit.getScheduler().runTaskAsynchronously(SkriptMirror.getInstance(), runnable);
-        else
-          Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), runnable);
-      } else {
-        return getNext();
+        runTask(continuation, ranAsync);
       }
-      return shouldWait ? null : getNext();
-    } else {
-      return super.walk(e);
-    }
+    };
+
+    runTask(runSection, runsAsync.isTrue());
+
+    return needsContinue ? null : getNext();
   }
 
   @Override
@@ -135,6 +130,13 @@ public class EffRunSection extends Effect {
     Object[] output = section.getOutput();
     if (variableStorage != null && output != null)
       variableStorage.change(event, output, Changer.ChangeMode.SET);
+  }
+
+  private void runTask(Runnable task, boolean async) {
+    if (async)
+      Bukkit.getScheduler().runTaskAsynchronously(SkriptMirror.getInstance(), task);
+    else
+      Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), task);
   }
 
 }
