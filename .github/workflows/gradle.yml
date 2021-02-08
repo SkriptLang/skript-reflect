@@ -22,4 +22,4 @@ jobs:
         run: ./gradlew build
       - uses: actions/upload-artifact@master
         with:
-          path: build/libs/skript-reflect-2.2.1-alpha1.jar
+          path: build/libs/skript-reflect-2.2.1.jar
