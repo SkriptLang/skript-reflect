@@ -85,12 +85,13 @@ public class EffRunSection extends Effect {
     boolean ranAsync = !Bukkit.isPrimaryThread();
 
     Runnable runSection = () -> {
+      SkriptReflection.putLocals(localVars, e);
+
       section.run(e, args);
       storeResult(section, e);
 
       if (needsContinue) {
         Runnable continuation = () -> {
-          SkriptReflection.putLocals(localVars, e);
 
           TriggerItem.walk(getNext(), e);
           SkriptReflection.removeLocals(e);
