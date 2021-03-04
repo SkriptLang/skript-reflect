@@ -27,8 +27,7 @@ public class CondExpressionStatement extends Condition {
     Skript.registerCondition(CondExpressionStatement.class, "[(1¦await)] %~javaobject%");
   }
 
-  private static final ExecutorService threadPool =
-      Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
   private Expression<Object> arg;
   private boolean isAsynchronous;
