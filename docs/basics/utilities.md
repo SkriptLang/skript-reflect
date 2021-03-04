@@ -146,3 +146,15 @@ Returns a list of the fields or methods of an object.
 
 Checks whether objects are instances of the given java types.
 
+## Class reference
+
+{% code-tabs %}
+{% code-tabs-item title="Syntax" %}
+```text
+%javatype%.class
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+Returns a reference to the class from the given java type. Returns an object of type `java.lang.Class`.
+
