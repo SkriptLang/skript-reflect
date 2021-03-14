@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript.reflect.sections;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
@@ -100,6 +101,9 @@ public class EffRunSection extends Effect {
         runTask(continuation, ranAsync);
       }
     };
+
+    if (needsContinue)
+      Delay.addDelayedEvent(e);
 
     runTask(runSection, runsAsync.isTrue());
 

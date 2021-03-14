@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.skript;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -37,6 +38,8 @@ public class EffExpressionStatement extends Effect {
   @Override
   protected TriggerItem walk(Event e) {
     if (isAsynchronous) {
+      Delay.addDelayedEvent(e);
+
       Object localVariables = SkriptReflection.getLocals(e);
       CompletableFuture.runAsync(() -> {
         SkriptReflection.putLocals(localVariables, e);
