@@ -36,12 +36,13 @@ public class SkriptReflection {
   private static Field PATTERNS;
   private static Field PARAMETERS;
   private static Field HANDLERS;
+  private static Method GET_HANDLERS;
   private static Field CURRENT_OPTIONS;
   private static Field LOCAL_VARIABLES;
   private static Field NODES;
   private static Field VARIABLES_MAP_HASHMAP;
   private static Field VARIABLES_MAP_TREEMAP;
-  private static Constructor VARIABLES_MAP;
+  private static Constructor<?> VARIABLES_MAP;
   private static Field DEFAULT_EXPRESSION;
   private static Field PARSED_VALUE;
   private static Method PARSE_I;
@@ -50,7 +51,7 @@ public class SkriptReflection {
   static {
     Field _FIELD;
     Method _METHOD;
-    Constructor _CONSTRUCTOR;
+    Constructor<?> _CONSTRUCTOR;
 
     try {
       _FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
@@ -72,9 +73,14 @@ public class SkriptReflection {
       _FIELD = SkriptLogger.class.getDeclaredField("handlers");
       _FIELD.setAccessible(true);
       HANDLERS = _FIELD;
-    } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's handlers field could not be resolved. Some Skript warnings may not be available.");
-    }
+    } catch (NoSuchFieldException ignored) { }
+
+    // https://github.com/SkriptLang/Skript/pull/3800
+    try {
+      _METHOD = SkriptLogger.class.getDeclaredMethod("getHandlers");
+      _METHOD.setAccessible(true);
+      GET_HANDLERS = _METHOD;
+    } catch (NoSuchMethodException ignored) { }
 
     try {
       _FIELD = ScriptLoader.class.getDeclaredField("currentOptions");
@@ -187,19 +193,26 @@ public class SkriptReflection {
     }
   }
 
+  public static HandlerList getLogHandlerList() {
+    try {
+      if (HANDLERS != null) {
+        return (HandlerList) HANDLERS.get(null);
+      } else {
+        return (HandlerList) GET_HANDLERS.invoke(null);
+      }
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
   /**
-   * Prints the log stored in the given {@link RetainingLogHandler} after closing
-   * all active {@link LogHandler}s, except the {@link ParseLogHandler}s.
+   * 1. Stops the given log handler.
+   * 2. Stops every {@link ParseLogHandler} until a non-{@link ParseLogHandler} has been reached.
+   * 3. Prints the log stored in the given log handler.
    */
   public static void printLog(RetainingLogHandler logger) {
     logger.stop();
-    HandlerList handler;
-    try {
-      handler = (HandlerList) HANDLERS.get(logger);
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-      return;
-    }
+    HandlerList handler = getLogHandlerList();
 
     Iterator<LogHandler> handlers = handler.iterator();
     LogHandler nextHandler;
