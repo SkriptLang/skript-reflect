@@ -117,7 +117,6 @@ public class EvtByReflection extends SkriptEvent {
       Bukkit.getPluginManager()
         .registerEvent(eventClass, listener, priority, executor, SkriptMirror.getInstance(), false);
     }
-
   }
 
   private Class<? extends Event>[] classes;
@@ -127,9 +126,17 @@ public class EvtByReflection extends SkriptEvent {
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-    classes = Arrays.stream(((Literal<JavaType>) args[0]).getArray())
-        .map(JavaType::getJavaClass)
-        .toArray(Class[]::new);
+    Class<?>[] classArray = Arrays.stream(((Literal<JavaType>) args[0]).getArray())
+      .map(JavaType::getJavaClass)
+      .toArray(Class[]::new);
+
+    for (Class<?> clazz : classArray) {
+      if (!Event.class.isAssignableFrom(clazz)) {
+        Skript.error(clazz.getSimpleName() + " is not a Bukkit event");
+        return false;
+      }
+    }
+    classes = (Class<? extends Event>[]) classArray;
 
     if (parseResult.regexes.size() > 0) {
       String priorityName = parseResult.regexes.get(0).group().toUpperCase();
