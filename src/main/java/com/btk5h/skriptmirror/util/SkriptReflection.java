@@ -249,8 +249,10 @@ public class SkriptReflection {
    */
   @SuppressWarnings("unchecked")
   public static void putLocals(Object originalVariablesMap, Event to) {
-    if (originalVariablesMap == null)
+    if (originalVariablesMap == null) {
       removeLocals(to);
+      return;
+    }
 
     try {
       Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
