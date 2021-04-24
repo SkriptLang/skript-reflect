@@ -100,6 +100,10 @@ public class CustomImport {
 
     String importName = statement.group(2);
 
+    if (javaClass.getSimpleName().equals(importName)) {
+      Skript.warning(cls + " doesn't need the alias " + importName + ", as it will already be imported under that name");
+    }
+
     if (importName == null) {
       importName = javaClass.getSimpleName();
     }
