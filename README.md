@@ -18,4 +18,4 @@ Discord: https://discord.gg/jDW8UbD
 * Support for listening to asynchronous events
 * Class proxy fixes + documentation
 * Fixed multiple issues with local variables
-* And more
+* \+ much more
