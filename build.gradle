@@ -17,7 +17,7 @@ repositories {
     url 'https://repo.destroystokyo.com/repository/maven-public/'
   }
   maven {
-    url 'http://maven.sk89q.com/repo/'
+    url 'https://maven.sk89q.com/repo/'
   }
   maven {
     url 'https://jitpack.io'
@@ -30,9 +30,13 @@ processResources {
   }
 }
 
+compileJava   {
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
+  options.encoding = 'UTF-8'
+}
+
 dependencies {
   implementation 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT'
   implementation 'com.github.SkriptLang:Skript:2.5.3'
 }
-
-compileJava.options.encoding = "UTF-8"
