@@ -47,7 +47,7 @@ public class ExprJavaCall<T> implements Expression<T> {
    * See Descriptor's {@code DESCRIPTOR} field for the extended version of this.
    */
   private static final String LITE_DESCRIPTOR = "(\\[[\\w.$]*])?" +
-    "([^0-9. ][^. ]*\\b)" +
+    "([^0-9. \\[\\]][^. \\[\\]]*\\b)" +
     "(\\[[\\w.$, ]*])?";
 
   static {
