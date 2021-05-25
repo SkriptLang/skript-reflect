@@ -24,6 +24,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.event.ExprReplacedEventValue;
 import org.bukkit.event.Event;
 
@@ -66,7 +67,7 @@ public class SkriptReflection {
       _FIELD.setAccessible(true);
       PATTERNS = _FIELD;
     } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's pattern info field could not be resolved. " +
+      warning("Skript's pattern info field could not be resolved. " +
           "Custom syntax will not work.");
     }
 
@@ -96,7 +97,7 @@ public class SkriptReflection {
       _FIELD.setAccessible(true);
       LOCAL_VARIABLES = _FIELD;
     } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's local variables field could not be resolved.");
+      warning("Skript's local variables field could not be resolved.");
     }
 
     try {
@@ -104,7 +105,7 @@ public class SkriptReflection {
       _FIELD.setAccessible(true);
       NODES = _FIELD;
     } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's nodes field could not be resolved, therefore sections won't work.");
+      warning("Skript's nodes field could not be resolved, therefore sections won't work.");
     }
 
     try {
@@ -115,7 +116,7 @@ public class SkriptReflection {
         _FIELD.setAccessible(true);
         VARIABLES_MAP_HASHMAP = _FIELD;
       } catch (NoSuchFieldException e) {
-        Skript.warning("Skript's hash map field could not be resolved.");
+        warning("Skript's hash map field could not be resolved.");
       }
 
       try {
@@ -123,7 +124,7 @@ public class SkriptReflection {
         _FIELD.setAccessible(true);
         VARIABLES_MAP_TREEMAP = _FIELD;
       } catch (NoSuchFieldException e) {
-        Skript.warning("Skript's tree map field could not be resolved.");
+        warning("Skript's tree map field could not be resolved.");
       }
 
       try {
@@ -131,10 +132,10 @@ public class SkriptReflection {
         _CONSTRUCTOR.setAccessible(true);
         VARIABLES_MAP = _CONSTRUCTOR;
       } catch (NoSuchMethodException e) {
-        Skript.warning("Skript's variables map constructors could not be resolved.");
+        warning("Skript's variables map constructors could not be resolved.");
       }
     } catch (ClassNotFoundException e) {
-      Skript.warning("Skript's variables map class could not be resolved.");
+      warning("Skript's variables map class could not be resolved.");
     }
 
     try {
@@ -142,7 +143,7 @@ public class SkriptReflection {
       _FIELD.setAccessible(true);
       DEFAULT_EXPRESSION = _FIELD;
     } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's default expression field could not be resolved, " +
+      warning("Skript's default expression field could not be resolved, " +
         "therefore event-values won't work in custom events");
     }
 
@@ -151,7 +152,7 @@ public class SkriptReflection {
       _FIELD.setAccessible(true);
       PARSED_VALUE = _FIELD;
     } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's parsed value field could not be resolved, " +
+      warning("Skript's parsed value field could not be resolved, " +
         "therefore and/or warnings won't be suppressed");
     }
 
@@ -160,7 +161,7 @@ public class SkriptReflection {
       _METHOD.setAccessible(true);
       PARSE_I = _METHOD;
     } catch (NoSuchMethodException e) {
-      Skript.warning("Skript's parse_i method could not be resolved, therefore prioritized loading won't work.");
+      warning("Skript's parse_i method could not be resolved, therefore prioritized loading won't work.");
     }
 
     try {
@@ -168,7 +169,7 @@ public class SkriptReflection {
       _FIELD.setAccessible(true);
       EXPRESSIONS = _FIELD;
     } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's expressions field could not be resolved, " +
+      warning("Skript's expressions field could not be resolved, " +
         "therefore you might get syntax conflict problems");
     }
 
@@ -186,6 +187,11 @@ public class SkriptReflection {
       HAS_DELAY_BEFORE = _FIELD;
     } catch (NoSuchFieldException ignored) { }
   }
+
+  private static void warning(String message) {
+    SkriptMirror.getInstance().getLogger().warning(message);
+  }
+
 
   public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
     try {
