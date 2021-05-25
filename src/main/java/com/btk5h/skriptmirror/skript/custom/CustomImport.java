@@ -27,6 +27,7 @@ public class CustomImport {
   static {
     CustomSyntaxSection.register("Import", SectionImport.class, "import");
 
+    // TODO try replacing ImportHandler with JavaType's literal parsing
     Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
     Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
@@ -163,6 +164,10 @@ public class CustomImport {
       }
 
       return type != null;
+    }
+
+    public JavaType getJavaType() {
+      return type;
     }
   }
 

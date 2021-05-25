@@ -15,7 +15,14 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.*;
+import com.btk5h.skriptmirror.Descriptor;
+import com.btk5h.skriptmirror.ImportNotFoundException;
+import com.btk5h.skriptmirror.JavaCallException;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.LRUCache;
+import com.btk5h.skriptmirror.Null;
+import com.btk5h.skriptmirror.ObjectWrapper;
+import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -29,8 +36,18 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,7 +96,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   private Descriptor staticDescriptor;
   private Expression<String> dynamicDescriptor;
 
-  private Expression<Object> rawTarget;
+  private Expression<?> rawTarget;
   private Expression<Object> rawArgs;
 
   private final ExprJavaCall<?> source;
@@ -308,13 +325,20 @@ public class ExprJavaCall<T> implements Expression<T> {
           return false;
         }
 
-        if (staticDescriptor.getJavaClass() != null && getCallSite(staticDescriptor).size() == 0) {
-          Skript.error(desc + " refers to a non-existent method/field.");
-          return false;
+        if (staticDescriptor.getJavaClass() == null
+            && rawTarget instanceof CustomImport.ImportHandler) {
+          staticDescriptor = staticDescriptor.orDefaultClass(
+            ((CustomImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
+          );
         }
 
         if (staticDescriptor.getParameterTypes() != null && type.equals(CallType.FIELD)) {
           Skript.error("You can't pass parameter types to a field call.");
+          return false;
+        }
+
+        if (staticDescriptor.getJavaClass() != null && getCallSite(staticDescriptor).size() == 0) {
+          Skript.error(desc + " refers to a non-existent " + (type.equals(CallType.METHOD) ? "method" : "field"));
           return false;
         }
 
