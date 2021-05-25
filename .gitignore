@@ -8,3 +8,4 @@ build/
 ## IntelliJ
 .idea/
 *.iml
+/Skript-2.6-alpha1-sources.jar

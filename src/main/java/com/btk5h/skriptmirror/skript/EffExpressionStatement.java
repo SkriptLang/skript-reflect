@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Effect;
@@ -72,7 +71,7 @@ public class EffExpressionStatement extends Effect {
 
     isAsynchronous = (parseResult.mark & 1) == 1;
     if (isAsynchronous)
-      ScriptLoader.hasDelayBefore = Kleenean.TRUE;
+      SkriptReflection.setHasDelayBefore(Kleenean.TRUE);
     return SkriptUtil.canInitSafely(arg);
   }
 }

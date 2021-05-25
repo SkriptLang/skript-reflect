@@ -4,6 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.SectionNode;
@@ -14,9 +15,15 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Parameter;
-import ch.njol.skript.log.*;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.log.HandlerList;
+import ch.njol.skript.log.LogHandler;
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
+import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.event.ExprReplacedEventValue;
 import org.bukkit.event.Event;
 
@@ -36,7 +43,6 @@ public class SkriptReflection {
   private static Field PATTERNS;
   private static Field PARAMETERS;
   private static Field HANDLERS;
-  private static Method GET_HANDLERS;
   private static Field CURRENT_OPTIONS;
   private static Field LOCAL_VARIABLES;
   private static Field NODES;
@@ -47,6 +53,8 @@ public class SkriptReflection {
   private static Field PARSED_VALUE;
   private static Method PARSE_I;
   private static Field EXPRESSIONS;
+  private static Field CURRENT_SCRIPT;
+  private static Field HAS_DELAY_BEFORE;
 
   static {
     Field _FIELD;
@@ -70,25 +78,18 @@ public class SkriptReflection {
     } catch (NoSuchFieldException ignored) { }
 
     try {
+      //noinspection JavaReflectionMemberAccess
       _FIELD = SkriptLogger.class.getDeclaredField("handlers");
       _FIELD.setAccessible(true);
       HANDLERS = _FIELD;
     } catch (NoSuchFieldException ignored) { }
 
-    // https://github.com/SkriptLang/Skript/pull/3800
     try {
-      _METHOD = SkriptLogger.class.getDeclaredMethod("getHandlers");
-      _METHOD.setAccessible(true);
-      GET_HANDLERS = _METHOD;
-    } catch (NoSuchMethodException ignored) { }
-
-    try {
+      //noinspection JavaReflectionMemberAccess
       _FIELD = ScriptLoader.class.getDeclaredField("currentOptions");
       _FIELD.setAccessible(true);
       CURRENT_OPTIONS = _FIELD;
-    } catch (NoSuchFieldException e) {
-      Skript.warning("Skript's options field could not be resolved.");
-    }
+    } catch (NoSuchFieldException ignored) { }
 
     try {
       _FIELD = Variables.class.getDeclaredField("localVariables");
@@ -170,6 +171,20 @@ public class SkriptReflection {
       Skript.warning("Skript's expressions field could not be resolved, " +
         "therefore you might get syntax conflict problems");
     }
+
+    try {
+      //noinspection JavaReflectionMemberAccess
+      _FIELD = ScriptLoader.class.getDeclaredField("currentScript");
+      _FIELD.setAccessible(true);
+      CURRENT_SCRIPT = _FIELD;
+    } catch (NoSuchFieldException ignored) { }
+
+    try {
+      //noinspection JavaReflectionMemberAccess
+      _FIELD = ScriptLoader.class.getDeclaredField("hasDelayBefore");
+      _FIELD.setAccessible(true);
+      HAS_DELAY_BEFORE = _FIELD;
+    } catch (NoSuchFieldException ignored) { }
   }
 
   public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
@@ -181,27 +196,26 @@ public class SkriptReflection {
   }
 
   public static Parameter<?>[] getParameters(Function<?> function) {
-    if (PARAMETERS == null) {
-      return function.getParameters();
-    } else {
-      try {
-        return ((Parameter<?>[]) PARAMETERS.get(function));
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
+    try {
+      if (PARAMETERS != null) {
+        return (Parameter<?>[]) PARAMETERS.get(function);
+      } else {
+        return function.getParameters();
       }
-      throw new IllegalStateException();
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  public static HandlerList getLogHandlerList() {
+  public static HandlerList getLogHandlers() {
     try {
       if (HANDLERS != null) {
         return (HandlerList) HANDLERS.get(null);
       } else {
-        return (HandlerList) GET_HANDLERS.invoke(null);
+        return ParserInstance.get().getHandlers();
       }
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new IllegalStateException(e);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -212,7 +226,7 @@ public class SkriptReflection {
    */
   public static void printLog(RetainingLogHandler logger) {
     logger.stop();
-    HandlerList handler = getLogHandlerList();
+    HandlerList handler = getLogHandlers();
 
     Iterator<LogHandler> handlers = handler.iterator();
     LogHandler nextHandler;
@@ -237,11 +251,14 @@ public class SkriptReflection {
   @SuppressWarnings("unchecked")
   public static Map<String, String> getCurrentOptions() {
     try {
-      return (Map<String, String>) CURRENT_OPTIONS.get(null);
+      if (CURRENT_OPTIONS != null) {
+        return (Map<String, String>) CURRENT_OPTIONS.get(null);
+      } else {
+        return ParserInstance.get().getCurrentOptions();
+      }
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    throw new IllegalStateException();
   }
 
   /**
@@ -259,7 +276,7 @@ public class SkriptReflection {
 
       localVariables.put(to, originalVariablesMap);
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -272,9 +289,8 @@ public class SkriptReflection {
       Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
       return localVariables.remove(event);
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
   /**
@@ -288,9 +304,8 @@ public class SkriptReflection {
       Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
       return localVariables.get(event);
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
   /**
@@ -312,9 +327,8 @@ public class SkriptReflection {
         .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(locals));
       return copiedLocals;
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      e.printStackTrace();
+      throw new RuntimeException();
     }
-    return null;
   }
 
   /**
@@ -327,9 +341,8 @@ public class SkriptReflection {
     try {
       return (ArrayList<Node>) NODES.get(sectionNode);
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    return new ArrayList<>();
   }
 
   /**
@@ -356,7 +369,7 @@ public class SkriptReflection {
 
       replaceExtraList.forEach(SkriptReflection::replaceExtra);
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -381,7 +394,7 @@ public class SkriptReflection {
       try {
         PARSED_VALUE.set(option, true);
       } catch (IllegalAccessException e) {
-        e.printStackTrace();
+        throw new RuntimeException();
       }
     }
   }
@@ -396,9 +409,8 @@ public class SkriptReflection {
     try {
       return (SkriptParser.ParseResult) PARSE_I.invoke(skriptParser, pattern, i, j);
     } catch (IllegalAccessException | InvocationTargetException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
   /**
@@ -407,6 +419,54 @@ public class SkriptReflection {
   public static List<ExpressionInfo<?, ?>> getExpressions() {
     try {
       return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static Config getCurrentScript() {
+    try {
+      if (CURRENT_SCRIPT != null) {
+        return (Config) CURRENT_SCRIPT.get(null);
+      } else {
+        return ParserInstance.get().getCurrentScript();
+      }
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void setCurrentScript(Config currentScript) {
+    try {
+      if (CURRENT_SCRIPT != null) {
+        CURRENT_SCRIPT.set(null, currentScript);
+      } else {
+        ParserInstance.get().setCurrentScript(currentScript);
+      }
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static Kleenean getHasDelayBefore() {
+    try {
+      if (HAS_DELAY_BEFORE != null) {
+        return (Kleenean) HAS_DELAY_BEFORE.get(null);
+      } else {
+        return ParserInstance.get().getHasDelayBefore();
+      }
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void setHasDelayBefore(Kleenean hasDelayBefore) {
+    try {
+      if (HAS_DELAY_BEFORE != null) {
+        HAS_DELAY_BEFORE.set(null, hasDelayBefore);
+      } else {
+        ParserInstance.get().setHasDelayBefore(hasDelayBefore);
+      }
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }

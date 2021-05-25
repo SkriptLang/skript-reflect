@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.Config;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.event.Event;
 
 public class ScriptLoaderState {
@@ -20,17 +21,17 @@ public class ScriptLoaderState {
   }
 
   public void applyToCurrentState() {
-    ScriptLoader.currentScript = currentScript;
+    SkriptReflection.setCurrentScript(currentScript);
     ScriptLoader.setCurrentEvent(currentEventName, currentEvents);
-    ScriptLoader.hasDelayBefore = hasDelayBefore;
+    SkriptReflection.setHasDelayBefore(hasDelayBefore);
   }
 
   public static ScriptLoaderState copyOfCurrentState() {
     return new ScriptLoaderState(
-      ScriptLoader.currentScript,
+      SkriptReflection.getCurrentScript(),
       ScriptLoader.getCurrentEventName(),
       ScriptLoader.getCurrentEvents(),
-      ScriptLoader.hasDelayBefore
+      SkriptReflection.getHasDelayBefore()
     );
   }
 }

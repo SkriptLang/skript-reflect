@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
@@ -20,7 +19,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PreloadListener implements Listener {
 
@@ -55,7 +58,7 @@ public class PreloadListener implements Listener {
 
     List<Config> scripts = preScriptLoadEvent.getScripts();
     for (Config script : scripts) {
-      ScriptLoader.currentScript = script;
+      SkriptReflection.setCurrentScript(script);
       for (Node node : script.getMainNode()) {
         if (node instanceof SectionNode) {
           handleEventNode((SectionNode) node);

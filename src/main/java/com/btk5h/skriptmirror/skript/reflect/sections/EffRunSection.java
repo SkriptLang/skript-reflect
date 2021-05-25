@@ -1,10 +1,14 @@
 package com.btk5h.skriptmirror.skript.reflect.sections;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.effects.Delay;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.Variable;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -60,7 +64,7 @@ public class EffRunSection extends Effect {
       Skript.warning("You need to wait until the section is finished if you want to get a result.");
 
     if (!runsAsync.isUnknown() && shouldWait)
-      ScriptLoader.hasDelayBefore = Kleenean.TRUE;
+      SkriptReflection.setHasDelayBefore(Kleenean.TRUE);
 
     return SkriptUtil.canInitSafely(variableStorage) &&
       (arguments.size() == 0 || arguments.stream().allMatch(SkriptUtil::canInitSafely));

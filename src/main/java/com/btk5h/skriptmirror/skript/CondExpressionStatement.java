@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.effects.Delay;
@@ -89,7 +88,7 @@ public class CondExpressionStatement extends Condition {
     }
 
     if (isAsynchronous)
-      ScriptLoader.hasDelayBefore = Kleenean.TRUE;
+      SkriptReflection.setHasDelayBefore(Kleenean.TRUE);
 
     return SkriptUtil.canInitSafely(arg);
   }

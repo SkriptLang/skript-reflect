@@ -6,7 +6,11 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -94,10 +98,10 @@ public class SkriptUtil {
   }
 
   /**
-   * {@return} the {@link ScriptLoader#currentScript} as a {@link File}.
+   * {@return} the {@link SkriptReflection#getCurrentOptions()} as a {@link File}.
    */
   public static File getCurrentScript() {
-    Config currentScript = ScriptLoader.currentScript;
+    Config currentScript = SkriptReflection.getCurrentScript();
     return currentScript == null ? null : currentScript.getFile();
   }
 
