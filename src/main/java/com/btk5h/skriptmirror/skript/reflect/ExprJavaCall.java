@@ -19,7 +19,7 @@ import com.btk5h.skriptmirror.Descriptor;
 import com.btk5h.skriptmirror.ImportNotFoundException;
 import com.btk5h.skriptmirror.JavaCallException;
 import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.LRUCache;
+import com.btk5h.skriptmirror.util.LRUCache;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.skript.custom.CustomImport;
@@ -29,6 +29,7 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import com.btk5h.skriptmirror.util.StringSimilarity;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -36,6 +37,7 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
@@ -52,6 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExprJavaCall<T> implements Expression<T> {
+
   public static int javaCallsMade = 0;
 
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
@@ -125,6 +128,67 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     this.types = types;
     this.superType = (Class<T>) Utils.getSuperType(types);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+
+    script = SkriptUtil.getCurrentScript();
+    suppressErrors = (parseResult.mark & 2) == 2;
+
+    rawTarget = SkriptUtil.defendExpression(exprs[0]);
+    rawArgs = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
+
+    if (!SkriptUtil.canInitSafely(rawTarget, rawArgs))
+      return false;
+
+    switch (matchedPattern) {
+      case 0:
+        type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
+        dynamicDescriptor = (Expression<String>) exprs[1];
+        break;
+      case 1:
+        type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
+        String desc = parseResult.regexes.get(0).group();
+
+        try {
+          staticDescriptor = Descriptor.parse(desc, script);
+        } catch (ImportNotFoundException e) {
+          Skript.error("The class " + e.getUserType() + " could not be found.");
+          return false;
+        }
+
+        if (staticDescriptor == null) {
+          Skript.error(desc + " is not a valid descriptor.");
+          return false;
+        }
+
+        if (staticDescriptor.getJavaClass() == null
+          && rawTarget instanceof CustomImport.ImportHandler) {
+          staticDescriptor = staticDescriptor.orDefaultClass(
+            ((CustomImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
+          );
+        }
+
+        if (staticDescriptor.getParameterTypes() != null && type.equals(CallType.FIELD)) {
+          Skript.error("You can't pass parameter types to a field call.");
+          return false;
+        }
+
+        if (staticDescriptor.getJavaClass() != null && getCallSite(staticDescriptor).size() == 0) {
+          Skript.error(desc + " refers to a non-existent " + (type.equals(CallType.METHOD) ? "method" : "field"));
+          return false;
+        }
+
+        break;
+      case 2:
+        type = CallType.CONSTRUCTOR;
+        staticDescriptor = CONSTRUCTOR_DESCRIPTOR;
+        break;
+    }
+    return true;
   }
 
   @Override
@@ -275,82 +339,6 @@ public class ExprJavaCall<T> implements Expression<T> {
     invoke(target, args, getDescriptor(e));
   }
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    switch (type) {
-      case FIELD:
-        return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName();
-      case METHOD:
-        return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName() + "(" +
-          (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
-      case CONSTRUCTOR:
-        return "new " + rawTarget.toString(e, debug) + "(" +  (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
-    }
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-
-    script = SkriptUtil.getCurrentScript();
-    suppressErrors = (parseResult.mark & 2) == 2;
-
-    rawTarget = SkriptUtil.defendExpression(exprs[0]);
-    rawArgs = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
-
-    if (!SkriptUtil.canInitSafely(rawTarget, rawArgs)) {
-      return false;
-    }
-
-    switch (matchedPattern) {
-      case 0:
-        type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
-        dynamicDescriptor = (Expression<String>) exprs[1];
-        break;
-      case 1:
-        type = (parseResult.mark & 1) == 1 ? CallType.METHOD : CallType.FIELD;
-        String desc = parseResult.regexes.get(0).group();
-
-        try {
-          staticDescriptor = Descriptor.parse(desc, script);
-        } catch (ImportNotFoundException e) {
-          Skript.error("The class " + e.getUserType() + " could not be found.");
-          return false;
-        }
-
-        if (staticDescriptor == null) {
-          Skript.error(desc + " is not a valid descriptor.");
-          return false;
-        }
-
-        if (staticDescriptor.getJavaClass() == null
-            && rawTarget instanceof CustomImport.ImportHandler) {
-          staticDescriptor = staticDescriptor.orDefaultClass(
-            ((CustomImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
-          );
-        }
-
-        if (staticDescriptor.getParameterTypes() != null && type.equals(CallType.FIELD)) {
-          Skript.error("You can't pass parameter types to a field call.");
-          return false;
-        }
-
-        if (staticDescriptor.getJavaClass() != null && getCallSite(staticDescriptor).size() == 0) {
-          Skript.error(desc + " refers to a non-existent " + (type.equals(CallType.METHOD) ? "method" : "field"));
-          return false;
-        }
-
-        break;
-      case 2:
-        type = CallType.CONSTRUCTOR;
-        staticDescriptor = CONSTRUCTOR_DESCRIPTOR;
-        break;
-    }
-    return true;
-  }
-
   private void error(Throwable error, String message) {
     lastError = error;
 
@@ -373,16 +361,17 @@ public class ExprJavaCall<T> implements Expression<T> {
     return callSiteCache.computeIfAbsent(e, this::createCallSite);
   }
 
-  private Collection<MethodHandle> createCallSite(Descriptor e) {
-    Class<?> javaClass = e.getJavaClass();
+  private Collection<MethodHandle> createCallSite(Descriptor descriptor) {
+    Class<?> javaClass = descriptor.getJavaClass();
 
     switch (type) {
       case FIELD:
         ArrayList<MethodHandle> methodHandles = new ArrayList<>();
 
         JavaUtil.fields(javaClass)
-          .filter(f -> f.getName().equals(e.getName()))
-          .peek(f -> f.setAccessible(true))
+          .filter(f -> f.getName().equals(descriptor.getName()))
+          .map(ExprJavaCall::setAccessible)
+          .filter(Objects::nonNull)
           .forEach(field -> {
             try {
               methodHandles.add(LOOKUP.unreflectGetter(field));
@@ -410,23 +399,25 @@ public class ExprJavaCall<T> implements Expression<T> {
           .collect(Collectors.toList());
       case METHOD:
         Stream<Method> methodStream = JavaUtil.methods(javaClass)
-            .filter(m -> m.getName().equals(e.getName()));
+            .filter(m -> m.getName().equals(descriptor.getName()));
 
-        if (e.getParameterTypes() != null) {
-          methodStream = methodStream.filter(m -> Arrays.equals(m.getParameterTypes(), e.getParameterTypes()));
+        if (descriptor.getParameterTypes() != null) {
+          methodStream = methodStream.filter(m -> Arrays.equals(m.getParameterTypes(), descriptor.getParameterTypes()));
         }
 
         return methodStream
-            .peek(m -> m.setAccessible(true))
-            .map(JavaUtil.propagateErrors(LOOKUP::unreflect))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+          .map(ExprJavaCall::setAccessible)
+          .filter(Objects::nonNull)
+          .map(JavaUtil.propagateErrors(LOOKUP::unreflect))
+          .filter(Objects::nonNull)
+          .collect(Collectors.toList());
       case CONSTRUCTOR:
         return JavaUtil.constructors(javaClass)
-            .peek(c -> c.setAccessible(true))
-            .map(JavaUtil.propagateErrors(LOOKUP::unreflectConstructor))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+          .map(ExprJavaCall::setAccessible)
+          .filter(Objects::nonNull)
+          .map(JavaUtil.propagateErrors(LOOKUP::unreflectConstructor))
+          .filter(Objects::nonNull)
+          .collect(Collectors.toList());
       default:
         throw new IllegalStateException();
     }
@@ -840,4 +831,33 @@ public class ExprJavaCall<T> implements Expression<T> {
         Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
       .collect(Collectors.joining(", "));
   }
+
+  @Nullable
+  private static <T extends AccessibleObject> T setAccessible(T t) {
+    try {
+      t.setAccessible(true);
+      return t;
+    } catch (RuntimeException e) {
+      // InaccessibleObjectException exists in Java 9+ only
+      if (e instanceof SecurityException || e.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
+        return null;
+      }
+      throw e;
+    }
+  }
+
+  @Override
+  public String toString(Event e, boolean debug) {
+    switch (type) {
+      case FIELD:
+        return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName();
+      case METHOD:
+        return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName() + "(" +
+          (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
+      case CONSTRUCTOR:
+        return "new " + rawTarget.toString(e, debug) + "(" +  (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
+    }
+    return null;
+  }
+
 }
