@@ -860,4 +860,9 @@ public class ExprJavaCall<T> implements Expression<T> {
     return null;
   }
 
+  @Override
+  public String toString() {
+    return toString(null, false);
+  }
+
 }
