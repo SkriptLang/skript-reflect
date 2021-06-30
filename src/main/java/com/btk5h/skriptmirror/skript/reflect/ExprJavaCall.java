@@ -19,11 +19,11 @@ import com.btk5h.skriptmirror.Descriptor;
 import com.btk5h.skriptmirror.ImportNotFoundException;
 import com.btk5h.skriptmirror.JavaCallException;
 import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.util.LRUCache;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.LRUCache;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import com.btk5h.skriptmirror.util.StringSimilarity;
@@ -42,6 +42,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -370,7 +371,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
         JavaUtil.fields(javaClass)
           .filter(f -> f.getName().equals(descriptor.getName()))
-          .map(ExprJavaCall::setAccessible)
+          .map(ExprJavaCall::getAccess)
           .filter(Objects::nonNull)
           .forEach(field -> {
             try {
@@ -406,14 +407,14 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         return methodStream
-          .map(ExprJavaCall::setAccessible)
+          .map(ExprJavaCall::getAccess)
           .filter(Objects::nonNull)
           .map(JavaUtil.propagateErrors(LOOKUP::unreflect))
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
       case CONSTRUCTOR:
         return JavaUtil.constructors(javaClass)
-          .map(ExprJavaCall::setAccessible)
+          .map(ExprJavaCall::getAccess)
           .filter(Objects::nonNull)
           .map(JavaUtil.propagateErrors(LOOKUP::unreflectConstructor))
           .filter(Objects::nonNull)
@@ -832,18 +833,58 @@ public class ExprJavaCall<T> implements Expression<T> {
       .collect(Collectors.joining(", "));
   }
 
+  @SuppressWarnings("unchecked")
   @Nullable
-  private static <T extends AccessibleObject> T setAccessible(T t) {
+  private static <T extends AccessibleObject> T getAccess(T member) {
     try {
-      t.setAccessible(true);
-      return t;
+      member.setAccessible(true);
+      return member;
     } catch (RuntimeException e) {
       // InaccessibleObjectException exists in Java 9+ only
       if (e instanceof SecurityException || e.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
-        return null;
+        Member superMember = getSuperMember((Member) member);
+        return superMember != null ? getAccess((T) superMember) : null;
       }
       throw e;
     }
+  }
+
+  @Nullable
+  private static Member getSuperMember(Member member) {
+    if (!(member instanceof Executable))
+      return null;
+    Executable executable = (Executable) member;
+    if ((executable.getModifiers() & Modifier.STATIC) != 0)
+      return null;
+
+    return getSuperMember(executable, executable.getDeclaringClass());
+  }
+
+  @Nullable
+  private static Executable getSuperMember(Executable executable, Class<?> declaringClass) {
+    List<Executable> executables = new ArrayList<>();
+    executables.addAll(Arrays.asList(declaringClass.getDeclaredMethods()));
+    executables.addAll(Arrays.asList(declaringClass.getDeclaredConstructors()));
+
+    if (executable.getDeclaringClass() != declaringClass)
+      for (Executable loopExecutable : executables) {
+        if (executable.getName().equals(loopExecutable.getName())
+            && Arrays.equals(executable.getParameterTypes(), loopExecutable.getParameterTypes())) {
+          return loopExecutable;
+        }
+      }
+
+    List<Class<?>> superClasses = new ArrayList<>();
+    superClasses.add(declaringClass.getSuperclass());
+    superClasses.addAll(Arrays.asList(declaringClass.getInterfaces()));
+
+    for (Class<?> superClass : superClasses) {
+      Executable superExecutable = getSuperMember(executable, superClass);
+      if (superExecutable != null)
+        return superExecutable;
+    }
+
+    return null;
   }
 
   @Override
