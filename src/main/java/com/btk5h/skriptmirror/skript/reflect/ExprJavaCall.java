@@ -851,26 +851,22 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   @Nullable
   private static Member getSuperMember(Member member) {
-    if (!(member instanceof Executable))
+    if (!(member instanceof Method))
       return null;
-    Executable executable = (Executable) member;
-    if ((executable.getModifiers() & Modifier.STATIC) != 0)
+    Method method = (Method) member;
+    if ((method.getModifiers() & Modifier.STATIC) != 0)
       return null;
 
-    return getSuperMember(executable, executable.getDeclaringClass());
+    return getSuperMember(method, method.getDeclaringClass());
   }
 
   @Nullable
-  private static Executable getSuperMember(Executable executable, Class<?> declaringClass) {
-    List<Executable> executables = new ArrayList<>();
-    executables.addAll(Arrays.asList(declaringClass.getDeclaredMethods()));
-    executables.addAll(Arrays.asList(declaringClass.getDeclaredConstructors()));
-
-    if (executable.getDeclaringClass() != declaringClass)
-      for (Executable loopExecutable : executables) {
-        if (executable.getName().equals(loopExecutable.getName())
-            && Arrays.equals(executable.getParameterTypes(), loopExecutable.getParameterTypes())) {
-          return loopExecutable;
+  private static Method getSuperMember(Method method, Class<?> declaringClass) {
+    if (method.getDeclaringClass() != declaringClass)
+      for (Method loopMethod : declaringClass.getDeclaredMethods()) {
+        if (method.getName().equals(loopMethod.getName())
+            && Arrays.equals(method.getParameterTypes(), loopMethod.getParameterTypes())) {
+          return loopMethod;
         }
       }
 
@@ -879,9 +875,9 @@ public class ExprJavaCall<T> implements Expression<T> {
     superClasses.addAll(Arrays.asList(declaringClass.getInterfaces()));
 
     for (Class<?> superClass : superClasses) {
-      Executable superExecutable = getSuperMember(executable, superClass);
-      if (superExecutable != null)
-        return superExecutable;
+      Method superMethod = getSuperMember(method, superClass);
+      if (superMethod != null)
+        return superMethod;
     }
 
     return null;
