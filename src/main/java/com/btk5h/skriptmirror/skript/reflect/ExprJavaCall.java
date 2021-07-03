@@ -862,16 +862,18 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   @Nullable
   private static Method getSuperMember(Method method, Class<?> declaringClass) {
-    if (method.getDeclaringClass() != declaringClass)
+    if (method.getDeclaringClass() != declaringClass) {
       for (Method loopMethod : declaringClass.getDeclaredMethods()) {
         if (method.getName().equals(loopMethod.getName())
             && Arrays.equals(method.getParameterTypes(), loopMethod.getParameterTypes())) {
           return loopMethod;
         }
       }
+    }
 
     List<Class<?>> superClasses = new ArrayList<>();
-    superClasses.add(declaringClass.getSuperclass());
+    if (declaringClass.getSuperclass() != null)
+      superClasses.add(declaringClass.getSuperclass());
     superClasses.addAll(Arrays.asList(declaringClass.getInterfaces()));
 
     for (Class<?> superClass : superClasses) {
