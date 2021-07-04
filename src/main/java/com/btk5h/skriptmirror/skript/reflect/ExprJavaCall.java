@@ -456,11 +456,11 @@ public class ExprJavaCall<T> implements Expression<T> {
     Optional<MethodHandle> method = findCompatibleMethod(descriptor, argumentsCopy);
 
     if (!method.isPresent()) {
-      error(String.format("No matching %s: %s%s",
-          type, descriptor.toString(isStatic), argumentsMessage(arguments)));
+      error(String.format("No matching %s %s: %s%s",
+        isStatic ? "static" : "non-static", type, descriptor.toString(isStatic), argumentsMessage(arguments)));
 
-      suggestParameters(descriptor);
-      suggestTypo(descriptor);
+      suggestParameters(descriptor, isStatic);
+      suggestTypo(descriptor, isStatic);
 
       return null;
     }
@@ -737,7 +737,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     return args;
   }
 
-  private void suggestParameters(Descriptor descriptor) {
+  private void suggestParameters(Descriptor descriptor, boolean isStatic) {
     if (!(type == CallType.CONSTRUCTOR || type == CallType.METHOD)) {
       return;
     }
@@ -749,6 +749,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     List<String> matches = members
         .filter(e -> e.getName().equals(guess))
+        .filter(e -> isStatic == isStatic(e))
         .map(Executable::getParameters)
         .map(params ->
             Arrays.stream(params)
@@ -759,7 +760,8 @@ public class ExprJavaCall<T> implements Expression<T> {
         .collect(Collectors.toList());
 
     if (!matches.isEmpty()) {
-      directError(String.format("Did you pass the wrong parameters? Here are the parameter signatures for %s:", guess));
+      directError("Did you pass the wrong parameters? Here are the parameter signatures for the "
+        + (isStatic ? "static" : "non-static") + " " + type + " " + guess + ":");
       matches.forEach(parameterList -> directError(String.format("* %s(%s)", guess, parameterList)));
     }
   }
@@ -768,25 +770,36 @@ public class ExprJavaCall<T> implements Expression<T> {
    * Sends fields / methods with names similar to the called field / method.
    * Uses {@link StringSimilarity#compare(String, String, int)} for string similarity checks.
    */
-  private void suggestTypo(Descriptor descriptor) {
+  private void suggestTypo(Descriptor descriptor, boolean isStatic) {
     String guess = descriptor.getName();
     Class<?> javaClass = descriptor.getJavaClass();
 
     Stream<? extends Member> members = getMembers(javaClass);
 
-    List<String> matches = members
-      .map(Member::getName)
-      .filter(m -> !m.equals(guess)) // this would be a parameter mismatch, not a typo
-      .distinct()
-      .map(m -> StringSimilarity.compare(guess, m, 3))
-      .filter(Objects::nonNull)
-      .sorted()
-      .map(StringSimilarity.Result::getRight)
-      .collect(Collectors.toList());
+    List<Member> matchingMembers = new ArrayList<>();
 
-    if (!matches.isEmpty()) {
-      directError(String.format("Did you misspell the %s? You may have meant to type one of the following:", type));
-      matches.forEach(name -> directError("* " + name));
+    outer: for (Member member : members.collect(Collectors.toList())) {
+      String name = member.getName();
+      if (name.equals(guess) && isStatic == isStatic(member))
+        continue;
+      // Distinct
+      for (Member loopMember : matchingMembers) {
+        if (loopMember.getName().equals(name))
+          continue outer;
+      }
+      StringSimilarity.Result result = StringSimilarity.compare(guess, name, 3);
+      if (result == null)
+        continue;
+      matchingMembers.add(member);
+    }
+
+    if (!matchingMembers.isEmpty()) {
+      directError("Did you misspell the " + type + "? You may have meant to type one of the following:");
+      for (Member member : matchingMembers) {
+        String className = SkriptMirrorUtil.getDebugName(javaClass);
+        String staticString = isStatic(member) ? className : "%" + className + "%";
+        directError("* " + staticString + "." + member.getName());
+      }
     }
   }
 
@@ -866,7 +879,7 @@ public class ExprJavaCall<T> implements Expression<T> {
     if (!(member instanceof Method))
       return null;
     Method method = (Method) member;
-    if ((method.getModifiers() & Modifier.STATIC) != 0)
+    if (isStatic(method))
       return null;
 
     return getSuperMember(method, method.getDeclaringClass());
@@ -902,6 +915,10 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     return null;
+  }
+
+  private static boolean isStatic(Member member) {
+    return (member.getModifiers() & Modifier.STATIC) != 0;
   }
 
   @Override
