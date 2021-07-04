@@ -667,18 +667,18 @@ public class ExprJavaCall<T> implements Expression<T> {
    */
   private static Object coerceType(Object o, Class<?> to) {
     // coerce numeric types
-    if (to.isPrimitive() && o instanceof Number) {
-      if (to == byte.class) {
+    if (o instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(to)) {
+      if (to == byte.class || to == Byte.class) {
         return ((Number) o).byteValue();
-      } else if (to == double.class) {
+      } else if (to == double.class || to == Double.class) {
         return ((Number) o).doubleValue();
-      } else if (to == float.class) {
+      } else if (to == float.class || to == Float.class) {
         return ((Number) o).floatValue();
-      } else if (to == int.class) {
+      } else if (to == int.class || to == Integer.class) {
         return ((Number) o).intValue();
-      } else if (to == long.class) {
+      } else if (to == long.class || to == Long.class) {
         return ((Number) o).longValue();
-      } else if (to == short.class) {
+      } else if (to == short.class || to == Short.class) {
         return ((Number) o).shortValue();
       }
     }

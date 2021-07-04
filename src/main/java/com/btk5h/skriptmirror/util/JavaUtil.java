@@ -30,6 +30,12 @@ public final class JavaUtil {
     NUMERIC_CLASSES.add(int.class);
     NUMERIC_CLASSES.add(long.class);
     NUMERIC_CLASSES.add(short.class);
+    NUMERIC_CLASSES.add(Byte.class);
+    NUMERIC_CLASSES.add(Double.class);
+    NUMERIC_CLASSES.add(Float.class);
+    NUMERIC_CLASSES.add(Integer.class);
+    NUMERIC_CLASSES.add(Long.class);
+    NUMERIC_CLASSES.add(Short.class);
 
     PRIMITIVE_CLASS_NAMES.put("boolean", boolean.class);
     PRIMITIVE_CLASS_NAMES.put("byte", byte.class);
@@ -250,4 +256,5 @@ public final class JavaUtil {
 
     return type;
   }
+
 }
