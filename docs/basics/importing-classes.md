@@ -110,7 +110,8 @@ command /example:
 
 ## Dealing with nested classes
 
-Sometimes, a class may be nested inside another class. When referring to the fully qualified name of the class, the nested class is separated from the surrounding class using a `$` rather than a `.`
+Sometimes, a class may be nested inside another class.
+When referring to the fully qualified name of the class, the nested class is separated from the surrounding class using a `$` rather than a `.`
 
 For example, [`org.bukkit.entity.EnderDragon.Phase`](https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EnderDragon.Phase.html) would become `org.bukkit.entity.EnderDragon$Phase`
 
@@ -120,8 +121,21 @@ Nested classes usually have more general names than their surrounding classes, s
 {% code-tabs-item title="example.sk" %}
 ```text
 import:
-  org.bukkit.entity.EnderDragon$Phase as EnderDragonPhase
+    org.bukkit.entity.EnderDragon$Phase as EnderDragonPhase
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
+Another way to import these classes, is to just import their enclosing class:
+
+{% code-tabs %}
+{% code-tabs-item title="example.sk" %}
+```text
+import:
+    org.bukkit.entity.EnderDragon
+
+on load:
+    set {phase} to EnderDragon.Phase.LEAVE_PORTAL
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}

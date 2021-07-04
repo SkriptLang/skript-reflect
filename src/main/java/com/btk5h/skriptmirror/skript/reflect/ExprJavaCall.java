@@ -179,8 +179,14 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         if (staticDescriptor.getJavaClass() != null && getCallSite(staticDescriptor).size() == 0) {
-          Skript.error(desc + " refers to a non-existent " + (type.equals(CallType.METHOD) ? "method" : "field"));
-          return false;
+          String name = staticDescriptor.getName();
+          if (Stream.of(staticDescriptor.getJavaClass().getClasses())
+              .map(Class::getSimpleName)
+              .noneMatch(simpleName -> simpleName.equals(name))
+          ) {
+            Skript.error(desc + " refers to a non-existent " + (type.equals(CallType.METHOD) ? "method" : "field"));
+            return false;
+          }
         }
 
         break;
@@ -451,6 +457,15 @@ public class ExprJavaCall<T> implements Expression<T> {
       argumentsCopy = createStaticArgumentsCopy(arguments);
     } else {
       argumentsCopy = createInstanceArgumentsCopy(target, arguments);
+    }
+
+    if (isStatic && type == CallType.FIELD) {
+      Class<?>[] classes = targetClass.getClasses();
+      for (Class<?> clazz : classes) {
+        if (descriptor.getName().equals(clazz.getSimpleName())) {
+          return Converters.convert(new JavaType(clazz), types);
+        }
+      }
     }
 
     Optional<MethodHandle> method = findCompatibleMethod(descriptor, argumentsCopy);
