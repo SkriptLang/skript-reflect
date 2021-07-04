@@ -837,7 +837,8 @@ public class ExprJavaCall<T> implements Expression<T> {
   @Nullable
   private static <T extends AccessibleObject> T getAccess(T member) {
     try {
-      member.setAccessible(true);
+      if (!member.isAccessible())
+        member.setAccessible(true);
       return member;
     } catch (RuntimeException e) {
       // InaccessibleObjectException exists in Java 9+ only
