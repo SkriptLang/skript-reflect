@@ -114,11 +114,11 @@ In the event itself, you can get the extra data with the data expression:
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[extra] [event[-]] data %strings%
+[extra] [event[-]] data %string%
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
-In the syntax above, `%strings%` is the index. This doesn't have to be plural, but can be.
+In the syntax above, `%string%` is the index. This doesn't have to be plural, but can be.
 
 {% hint style="info" %}
 It may look fancier to create a custom expression instead of using extra data.

@@ -17,6 +17,7 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 
   static {
     Skript.registerExpression(ExprCustomEvent.class, Event.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
+      "[a] [new] custom event %string% [(with|using)] data %-objects%",
       "[a] [new] custom event %string% [(with|using) [[event-]values] %-objects%] [[and] [(with|using)] data %-objects%]");
   }
 
@@ -26,21 +27,27 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    if (!SkriptUtil.canInitSafely(exprs))
+      return false;
+
     this.customEventName = SkriptUtil.defendExpression(exprs[0]);
 
-    if (exprs[1] != null) {
-      Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
+    if (matchedPattern == 1) {
+      if (exprs[1] != null) {
+        Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
 
-      if (var instanceof Variable && ((Variable<?>) var).isList()) {
-        this.eventValueVarList = (Variable<?>) var;
-      } else {
-        Skript.error(var.toString(null, false) + " is not a list variable.");
-        return false;
+        if (var instanceof Variable && ((Variable<?>) var).isList()) {
+          this.eventValueVarList = (Variable<?>) var;
+        } else {
+          Skript.error(var.toString(null, false) + " is not a list variable.");
+          return false;
+        }
       }
     }
 
-    if (exprs[2] != null) {
-      Expression<?> var = SkriptUtil.defendExpression(exprs[2]);
+    Expression<?> expr = exprs[matchedPattern == 0 ? 1 : 2];
+    if (expr != null) {
+      Expression<?> var = SkriptUtil.defendExpression(expr);
 
       if (var instanceof Variable && ((Variable<?>) var).isList()) {
         this.dataVarList = (Variable<?>) var;
