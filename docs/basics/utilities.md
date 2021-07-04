@@ -157,4 +157,5 @@ Checks whether objects are instances of the given java types.
 {% endcode-tabs %}
 
 Returns a reference to the class from the given java type. Returns an object of type `java.lang.Class`.
+This expression also supports primitive types.
 
