@@ -833,6 +833,13 @@ public class ExprJavaCall<T> implements Expression<T> {
       .collect(Collectors.joining(", "));
   }
 
+  /**
+   * Tries to invoke {@link AccessibleObject#setAccessible(boolean)} on the given member,
+   * returning the given member if successful, and null otherwise. <br>
+   * This method also attempts to make the super member of the given member accessible,
+   * if making the given member accessible failed. <br>
+   * If the super member was successfully made accessible, the super member is returned.
+   */
   @SuppressWarnings("unchecked")
   @Nullable
   private static <T extends AccessibleObject> T getAccess(T member) {
@@ -850,6 +857,10 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
   }
 
+  /**
+   * Gets the super member of the given member, using {@link #getSuperMember(Method, Class)}.<br>
+   * This will always return null if the given member is not a {@link Method}, or if the given member is static.
+   */
   @Nullable
   private static Member getSuperMember(Member member) {
     if (!(member instanceof Method))
@@ -861,6 +872,13 @@ public class ExprJavaCall<T> implements Expression<T> {
     return getSuperMember(method, method.getDeclaringClass());
   }
 
+  /**
+   * Gets the super method of the given method, checking in the given class.<br>
+   * This method checks all declared methods of the given class, and returns a method
+   * if its name and parameter types match.<br>
+   * If no such method can be found, it checks in all of its super classes (interfaces and super class).<br>
+   * If no super method can be found here, null is returned.
+   */
   @Nullable
   private static Method getSuperMember(Method method, Class<?> declaringClass) {
     if (method.getDeclaringClass() != declaringClass) {
