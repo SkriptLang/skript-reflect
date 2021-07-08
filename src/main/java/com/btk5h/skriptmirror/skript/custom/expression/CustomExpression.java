@@ -21,7 +21,12 @@ import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 
@@ -32,10 +37,10 @@ public class CustomExpression<T> implements Expression<T> {
   private Object variablesMap;
 
   private final CustomExpression<?> source;
-  private final Class<? extends T>[] types;
-  private final Class<T> superType;
+  private Class<? extends T>[] types;
+  private Class<T> superType;
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "unused"})
   public CustomExpression() {
     this(null, (Class<? extends T>) Object.class);
   }
@@ -269,6 +274,13 @@ public class CustomExpression<T> implements Expression<T> {
 
     if (!SkriptUtil.canInitSafely(this.exprs)) {
       return false;
+    }
+
+    Class<?> returnType = CustomExpressionSection.returnTypes.get(which);
+
+    if (returnType != null) {
+      this.types = new Class[]{returnType};
+      this.superType = (Class<T>) returnType;
     }
 
     List<Supplier<Boolean>> suppliers = CustomExpressionSection.usableSuppliers.get(which);
