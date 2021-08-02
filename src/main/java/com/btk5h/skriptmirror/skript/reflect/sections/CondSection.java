@@ -48,7 +48,7 @@ public class CondSection extends Condition {
     nodes.clear();
 
     ScriptLoaderState previousState = ScriptLoaderState.copyOfCurrentState();
-    ScriptLoader.setCurrentEvent("section event", SectionEvent.class);
+    ScriptLoader.setCurrentEvent("section", SectionEvent.class);
     List<TriggerItem> triggerItemList = SkriptUtil.getItemsFromNode(newSectionNode);
     previousState.applyToCurrentState();
 
