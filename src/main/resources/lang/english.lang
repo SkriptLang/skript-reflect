@@ -4,3 +4,4 @@ types:
   javatype: java class¦es @a
   null: null¦s @a
   javaobject: java object¦s @a
+  section: section¦s @a
