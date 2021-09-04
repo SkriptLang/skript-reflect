@@ -6,7 +6,12 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -17,7 +22,13 @@ import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -249,7 +260,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
       sectionNode = (SectionNode) node.get("get");
       if (sectionNode != null) {
         SkriptLogger.setNode(sectionNode);
-        ScriptLoader.setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
+        getParser().setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         whichInfo.forEach(which ->
           expressionHandlers.put(which,
@@ -267,7 +278,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
             String name = mode.name().replace("_", " ").toLowerCase();
             if (key.startsWith(name)) {
               SkriptLogger.setNode(sectionNode);
-              ScriptLoader.setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
+              getParser().setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
               List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
               whichInfo.forEach(which -> {
                 Map<Changer.ChangeMode, Trigger> changerMap =

@@ -1,9 +1,13 @@
 package com.btk5h.skriptmirror.skript;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.ScriptLoaderState;
+import com.btk5h.skriptmirror.ParserInstanceState;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
@@ -15,7 +19,7 @@ public class CondParseLater extends Condition {
   }
 
   private String statement;
-  private ScriptLoaderState scriptLoaderState;
+  private ParserInstanceState parserInstanceState;
   private Statement parsedStatement;
 
   @Override
@@ -55,14 +59,14 @@ public class CondParseLater extends Condition {
     }
 
     statement = parseResult.regexes.get(0).group();
-    scriptLoaderState = ScriptLoaderState.copyOfCurrentState();
+    parserInstanceState = ParserInstanceState.copyOfCurrentState();
     return true;
   }
 
   private Statement getParsedStatement() {
     if (parsedStatement == null) {
-      ScriptLoaderState previousState = ScriptLoaderState.copyOfCurrentState();
-      scriptLoaderState.applyToCurrentState();
+      ParserInstanceState previousState = ParserInstanceState.copyOfCurrentState();
+      parserInstanceState.applyToCurrentState();
       parsedStatement = Statement.parse(statement, "Could not parse condition/effect at runtime: "
         + statement);
       previousState.applyToCurrentState();
@@ -78,7 +82,7 @@ public class CondParseLater extends Condition {
 
   private Condition getParsedCondition() {
     if (parsedStatement == null) {
-      scriptLoaderState.applyToCurrentState();
+      parserInstanceState.applyToCurrentState();
       parsedStatement = Condition.parse(statement, "Could not parse condition at runtime: " + statement);
 
       if (parsedStatement != null) {

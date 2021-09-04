@@ -1,8 +1,11 @@
 package com.btk5h.skriptmirror.skript.custom.effect;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
@@ -94,7 +97,7 @@ public class CustomEffect extends Effect {
 
     if (parseHandler != null) {
       SyntaxParseEvent event =
-          new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
+          new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
 
       TriggerItem.walk(parseHandler, event);
       variablesMap = SkriptReflection.removeLocals(event);

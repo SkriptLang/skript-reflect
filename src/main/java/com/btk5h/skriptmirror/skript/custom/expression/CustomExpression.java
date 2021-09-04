@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom.expression;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
@@ -297,7 +296,7 @@ public class CustomExpression<T> implements Expression<T> {
 
     if (parseHandler != null) {
       SyntaxParseEvent event =
-          new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
+          new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
 
       TriggerItem.walk(parseHandler, event);
       variablesMap = SkriptReflection.removeLocals(event);

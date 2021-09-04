@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom.event;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -27,7 +26,7 @@ public class ExprReplacedEventValue<T> extends EventValueExpression<T> {
   @SuppressWarnings("unchecked")
   @Override
   @Nullable
-  protected T[] get(final Event e) {
+  protected T[] get(Event e) {
     if (e instanceof BukkitCustomEvent || e instanceof EventTriggerEvent) {
       BukkitCustomEvent bukkitCustomEvent;
       if (e instanceof BukkitCustomEvent) {
@@ -49,7 +48,7 @@ public class ExprReplacedEventValue<T> extends EventValueExpression<T> {
   @SuppressWarnings("null")
   @Override
   public boolean init() {
-    if (ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class)) {
+    if (getParser().isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class)) {
       EventSyntaxInfo which = CustomEvent.lastWhich;
       ClassInfo<?> classInfo = Classes.getSuperClassInfo(getReturnType());
       return CustomEventUtils.hasEventValue(which, classInfo);
@@ -59,23 +58,23 @@ public class ExprReplacedEventValue<T> extends EventValueExpression<T> {
   }
 
   @Override
-  public String toString(final @Nullable Event e, final boolean debug) {
+  public String toString(@Nullable Event e, boolean debug) {
     return original.toString(e, debug);
   }
 
   @Override
   @Nullable
-  public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
+  public Class<?>[] acceptChange(Changer.ChangeMode mode) {
     return original.acceptChange(mode);
   }
 
   @Override
-  public void change(final Event e, final @Nullable Object[] delta, final Changer.ChangeMode mode) {
+  public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
     original.change(e, delta, mode);
   }
 
   @Override
-  public boolean setTime(final int time) {
+  public boolean setTime(int time) {
     return original.setTime(time);
   }
 

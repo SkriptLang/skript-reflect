@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom.effect;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -27,7 +26,7 @@ public class EffDelayEffect extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(EffectTriggerEvent.class)) {
+    if (!getParser().isCurrentEvent(EffectTriggerEvent.class)) {
       Skript.error("The effect 'delay effect' may only be used in a custom effect.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

@@ -1,9 +1,19 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.*;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.config.EntryNode;
+import ch.njol.skript.config.InvalidNode;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.VoidNode;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.JavaType;
@@ -16,7 +26,11 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -290,7 +304,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
         } else {
           String identifier = variableString.toString(null);
           supplier = () -> {
-            if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class))
+            if (!getParser().isCurrentEvent(BukkitCustomEvent.class))
               return false;
 
             EventSyntaxInfo eventWhich = CustomEvent.lastWhich;
@@ -306,7 +320,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
         }
         Class<? extends Event> eventClass = (Class<? extends Event>) javaClass;
 
-        supplier = () -> ScriptLoader.isCurrentEvent(eventClass);
+        supplier = () -> getParser().isCurrentEvent(eventClass);
       }
       whichInfo.forEach(which ->
         usableSuppliers.computeIfAbsent(which, (whichIndex) -> new ArrayList<>())

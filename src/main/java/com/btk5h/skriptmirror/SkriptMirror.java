@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.util.Version;
 import com.btk5h.skriptmirror.skript.CondParseLater;
 import com.btk5h.skriptmirror.skript.custom.condition.CustomConditionSection;
@@ -12,6 +13,7 @@ import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import com.btk5h.skriptmirror.skript.reflect.ExprProxy;
 import com.btk5h.skriptmirror.skript.reflect.sections.CondSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -33,6 +35,15 @@ public class SkriptMirror extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    if (!Skript.classExists("ch.njol.skript.lang.parser.ParserInstance") || !Skript.methodExists(ParserInstance.class, "get")) {
+      getLogger().severe("");
+      getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.6 is required to run this version of skript-reflect.");
+      getLogger().severe("If you want to use a version of Skript below 2.6, use skript-reflect 2.2.3: https://github.com/TPGamesNL/skript-reflect/releases/tag/v2.2.3");
+      getLogger().severe("");
+      Bukkit.getPluginManager().disablePlugin(this);
+      return;
+    }
+
     saveDefaultConfig();
 
     try {

@@ -1,12 +1,15 @@
 package com.btk5h.skriptmirror.skript.custom.event;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
@@ -16,7 +19,11 @@ import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
   public static boolean customEventsUsed = false;
@@ -174,7 +181,7 @@ public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
       if (sectionNode != null) {
         SkriptLogger.setNode(sectionNode);
 
-        ScriptLoader.setCurrentEvent("custom event trigger", EventTriggerEvent.class);
+        getParser().setCurrentEvent("custom event trigger", EventTriggerEvent.class);
         CustomEvent.setLastWhich(whichInfo.get(0));
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         CustomEvent.setLastWhich(null);

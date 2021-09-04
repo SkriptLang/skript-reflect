@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom.event;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
@@ -34,7 +33,7 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
+    if (!getParser().isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
       return false;
     EventSyntaxInfo which = CustomEvent.lastWhich;
     if (which == null)

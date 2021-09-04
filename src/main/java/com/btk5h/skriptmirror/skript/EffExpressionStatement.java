@@ -71,7 +71,7 @@ public class EffExpressionStatement extends Effect {
 
     isAsynchronous = (parseResult.mark & 1) == 1;
     if (isAsynchronous)
-      SkriptReflection.setHasDelayBefore(Kleenean.TRUE);
+      getParser().setHasDelayBefore(Kleenean.TRUE);
     return SkriptUtil.canInitSafely(arg);
   }
 }

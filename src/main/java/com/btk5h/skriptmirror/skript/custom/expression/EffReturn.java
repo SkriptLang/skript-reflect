@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom.expression;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -46,7 +45,7 @@ public class EffReturn extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)) {
+    if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)) {
       // No error message because it'll default to Skript's EffReturn
       return false;
     }

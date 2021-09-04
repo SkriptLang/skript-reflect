@@ -11,9 +11,11 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.UnparsedLiteral;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
@@ -83,8 +85,8 @@ public class SkriptUtil {
     try {
       return ScriptLoader.loadItems(node);
     } finally {
-      SkriptReflection.printLog(log);
-      ScriptLoader.deleteCurrentEvent();
+      log.printLog();
+      ParserInstance.get().deleteCurrentEvent();
     }
   }
 
@@ -98,10 +100,10 @@ public class SkriptUtil {
   }
 
   /**
-   * {@return} the {@link SkriptReflection#getCurrentOptions()} as a {@link File}.
+   * {@return} the {@link ParserInstance#getCurrentScript()} as a {@link File}.
    */
   public static File getCurrentScript() {
-    Config currentScript = SkriptReflection.getCurrentScript();
+    Config currentScript = ParserInstance.get().getCurrentScript();
     return currentScript == null ? null : currentScript.getFile();
   }
 
@@ -121,7 +123,7 @@ public class SkriptUtil {
 
     if (ci == null) {
       Skript.warning(String.format("'%s' is not a valid Skript type. Using 'object' instead.", name));
-      return Classes.getExactClassInfo(Object.class);
+      return DefaultClasses.OBJECT;
     }
 
     return ci;

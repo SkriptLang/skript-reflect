@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -42,6 +41,7 @@ public class ExprEventClasses extends SimpleExpression<JavaType> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    return ScriptLoader.isCurrentEvent(SyntaxParseEvent.class);
+    return getParser().isCurrentEvent(SyntaxParseEvent.class);
   }
+
 }

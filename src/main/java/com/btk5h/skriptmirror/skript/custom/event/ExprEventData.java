@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom.event;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -21,7 +20,7 @@ public class ExprEventData extends SimpleExpression<Object> {
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class)) {
+    if (!getParser().isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class)) {
       Skript.error("The event data expression can only be used in a custom event");
       return false;
     }

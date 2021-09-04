@@ -7,6 +7,7 @@ import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.SkriptMirror;
@@ -56,9 +57,10 @@ public class PreloadListener implements Listener {
     if (!preloadEnabled)
       return;
 
+    ParserInstance parser = ParserInstance.get();
     List<Config> scripts = preScriptLoadEvent.getScripts();
     for (Config script : scripts) {
-      SkriptReflection.setCurrentScript(script);
+      parser.setCurrentScript(script);
       for (Node node : script.getMainNode()) {
         if (node instanceof SectionNode) {
           handleEventNode((SectionNode) node);

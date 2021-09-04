@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom.expression;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
@@ -159,11 +158,10 @@ public class ExprChangeValue<T> implements Expression<T> {
     return toString(null, false);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(ExpressionChangeEvent.class)) {
+    if (!getParser().isCurrentEvent(ExpressionChangeEvent.class)) {
       Skript.error("The change value may only be used in a change handlers.",
           ErrorQuality.SEMANTIC_ERROR);
       return false;

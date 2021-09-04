@@ -1,10 +1,14 @@
 package com.btk5h.skriptmirror.skript.custom.effect;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.SkriptLogger;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.skript.custom.PreloadListener;
@@ -151,7 +155,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
       sectionNode = (SectionNode) node.get("trigger");
       if (sectionNode != null) {
         SkriptLogger.setNode(sectionNode);
-        ScriptLoader.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
+        getParser().setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         whichInfo.forEach(which ->
           effectHandlers.put(which,

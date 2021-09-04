@@ -1,10 +1,8 @@
 package com.btk5h.skriptmirror.util;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.SectionNode;
@@ -13,17 +11,8 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.function.Function;
-import ch.njol.skript.lang.function.Parameter;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.HandlerList;
-import ch.njol.skript.log.LogHandler;
-import ch.njol.skript.log.ParseLogHandler;
-import ch.njol.skript.log.RetainingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
-import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.event.ExprReplacedEventValue;
 import org.bukkit.event.Event;
@@ -33,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,9 +30,6 @@ import java.util.stream.Collectors;
 public class SkriptReflection {
 
   private static Field PATTERNS;
-  private static Field PARAMETERS;
-  private static Field HANDLERS;
-  private static Field CURRENT_OPTIONS;
   private static Field LOCAL_VARIABLES;
   private static Field NODES;
   private static Field VARIABLES_MAP_HASHMAP;
@@ -54,8 +39,6 @@ public class SkriptReflection {
   private static Field PARSED_VALUE;
   private static Method PARSE_I;
   private static Field EXPRESSIONS;
-  private static Field CURRENT_SCRIPT;
-  private static Field HAS_DELAY_BEFORE;
 
   static {
     Field _FIELD;
@@ -68,29 +51,8 @@ public class SkriptReflection {
       PATTERNS = _FIELD;
     } catch (NoSuchFieldException e) {
       warning("Skript's pattern info field could not be resolved. " +
-          "Custom syntax will not work.");
+          "Custom syntax and imports will not work.");
     }
-
-    try {
-      //noinspection JavaReflectionMemberAccess
-      _FIELD = Function.class.getDeclaredField("parameters");
-      _FIELD.setAccessible(true);
-      PARAMETERS = _FIELD;
-    } catch (NoSuchFieldException ignored) { }
-
-    try {
-      //noinspection JavaReflectionMemberAccess
-      _FIELD = SkriptLogger.class.getDeclaredField("handlers");
-      _FIELD.setAccessible(true);
-      HANDLERS = _FIELD;
-    } catch (NoSuchFieldException ignored) { }
-
-    try {
-      //noinspection JavaReflectionMemberAccess
-      _FIELD = ScriptLoader.class.getDeclaredField("currentOptions");
-      _FIELD.setAccessible(true);
-      CURRENT_OPTIONS = _FIELD;
-    } catch (NoSuchFieldException ignored) { }
 
     try {
       _FIELD = Variables.class.getDeclaredField("localVariables");
@@ -105,7 +67,7 @@ public class SkriptReflection {
       _FIELD.setAccessible(true);
       NODES = _FIELD;
     } catch (NoSuchFieldException e) {
-      warning("Skript's nodes field could not be resolved, therefore sections won't work.");
+      warning("Skript's nodes field could not be resolved, therefore custom syntax and sections won't work.");
     }
 
     try {
@@ -172,98 +134,20 @@ public class SkriptReflection {
       warning("Skript's expressions field could not be resolved, " +
         "therefore you might get syntax conflict problems");
     }
-
-    try {
-      //noinspection JavaReflectionMemberAccess
-      _FIELD = ScriptLoader.class.getDeclaredField("currentScript");
-      _FIELD.setAccessible(true);
-      CURRENT_SCRIPT = _FIELD;
-    } catch (NoSuchFieldException ignored) { }
-
-    try {
-      //noinspection JavaReflectionMemberAccess
-      _FIELD = ScriptLoader.class.getDeclaredField("hasDelayBefore");
-      _FIELD.setAccessible(true);
-      HAS_DELAY_BEFORE = _FIELD;
-    } catch (NoSuchFieldException ignored) { }
   }
 
   private static void warning(String message) {
     SkriptMirror.getInstance().getLogger().warning(message);
   }
 
-
   public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
+    if (PATTERNS == null)
+      return;
+
     try {
       PATTERNS.set(info, patterns);
     } catch (IllegalAccessException e) {
       e.printStackTrace();
-    }
-  }
-
-  public static Parameter<?>[] getParameters(Function<?> function) {
-    try {
-      if (PARAMETERS != null) {
-        return (Parameter<?>[]) PARAMETERS.get(function);
-      } else {
-        return function.getParameters();
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static HandlerList getLogHandlers() {
-    try {
-      if (HANDLERS != null) {
-        return (HandlerList) HANDLERS.get(null);
-      } else {
-        return ParserInstance.get().getHandlers();
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * 1. Stops the given log handler.
-   * 2. Stops every {@link ParseLogHandler} until a non-{@link ParseLogHandler} has been reached.
-   * 3. Prints the log stored in the given log handler.
-   */
-  public static void printLog(RetainingLogHandler logger) {
-    logger.stop();
-    HandlerList handler = getLogHandlers();
-
-    Iterator<LogHandler> handlers = handler.iterator();
-    LogHandler nextHandler;
-    List<LogHandler> parseLogs = new ArrayList<>();
-
-    while (handlers.hasNext()) {
-      nextHandler = handlers.next();
-
-      if (!(nextHandler instanceof ParseLogHandler)) {
-        break;
-      }
-      parseLogs.add(nextHandler);
-    }
-
-    parseLogs.forEach(LogHandler::stop);
-    SkriptLogger.logAll(logger.getLog());
-  }
-
-  /**
-   * @return a {@link Map} of the options currently being loaded by {@link ScriptLoader}.
-   */
-  @SuppressWarnings("unchecked")
-  public static Map<String, String> getCurrentOptions() {
-    try {
-      if (CURRENT_OPTIONS != null) {
-        return (Map<String, String>) CURRENT_OPTIONS.get(null);
-      } else {
-        return ParserInstance.get().getCurrentOptions();
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -344,6 +228,9 @@ public class SkriptReflection {
    */
   @SuppressWarnings("unchecked")
   public static ArrayList<Node> getNodes(SectionNode sectionNode) {
+    if (NODES == null)
+      return new ArrayList<>();
+
     try {
       return (ArrayList<Node>) NODES.get(sectionNode);
     } catch (IllegalAccessException e) {
@@ -395,6 +282,9 @@ public class SkriptReflection {
    * Disable Skript's missing and / or warnings.
    */
   public static void disableAndOrWarnings() {
+    if (PARSED_VALUE == null)
+      return;
+
     Option<Boolean> option = SkriptConfig.disableMissingAndOrWarnings;
     if (!option.value()) {
       try {
@@ -423,56 +313,11 @@ public class SkriptReflection {
    * {@return} a list of all of Skript's registered {@link ch.njol.skript.lang.Expression}s.
    */
   public static List<ExpressionInfo<?, ?>> getExpressions() {
+    if (EXPRESSIONS == null)
+      return new ArrayList<>();
+
     try {
       return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static Config getCurrentScript() {
-    try {
-      if (CURRENT_SCRIPT != null) {
-        return (Config) CURRENT_SCRIPT.get(null);
-      } else {
-        return ParserInstance.get().getCurrentScript();
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static void setCurrentScript(Config currentScript) {
-    try {
-      if (CURRENT_SCRIPT != null) {
-        CURRENT_SCRIPT.set(null, currentScript);
-      } else {
-        ParserInstance.get().setCurrentScript(currentScript);
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static Kleenean getHasDelayBefore() {
-    try {
-      if (HAS_DELAY_BEFORE != null) {
-        return (Kleenean) HAS_DELAY_BEFORE.get(null);
-      } else {
-        return ParserInstance.get().getHasDelayBefore();
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static void setHasDelayBefore(Kleenean hasDelayBefore) {
-    try {
-      if (HAS_DELAY_BEFORE != null) {
-        HAS_DELAY_BEFORE.set(null, hasDelayBefore);
-      } else {
-        ParserInstance.get().setHasDelayBefore(hasDelayBefore);
-      }
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }

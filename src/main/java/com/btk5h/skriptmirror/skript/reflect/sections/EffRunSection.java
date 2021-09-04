@@ -64,7 +64,7 @@ public class EffRunSection extends Effect {
       Skript.warning("You need to wait until the section is finished if you want to get a result.");
 
     if (!runsAsync.isUnknown() && shouldWait)
-      SkriptReflection.setHasDelayBefore(Kleenean.TRUE);
+      getParser().setHasDelayBefore(Kleenean.TRUE);
 
     return SkriptUtil.canInitSafely(variableStorage) &&
       (arguments.size() == 0 || arguments.stream().allMatch(SkriptUtil::canInitSafely));

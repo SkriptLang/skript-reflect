@@ -1,14 +1,21 @@
 package com.btk5h.skriptmirror.skript.reflect.sections;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.ScriptLoaderState;
+import com.btk5h.skriptmirror.ParserInstanceState;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
@@ -17,6 +24,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO implement section API
 public class CondSection extends Condition {
 
   public static boolean sectionsUsed = false;
@@ -47,8 +55,8 @@ public class CondSection extends Condition {
     SkriptReflection.getNodes(newSectionNode).addAll(nodes);
     nodes.clear();
 
-    ScriptLoaderState previousState = ScriptLoaderState.copyOfCurrentState();
-    ScriptLoader.setCurrentEvent("section", SectionEvent.class);
+    ParserInstanceState previousState = ParserInstanceState.copyOfCurrentState();
+    getParser().setCurrentEvent("section", SectionEvent.class);
     List<TriggerItem> triggerItemList = SkriptUtil.getItemsFromNode(newSectionNode);
     previousState.applyToCurrentState();
 

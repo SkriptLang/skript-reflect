@@ -15,14 +15,17 @@ import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.skript.reflect.sections.Section;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ExprProxy extends SimpleExpression<Object> {
 
@@ -105,7 +108,7 @@ public class ExprProxy extends SimpleExpression<Object> {
         FunctionEvent<?> functionEvent = new FunctionEvent<>(function);
 
         Object[][] args = params.stream()
-          .limit(SkriptReflection.getParameters(function).length)
+          .limit(function.getParameters().length)
           .toArray(Object[][]::new);
 
         returnValue = function.execute(functionEvent, args);
@@ -146,12 +149,13 @@ public class ExprProxy extends SimpleExpression<Object> {
     interfaces = SkriptUtil.defendExpression(exprs[0]);
     Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
 
-    if (var instanceof Variable && ((Variable) var).isList()) {
-      handler = ((Variable) var);
+    if (var instanceof Variable && ((Variable<?>) var).isList()) {
+      handler = (Variable<?>) var;
       return true;
     }
 
     Skript.error(var.toString() + " is not a list variable.");
     return false;
   }
+
 }

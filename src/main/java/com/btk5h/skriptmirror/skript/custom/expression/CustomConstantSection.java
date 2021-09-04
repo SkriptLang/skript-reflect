@@ -1,12 +1,16 @@
 package com.btk5h.skriptmirror.skript.custom.expression;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.StringUtils;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.util.List;
@@ -58,7 +62,7 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
             assert key != null;
 
             if (key.equalsIgnoreCase("get")) {
-              ScriptLoader.setCurrentEvent("custom constant getter", ConstantGetEvent.class);
+              getParser().setCurrentEvent("custom constant getter", ConstantGetEvent.class);
               List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
               Trigger getter =
                   new Trigger(SkriptUtil.getCurrentScript(), "get {@" + what + "}", this, items);
@@ -84,7 +88,7 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
   private static void computeOption(String option, Trigger getter) {
     ConstantGetEvent constantEvent = new ConstantGetEvent(0, null);
     getter.execute(constantEvent);
-    SkriptReflection.getCurrentOptions().put(option, StringUtils.join(constantEvent.getOutput()));
+    ParserInstance.get().getCurrentOptions().put(option, StringUtils.join(constantEvent.getOutput()));
   }
 
 }

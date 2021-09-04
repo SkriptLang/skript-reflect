@@ -1,11 +1,15 @@
 package com.btk5h.skriptmirror.skript.custom.condition;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Utils;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
@@ -14,7 +18,11 @@ import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -169,7 +177,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
       sectionNode = (SectionNode) node.get("check");
       if (sectionNode != null) {
         SkriptLogger.setNode(sectionNode);
-        ScriptLoader.setCurrentEvent("custom condition check", ConditionCheckEvent.class);
+        getParser().setCurrentEvent("custom condition check", ConditionCheckEvent.class);
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         whichInfo.forEach(which -> conditionHandlers.put(which,
           new Trigger(SkriptUtil.getCurrentScript(), "condition " + which, this, items)));

@@ -1,8 +1,12 @@
 package com.btk5h.skriptmirror.skript.custom.event;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -57,7 +61,7 @@ public class CustomEvent extends SkriptEvent {
     }
 
     SyntaxParseEvent event =
-      new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, ScriptLoader.getCurrentEvents());
+      new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
 
     setLastWhich(which);
 

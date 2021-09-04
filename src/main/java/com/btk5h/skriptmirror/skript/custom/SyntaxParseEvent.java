@@ -1,11 +1,11 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.HandlerList;
@@ -56,7 +56,7 @@ public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
   public static <T extends CustomSyntaxSection.SyntaxData> void register(CustomSyntaxSection<T> section,
                                                                          SectionNode parseNode,
                                                                          List<T> whichInfo, Map<T, Trigger> parserHandlers) {
-    ScriptLoader.setCurrentEvent("custom syntax parser", SyntaxParseEvent.class);
+    ParserInstance.get().setCurrentEvent("custom syntax parser", SyntaxParseEvent.class);
     List<TriggerItem> items = SkriptUtil.getItemsFromNode(parseNode);
 
     whichInfo.forEach(which ->

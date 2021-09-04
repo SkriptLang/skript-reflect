@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -46,8 +45,8 @@ public class EffContinue extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!(ScriptLoader.isCurrentEvent(EffectTriggerEvent.class)
-      || CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, ScriptLoader.getCurrentEvents()))) {
+    if (!(getParser().isCurrentEvent(EffectTriggerEvent.class)
+      || CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents()))) {
       Skript.error("Return may only be used in custom effects and conditions.", ErrorQuality.SEMANTIC_ERROR);
       return false;
     }

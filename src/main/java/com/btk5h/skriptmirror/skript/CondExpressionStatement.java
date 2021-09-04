@@ -88,7 +88,7 @@ public class CondExpressionStatement extends Condition {
     }
 
     if (isAsynchronous)
-      SkriptReflection.setHasDelayBefore(Kleenean.TRUE);
+      getParser().setHasDelayBefore(Kleenean.TRUE);
 
     return SkriptUtil.canInitSafely(arg);
   }

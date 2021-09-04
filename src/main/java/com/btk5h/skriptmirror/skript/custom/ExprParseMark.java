@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript.custom;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -14,8 +13,6 @@ import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
-
-import java.util.Arrays;
 
 public class ExprParseMark extends SimpleExpression<Number> {
   static {
@@ -46,7 +43,7 @@ public class ExprParseMark extends SimpleExpression<Number> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    if (!ScriptLoader.isCurrentEvent(
+    if (!getParser().isCurrentEvent(
       SyntaxParseEvent.class,
       ConditionCheckEvent.class,
       EffectTriggerEvent.class,
