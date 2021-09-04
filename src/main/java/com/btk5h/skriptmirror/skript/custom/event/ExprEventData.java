@@ -12,7 +12,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprEventData extends SimpleExpression<Object> {
 
   static {
-    Skript.registerExpression(ExprEventData.class, Object.class, ExpressionType.COMBINED, "[extra] [event[-]] data %string%");
+    Skript.registerExpression(ExprEventData.class, Object.class, ExpressionType.COMBINED, "[extra] [event(-| )]data %string%");
   }
 
   private Expression<String> dataIndex;

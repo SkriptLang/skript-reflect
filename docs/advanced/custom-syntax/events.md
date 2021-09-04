@@ -114,7 +114,7 @@ In the event itself, you can get the extra data with the data expression:
 {% code-tabs %}
 {% code-tabs-item title="Syntax" %}
 ```text
-[extra] [event[-]] data %string%
+[extra] [event(-| )]data %string%
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
