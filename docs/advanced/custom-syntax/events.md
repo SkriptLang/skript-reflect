@@ -11,7 +11,7 @@
   parse:
     # code, optional
   check:
-    # code, required
+    # code, optional
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
@@ -23,7 +23,7 @@
 ```text
 [local] [custom] event %string%:
   patterns:
-    # patterns, one per line
+    # patterns, one per line, required
   event-values: # list of types, optional
   parse:
     # code, optional
