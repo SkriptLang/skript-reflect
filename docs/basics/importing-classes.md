@@ -57,9 +57,10 @@ command /example:
 Aliases must be valid Java identifiers!
 {% endhint %}
 
-### Importing NMS classes
+### Importing NMS classes on Minecraft versions below 1.17
 
-Since NMS packages change with each Minecraft version, you should generate the package prefix dynamically. See [Computed Options](../advanced/computed-options.md#using-computed-options-for-nms-imports) for more details.
+Since NMS packages from Minecraft versions below 1.17 change with each Minecraft version, you should generate the package prefix dynamically.
+See [Computed Options](../advanced/computed-options.md#using-computed-options-for-nms-imports) for more details.
 
 ## Importing classes at runtime
 

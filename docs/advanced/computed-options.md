@@ -20,16 +20,17 @@ Code in this section is executed as soon as it is parsed. This section must [ret
 
 ## Using computed options for NMS imports
 
-NMS packages include the Minecraft version, preventing code referencing NMS classes from working across versions. To get around this, computed options may be used to dynamically generate the proper NMS package.
+NMS packages from before Minecraft 1.17 include the Minecraft version, preventing code referencing NMS classes from working across versions.
+To get around this, computed options may be used to dynamically generate the proper NMS package.
 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
 ```text
-import: 
-  org.bukkit.Bukkit 
+import:
+  org.bukkit.Bukkit
 
 option nms:
-  get: 
+  get:
     set {_nms version} to Bukkit.getServer().getClass().getPackage().getName().split("\.")[3]
     return "net.minecraft.server.%{_nms version}%"
 
@@ -43,6 +44,3 @@ import:
 {% hint style="warning" %}
 While this code dynamically generates the appropriate NMS package prefix, it does not guarantee your code will work across versions! Be aware that classes, methods, and fields may change in incompatible ways across versions.
 {% endhint %}
-
-
-
