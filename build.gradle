@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 group 'com.btk5h.skript-mirror'
-version '2.2.3'
+version '2.2.4-dev'
 
 apply plugin: 'java'
 
