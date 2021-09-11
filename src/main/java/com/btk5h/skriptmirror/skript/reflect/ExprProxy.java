@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript.reflect;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.function.Function;
@@ -40,6 +41,31 @@ public class ExprProxy extends SimpleExpression<Object> {
   private Variable<?> handler;
 
   @Override
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+    proxiesUsed = true;
+
+    interfaces = SkriptUtil.defendExpression(exprs[0]);
+    if (interfaces instanceof Literal) {
+      JavaType[] javaTypes = ((Literal<JavaType>) interfaces).getArray();
+      for (JavaType javaType : javaTypes) {
+        if (!javaType.getJavaClass().isInterface()) {
+          Skript.warning(javaType + " is not an interface");
+        }
+      }
+    }
+
+    Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
+    if (var instanceof Variable && ((Variable<?>) var).isList()) {
+      handler = (Variable<?>) var;
+      return true;
+    }
+
+    Skript.error(var + " is not a list variable.");
+    return false;
+  }
+
+  @Override
   protected Object[] get(Event e) {
     Map<String, FunctionWrapper> handlers = new HashMap<>();
     Map<String, Section> sectionHandlers = new HashMap<>();
@@ -63,6 +89,23 @@ public class ExprProxy extends SimpleExpression<Object> {
             new VariableInvocationHandler(handlers, sectionHandlers)
         )
     };
+  }
+
+  @Override
+  public boolean isSingle() {
+    return true;
+  }
+
+  @Override
+  public Class<?> getReturnType() {
+    return Object.class;
+  }
+
+  @Override
+  public String toString(Event e, boolean debug) {
+    return String.format("proxy of %s from %s",
+        interfaces.toString(e, debug),
+        handler.toString(e, debug));
   }
 
   private static class VariableInvocationHandler implements InvocationHandler {
@@ -96,12 +139,12 @@ public class ExprProxy extends SimpleExpression<Object> {
 
       List<Object[]> params = new ArrayList<>(functionArgs.length + methodArgs.length + 1);
       Arrays.stream(functionArgs)
-          .map(arg -> new Object[]{arg})
-          .forEach(params::add);
+        .map(arg -> new Object[]{arg})
+        .forEach(params::add);
       params.add(new Object[]{proxy});
       Arrays.stream(methodArgs)
-          .map(arg -> new Object[]{arg})
-          .forEach(params::add);
+        .map(arg -> new Object[]{arg})
+        .forEach(params::add);
 
       Object[] returnValue;
       if (function != null) {
@@ -121,41 +164,6 @@ public class ExprProxy extends SimpleExpression<Object> {
 
       return (returnValue == null || returnValue.length == 0) ? null : ObjectWrapper.unwrapIfNecessary(returnValue[0]);
     }
-  }
-
-  @Override
-  public boolean isSingle() {
-    return true;
-  }
-
-  @Override
-  public Class<?> getReturnType() {
-    return Object.class;
-  }
-
-  @Override
-  public String toString(Event e, boolean debug) {
-    return String.format("proxy of %s from %s",
-        interfaces.toString(e, debug),
-        handler.toString(e, debug));
-  }
-
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-
-    proxiesUsed = true;
-
-    interfaces = SkriptUtil.defendExpression(exprs[0]);
-    Expression<?> var = SkriptUtil.defendExpression(exprs[1]);
-
-    if (var instanceof Variable && ((Variable<?>) var).isList()) {
-      handler = (Variable<?>) var;
-      return true;
-    }
-
-    Skript.error(var.toString() + " is not a list variable.");
-    return false;
   }
 
 }

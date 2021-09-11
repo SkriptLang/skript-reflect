@@ -33,6 +33,8 @@ public class SkriptUtil {
   /**
    * Returns the given {@link Expression}, unless it is (or has) an {@link UnparsedLiteral},
    * in which case every {@link UnparsedLiteral} will be parsed, and returned if successful.
+   *
+   * Can also be used as an alternative to casting to a generic type.
    */
   @SuppressWarnings("unchecked")
   public static <T> Expression<T> defendExpression(Expression<?> expr) {
