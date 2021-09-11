@@ -27,6 +27,7 @@ import com.btk5h.skriptmirror.util.LRUCache;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import com.btk5h.skriptmirror.util.StringSimilarity;
+import com.btk5h.skriptmirror.util.lookup.LookupGetter;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
@@ -58,7 +59,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   public static int javaCallsMade = 0;
 
-  private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
+  private static final MethodHandles.Lookup LOOKUP = LookupGetter.getLookup();
   private static final Object[] NO_ARGS = new Object[0];
   private static final Descriptor CONSTRUCTOR_DESCRIPTOR = new Descriptor(null, "<init>", null);
 
