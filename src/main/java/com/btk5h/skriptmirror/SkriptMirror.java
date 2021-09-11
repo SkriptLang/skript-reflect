@@ -44,6 +44,10 @@ public class SkriptMirror extends JavaPlugin {
       return;
     }
 
+    if (Bukkit.getPluginManager().getPlugin("skript-mirror") != null) {
+      getLogger().warning("You shouldn't have both skript-mirror and skript-reflect enabled, it will probably cause issues");
+    }
+
     saveDefaultConfig();
 
     try {
