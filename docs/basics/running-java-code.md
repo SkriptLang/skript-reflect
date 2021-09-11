@@ -22,7 +22,8 @@ Methods may be used as effects, expressions, and conditions. If used as a condit
 
 ### Calling non-public methods
 
-If the method you're trying to invoke is not public, you must prefix the method name with the declaring class in brackets. Since an object may have a non-public method with the same name in multiple superclasses, you must explicitly specify where to find the method.
+If the method you're trying to invoke is not public, you may have to prefix the method name with the declaring class in brackets.
+Since an object may have a non-public method with the same name in multiple superclasses, you must explicitly specify where to find the method.
 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
@@ -58,7 +59,8 @@ Math.max[int, int](0, {_value})
 
 ### Calling non-public fields
 
-If the field you're trying to use is not public, you must prefix the field name with the declaring class in brackets. Since an object may have a non-public field with the same name in multiple superclasses, you must explicitly specify where to find the field.
+If the field you're trying to access is not public, you may have to prefix the field name with the declaring class in brackets.
+Since an object may have a non-public field with the same name in multiple superclasses, you must explicitly specify where to find the field.
 
 {% code-tabs %}
 {% code-tabs-item title="example.sk" %}
