@@ -3,9 +3,11 @@ package com.btk5h.skriptmirror.skript.custom.expression;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -26,28 +28,45 @@ public class EffReturn extends Effect {
   @Override
   protected TriggerItem walk(Event e) {
     if (e instanceof SectionEvent) {
-      ((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getAll(e));
+      ((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
+      return null;
+    } else {
+      ((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
       return null;
     }
-
-    ((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getAll(e));
-    return null;
   }
 
   @Override
   public String toString(Event e, boolean debug) {
     if (objects == null) {
-      return "empty return";
+      return "return";
     }
     return "return " + objects.toString(e, debug);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
     if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)) {
-      // No error message because it'll default to Skript's EffReturn
+      // No error message so it'll default to Skript's EffReturn
       return false;
+    }
+
+    Expression<?> expr = exprs[0];
+
+    SkriptEvent skriptEvent = getParser().getCurrentSkriptEvent();
+    if (expr != null && skriptEvent instanceof CustomExpressionSection) {
+      CustomExpressionSection customExpressionSection = (CustomExpressionSection) skriptEvent;
+      ExpressionSyntaxInfo which = customExpressionSection.getFirstWhich();
+      Class<?> returnType = CustomExpressionSection.returnTypes.get(which);
+      if (returnType != null) {
+        Expression<?> newExpr = expr.getConvertedExpression(returnType);
+        if (newExpr == null) {
+          Skript.error(expr + " is not " + Classes.getSuperClassInfo(returnType).getName().withIndefiniteArticle());
+          return false;
+        }
+        expr = newExpr;
+      }
     }
 
     if (!isDelayed.isFalse()) {
@@ -55,7 +74,7 @@ public class EffReturn extends Effect {
       return false;
     }
 
-    objects = SkriptUtil.defendExpression(exprs[0]);
+    objects = SkriptUtil.defendExpression(expr);
 
     return SkriptUtil.canInitSafely(objects);
   }

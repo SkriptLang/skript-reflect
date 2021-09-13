@@ -210,6 +210,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
     if (isPreload)
       preloadLogHandler = SkriptLogger.startRetainingLog();
+    getParser().setCurrentSkriptEvent(this);
     preloadSuccess = init(args, matchedPattern, parseResult, node, isPreload);
     if (isPreload) {
       preloadLogHandler.stop();
@@ -328,6 +329,10 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
       );
     }
     return true;
+  }
+
+  public T getFirstWhich() {
+    return whichInfo.get(0);
   }
 
 }
