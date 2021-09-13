@@ -92,8 +92,8 @@ public class EffRunSection extends Effect {
     Runnable runSection = () -> {
       SkriptReflection.putLocals(localVars, e);
 
-      section.run(e, args);
-      storeResult(section, e);
+      SectionEvent sectionEvent = section.run(args);
+      storeResult(sectionEvent, e);
 
       if (needsContinue) {
         Runnable continuation = () -> {
@@ -118,8 +118,8 @@ public class EffRunSection extends Effect {
   protected void execute(Event e) {
     Section section = sectionExpression.getSingle(e);
     if (section != null) {
-      section.run(e, getArgs(e));
-      storeResult(section, e);
+      SectionEvent sectionEvent = section.run(getArgs(e));
+      storeResult(sectionEvent, e);
     }
   }
 
@@ -135,8 +135,8 @@ public class EffRunSection extends Effect {
     return args;
   }
 
-  private void storeResult(Section section, Event event) {
-    Object[] output = section.getOutput();
+  private void storeResult(SectionEvent sectionEvent, Event event) {
+    Object[] output = sectionEvent.getOutput();
     if (variableStorage != null && output != null)
       variableStorage.change(event, output, Changer.ChangeMode.SET);
   }

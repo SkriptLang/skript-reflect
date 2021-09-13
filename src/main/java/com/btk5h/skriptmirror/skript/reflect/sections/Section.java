@@ -26,9 +26,9 @@ public class Section {
     this(trigger, SkriptReflection.copyLocals(SkriptReflection.getLocals(event)), argumentVariables);
   }
 
-  public void run(Event event, Object[][] arguments) {
+  public SectionEvent run(Object[][] arguments) {
     output = null;
-    SectionEvent sectionEvent = new SectionEvent(event, this);
+    SectionEvent sectionEvent = new SectionEvent(this);
     SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), sectionEvent);
 
     for (int i = 0; i < arguments.length && i < argumentVariables.size(); i++) {
@@ -37,6 +37,7 @@ public class Section {
 
     TriggerItem.walk(trigger, sectionEvent);
     SkriptReflection.removeLocals(sectionEvent);
+    return sectionEvent;
   }
 
   public Object[] getOutput() {

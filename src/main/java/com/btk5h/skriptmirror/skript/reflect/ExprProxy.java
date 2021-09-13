@@ -156,10 +156,8 @@ public class ExprProxy extends SimpleExpression<Object> {
 
         returnValue = function.execute(functionEvent, args);
       } else {
-        SectionEvent sectionEvent = new SectionEvent(null, section);
-
-        section.run(sectionEvent, params.toArray(new Object[0][]));
-        returnValue = section.getOutput();
+        SectionEvent sectionEvent = section.run(params.toArray(new Object[0][]));
+        returnValue = sectionEvent.getOutput();
       }
 
       return (returnValue == null || returnValue.length == 0) ? null : ObjectWrapper.unwrapIfNecessary(returnValue[0]);
