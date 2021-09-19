@@ -11,7 +11,7 @@ import com.btk5h.skriptmirror.skript.custom.event.CustomEventSection;
 import com.btk5h.skriptmirror.skript.custom.expression.CustomExpressionSection;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import com.btk5h.skriptmirror.skript.reflect.ExprProxy;
-import com.btk5h.skriptmirror.skript.reflect.sections.CondSection;
+import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -101,7 +101,7 @@ public class SkriptMirror extends JavaPlugin {
     metrics.addCustomChart(new Metrics.SimplePie("proxies_used",
       () -> "" + ExprProxy.proxiesUsed));
     metrics.addCustomChart(new Metrics.SimplePie("sections_used",
-      () -> "" + CondSection.sectionsUsed));
+      () -> "" + SecSection.sectionsUsed));
 
   }
 
