@@ -1,6 +1,11 @@
 package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.ClassInfo;
+import com.btk5h.skriptmirror.JavaType;
+import com.btk5h.skriptmirror.Null;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -263,6 +268,131 @@ public final class JavaUtil {
     }
 
     return type;
+  }
+
+  /**
+   * @return the string form of a (possibly primitive) array, in the form [a, b, c, ...],
+   * converting the values to strings using the given {@link Function}.
+   */
+  public static String arrayToString(Object array, Function<Object, String> function) {
+    int length = Array.getLength(array);
+
+    StringBuilder stringBuilder = new StringBuilder("[");
+    for (int i = 0; i < length; i++) {
+      Object value = Array.get(array, i);
+      stringBuilder.append(function.apply(value));
+
+      if (i != length - 1) {
+        stringBuilder.append(", ");
+      }
+    }
+    return stringBuilder.append("]").toString();
+  }
+
+  /**
+   * Returns whether the given {@link Object} can be converted to the given class.
+   */
+  public static boolean canConvert(Object object, Class<?> to) {
+    if (to.isInstance(object)) {
+      return true;
+    }
+
+    // coerce numeric types
+    if (object instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(to)) {
+      return true;
+    }
+
+    // coerce arrays of numeric types
+    if (to.isArray() && JavaUtil.getArrayDepth(to) == JavaUtil.getArrayDepth(object.getClass())) {
+      Class<?> paramComponent = JavaUtil.getBaseComponent(to);
+      Class<?> argComponent = JavaUtil.getBaseComponent(object.getClass());
+
+      if (JavaUtil.isNumericClass(paramComponent) && JavaUtil.isNumericClass(argComponent)) {
+        return true;
+      }
+    }
+
+    // allow boxed numbers
+    if (to.isPrimitive() && JavaUtil.WRAPPER_CLASSES.get(to).isInstance(object)) {
+      return true;
+    }
+
+    // coerce single character strings to chars
+    if (object instanceof String
+      && (to == char.class || to == Character.class)
+      && ((String) object).length() == 1) {
+      return true;
+    }
+
+    // coerce a Skript ItemType to an ItemStack
+    if (object instanceof ItemType && to == ItemStack.class) {
+      return true;
+    }
+
+    // coerce javaclasses and classinfos into classes
+    if (to == Class.class && (object instanceof JavaType || object instanceof ClassInfo)) {
+      return true;
+    }
+
+    // unwrap null wrapper
+    return !to.isPrimitive() && object instanceof Null;
+  }
+
+  /**
+   * Converts the given {@link Object} to the given class.
+   * If {@link #canConvert(Object, Class)} returned {@code false}, this
+   * returns the same {@link Object} as was passed to this method.
+   */
+  public static Object convert(Object object, Class<?> to) {
+    // coerce numeric types
+    if (object instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(to)) {
+      if (to == byte.class || to == Byte.class) {
+        return ((Number) object).byteValue();
+      } else if (to == double.class || to == Double.class) {
+        return ((Number) object).doubleValue();
+      } else if (to == float.class || to == Float.class) {
+        return ((Number) object).floatValue();
+      } else if (to == int.class || to == Integer.class) {
+        return ((Number) object).intValue();
+      } else if (to == long.class || to == Long.class) {
+        return ((Number) object).longValue();
+      } else if (to == short.class || to == Short.class) {
+        return ((Number) object).shortValue();
+      }
+    }
+
+    // coerce arrays of numeric types
+    if (to.isArray()
+      && JavaUtil.getArrayDepth(to) == JavaUtil.getArrayDepth(object.getClass())
+      && JavaUtil.isNumericClass(JavaUtil.getBaseComponent(to))) {
+      return JavaUtil.convertNumericArray(object, JavaUtil.getBaseComponent(to));
+    }
+
+    // coerce single character strings to chars
+    if (object instanceof String && (to == char.class || to == Character.class)) {
+      return ((String) object).charAt(0);
+    }
+
+    // coerce a Skript ItemType to an ItemStack
+    if (object instanceof ItemType && to == ItemStack.class) {
+      return ((ItemType) object).getRandom();
+    }
+
+    // coerce javatypes and classinfos into classes
+    if (to == Class.class) {
+      if (object instanceof JavaType) {
+        return ((JavaType) object).getJavaClass();
+      } else if (object instanceof ClassInfo) {
+        return ((ClassInfo<?>) object).getC();
+      }
+    }
+
+    // unwrap null wrapper
+    if (object instanceof Null) {
+      return null;
+    }
+
+    return object;
   }
 
 }

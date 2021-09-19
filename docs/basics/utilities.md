@@ -29,6 +29,22 @@ The brackets in this syntax are literal, not representing an optional group.
 
 Returns the contents of a single array, iterable, iterator, or stream.
 
+## Array Creation
+
+{% code-tabs %}
+{% code-tabs-item title="Syntax" %}
+```text
+new %javatype%[%integer%]
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+Creates an array of the given type and size. The type may be primitive, which doesn't require an import.
+
+{% hint style="info" %}
+The brackets in this syntax are literal, not representing an optional group.
+{% endhint %}
+
 ## Array Value
 
 {% code-tabs %}
@@ -157,5 +173,5 @@ Checks whether objects are instances of the given java types.
 {% endcode-tabs %}
 
 Returns a reference to the class from the given java type. Returns an object of type `java.lang.Class`.
-This expression also supports primitive types.
+This expression also supports primitive types, which doesn't require an import.
 

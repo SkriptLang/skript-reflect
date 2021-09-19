@@ -13,14 +13,13 @@ import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.skript.custom.CustomImport;
 import com.btk5h.skriptmirror.skript.reflect.sections.Section;
+import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 import java.io.File;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class Types {
   static {
@@ -198,14 +197,12 @@ public class Types {
           }
 
           @Override
-          public String toString(ObjectWrapper o, int flags) {
-            if (o instanceof ObjectWrapper.OfArray) {
-              return Arrays.stream(((ObjectWrapper.OfArray) o).get())
-                  .map(Classes::toString)
-                  .collect(Collectors.joining(", "));
+          public String toString(ObjectWrapper objectWrapper, int flags) {
+            if (objectWrapper.isArray()) {
+              return JavaUtil.arrayToString(objectWrapper.get(), Classes::toString);
             }
 
-            return Classes.toString(o.get());
+            return Classes.toString(objectWrapper);
           }
 
           @Override

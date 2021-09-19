@@ -8,43 +8,33 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.util.JavaUtil;
+import com.btk5h.skriptmirror.util.JavaTypeWrapper;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class ExprClassReference extends SimpleExpression<ObjectWrapper> {
 
   static {
-    String primitiveTypes = String.join("|", JavaUtil.PRIMITIVE_CLASS_NAMES.keySet());
     Skript.registerExpression(ExprClassReference.class, ObjectWrapper.class, ExpressionType.COMBINED,
-      "(<(" + primitiveTypes + ")>|%-javatype%).class");
+      "(<(" + JavaTypeWrapper.PRIMITIVE_PATTERNS + ")>|%-javatype%).class");
   }
 
-  private Expression<? extends JavaType> javaTypeExpr;
-  private Class<?> primitiveClass;
+  private JavaTypeWrapper javaTypeWrapper;
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-    javaTypeExpr = (Expression<? extends JavaType>) exprs[0];
-    if (javaTypeExpr == null) {
-      primitiveClass = JavaUtil.PRIMITIVE_CLASS_NAMES.get(parseResult.regexes.get(0).group());
-      return primitiveClass != null;
-    }
+    javaTypeWrapper = JavaTypeWrapper.of(exprs[0], parseResult.regexes);
     return true;
   }
 
   @Nullable
   @Override
   protected ObjectWrapper[] get(Event e) {
-    if (primitiveClass != null)
-      return new ObjectWrapper[] {ObjectWrapper.create(primitiveClass)};
-    JavaType javaType = javaTypeExpr.getSingle(e);
-    if (javaType == null)
+    JavaType javaType = javaTypeWrapper.get(e);
+    if (javaType == null) {
       return null;
-    Class<?> clazz = javaType.getJavaClass();
-
-    return new ObjectWrapper[] {ObjectWrapper.create(clazz)};
+    }
+    return new ObjectWrapper[] {ObjectWrapper.create(javaType.getJavaClass())};
   }
 
   @Override
@@ -59,7 +49,7 @@ public class ExprClassReference extends SimpleExpression<ObjectWrapper> {
 
   @Override
   public String toString(@Nullable Event e, boolean debug) {
-    return javaTypeExpr.toString(e, debug) + ".class";
+    return javaTypeWrapper.toString(e, debug) + ".class";
   }
 
 }

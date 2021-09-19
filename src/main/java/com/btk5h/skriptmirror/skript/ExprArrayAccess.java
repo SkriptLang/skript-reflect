@@ -15,9 +15,11 @@ import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
 
+import java.lang.reflect.Array;
 import java.util.Iterator;
 
 public class ExprArrayAccess<T> implements Expression<T> {
+
   static {
     //noinspection unchecked
     Skript.registerExpression(ExprArrayAccess.class, Object.class, ExpressionType.COMBINED,
@@ -50,31 +52,37 @@ public class ExprArrayAccess<T> implements Expression<T> {
     this.superType = (Class<T>) Utils.getSuperType(types);
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+    arrays = (Expression<ObjectWrapper>) exprs[0];
+    index = (Expression<Number>) exprs[1];
+    return true;
+  }
+
   @Override
   public T getSingle(Event e) {
     ObjectWrapper wrapper = arrays.getSingle(e);
-    Number i = index.getSingle(e);
+    Number number = index.getSingle(e);
 
-    if (!(wrapper instanceof ObjectWrapper.OfArray) || i == null) {
+    if (wrapper == null || number == null || !wrapper.isArray()) {
       return null;
     }
 
-    Object[] array = ((ObjectWrapper.OfArray) wrapper).get();
+    Object array = wrapper.get();
+    int length = Array.getLength(array);
 
-    try {
-      return Converters.convert(array[i.intValue()], types);
-    } catch (IndexOutOfBoundsException ex) {
+    int i = number.intValue();
+    if (i < 0 || i >= length) {
       return null;
     }
+
+    return Converters.convert(Array.get(array, i), types);
   }
 
   @Override
   public T[] getArray(Event e) {
-    return getAll(e);
-  }
-
-  @Override
-  public T[] getAll(Event e) {
     T single = getSingle(e);
 
     if (single == null) {
@@ -85,6 +93,11 @@ public class ExprArrayAccess<T> implements Expression<T> {
     all[0] = single;
 
     return all;
+  }
+
+  @Override
+  public T[] getAll(Event e) {
+    return getArray(e);
   }
 
   @Override
@@ -163,30 +176,37 @@ public class ExprArrayAccess<T> implements Expression<T> {
   @Override
   public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
     ObjectWrapper wrapper = arrays.getSingle(e);
-    Number i = index.getSingle(e);
+    Number number = index.getSingle(e);
 
-    if (!(wrapper instanceof ObjectWrapper.OfArray) || i == null) {
+    if (wrapper == null || number == null || !wrapper.isArray()) {
       return;
     }
 
-    Object[] array = ((ObjectWrapper.OfArray) wrapper).get();
+    Object array = wrapper.get();
+    int length = Array.getLength(array);
 
-    try {
-      switch (mode) {
-        case SET:
-          array[i.intValue()] = delta[0];
-          break;
-        case DELETE:
-          array[i.intValue()] = null;
-          break;
-      }
-    } catch (IndexOutOfBoundsException ignored) {
+    int i = number.intValue();
+    if (i < 0 || i >= length) {
+      return;
+    }
+
+    switch (mode) {
+      case SET:
+        Class<?> to = array.getClass().getComponentType();
+        if (JavaUtil.canConvert(delta[0], to)) {
+          Object converted = JavaUtil.convert(delta[0], to);
+          Array.set(array, i, converted);
+        }
+        break;
+      case DELETE:
+        Array.set(array, i, null);
+        break;
     }
   }
 
   @Override
   public String toString(Event e, boolean debug) {
-    return String.format("%s[%s]", arrays.toString(e, debug), index.toString(e, debug));
+    return arrays.toString(e, debug) + "[" + index.toString(e, debug) + "]";
   }
 
   @Override
@@ -194,12 +214,4 @@ public class ExprArrayAccess<T> implements Expression<T> {
     return toString(null, false);
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    arrays = (Expression<ObjectWrapper>) exprs[0];
-    index = (Expression<Number>) exprs[1];
-    return true;
-  }
 }

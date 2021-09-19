@@ -1,9 +1,7 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
@@ -29,7 +27,6 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import com.btk5h.skriptmirror.util.StringSimilarity;
 import com.btk5h.skriptmirror.util.lookup.LookupGetter;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
@@ -599,9 +596,9 @@ public class ExprJavaCall<T> implements Expression<T> {
 
       Object arg = ObjectWrapper.unwrapIfNecessary(args[i]);
 
-      if (!canCoerceType(arg, param)) {
+      if (!JavaUtil.canConvert(arg, param)) {
         // allow varargs arrays to be spread
-        if (loopAtVarargs && args.length == params.length && canCoerceType(arg, params[i])) {
+        if (loopAtVarargs && args.length == params.length && JavaUtil.canConvert(arg, params[i])) {
           continue;
         }
 
@@ -610,112 +607,6 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     return true;
-  }
-
-  /**
-   * Returns whether the given {@link Object} can be converted to the given class.
-   */
-  private static boolean canCoerceType(Object o, Class<?> to) {
-    if (to.isInstance(o)) {
-      return true;
-    }
-
-    // coerce numeric types
-    if (o instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(to)) {
-      return true;
-    }
-
-    // coerce arrays of numeric types
-    if (to.isArray() && JavaUtil.getArrayDepth(to) == JavaUtil.getArrayDepth(o.getClass())) {
-      Class<?> paramComponent = JavaUtil.getBaseComponent(to);
-      Class<?> argComponent = JavaUtil.getBaseComponent(o.getClass());
-
-      if (JavaUtil.isNumericClass(paramComponent) && JavaUtil.isNumericClass(argComponent)) {
-        return true;
-      }
-    }
-
-    // allow boxed numbers
-    if (to.isPrimitive() && JavaUtil.WRAPPER_CLASSES.get(to).isInstance(o)) {
-      return true;
-    }
-
-    // coerce single character strings to chars
-    if (o instanceof String
-        && (to == char.class || to == Character.class)
-        && ((String) o).length() == 1) {
-      return true;
-    }
-
-    // coerce a Skript ItemType to an ItemStack
-    if (o instanceof ItemType && to == ItemStack.class) {
-      return true;
-    }
-
-    // coerce javaclasses and classinfos into classes
-    if (to == Class.class && (o instanceof JavaType || o instanceof ClassInfo)) {
-      return true;
-    }
-
-    // unwrap null wrapper
-    return !to.isPrimitive() && o instanceof Null;
-  }
-
-  /**
-   * Converts the given {@link Object} to the given class.
-   * If {@link #canCoerceType(Object, Class)} returned {@code false}, this
-   * returns the same {@link Object} as was passed to this method.
-   */
-  private static Object coerceType(Object o, Class<?> to) {
-    // coerce numeric types
-    if (o instanceof Number && JavaUtil.NUMERIC_CLASSES.contains(to)) {
-      if (to == byte.class || to == Byte.class) {
-        return ((Number) o).byteValue();
-      } else if (to == double.class || to == Double.class) {
-        return ((Number) o).doubleValue();
-      } else if (to == float.class || to == Float.class) {
-        return ((Number) o).floatValue();
-      } else if (to == int.class || to == Integer.class) {
-        return ((Number) o).intValue();
-      } else if (to == long.class || to == Long.class) {
-        return ((Number) o).longValue();
-      } else if (to == short.class || to == Short.class) {
-        return ((Number) o).shortValue();
-      }
-    }
-
-    // coerce arrays of numeric types
-    if (to.isArray()
-      && JavaUtil.getArrayDepth(to) == JavaUtil.getArrayDepth(o.getClass())
-      && JavaUtil.isNumericClass(JavaUtil.getBaseComponent(to))) {
-      return JavaUtil.convertNumericArray(o, JavaUtil.getBaseComponent(to));
-    }
-
-    // coerce single character strings to chars
-    if (o instanceof String && (to == char.class || to == Character.class)) {
-      return ((String) o).charAt(0);
-    }
-
-    // coerce a Skript ItemType to an ItemStack
-    if (o instanceof ItemType && to == ItemStack.class) {
-      return ((ItemType) o).getRandom();
-    }
-
-    // coerce javatypes and classinfos into classes
-    if (to == Class.class) {
-      if (o instanceof JavaType) {
-        return ((JavaType) o).getJavaClass();
-      } else if (o instanceof ClassInfo) {
-        return ((ClassInfo<?>) o).getC();
-      }
-    }
-
-    // unwrap null wrapper
-    if (o instanceof Null) {
-      return null;
-    }
-
-    return o;
   }
 
   private static Object[] convertTypes(MethodHandle mh, Object[] args) {
@@ -747,7 +638,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         System.arraycopy(varargsArray, 0, args, varargsIndex, varargsLength);
       }
 
-      args[i] = coerceType(args[i], param);
+      args[i] = JavaUtil.convert(args[i], param);
     }
 
     return args;

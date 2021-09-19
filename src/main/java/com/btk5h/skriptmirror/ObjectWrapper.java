@@ -3,10 +3,10 @@ package com.btk5h.skriptmirror;
 import ch.njol.skript.registrations.Classes;
 import com.btk5h.skriptmirror.util.JavaUtil;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class ObjectWrapper {
+
   protected Object object;
 
   private ObjectWrapper(Object object) {
@@ -16,10 +16,6 @@ public class ObjectWrapper {
   public static ObjectWrapper create(Object object) {
     if (object instanceof ObjectWrapper) {
       return (ObjectWrapper) object;
-    }
-
-    if (object.getClass().isArray()) {
-      return new OfArray((Object[]) object);
     }
 
     return new ObjectWrapper(object);
@@ -47,8 +43,19 @@ public class ObjectWrapper {
     return object;
   }
 
+  public boolean isArray() {
+    if (object != null) {
+      return object.getClass().isArray();
+    }
+    return false;
+  }
+
   @Override
   public String toString() {
+    if (isArray()) {
+      return JavaUtil.arrayToString(object, Object::toString);
+    }
+
     return object.toString();
   }
 
@@ -65,19 +72,4 @@ public class ObjectWrapper {
     return Objects.hash(object);
   }
 
-  public static class OfArray extends ObjectWrapper {
-    private OfArray(Object[] object) {
-      super(object);
-    }
-
-    @Override
-    public Object[] get() {
-      return (Object[]) object;
-    }
-
-    @Override
-    public String toString() {
-      return Arrays.deepToString(get());
-    }
-  }
 }
