@@ -74,6 +74,7 @@ event "example":
     add 1 to {_test}
     # broadcasts 2
     broadcast "%{_test}%"
+    continue
 ```
 {% endcode-tabs-item %}
 {% endcode-tabs %}
