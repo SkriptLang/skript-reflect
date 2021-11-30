@@ -23,8 +23,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class EvtByReflection extends SkriptEvent {
+
   static {
-    Skript.registerEvent("Bukkit Event", EvtByReflection.class, BukkitEvent.class,
+    Skript.registerEvent("Bukkit", EvtByReflection.class, BukkitEvent.class,
         "[(1¦all)] %javatypes% [(at|on|with) priority <.+>]");
   }
 
