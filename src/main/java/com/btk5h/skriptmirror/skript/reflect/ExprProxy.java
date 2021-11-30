@@ -18,8 +18,10 @@ import com.btk5h.skriptmirror.skript.reflect.sections.Section;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -109,6 +111,19 @@ public class ExprProxy extends SimpleExpression<Object> {
   }
 
   private static class VariableInvocationHandler implements InvocationHandler {
+    @Nullable
+    private static final Method INVOKE_DEFAULT;
+    static {
+      Method method;
+      try {
+        //noinspection JavaReflectionMemberAccess
+        method = InvocationHandler.class.getDeclaredMethod("invokeDefault", Object.class, Method.class, Object[].class);
+      } catch (NoSuchMethodException e) {
+        method = null;
+      }
+      INVOKE_DEFAULT = method;
+    }
+
     private final Map<String, FunctionWrapper> handlers;
     private final Map<String, Section> sectionHandlers;
 
@@ -123,6 +138,14 @@ public class ExprProxy extends SimpleExpression<Object> {
       Section section = sectionHandlers.get(method.getName().toLowerCase());
 
       if (functionWrapper == null && section == null) {
+        if (INVOKE_DEFAULT != null && method.isDefault()) {
+          try {
+            return INVOKE_DEFAULT.invoke(this, proxy, method, methodArgs);
+          } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+          }
+        }
+
         return null;
       }
 
