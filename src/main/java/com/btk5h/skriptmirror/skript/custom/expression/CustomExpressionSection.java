@@ -161,6 +161,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     }
 
     AtomicBoolean hasGetOrChanger = new AtomicBoolean();
+    AtomicBoolean hasGet = new AtomicBoolean();
     boolean nodesOkay = handleEntriesAndSections(node,
       entryNode -> {
         String key = entryNode.getKey();
@@ -194,6 +195,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
 
         if (key.equalsIgnoreCase("get")) { ;
           hasGetOrChanger.set(true);
+          hasGet.set(true);
           return true;
         }
 
@@ -301,6 +303,11 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
 
     if (!hasGetOrChanger.get())
       Skript.warning("Custom expressions are useless without a get / change section");
+
+    if (!hasGet.get()) {
+      // TODO change to error after next release (but still return true)
+      Skript.warning("Custom expressions require a 'get' section");
+    }
 
     return true;
   }
