@@ -32,7 +32,8 @@ public class ParseOrderWorkarounds {
     "com.pie.tlatoani.CustomEvent.EvtCustomEvent",
     EffReturn.class.getCanonicalName(),
     ExprMatchedPattern.class.getCanonicalName(),
-    "ch.njol.skript.effects.EffContinue"
+    "ch.njol.skript.effects.EffContinue",
+    "com.ankoki.skjade.elements.conditions.CondBoolean"
   };
 
   public static void reorderSyntax() {
