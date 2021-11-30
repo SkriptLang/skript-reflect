@@ -96,7 +96,7 @@ public class CustomImport {
   private static void registerImport(String rawStatement, File script) {
     Matcher statement = IMPORT_STATEMENT.matcher(ScriptLoader.replaceOptions(rawStatement));
     if (!statement.matches()) {
-      Skript.warning(rawStatement + " is an invalid import statement.");
+      Skript.error(rawStatement + " is an invalid import statement.");
       return;
     }
 
@@ -106,7 +106,7 @@ public class CustomImport {
     try {
       javaClass = LibraryLoader.getClassLoader().loadClass(cls);
     } catch (ClassNotFoundException ex) {
-      Skript.warning(cls + " refers to a non-existent class.");
+      Skript.error(cls + " refers to a non-existent class.");
       return;
     }
 
@@ -124,7 +124,7 @@ public class CustomImport {
         .compute(importName,
             (name, oldClass) -> {
               if (oldClass != null) {
-                Skript.warning(name + " is already mapped to " + oldClass.getJavaClass() + ". " +
+                Skript.error(name + " is already mapped to " + oldClass.getJavaClass() + ". " +
                   "It will not be remapped to " + javaClass + ".");
                 return oldClass;
               }
