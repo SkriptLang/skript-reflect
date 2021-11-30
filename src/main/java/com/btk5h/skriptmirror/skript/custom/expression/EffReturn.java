@@ -18,41 +18,21 @@ public class EffReturn extends Effect {
     Skript.registerEffect(EffReturn.class, "return [%-objects%]");
   }
 
-  public Expression<Object> objects;
-
-  @Override
-  protected void execute(Event e) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected TriggerItem walk(Event e) {
-    if (e instanceof SectionEvent) {
-      ((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
-      return null;
-    } else {
-      ((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
-      return null;
-    }
-  }
-
-  @Override
-  public String toString(Event e, boolean debug) {
-    if (objects == null) {
-      return "return";
-    }
-    return "return " + objects.toString(e, debug);
-  }
+  public Expression<?> objects;
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+    Expression<?> expr = SkriptUtil.defendExpression(exprs[0]);
+    if (!SkriptUtil.canInitSafely(expr)) {
+      Skript.error("Can't understand this expression: " + expr);
+      return false;
+    }
+
     if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)) {
       // No error message so it'll default to Skript's EffReturn
       return false;
     }
-
-    Expression<?> expr = exprs[0];
 
     SkriptEvent skriptEvent = getParser().getCurrentSkriptEvent();
     if (expr != null && skriptEvent instanceof CustomExpressionSection) {
@@ -74,8 +54,32 @@ public class EffReturn extends Effect {
       return false;
     }
 
-    objects = SkriptUtil.defendExpression(expr);
+    objects = expr;
 
-    return SkriptUtil.canInitSafely(objects);
+    return true;
   }
+
+  @Override
+  protected TriggerItem walk(Event e) {
+    if (e instanceof SectionEvent) {
+      ((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
+    } else {
+      ((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
+    }
+    return null;
+  }
+
+  @Override
+  protected void execute(Event e) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String toString(Event e, boolean debug) {
+    if (objects == null) {
+      return "return";
+    }
+    return "return " + objects.toString(e, debug);
+  }
+
 }
