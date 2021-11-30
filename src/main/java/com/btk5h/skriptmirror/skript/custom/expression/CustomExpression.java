@@ -225,7 +225,7 @@ public class CustomExpression<T> implements Expression<T> {
   @Override
   public Class<?>[] acceptChange(Changer.ChangeMode mode) {
     if (CustomExpressionSection.hasChanger.containsKey(which)
-        && CustomExpressionSection.hasChanger.get(which).get(mode)) {
+        && CustomExpressionSection.hasChanger.get(which).contains(mode)) {
       return CustomExpressionSection.changerTypes
           .getOrDefault(which, Collections.emptyMap())
           .getOrDefault(mode, new Class[]{Object[].class});

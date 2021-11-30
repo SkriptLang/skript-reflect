@@ -22,6 +22,7 @@ import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +53,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
   static final Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
-  static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Boolean>> hasChanger = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, List<Changer.ChangeMode>> hasChanger = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Class<?>[]>> changerTypes = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, String> loopOfs = new HashMap<>();
@@ -215,10 +216,10 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
             String rawTypes = key.substring(name.length()).trim();
 
             whichInfo.forEach(which -> {
-              Map<Changer.ChangeMode, Boolean> hasChangerMap =
-                hasChanger.computeIfAbsent(which, k -> new HashMap<>());
+              List<Changer.ChangeMode> hasChangerList =
+                hasChanger.computeIfAbsent(which, k -> new ArrayList<>());
 
-              hasChangerMap.put(mode, true);
+              hasChangerList.add(mode);
             });
 
             if (rawTypes.length() > 0) {
