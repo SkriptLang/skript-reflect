@@ -202,7 +202,7 @@ public class Types {
               return JavaUtil.arrayToString(objectWrapper.get(), Classes::toString);
             }
 
-            return Classes.toString(objectWrapper);
+            return Classes.toString(objectWrapper.get());
           }
 
           @Override
