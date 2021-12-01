@@ -16,6 +16,7 @@ import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.skript.reflect.sections.Section;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
+import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -182,7 +183,7 @@ public class ExprProxy extends SimpleExpression<Object> {
         .map(arg -> new Object[]{arg})
         .forEach(params::add);
 
-      Object[] returnValue;
+      Object[] returnValueArray;
       if (function != null) {
         FunctionEvent<?> functionEvent = new FunctionEvent<>(function);
 
@@ -190,13 +191,21 @@ public class ExprProxy extends SimpleExpression<Object> {
           .limit(function.getParameters().length)
           .toArray(Object[][]::new);
 
-        returnValue = function.execute(functionEvent, args);
+        returnValueArray = function.execute(functionEvent, args);
       } else {
         SectionEvent sectionEvent = section.run(params.toArray(new Object[0][]));
-        returnValue = sectionEvent.getOutput();
+        returnValueArray = sectionEvent.getOutput();
       }
 
-      return (returnValue == null || returnValue.length == 0) ? null : ObjectWrapper.unwrapIfNecessary(returnValue[0]);
+      Object returnValue = (returnValueArray == null || returnValueArray.length == 0) ? null :
+          ObjectWrapper.unwrapIfNecessary(returnValueArray[0]);
+
+      Class<?> returnType = method.getReturnType();
+      if (returnType == void.class) {
+        return null;
+      } else {
+        return JavaUtil.convert(returnValue, returnType);
+      }
     }
   }
 
