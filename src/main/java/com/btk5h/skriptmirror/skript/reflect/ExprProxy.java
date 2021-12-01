@@ -138,11 +138,24 @@ public class ExprProxy extends SimpleExpression<Object> {
       Section section = sectionHandlers.get(method.getName().toLowerCase());
 
       if (functionWrapper == null && section == null) {
-        if (INVOKE_DEFAULT != null && method.isDefault()) {
-          try {
-            return INVOKE_DEFAULT.invoke(this, proxy, method, methodArgs);
-          } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        if (INVOKE_DEFAULT != null) {
+          if (method.isDefault()) {
+            try {
+              return INVOKE_DEFAULT.invoke(this, proxy, method, methodArgs);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+              throw new RuntimeException(e);
+            }
+          } else if (method.getName().equals("toString") && method.getParameterCount() == 0) {
+            // Default impl of toString
+            return proxy.getClass().getName() + "@" + Integer.toHexString(proxy.hashCode());
+          } else if (method.getName().equals("hashCode") && method.getParameterCount() == 0) {
+            // Default impl of hashCode
+            return System.identityHashCode(proxy);
+          } else if (method.getName().equals("equals")
+              && method.getParameterCount() == 1
+              && method.getParameterTypes()[0] == Object.class) {
+            // Default impl of equals
+            return proxy == methodArgs[0];
           }
         }
 
