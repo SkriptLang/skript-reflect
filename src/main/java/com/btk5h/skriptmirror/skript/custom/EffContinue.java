@@ -12,8 +12,21 @@ import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
 import org.bukkit.event.Event;
 
 public class EffContinue extends Effect {
+
   static {
     Skript.registerEffect(EffContinue.class, "continue");
+  }
+
+  @Override
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+    if (!(getParser().isCurrentEvent(EffectTriggerEvent.class)
+      || CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents()))) {
+      Skript.error("Continue may only be used in loops, custom effects, custom syntax parse sections and custom conditions", ErrorQuality.SEMANTIC_ERROR);
+      return false;
+    }
+
+    return true;
   }
 
   @Override
@@ -40,17 +53,5 @@ public class EffContinue extends Effect {
   @Override
   public String toString(Event e, boolean debug) {
     return "continue";
-  }
-
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    if (!(getParser().isCurrentEvent(EffectTriggerEvent.class)
-      || CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents()))) {
-      Skript.error("Return may only be used in custom effects and conditions.", ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
-
-    return true;
   }
 }

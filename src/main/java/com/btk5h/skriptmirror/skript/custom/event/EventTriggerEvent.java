@@ -11,7 +11,7 @@ public class EventTriggerEvent extends CustomSyntaxEvent implements Continuable 
 
   private final static HandlerList handlers = new HandlerList();
   private final String which;
-  private boolean markedContinue;
+  private boolean markedContinue = false;
 
   public EventTriggerEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                            SkriptParser.ParseResult parseResult, String which) {
@@ -28,8 +28,8 @@ public class EventTriggerEvent extends CustomSyntaxEvent implements Continuable 
   }
 
   @Override
-  public void markContinue() {
-    markedContinue = true;
+  public void setContinue(boolean b) {
+    markedContinue = b;
   }
 
   public static HandlerList getHandlerList() {

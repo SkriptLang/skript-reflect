@@ -15,9 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
+
   private final static HandlerList handlers = new HandlerList();
   private final Class<?>[] eventClasses;
-  private boolean markedContinue;
+  private boolean markedContinue = false;
 
   public SyntaxParseEvent(Expression<?>[] expressions, int matchedPattern, SkriptParser.ParseResult parseResult,
                           Class<?>[] eventClasses) {
@@ -44,8 +45,8 @@ public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
   }
 
   @Override
-  public void markContinue() {
-    markedContinue = true;
+  public void setContinue(boolean b) {
+    markedContinue = b;
   }
 
   @Override

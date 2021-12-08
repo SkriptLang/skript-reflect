@@ -9,16 +9,19 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import com.btk5h.skriptmirror.skript.custom.Continuable;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 public class EffReturn extends Effect {
+
   static {
     Skript.registerEffect(EffReturn.class, "return [%-objects%]");
   }
 
-  public Expression<?> objects;
+  private Expression<?> objects;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -29,9 +32,20 @@ public class EffReturn extends Effect {
       return false;
     }
 
-    if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)) {
-      // No error message so it'll default to Skript's EffReturn
+    boolean isContinuable = CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents());
+
+    if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)
+        && !isContinuable) {
+      Skript.error("The return effect can only be used in functions, custom expressions, sections, custom syntax parse sections and custom conditions");
       return false;
+    }
+
+    if (isContinuable) {
+      expr = expr.getConvertedExpression(Boolean.class);
+      if (expr == null || !expr.isSingle()) {
+        Skript.error(exprs[0] + " is not a single boolean value");
+        return false;
+      }
     }
 
     SkriptEvent skriptEvent = getParser().getCurrentSkriptEvent();
@@ -63,8 +77,13 @@ public class EffReturn extends Effect {
   protected TriggerItem walk(Event e) {
     if (e instanceof SectionEvent) {
       ((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
-    } else {
+    } else if (e instanceof ExpressionGetEvent) {
       ((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
+    } else {
+      // objects is always a single boolean expression, see init
+      // Doesn't require casting, and deals with null
+      boolean b = Boolean.TRUE.equals(objects.getSingle(e));
+      ((Continuable) e).setContinue(b);
     }
     return null;
   }

@@ -8,9 +8,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class ConditionCheckEvent extends CustomSyntaxEvent implements Continuable {
+
   private final static HandlerList handlers = new HandlerList();
   private boolean markedContinue;
-  private boolean markedNegated;
+  private boolean markedNegated = false;
 
   public ConditionCheckEvent(Event event, Expression<?>[] expressions, int matchedPattern,
                              SkriptParser.ParseResult parseResult) {
@@ -30,8 +31,8 @@ public class ConditionCheckEvent extends CustomSyntaxEvent implements Continuabl
   }
 
   @Override
-  public void markContinue() {
-    markedContinue = true;
+  public void setContinue(boolean b) {
+    markedContinue = b;
   }
 
   public void markNegated() {
