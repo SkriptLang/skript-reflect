@@ -35,6 +35,12 @@ public class SkriptMirror extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    if (!Bukkit.getPluginManager().isPluginEnabled("Skript")) {
+      getLogger().severe("Disabling skript-reflect because Skript is disabled");
+      Bukkit.getPluginManager().disablePlugin(this);
+      return;
+    }
+
     if (!Skript.classExists("ch.njol.skript.lang.parser.ParserInstance") || !Skript.methodExists(ParserInstance.class, "get")) {
       getLogger().severe("");
       getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.6 is required to run this version of skript-reflect.");
