@@ -2,99 +2,53 @@ package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.WrappedEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventException;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.stream.Collectors;
 
-public class EvtByReflection extends SkriptEvent {
+public class EvtByReflection extends SelfRegisteringSkriptEvent {
 
   static {
     Skript.registerEvent("Bukkit", EvtByReflection.class, BukkitEvent.class,
         "[(1¦all)] %javatypes% [(at|on|with) priority <.+>]");
   }
 
-  private static class PriorityListener implements Listener {
-    private final EventPriority priority;
-    private final Set<Class<? extends Event>> events = new HashSet<>();
-
-    public PriorityListener(int priority) {
-      this.priority = EventPriority.values()[priority];
-    }
-
-    public EventPriority getPriority() {
-      return priority;
-    }
-
-    public Set<Class<? extends Event>> getEvents() {
-      return events;
-    }
-
-  }
-
-  private static class TypeStrictEventExecutor implements EventExecutor {
-
+  private static class MyEventExecutor implements EventExecutor {
     private final Class<? extends Event> eventClass;
+    private final Trigger trigger;
 
-    public TypeStrictEventExecutor(Class<? extends Event> eventClass) {
+    public MyEventExecutor(Class<? extends Event> eventClass, Trigger trigger) {
       this.eventClass = eventClass;
+      this.trigger = trigger;
     }
 
     @Override
     public void execute(Listener listener, Event event) throws EventException {
-      if (eventClass.isInstance(event))
-        Bukkit.getPluginManager().callEvent(new BukkitEvent(event, ((PriorityListener) listener).getPriority()));
+      if (eventClass.isInstance(event)) {
+        trigger.execute(new BukkitEvent(event));
+      }
     }
-
-  }
-
-  private static final PriorityListener[] listeners;
-
-  static {
-    SkriptEventHandler.listenCancelled.add(BukkitEvent.class);
-
-    listeners = Arrays.stream(EventPriority.values())
-      .mapToInt(EventPriority::ordinal)
-      .mapToObj(PriorityListener::new)
-      .toArray(PriorityListener[]::new);
   }
 
   private static class BukkitEvent extends WrappedEvent implements Cancellable {
-    private final static HandlerList handlers = new HandlerList();
-
-    private final EventPriority priority;
-
-    public BukkitEvent(Event event, EventPriority priority) {
+    public BukkitEvent(Event event) {
       super(event, event.isAsynchronous());
-      this.priority = priority;
-    }
-
-    public EventPriority getPriority() {
-      return priority;
-    }
-
-    public static HandlerList getHandlerList() {
-      return handlers;
     }
 
     @Override
     public HandlerList getHandlers() {
-      return handlers;
+      // No HandlerList implementation because this event should never be called
+      throw new IllegalStateException();
     }
 
     @Override
@@ -112,44 +66,36 @@ public class EvtByReflection extends SkriptEvent {
     }
   }
 
-  private static void registerEvent(Class<? extends Event> eventClass, EventPriority priority) {
-    PriorityListener listener = listeners[priority.ordinal()];
-    Set<Class<? extends Event>> eventClasses = listener.getEvents();
-
-    if (!eventClasses.contains(eventClass)) {
-      eventClasses.add(eventClass);
-
-      EventExecutor executor = new TypeStrictEventExecutor(eventClass);
-      Bukkit.getPluginManager()
-        .registerEvent(eventClass, listener, priority, executor, SkriptMirror.getInstance(), false);
-    }
-  }
-
   private Class<? extends Event>[] classes;
   private EventPriority priority;
   private boolean ignoreCancelled;
+  private Listener listener;
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-    Class<?>[] classArray = Arrays.stream(((Literal<JavaType>) args[0]).getArray())
-      .map(JavaType::getJavaClass)
-      .toArray(Class[]::new);
+    JavaType[] javaTypes = ((Literal<JavaType>) args[0]).getArray();
 
-    for (Class<?> clazz : classArray) {
+    classes = new Class[javaTypes.length];
+
+    for (int i = 0; i < javaTypes.length; i++) {
+      JavaType javaType = javaTypes[i];
+      Class<?> clazz = javaType.getJavaClass();
+
       if (!Event.class.isAssignableFrom(clazz)) {
         Skript.error(clazz.getSimpleName() + " is not a Bukkit event");
         return false;
       }
+
+      classes[i] = (Class<? extends Event>) clazz;
     }
-    classes = (Class<? extends Event>[]) classArray;
 
     if (parseResult.regexes.size() > 0) {
       String priorityName = parseResult.regexes.get(0).group().toUpperCase();
       try {
         priority = EventPriority.valueOf(priorityName);
       } catch (IllegalArgumentException ex) {
-        Skript.error(priorityName + " is not a valid priority level.");
+        Skript.error(priorityName + " is not a valid priority level");
         return false;
       }
     } else {
@@ -158,35 +104,39 @@ public class EvtByReflection extends SkriptEvent {
 
     ignoreCancelled = (parseResult.mark & 1) != 1;
 
-    for (Class<? extends Event> cls : classes) {
-      registerEvent(cls, priority);
-    }
+    listener = new Listener() {};
 
     return true;
   }
 
   @Override
-  public boolean check(Event e) {
-    BukkitEvent bukkitEvent = (BukkitEvent) e;
-    Event extractedEvent = bukkitEvent.getDirectEvent();
-    Class<? extends Event> eventClass = extractedEvent.getClass();
+  public void register(Trigger t) {
+    for (Class<? extends Event> eventClass : classes) {
+      EventExecutor executor = new MyEventExecutor(eventClass, t);
 
-    if (ignoreCancelled && extractedEvent instanceof Cancellable && ((Cancellable) extractedEvent).isCancelled())
-      return false;
-
-    if (priority == bukkitEvent.getPriority()) {
-      for (Class<? extends Event> cls : classes) {
-        if (cls.isAssignableFrom(eventClass)) {
-          return true;
-        }
-      }
+      Bukkit.getLogger().info("Registered listener with " + priority);
+      Bukkit.getPluginManager()
+          .registerEvent(eventClass, listener, priority, executor, SkriptMirror.getInstance(), ignoreCancelled);
     }
-    return false;
+  }
+
+  @Override
+  public void unregister(Trigger t) {
+    HandlerList.unregisterAll(listener);
+  }
+
+  @Override
+  public void unregisterAll() {
+    HandlerList.unregisterAll(listener);
   }
 
   @Override
   public String toString(Event e, boolean debug) {
-    return Arrays.toString(classes) + " priority " + priority;
+    return (ignoreCancelled ? "all " : "")
+        + Arrays.stream(classes)
+        .map(Class::getSimpleName)
+        .collect(Collectors.joining(", "))
+        + " with priority " + priority;
   }
 
 }
