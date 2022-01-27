@@ -22,6 +22,7 @@ import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 
 public class Types {
+
   static {
     Classes.registerClass(new ClassInfo<>(Event.class, "event")
         .user("events?")
@@ -46,7 +47,6 @@ public class Types {
             return e.toString();
           }
 
-          @Override
           public String getVariableNamePattern() {
             return ".+";
           }
@@ -77,7 +77,6 @@ public class Types {
             return "type:" + o.getJavaClass().getName();
           }
 
-          @Override
           public String getVariableNamePattern() {
             return "type:.+";
           }
@@ -145,7 +144,6 @@ public class Types {
             return "null";
           }
 
-          @Override
           public String getVariableNamePattern() {
             return "null";
           }
@@ -210,7 +208,6 @@ public class Types {
             return o.toString();
           }
 
-          @Override
           public String getVariableNamePattern() {
             return ".+";
           }
@@ -221,4 +218,5 @@ public class Types {
       .user("sections?")
     );
   }
+
 }
