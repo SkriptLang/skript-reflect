@@ -63,6 +63,19 @@ effect put %objects% in %objects%:
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
+### Parse Tag
+
+Parse tags are like parse tags, but they're a set of strings instead of a single integer.
+
+Parse tags were added in Skript 2.6.1, and are explained in more detail [here](https://github.com/SkriptLang/Skript/pull/4176#issuecomment-882056536)
+{% code-tabs %}
+{% code-tabs-item title="Syntax" %}
+```text
+[the] parse[r] tags
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
 ### Parser Regular Expression
 
 {% code-tabs %}

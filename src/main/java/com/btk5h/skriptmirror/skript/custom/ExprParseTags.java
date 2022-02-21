@@ -12,46 +12,49 @@ import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
 import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
-public class ExprParseMark extends SimpleExpression<Number> {
+public class ExprParseTags extends SimpleExpression<String> {
+
   static {
-    Skript.registerExpression(ExprParseMark.class, Number.class, ExpressionType.SIMPLE,
-        "[the] [parse[r]] mark");
+    Skript.registerExpression(ExprParseTags.class, String.class, ExpressionType.SIMPLE, "[the] parse[r] tags");
   }
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
     if (!getParser().isCurrentEvent(
-      SyntaxParseEvent.class,
-      ConditionCheckEvent.class,
-      EffectTriggerEvent.class,
-      EventTriggerEvent.class,
-      ExpressionChangeEvent.class,
-      ExpressionGetEvent.class
+        SyntaxParseEvent.class,
+        ConditionCheckEvent.class,
+        EffectTriggerEvent.class,
+        EventTriggerEvent.class,
+        ExpressionChangeEvent.class,
+        ExpressionGetEvent.class
     )) {
-      Skript.error("The parse mark may only be used in custom syntax");
+      Skript.error("The parse tags may only be used in custom syntax");
       return false;
     }
     return true;
   }
 
   @Override
-  protected Number[] get(Event e) {
-    return new Number[]{((CustomSyntaxEvent) e).getParseResult().mark};
+  @Nullable
+  protected String[] get(Event e) {
+    return ((CustomSyntaxEvent) e).getParseResult().tags.toArray(new String[0]);
   }
 
   @Override
   public boolean isSingle() {
-    return true;
+    return false;
   }
 
   @Override
-  public Class<? extends Number> getReturnType() {
-    return Number.class;
+  public Class<? extends String> getReturnType() {
+    return String.class;
   }
 
   @Override
-  public String toString(Event e, boolean debug) {
-    return "parser mark";
+  public String toString(@Nullable Event e, boolean debug) {
+    return "parse tags";
   }
+
 }
