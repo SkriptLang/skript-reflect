@@ -2,13 +2,15 @@ package com.btk5h.skriptmirror.skript.custom;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -20,6 +22,7 @@ import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -37,6 +40,7 @@ public class CustomImport {
 
   static {
     CustomSyntaxSection.register("Import", SectionImport.class, "import");
+    Skript.registerEffect(EffImport.class, "import <" + IMPORT_STATEMENT.pattern() + ">");
 
     // TODO try replacing ImportHandler with JavaType's literal parsing
     Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
@@ -53,7 +57,9 @@ public class CustomImport {
   }
 
   private static SyntaxElementInfo<?> thisInfo;
-  // Most scripts are associated with files, but according to Skript, file-less configs may also be loaded.
+
+  // Most scripts are associated with files, but according to Skript, file-less configs may also be loaded,
+  //  therefore this map must be able to handle null keys
   private static final Map<File, Map<String, JavaType>> imports = new HashMap<>();
 
   public static class SectionImport extends SelfRegisteringSkriptEvent {
@@ -72,7 +78,7 @@ public class CustomImport {
     }
 
     @Override
-    public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+    public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
       File currentScript = SkriptUtil.getCurrentScript();
       SectionNode node = (SectionNode) SkriptLogger.getNode();
 
@@ -93,7 +99,7 @@ public class CustomImport {
 
   }
 
-  private static void registerImport(String rawStatement, File script) {
+  private static void registerImport(String rawStatement, @Nullable File script) {
     Matcher statement = IMPORT_STATEMENT.matcher(ScriptLoader.replaceOptions(rawStatement));
     if (!statement.matches()) {
       Skript.error(rawStatement + " is an invalid import statement.");
@@ -167,7 +173,7 @@ public class CustomImport {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                        SkriptParser.ParseResult parseResult) {
+                        ParseResult parseResult) {
       Map<String, JavaType> localImports = imports.get(SkriptUtil.getCurrentScript());
 
       if (localImports != null) {
@@ -190,4 +196,33 @@ public class CustomImport {
 
     return localImports.get(identifier);
   }
+
+  public static class EffImport extends Effect {
+
+    private String className;
+
+    @Override
+    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+      if (!getParser().isCurrentEvent(EffectCommandEvent.class)) {
+        Skript.error("The import effect can only be used in effect commands. " +
+            "To use imports in scripts, use the section.");
+        return false;
+      }
+
+      className = parseResult.regexes.get(0).group();
+
+      return true;
+    }
+
+    @Override
+    protected void execute(Event e) {
+      registerImport(className, null);
+    }
+
+    @Override
+    public String toString(@Nullable Event e, boolean debug) {
+      return "import " + className;
+    }
+  }
+
 }

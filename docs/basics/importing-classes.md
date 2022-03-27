@@ -109,6 +109,18 @@ command /example:
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
+### Importing in effect commands
+
+Since import blocks aren't available in effect commands, you can use the import effect (only available in effect commands):
+{% code-tabs %}
+{% code-tabs-item title="Syntax" %}
+```text
+import <fully qualified name> [as <alias>]
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+This import will only be usable in following effect commands, until you stop the server.
+
 ## Dealing with nested classes
 
 Sometimes, a class may be nested inside another class.
