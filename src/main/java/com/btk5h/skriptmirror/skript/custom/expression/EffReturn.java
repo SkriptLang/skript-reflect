@@ -6,8 +6,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.skript.custom.Continuable;
@@ -85,6 +88,17 @@ public class EffReturn extends Effect {
       boolean b = Boolean.TRUE.equals(objects.getSingle(e));
       ((Continuable) e).setContinue(b);
     }
+
+    TriggerSection parent = getParent();
+    while (parent != null) {
+      if (parent instanceof SecLoop) {
+        ((SecLoop) parent).exit(e);
+      } else if (parent instanceof SecWhile) {
+        ((SecWhile) parent).reset();
+      }
+      parent = parent.getParent();
+    }
+
     return null;
   }
 
