@@ -114,7 +114,6 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
     for (Class<? extends Event> eventClass : classes) {
       EventExecutor executor = new MyEventExecutor(eventClass, t);
 
-      Bukkit.getLogger().info("Registered listener with " + priority);
       Bukkit.getPluginManager()
           .registerEvent(eventClass, listener, priority, executor, SkriptMirror.getInstance(), ignoreCancelled);
     }
