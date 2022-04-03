@@ -175,3 +175,15 @@ Checks whether objects are instances of the given java types.
 Returns a reference to the class from the given java type. Returns an object of type `java.lang.Class`.
 This expression also supports primitive types, which doesn't require an import.
 
+## Plugin instance
+
+{% code-tabs %}
+{% code-tabs-item title="Syntax" %}
+```text
+[(an|the)] instance of [the] plugin %javatype/string%
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+Returns the instance of the given plugin (either the name as a string, or the plugin class).
+
