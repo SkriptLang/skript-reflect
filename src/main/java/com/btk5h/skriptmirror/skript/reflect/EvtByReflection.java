@@ -20,7 +20,7 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
 
   static {
     Skript.registerEvent("Bukkit", EvtByReflection.class, BukkitEvent.class,
-        "[(1¦all)] %javatypes% [(at|on|with) priority <.+>]");
+        "[(1¦all)] %javatypes%");
   }
 
   private static class MyEventExecutor implements EventExecutor {
@@ -67,7 +67,6 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
   }
 
   private Class<? extends Event>[] classes;
-  private EventPriority priority;
   private boolean ignoreCancelled;
   private Listener listener;
 
@@ -90,18 +89,6 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
       classes[i] = (Class<? extends Event>) clazz;
     }
 
-    if (parseResult.regexes.size() > 0) {
-      String priorityName = parseResult.regexes.get(0).group().toUpperCase();
-      try {
-        priority = EventPriority.valueOf(priorityName);
-      } catch (IllegalArgumentException ex) {
-        Skript.error(priorityName + " is not a valid priority level");
-        return false;
-      }
-    } else {
-      priority = SkriptConfig.defaultEventPriority.value();
-    }
-
     ignoreCancelled = (parseResult.mark & 1) != 1;
 
     listener = new Listener() {};
@@ -115,7 +102,7 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
       EventExecutor executor = new MyEventExecutor(eventClass, t);
 
       Bukkit.getPluginManager()
-          .registerEvent(eventClass, listener, priority, executor, SkriptMirror.getInstance(), ignoreCancelled);
+          .registerEvent(eventClass, listener, getEventPriority(), executor, SkriptMirror.getInstance(), ignoreCancelled);
     }
   }
 
@@ -130,12 +117,16 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
   }
 
   @Override
+  public boolean isEventPrioritySupported() {
+    return true;
+  }
+
+  @Override
   public String toString(Event e, boolean debug) {
     return (ignoreCancelled ? "all " : "")
         + Arrays.stream(classes)
         .map(Class::getSimpleName)
-        .collect(Collectors.joining(", "))
-        + " with priority " + priority;
+        .collect(Collectors.joining(", "));
   }
 
 }
