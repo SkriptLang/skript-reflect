@@ -56,6 +56,34 @@ public class ExprExpression<T> implements Expression<T> {
   }
 
   @Override
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+    if (!getParser().isCurrentEvent(
+        SyntaxParseEvent.class,
+        ConditionCheckEvent.class,
+        EffectTriggerEvent.class,
+        EventTriggerEvent.class,
+        ExpressionChangeEvent.class,
+        ExpressionGetEvent.class
+    )) {
+      Skript.error("The expression 'expression' may only be used in a custom syntax.",
+          ErrorQuality.SEMANTIC_ERROR);
+      return false;
+    }
+
+    index = Utils.parseInt(parseResult.regexes.get(0).group(0));
+    if (index <= 0) {
+      Skript.error("The expression index must be a natural number.", ErrorQuality.SEMANTIC_ERROR);
+      return false;
+    }
+    index--;
+
+    plural = parseResult.mark == 1;
+
+    return true;
+  }
+
+  @Override
   public T getSingle(Event e) {
     T[] all = getAll(e);
     if (all.length == 0) {
@@ -164,37 +192,14 @@ public class ExprExpression<T> implements Expression<T> {
     throw new UnsupportedOperationException();
   }
 
-
   @Override
   public String toString(Event e, boolean debug) {
     return "expression " + (index + 1);
   }
 
   @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    if (!getParser().isCurrentEvent(
-      SyntaxParseEvent.class,
-      ConditionCheckEvent.class,
-      EffectTriggerEvent.class,
-      EventTriggerEvent.class,
-      ExpressionChangeEvent.class,
-      ExpressionGetEvent.class
-    )) {
-      Skript.error("The expression 'expression' may only be used in a custom syntax.",
-          ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
-
-    index = Utils.parseInt(parseResult.regexes.get(0).group(0));
-    if (index <= 0) {
-      Skript.error("The expression index must be a natural number.", ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
-    index--;
-
-    plural = parseResult.mark == 1;
-
-    return true;
+  public String toString() {
+    return toString(null, false);
   }
+
 }
