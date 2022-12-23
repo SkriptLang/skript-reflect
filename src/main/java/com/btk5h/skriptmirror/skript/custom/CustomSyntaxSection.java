@@ -24,6 +24,7 @@ import com.btk5h.skriptmirror.skript.custom.event.EventSyntaxInfo;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,9 +39,17 @@ import java.util.stream.Collectors;
 public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxData>
     extends SelfRegisteringSkriptEvent implements PreloadableEvent {
 
-  @SuppressWarnings("unchecked")
   public static <E extends SkriptEvent> SkriptEventInfo<E> register(String name, Class<E> c, String... patterns) {
-    return Skript.registerEvent("*" + name, c, new Class[0], patterns);
+    return Skript.registerEvent("*" + name, c, CustomSyntaxEvent.class, patterns);
+  }
+
+  public static class CustomSyntaxEvent extends Event {
+    private CustomSyntaxEvent() {}
+
+    @Override
+    public HandlerList getHandlers() {
+      throw new IllegalStateException();
+    }
   }
 
   public static class DataTracker<T> {
