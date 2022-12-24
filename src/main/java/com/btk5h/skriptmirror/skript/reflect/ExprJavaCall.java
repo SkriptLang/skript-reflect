@@ -564,8 +564,8 @@ public class ExprJavaCall<T> implements Expression<T> {
    */
   private Optional<MethodHandle> findCompatibleMethod(Descriptor descriptor, Object[] args) {
     return getCallSite(descriptor).stream()
-      .filter(mh -> matchesArgs(args, mh))
-      .findFirst();
+        .filter(mh -> matchesArgs(args, mh))
+        .min(ExprJavaCall::prioritizeMethodHandles);
   }
 
   /**
@@ -607,6 +607,21 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
 
     return true;
+  }
+
+  /**
+   * Method for prioritizing certain {@link MethodHandle}s over others.
+   * The lesser method handle has priority.
+   */
+  private static int prioritizeMethodHandles(MethodHandle mh1, MethodHandle mh2) {
+    boolean isMh1Varargs = mh1.isVarargsCollector();
+    boolean isMh2Varargs = mh2.isVarargsCollector();
+
+    if (isMh1Varargs ^ isMh2Varargs) {
+      return isMh1Varargs ? 1 : -1;
+    }
+
+    return 0;
   }
 
   private static Object[] convertTypes(MethodHandle mh, Object[] args) {
