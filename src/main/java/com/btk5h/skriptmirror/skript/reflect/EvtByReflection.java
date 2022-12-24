@@ -1,7 +1,6 @@
 package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
@@ -10,7 +9,11 @@ import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.WrappedEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.event.*;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
 
 import java.util.Arrays;
@@ -19,7 +22,7 @@ import java.util.stream.Collectors;
 public class EvtByReflection extends SelfRegisteringSkriptEvent {
 
   static {
-    Skript.registerEvent("Bukkit", EvtByReflection.class, BukkitEvent.class,
+    Skript.registerEvent("*reflection", EvtByReflection.class, BukkitEvent.class,
         "[(1¦all)] %javatypes%");
   }
 
@@ -35,12 +38,16 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
     @Override
     public void execute(Listener listener, Event event) throws EventException {
       if (eventClass.isInstance(event)) {
-        trigger.execute(new BukkitEvent(event));
+        Event scriptEvent;
+        scriptEvent = event instanceof Cancellable
+            ? new CancellableBukkitEvent((Cancellable) event) : new BukkitEvent(event);
+
+        trigger.execute(scriptEvent);
       }
     }
   }
 
-  private static class BukkitEvent extends WrappedEvent implements Cancellable {
+  private static class BukkitEvent extends WrappedEvent {
     public BukkitEvent(Event event) {
       super(event, event.isAsynchronous());
     }
@@ -50,19 +57,23 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
       // No HandlerList implementation because this event should never be called
       throw new IllegalStateException();
     }
+  }
+
+  private static class CancellableBukkitEvent extends BukkitEvent implements Cancellable {
+    public CancellableBukkitEvent(Cancellable event) {
+      super((Event) event);
+    }
 
     @Override
     public boolean isCancelled() {
       Event event = getDirectEvent();
-      return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+      return ((Cancellable) event).isCancelled();
     }
 
     @Override
     public void setCancelled(boolean cancel) {
       Event event = getDirectEvent();
-      if (event instanceof Cancellable) {
-        ((Cancellable) event).setCancelled(cancel);
-      }
+      ((Cancellable) event).setCancelled(cancel);
     }
   }
 
@@ -114,6 +125,29 @@ public class EvtByReflection extends SelfRegisteringSkriptEvent {
   @Override
   public void unregisterAll() {
     HandlerList.unregisterAll(listener);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Class<? extends Event>[] getEventClasses() {
+    boolean hasUncancellable = false;
+    boolean hasCancellable = false;
+
+    for (Class<? extends Event> eventClass : classes) {
+      if (Cancellable.class.isAssignableFrom(eventClass)) {
+        hasCancellable = true;
+      } else {
+        hasUncancellable = true;
+      }
+    }
+
+    if (hasCancellable && hasUncancellable) {
+      return new Class[] {BukkitEvent.class, CancellableBukkitEvent.class};
+    } else if (hasCancellable) {
+      return new Class[] {CancellableBukkitEvent.class};
+    } else {
+      return new Class[] {BukkitEvent.class};
+    }
   }
 
   @Override
