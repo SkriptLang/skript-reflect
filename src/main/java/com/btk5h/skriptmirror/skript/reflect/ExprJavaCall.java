@@ -134,7 +134,7 @@ public class ExprJavaCall<T> implements Expression<T> {
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
 
-    script = SkriptUtil.getCurrentScript();
+    script = SkriptUtil.getCurrentScriptFile();
     suppressErrors = (parseResult.mark & 2) == 2;
 
     rawTarget = SkriptUtil.defendExpression(exprs[0]);

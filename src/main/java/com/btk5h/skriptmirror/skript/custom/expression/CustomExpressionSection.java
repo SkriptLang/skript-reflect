@@ -94,7 +94,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     if (!isPreloaded) {
       String what;
       SectionNode patterns = (SectionNode) node.get("patterns");
-      File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScriptFile() : null;
       boolean alwaysPlural = (parseResult.mark & 1) == 1;
 
       switch (matchedPattern) {

@@ -68,7 +68,7 @@ public class CustomEffect extends Effect {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomEffectSection.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
+    which = CustomEffectSection.lookup(SkriptUtil.getCurrentScriptFile(), matchedPattern);
 
     if (which == null) {
       return false;

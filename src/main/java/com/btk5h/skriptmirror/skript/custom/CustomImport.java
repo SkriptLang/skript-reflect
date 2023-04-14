@@ -79,7 +79,7 @@ public class CustomImport {
 
     @Override
     public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-      File currentScript = SkriptUtil.getCurrentScript();
+      File currentScript = SkriptUtil.getCurrentScriptFile();
       SectionNode node = (SectionNode) SkriptLogger.getNode();
 
       if (node.getKey().toLowerCase().startsWith("on ")) {
@@ -174,7 +174,7 @@ public class CustomImport {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                         ParseResult parseResult) {
-      Map<String, JavaType> localImports = imports.get(SkriptUtil.getCurrentScript());
+      Map<String, JavaType> localImports = imports.get(SkriptUtil.getCurrentScriptFile());
 
       if (localImports != null) {
         type = localImports.get(parseResult.expr);

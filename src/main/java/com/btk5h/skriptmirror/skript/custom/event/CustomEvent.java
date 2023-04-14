@@ -31,7 +31,7 @@ public class CustomEvent extends SkriptEvent {
 
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-    which = CustomEventSection.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
+    which = CustomEventSection.lookup(SkriptUtil.getCurrentScriptFile(), matchedPattern);
 
     if (which == null) {
       return false;

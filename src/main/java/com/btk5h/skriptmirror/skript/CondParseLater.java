@@ -53,7 +53,7 @@ public class CondParseLater extends Condition {
                       SkriptParser.ParseResult parseResult) {
     deferredParsingUsed = true;
 
-    if (!Consent.Feature.DEFERRED_PARSING.hasConsent(SkriptUtil.getCurrentScript())) {
+    if (!Consent.Feature.DEFERRED_PARSING.hasConsent(SkriptUtil.getCurrentScriptFile())) {
       Skript.error("This feature requires consent, because it is experimental.");
       return false;
     }

@@ -254,7 +254,7 @@ public class CustomExpression<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomExpressionSection.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
+    which = CustomExpressionSection.lookup(SkriptUtil.getCurrentScriptFile(), matchedPattern);
 
     if (which == null) {
       return false;

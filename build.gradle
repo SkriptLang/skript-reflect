@@ -35,6 +35,6 @@ compileJava   {
 
 dependencies {
   implementation 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
-  implementation 'com.github.SkriptLang:Skript:2.6.3'
+  implementation 'com.github.SkriptLang:Skript:2.7.0-beta2'
   implementation 'org.eclipse.jdt:org.eclipse.jdt.annotation:1.1.0'
 }

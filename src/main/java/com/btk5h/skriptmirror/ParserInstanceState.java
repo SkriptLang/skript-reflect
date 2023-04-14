@@ -32,7 +32,7 @@ public class ParserInstanceState {
   public static ParserInstanceState copyOfCurrentState() {
     ParserInstance parser = ParserInstance.get();
     return new ParserInstanceState(
-      parser.getCurrentScript(),
+      parser.getCurrentScript().getConfig(),
       parser.getCurrentEventName(),
       parser.getCurrentEvents(),
       parser.getHasDelayBefore()

@@ -70,7 +70,7 @@ public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
     customEventsUsed = true;
 
     if (!isPreloaded) {
-      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScriptFile() : null;
 
       List<String> patternStrings = new ArrayList<>();
 

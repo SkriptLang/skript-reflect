@@ -298,7 +298,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
   @SuppressWarnings("unchecked")
   protected boolean handleUsableSection(SectionNode sectionNode, Map<T, List<Supplier<Boolean>>> usableSuppliers) {
-    File currentScript = SkriptUtil.getCurrentScript();
+    File currentScript = SkriptUtil.getCurrentScriptFile();
     for (Node usableNode : sectionNode) {
       String usableKey = usableNode.getKey();
       assert usableKey != null;

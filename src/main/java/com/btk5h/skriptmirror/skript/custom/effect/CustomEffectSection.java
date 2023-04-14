@@ -68,7 +68,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
     if (!isPreloaded) {
       SectionNode patterns = (SectionNode) node.get("patterns");
-      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScriptFile() : null;
 
       switch (matchedPattern) {
         case 0:

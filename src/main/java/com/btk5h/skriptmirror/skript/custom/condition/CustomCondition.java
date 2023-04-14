@@ -70,7 +70,7 @@ public class CustomCondition extends Condition {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    which = CustomConditionSection.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
+    which = CustomConditionSection.lookup(SkriptUtil.getCurrentScriptFile(), matchedPattern);
 
     if (which == null) {
       return false;

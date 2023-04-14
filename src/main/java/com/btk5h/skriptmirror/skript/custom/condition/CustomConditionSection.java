@@ -75,7 +75,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
     if (!isPreloaded) {
       String what;
       SectionNode patterns = (SectionNode) node.get("patterns");
-      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScriptFile() : null;
 
       switch (matchedPattern) {
         case 0:

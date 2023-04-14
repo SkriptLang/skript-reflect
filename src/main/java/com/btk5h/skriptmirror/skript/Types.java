@@ -57,7 +57,7 @@ public class Types {
         .parser(new Parser<JavaType>() {
           @Override
           public JavaType parse(String s, ParseContext context) {
-            File script = SkriptUtil.getCurrentScript();
+            File script = SkriptUtil.getCurrentScriptFile();
             return CustomImport.lookup(script, s);
           }
 

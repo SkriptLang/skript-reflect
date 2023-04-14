@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
@@ -20,6 +21,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -101,12 +103,23 @@ public class SkriptUtil {
     subNodes.forEach(Node::remove);
   }
 
+  public static Script getCurrentScript() {
+    try {
+      return ParserInstance.get().getCurrentScript();
+    } catch (SkriptAPIException ignore) {
+      return null;
+    }
+  }
+
   /**
    * {@return} the {@link ParserInstance#getCurrentScript()} as a {@link File}.
    */
-  public static File getCurrentScript() {
-    Config currentScript = ParserInstance.get().getCurrentScript();
-    return currentScript == null ? null : currentScript.getFile();
+  public static File getCurrentScriptFile() {
+    Script currentScript = getCurrentScript();
+    if (currentScript != null) {
+      return currentScript.getConfig().getFile();
+    }
+    return null;
   }
 
   /**
