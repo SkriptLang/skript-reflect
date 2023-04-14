@@ -103,6 +103,9 @@ public class SkriptUtil {
     subNodes.forEach(Node::remove);
   }
 
+  /**
+   * {@return} the {@link ParserInstance#getCurrentScript()} as a {@link Script}.
+   */
   public static Script getCurrentScript() {
     try {
       return ParserInstance.get().getCurrentScript();
@@ -116,10 +119,7 @@ public class SkriptUtil {
    */
   public static File getCurrentScriptFile() {
     Script currentScript = getCurrentScript();
-    if (currentScript != null) {
-      return currentScript.getConfig().getFile();
-    }
-    return null;
+    return currentScript == null ? null : currentScript.getConfig().getFile();
   }
 
   /**
