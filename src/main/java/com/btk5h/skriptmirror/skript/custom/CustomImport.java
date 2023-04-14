@@ -69,7 +69,7 @@ public class CustomImport {
 
     @Override
     public void unregister(Trigger t) {
-      imports.remove(t.getScript());
+      imports.remove(t.getScript().getConfig().getFile());
     }
 
     @Override
