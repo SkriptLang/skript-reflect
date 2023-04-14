@@ -40,9 +40,11 @@ public class SkriptMirror extends JavaPlugin {
       return;
     }
 
+    // Check if running anything less than Skript 2.7.x (betas included)
     if (Skript.getVersion().compareTo(new Version(2, 6,100)) < 0) {
       getLogger().severe("");
       getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.7.0 is required to run this version of skript-reflect.");
+      getLogger().severe("If you want to use a version of Skript below 2.7, use skript-reflect 2.3: https://github.com/TPGamesNL/skript-reflect/releases/tag/v2.3");
       getLogger().severe("");
       Bukkit.getPluginManager().disablePlugin(this);
       return;
