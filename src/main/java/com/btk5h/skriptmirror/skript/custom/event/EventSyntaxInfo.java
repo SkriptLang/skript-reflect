@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript.custom.event;
 
+import ch.njol.skript.lang.SkriptEventInfo;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
 
@@ -13,6 +14,8 @@ public class EventSyntaxInfo extends CustomSyntaxSection.SyntaxData {
   }
 
   public static EventSyntaxInfo create(File script, String pattern, int matchedPattern) {
+    pattern = "[on] " + pattern + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
+
     return new EventSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), matchedPattern);
   }
 
