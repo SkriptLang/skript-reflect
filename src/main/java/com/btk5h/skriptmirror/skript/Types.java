@@ -5,7 +5,6 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
@@ -16,6 +15,7 @@ import com.btk5h.skriptmirror.skript.reflect.sections.Section;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.File;
 import java.io.NotSerializableException;

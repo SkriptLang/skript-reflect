@@ -7,7 +7,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -20,6 +19,7 @@ import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Iterator;
 
@@ -105,7 +105,7 @@ public class ExprExpression<T> implements Expression<T> {
       return JavaUtil.newArray(superType, 0);
     }
 
-    return Converters.convertArray(expr.getAll(e), types, superType);
+    return Converters.convert(expr.getAll(e), types, superType);
   }
 
   @Nullable

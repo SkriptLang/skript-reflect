@@ -219,7 +219,7 @@ public abstract class CustomSyntaxSection<T extends CustomSyntaxSection.SyntaxDa
 
     if (isPreload)
       preloadLogHandler = SkriptLogger.startRetainingLog();
-    getParser().setCurrentSkriptEvent(this);
+    getParser().setCurrentStructure(this);
     preloadSuccess = init(args, matchedPattern, parseResult, node, isPreload);
     if (isPreload) {
       preloadLogHandler.stop();

@@ -3,7 +3,6 @@ package com.btk5h.skriptmirror.skript.custom.expression;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
@@ -17,6 +16,7 @@ import com.btk5h.skriptmirror.skript.custom.Continuable;
 import com.btk5h.skriptmirror.skript.reflect.sections.SectionEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.structure.Structure;
 
 public class EffReturn extends Effect {
 
@@ -51,7 +51,7 @@ public class EffReturn extends Effect {
       }
     }
 
-    SkriptEvent skriptEvent = getParser().getCurrentSkriptEvent();
+    Structure skriptEvent = getParser().getCurrentStructure();
     if (expr != null && skriptEvent instanceof CustomExpressionSection) {
       CustomExpressionSection customExpressionSection = (CustomExpressionSection) skriptEvent;
       ExpressionSyntaxInfo which = customExpressionSection.getFirstWhich();
