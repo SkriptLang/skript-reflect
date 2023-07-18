@@ -65,7 +65,7 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
               getParser().setCurrentEvent("custom constant getter", ConstantGetEvent.class);
               List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
               Trigger getter =
-                  new Trigger(SkriptUtil.getCurrentScriptFile(), "get {@" + what + "}", this, items);
+                  new Trigger(getParser().getCurrentScript(), "get {@" + what + "}", this, items);
 
               computeOption(what, getter);
 

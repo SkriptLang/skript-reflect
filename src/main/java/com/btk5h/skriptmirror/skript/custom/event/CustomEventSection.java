@@ -187,7 +187,7 @@ public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
         CustomEvent.setLastWhich(null);
         whichInfo.forEach(which ->
           eventHandlers.put(which,
-            new Trigger(SkriptUtil.getCurrentScriptFile(), "event " + which, this, items)));
+            new Trigger(getParser().getCurrentScript(), "event " + which, this, items)));
       }
       SkriptLogger.setNode(null);
     }

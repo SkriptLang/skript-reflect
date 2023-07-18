@@ -159,7 +159,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         whichInfo.forEach(which ->
           effectHandlers.put(which,
-            new Trigger(SkriptUtil.getCurrentScriptFile(), "effect " + which, this, items)));
+            new Trigger(getParser().getCurrentScript(), "effect " + which, this, items)));
       }
       SkriptLogger.setNode(null);
     }

@@ -62,7 +62,7 @@ public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
 
     whichInfo.forEach(which ->
         parserHandlers.put(which,
-            new Trigger(SkriptUtil.getCurrentScriptFile(), "parse " + which.getPattern(), section, items)));
+            new Trigger(ParserInstance.get().getCurrentScript(), "parse " + which.getPattern(), section, items)));
   }
 
 }
