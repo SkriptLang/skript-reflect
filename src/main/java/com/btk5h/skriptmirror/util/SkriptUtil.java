@@ -104,9 +104,11 @@ public class SkriptUtil {
   /**
    * {@return} the {@link ParserInstance#getCurrentScript()} as a {@link File}.
    */
-  public static File getCurrentScript() {
-    Config currentScript = ParserInstance.get().getCurrentScript();
-    return currentScript == null ? null : currentScript.getFile();
+  public static File getCurrentScriptFile() {
+    return ParserInstance.get()
+        .getCurrentScript()
+        .getConfig()
+        .getFile();
   }
 
   /**

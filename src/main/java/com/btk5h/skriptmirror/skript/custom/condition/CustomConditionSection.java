@@ -75,7 +75,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
     if (!isPreloaded) {
       String what;
       SectionNode patterns = (SectionNode) node.get("patterns");
-      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScriptFile() : null;
 
       switch (matchedPattern) {
         case 0:
@@ -180,7 +180,7 @@ public class CustomConditionSection extends CustomSyntaxSection<ConditionSyntaxI
         getParser().setCurrentEvent("custom condition check", ConditionCheckEvent.class);
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         whichInfo.forEach(which -> conditionHandlers.put(which,
-          new Trigger(SkriptUtil.getCurrentScript(), "condition " + which, this, items)));
+          new Trigger(SkriptUtil.getCurrentScriptFile(), "condition " + which, this, items)));
       }
       SkriptLogger.setNode(null);
     }

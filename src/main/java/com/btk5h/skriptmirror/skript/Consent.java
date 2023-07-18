@@ -82,7 +82,7 @@ public class Consent extends SelfRegisteringSkriptEvent {
 
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-    File currentScript = SkriptUtil.getCurrentScript();
+    File currentScript = SkriptUtil.getCurrentScriptFile();
     SectionNode node = (SectionNode) SkriptLogger.getNode();
 
     if (node.getKey().toLowerCase().startsWith("on ")) {

@@ -68,7 +68,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
 
     if (!isPreloaded) {
       SectionNode patterns = (SectionNode) node.get("patterns");
-      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScriptFile() : null;
 
       switch (matchedPattern) {
         case 0:
@@ -159,7 +159,7 @@ public class CustomEffectSection extends CustomSyntaxSection<EffectSyntaxInfo> {
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         whichInfo.forEach(which ->
           effectHandlers.put(which,
-            new Trigger(SkriptUtil.getCurrentScript(), "effect " + which, this, items)));
+            new Trigger(SkriptUtil.getCurrentScriptFile(), "effect " + which, this, items)));
       }
       SkriptLogger.setNode(null);
     }

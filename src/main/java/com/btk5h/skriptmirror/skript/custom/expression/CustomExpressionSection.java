@@ -94,7 +94,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
     if (!isPreloaded) {
       String what;
       SectionNode patterns = (SectionNode) node.get("patterns");
-      File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScriptFile() : null;
       boolean alwaysPlural = (parseResult.mark & 1) == 1;
 
       switch (matchedPattern) {
@@ -267,7 +267,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
         List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
         whichInfo.forEach(which ->
           expressionHandlers.put(which,
-            new Trigger(SkriptUtil.getCurrentScript(), "get " + which.getPattern(), this, items)));
+            new Trigger(SkriptUtil.getCurrentScriptFile(), "get " + which.getPattern(), this, items)));
       }
 
       for (Node subNode : node) {
@@ -288,7 +288,7 @@ public class CustomExpressionSection extends CustomSyntaxSection<ExpressionSynta
                   changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
 
                 changerMap.put(mode,
-                  new Trigger(SkriptUtil.getCurrentScript(),
+                  new Trigger(SkriptUtil.getCurrentScriptFile(),
                     String.format("%s %s", name, which.getPattern()), this, items));
               });
             }

@@ -70,7 +70,7 @@ public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
     customEventsUsed = true;
 
     if (!isPreloaded) {
-      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+      File script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScriptFile() : null;
 
       List<String> patternStrings = new ArrayList<>();
 
@@ -187,7 +187,7 @@ public class CustomEventSection extends CustomSyntaxSection<EventSyntaxInfo> {
         CustomEvent.setLastWhich(null);
         whichInfo.forEach(which ->
           eventHandlers.put(which,
-            new Trigger(SkriptUtil.getCurrentScript(), "event " + which, this, items)));
+            new Trigger(SkriptUtil.getCurrentScriptFile(), "event " + which, this, items)));
       }
       SkriptLogger.setNode(null);
     }
