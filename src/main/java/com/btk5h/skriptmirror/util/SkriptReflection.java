@@ -17,7 +17,6 @@ import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.event.ExprReplacedEventValue;
 import org.bukkit.event.Event;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,9 +31,7 @@ public class SkriptReflection {
   private static Field PATTERNS;
   private static Field LOCAL_VARIABLES;
   private static Field NODES;
-  private static Field VARIABLES_MAP_HASHMAP;
-  private static Field VARIABLES_MAP_TREEMAP;
-  private static Constructor<?> VARIABLES_MAP;
+  private static Method VARIABLES_MAP_COPY;
   private static Field DEFAULT_EXPRESSION;
   private static Field PARSED_VALUE;
   private static Method PARSE_I;
@@ -43,7 +40,6 @@ public class SkriptReflection {
   static {
     Field _FIELD;
     Method _METHOD;
-    Constructor<?> _CONSTRUCTOR;
 
     try {
       _FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
@@ -74,27 +70,11 @@ public class SkriptReflection {
       Class<?> variablesMap = Class.forName("ch.njol.skript.variables.VariablesMap");
 
       try {
-        _FIELD = variablesMap.getDeclaredField("hashMap");
-        _FIELD.setAccessible(true);
-        VARIABLES_MAP_HASHMAP = _FIELD;
-      } catch (NoSuchFieldException e) {
-        warning("Skript's hash map field could not be resolved.");
-      }
-
-      try {
-        _FIELD = variablesMap.getDeclaredField("treeMap");
-        _FIELD.setAccessible(true);
-        VARIABLES_MAP_TREEMAP = _FIELD;
-      } catch (NoSuchFieldException e) {
-        warning("Skript's tree map field could not be resolved.");
-      }
-
-      try {
-        _CONSTRUCTOR = variablesMap.getDeclaredConstructor();
-        _CONSTRUCTOR.setAccessible(true);
-        VARIABLES_MAP = _CONSTRUCTOR;
+        _METHOD = variablesMap.getDeclaredMethod("copy");
+        _METHOD.setAccessible(true);
+        VARIABLES_MAP_COPY = _METHOD;
       } catch (NoSuchMethodException e) {
-        warning("Skript's variables map constructors could not be resolved.");
+        warning("Skript's variables map 'copy' method could not be resolved.");
       }
     } catch (ClassNotFoundException e) {
       warning("Skript's variables map class could not be resolved.");
@@ -106,7 +86,7 @@ public class SkriptReflection {
       DEFAULT_EXPRESSION = _FIELD;
     } catch (NoSuchFieldException e) {
       warning("Skript's default expression field could not be resolved, " +
-        "therefore event-values won't work in custom events");
+          "therefore event-values won't work in custom events");
     }
 
     try {
@@ -115,7 +95,7 @@ public class SkriptReflection {
       PARSED_VALUE = _FIELD;
     } catch (NoSuchFieldException e) {
       warning("Skript's parsed value field could not be resolved, " +
-        "therefore and/or warnings won't be suppressed");
+          "therefore and/or warnings won't be suppressed");
     }
 
     try {
@@ -132,7 +112,7 @@ public class SkriptReflection {
       EXPRESSIONS = _FIELD;
     } catch (NoSuchFieldException e) {
       warning("Skript's expressions field could not be resolved, " +
-        "therefore you might get syntax conflict problems");
+          "therefore you might get syntax conflict problems");
     }
   }
 
@@ -203,21 +183,16 @@ public class SkriptReflection {
    * @param locals The local variables to copy.
    * @return The copied local variables.
    */
-  @SuppressWarnings("unchecked")
   public static Object copyLocals(Object locals) {
     if (locals == null)
       return null;
 
     try {
-      Object copiedLocals = VARIABLES_MAP.newInstance();
-
-      ((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(copiedLocals))
-        .putAll((Map<String, Object>) VARIABLES_MAP_HASHMAP.get(locals));
-      ((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(copiedLocals))
-        .putAll((Map<String, Object>) VARIABLES_MAP_TREEMAP.get(locals));
-      return copiedLocals;
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException();
+      return VARIABLES_MAP_COPY.invoke(locals);
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e); // setAccessible called
+    } catch (InvocationTargetException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -254,7 +229,7 @@ public class SkriptReflection {
         DefaultExpression<?> defaultExpression = classInfo.getDefaultExpression();
         if (defaultExpression instanceof EventValueExpression && !(defaultExpression instanceof ExprReplacedEventValue)) {
           DEFAULT_EXPRESSION.set(classInfo,
-            new ExprReplacedEventValue<>((EventValueExpression<?>) defaultExpression));
+              new ExprReplacedEventValue<>((EventValueExpression<?>) defaultExpression));
 
           replaceExtraList.add(classInfo);
         }
@@ -271,10 +246,10 @@ public class SkriptReflection {
    */
   public static void replaceExtra(ClassInfo<?> classInfo) {
     List<ClassInfo<?>> classInfoList = Classes.getClassInfos().stream()
-      .filter(loopedClassInfo -> !(loopedClassInfo.getDefaultExpression() instanceof ExprReplacedEventValue))
-      .filter(loopedClassInfo -> classInfo.getC().isAssignableFrom(loopedClassInfo.getC())
-        || loopedClassInfo.getC().isAssignableFrom(classInfo.getC()))
-      .collect(Collectors.toList());
+        .filter(loopedClassInfo -> !(loopedClassInfo.getDefaultExpression() instanceof ExprReplacedEventValue))
+        .filter(loopedClassInfo -> classInfo.getC().isAssignableFrom(loopedClassInfo.getC())
+            || loopedClassInfo.getC().isAssignableFrom(classInfo.getC()))
+        .collect(Collectors.toList());
     replaceEventValues(classInfoList);
   }
 
