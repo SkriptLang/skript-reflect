@@ -9,7 +9,6 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -19,6 +18,7 @@ import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,7 +101,7 @@ public class CustomExpression<T> implements Expression<T> {
       return JavaUtil.newArray(superType, 0);
     }
 
-    return Converters.convertArray(expressionEvent.getOutput(), types, superType);
+    return Converters.convert(expressionEvent.getOutput(), types, superType);
   }
 
   private T[] getByProperty(Event e, Trigger getter) {
@@ -131,7 +131,7 @@ public class CustomExpression<T> implements Expression<T> {
         return JavaUtil.newArray(superType, 0);
       }
 
-      T[] converted = Converters.convertArray(exprOutput, superType);
+      T[] converted = Converters.convert(exprOutput, superType);
       output.addAll(Arrays.asList(converted));
     }
 
