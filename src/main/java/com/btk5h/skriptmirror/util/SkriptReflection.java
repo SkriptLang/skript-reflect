@@ -12,10 +12,12 @@ import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.event.ExprReplacedEventValue;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -36,6 +38,7 @@ public class SkriptReflection {
   private static Field PARSED_VALUE;
   private static Method PARSE_I;
   private static Field EXPRESSIONS;
+  private static Field OPTIONS;
 
   static {
     Field _FIELD;
@@ -113,6 +116,14 @@ public class SkriptReflection {
     } catch (NoSuchFieldException e) {
       warning("Skript's expressions field could not be resolved, " +
           "therefore you might get syntax conflict problems");
+    }
+
+    try {
+      _FIELD = StructOptions.OptionsData.class.getDeclaredField("options");
+      _FIELD.setAccessible(true);
+      OPTIONS = _FIELD;
+    } catch (NoSuchFieldException e) {
+      warning("Skript's options field could not be resolved, computed options won't work");
     }
   }
 
@@ -295,6 +306,32 @@ public class SkriptReflection {
       return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Gets the modifiable options map from an options data object.
+   *
+   * @param script the script to get the options from.
+   * @return the modifiable options map.
+   *
+   * @throws NullPointerException if the given options data object is null.
+   * @throws IllegalStateException if skript-reflect could not find the modifiable options map.
+   */
+  public static Map<String, String> getOptions(Script script) {
+    if (script == null)
+      throw new NullPointerException();
+
+    if (OPTIONS == null)
+      throw new IllegalStateException("OPTIONS field not initialized, computed options cannot be used");
+
+    StructOptions.OptionsData optionsData = script.getData(StructOptions.OptionsData.class,
+        StructOptions.OptionsData::new);
+
+    try {
+      return (Map<String, String>) OPTIONS.get(optionsData);
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e); // setAccessible called
     }
   }
 

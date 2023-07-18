@@ -9,8 +9,10 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.structures.StructOptions;
 import ch.njol.util.StringUtils;
 import com.btk5h.skriptmirror.skript.custom.CustomSyntaxSection;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 
 import java.util.List;
@@ -88,7 +90,12 @@ public class CustomConstantSection extends CustomSyntaxSection<ConstantSyntaxInf
   private static void computeOption(String option, Trigger getter) {
     ConstantGetEvent constantEvent = new ConstantGetEvent(0, null);
     getter.execute(constantEvent);
-    ParserInstance.get().getCurrentOptions().put(option, StringUtils.join(constantEvent.getOutput()));
+    // Get result as a string
+    String result = StringUtils.join(constantEvent.getOutput());
+
+    // Get options of current script, and add it to that
+    SkriptReflection.getOptions(ParserInstance.get().getCurrentScript())
+        .put(option, result);
   }
 
 }
