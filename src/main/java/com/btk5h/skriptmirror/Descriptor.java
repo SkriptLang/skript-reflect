@@ -1,10 +1,10 @@
 package com.btk5h.skriptmirror;
 
-import com.btk5h.skriptmirror.skript.custom.CustomImport;
+import org.skriptlang.reflect.java.elements.structures.StructImport;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import org.skriptlang.skript.lang.script.Script;
 
-import java.io.File;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -102,7 +102,7 @@ public final class Descriptor {
   /**
    * Parses the given {@link String} as a {@link Descriptor}. The script parameter is to get the imports.
    */
-  public static Descriptor parse(String desc, File script) throws ImportNotFoundException {
+  public static Descriptor parse(String desc, Script script) throws ImportNotFoundException {
     Matcher m = DESCRIPTOR.matcher(desc);
 
     if (m.matches()) {
@@ -123,7 +123,7 @@ public final class Descriptor {
   /**
    * Parses a list of imported names, returning a class array containing the classes in the given string.
    */
-  private static Class<?>[] parseParams(String args, File script) throws ImportNotFoundException {
+  private static Class<?>[] parseParams(String args, Script script) throws ImportNotFoundException {
     String[] rawClasses = args.split(",");
 
     Class<?>[] parsedClasses = new Class<?>[rawClasses.length];
@@ -160,8 +160,8 @@ public final class Descriptor {
   /**
    * Looks up a class from its imported name in the given file.
    */
-  private static Class<?> lookupClass(File script, String userType) throws ImportNotFoundException {
-    JavaType customImport = CustomImport.lookup(script, userType);
+  private static Class<?> lookupClass(Script script, String userType) throws ImportNotFoundException {
+    JavaType customImport = StructImport.lookup(script, userType);
     if (customImport == null)
       throw new ImportNotFoundException(userType);
 

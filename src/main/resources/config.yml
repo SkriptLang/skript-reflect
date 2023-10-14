@@ -1,5 +1,0 @@
-# Enabling preloading allows you to use syntax before its definition. This feature is experimental, and enabling it
-# comes with a few downsides, such as not being able to use certain syntax in your custom element's syntax, this
-# includes functions, imports, custom options and possibly more.
-# See https://tpgamesnl.gitbook.io/skript-reflect/advanced/experiments#preloading
-enable-preloading: false

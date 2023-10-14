@@ -8,7 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.skript.custom.CustomImport;
+import org.skriptlang.reflect.java.elements.structures.StructImport;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,8 +24,8 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     super.init(exprs, matchedPattern, isDelayed, parseResult);
 
-    if (exprs[0] instanceof CustomImport.ImportHandler) {
-      JavaType javaType = ((CustomImport.ImportHandler) exprs[0]).getJavaType();
+    if (exprs[0] instanceof StructImport.ImportHandler) {
+      JavaType javaType = ((StructImport.ImportHandler) exprs[0]).getJavaType();
       Class<?> clazz = javaType.getJavaClass();
 
       if (!JavaPlugin.class.isAssignableFrom(clazz) || JavaPlugin.class.equals(clazz)) {

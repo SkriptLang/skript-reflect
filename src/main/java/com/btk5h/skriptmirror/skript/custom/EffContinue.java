@@ -8,7 +8,7 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
+import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
 import org.bukkit.event.Event;
 
 public class EffContinue extends Effect {
