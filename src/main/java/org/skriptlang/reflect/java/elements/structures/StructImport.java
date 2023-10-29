@@ -22,7 +22,11 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
@@ -54,7 +58,7 @@ public class StructImport extends Structure {
 
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
-    this.script = SkriptUtil.getCurrentScript();
+    this.script = getParser().getCurrentScript();
     getEntryContainer().getSource().forEach(node -> registerImport(Optional.ofNullable(node.getKey())
         .map(ScriptLoader::replaceOptions)
         .orElse(null), script));

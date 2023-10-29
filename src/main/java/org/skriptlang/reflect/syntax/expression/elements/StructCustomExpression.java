@@ -16,6 +16,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
+import ch.njol.util.StringUtils;
 import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -48,9 +49,9 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
 
   static {
     String[] syntax = {
-      "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression <.+>",
-      "[(2¦local)] [(1¦(plural|non(-|[ ])single))] expression",
-      "[(2¦local)] [(1¦(plural|non(-|[ ])single))] %*classinfos% property <.+>"
+      "[:local] [plural:(plural|non[-| ]single)] expression <.+>",
+      "[:local] [plural:(plural|non[-| ]single)] expression",
+      "[:local] [plural:(plural|non[-| ]single)] %*classinfos% property <.+>"
     };
     EntryValidator.EntryValidatorBuilder builder = customSyntaxValidator()
         .addEntryData(new KeyValueEntryData<Class<?>>("return type", null, true) {
@@ -63,17 +64,15 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
           }
         })
         .addEntry("loop of", null, true)
-        .addSection("get", true);
+        .addSection("get", false);
     Arrays.stream(Changer.ChangeMode.values())
         .sorted((mode1, mode2) -> {
-          long words1 = mode1.toString().chars().filter(c -> c == '_').count();
-          long words2 = mode2.toString().chars().filter(c -> c == '_').count();
+          long words1 = StringUtils.count(mode1.toString(), '_');
+          long words2 = StringUtils.count(mode2.toString(), '_');
           return Long.compare(words2, words1);
         })
-        .forEach(mode -> {
-          String name = mode.toString().replace('_', ' ').toLowerCase(Locale.ENGLISH);
-          builder.addEntryData(new ChangerEntryData(name, true));
-        });
+        .map(mode -> mode.toString().replace('_', ' ').toLowerCase(Locale.ENGLISH))
+        .forEach(name -> builder.addEntryData(new ChangerEntryData(name, true)));
     Skript.registerStructure(StructCustomExpression.class, builder.build(), syntax);
   }
 
@@ -110,7 +109,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
   }
 
   private final Map<Changer.ChangeMode, SectionNode> changerNodes = new HashMap<>();
-  private SectionNode parseNode, getNode;
+  private SectionNode parseNode;
 
   @Override
   protected DataTracker<ExpressionSyntaxInfo> getDataTracker() {
@@ -123,31 +122,34 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
                          EntryContainer entryContainer) {
     customExpressionsUsed = true;
 
-    String what;
-    SectionNode patterns = entryContainer.getOptional("patterns", SectionNode.class, false);
-    Script script = (parseResult.mark & 2) == 2 ? SkriptUtil.getCurrentScript() : null;
-    boolean alwaysPlural = (parseResult.mark & 1) == 1;
+    List<String> patterns = entryContainer.getOptional("patterns", List.class, false);
+    Script script = parseResult.hasTag("local") ? SkriptUtil.getCurrentScript() : null;
+    boolean alwaysPlural = parseResult.hasTag("plural");
+
+    if (matchedPattern != 1 && patterns != null) {
+      Skript.error("A custom expression with an inline pattern cannot have a 'patterns' entry too");
+      return false;
+    }
 
     switch (matchedPattern) {
-      case 0:
-        what = parseResult.regexes.get(0).group();
-        register(ExpressionSyntaxInfo.create(script, what, 1, alwaysPlural, false, false));
+      case 0: // expression with an inline pattern
+        String pattern = parseResult.regexes.get(0).group();
+        register(ExpressionSyntaxInfo.create(script, pattern, 1, alwaysPlural, false, false));
         break;
-      case 1:
+      case 1: // expression with a 'patterns' entry
         if (patterns == null) {
-          Skript.error("Custom expressions without inline patterns must have a patterns section.");
+          Skript.error("A custom expression without an inline pattern must have a 'patterns' entry");
           return false;
         }
 
         int i = 1;
-        for (Node subNode : patterns) {
-          register(
-            ExpressionSyntaxInfo.create(script, subNode.getKey(), i++, alwaysPlural, false, false));
+        for (String p : patterns) {
+          register(ExpressionSyntaxInfo.create(script, p, i++, alwaysPlural, false, false));
         }
         break;
-      case 2:
-        what = parseResult.regexes.get(0).group();
-        String fromType = Arrays.stream(((Literal<ClassInfo<?>>) args[0]).getArray())
+      case 2: // property expression
+        String property = parseResult.regexes.get(0).group();
+        String type = Arrays.stream(((Literal<ClassInfo<?>>) args[0]).getArray())
           .map(ClassInfo::getCodeName)
           .map(codeName -> {
             boolean isPlural = Utils.getEnglishPlural(codeName).getSecond();
@@ -161,19 +163,13 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
           .collect(Collectors.joining("/"));
 
         if (!alwaysPlural) {
-          fromType = "$" + fromType;
+          type = "$" + type;
         }
 
         register(
-          ExpressionSyntaxInfo.create(script, "[the] " + what + " of %" + fromType + "%", 1, alwaysPlural, true, true));
-        register(
-          ExpressionSyntaxInfo.create(script, "%" + fromType + "%'[s] " + what, 1, alwaysPlural, false, true));
+          ExpressionSyntaxInfo.create(script, "[the] " + property + " of %" + type + "%", 1, alwaysPlural, true, true));
+        register(ExpressionSyntaxInfo.create(script, "%" + type + "%'[s] " + property, 1, alwaysPlural, false, true));
         break;
-    }
-
-    if (matchedPattern != 1 && patterns != null) {
-      Skript.error("Custom expressions with inline patterns may not have a patterns section.");
-      return false;
     }
 
     return true;
@@ -182,23 +178,13 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
   @Override
   public boolean preLoad() {
     super.preLoad();
-
     EntryContainer entryContainer = getEntryContainer();
-    parseNode = entryContainer.getOptional("parse", SectionNode.class, false);
-    SectionNode safeParseNode = entryContainer.getOptional("safe parse", SectionNode.class, false);
-    if (parseNode != null) {
-      if (safeParseNode != null) {
-        Skript.error("You can't have two parse sections");
-        return false;
-      }
-      whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
-    } else {
-      if (safeParseNode != null) {
-        SyntaxParseEvent.register(safeParseNode, whichInfo, parserHandlers);
 
-        whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
-      }
-    }
+    SectionNode[] parseNode = getParseNode();
+    if (parseNode == null)
+      return false;
+    this.parseNode = parseNode[0];
+    whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
 
     Class<?> returnType = entryContainer.getOptional("return type", Class.class, false);
     if (returnType != null)
@@ -208,10 +194,8 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     if (loopOf != null)
       whichInfo.forEach(which -> loopOfs.put(which, loopOf));
 
-    getNode = entryContainer.getOptional("get", SectionNode.class, false);
-
     SectionNode usableInNode = entryContainer.getOptional("usable in", SectionNode.class, false);
-    if (usableInNode != null && !handleUsableSection(usableInNode, usableSuppliers))
+    if (usableInNode != null && !handleUsableEntry(usableInNode, usableSuppliers))
       return false;
 
     for (Changer.ChangeMode mode : Changer.ChangeMode.values()) {
@@ -236,12 +220,6 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
       );
     }
 
-    if (getNode == null && changerNodes.isEmpty()) {
-      Skript.error("Custom expressions are useless without a get / change section");
-    } else if (getNode == null) {
-      Skript.error("Custom expressions require a 'get' section");
-    }
-
     return true;
   }
 
@@ -254,8 +232,9 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
       whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
     }
 
-    if (getNode != null) {
-      SkriptLogger.setNode(getNode);
+    SectionNode getNode = getEntryContainer().get("get", SectionNode.class, false);
+    SkriptLogger.setNode(getNode);
+    {
       getParser().setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
       List<TriggerItem> items = SkriptUtil.getItemsFromNode(getNode);
       whichInfo.forEach(which ->

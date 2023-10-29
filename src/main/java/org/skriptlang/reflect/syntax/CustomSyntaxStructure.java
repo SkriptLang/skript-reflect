@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -132,6 +133,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
   }
 
   protected List<T> whichInfo = new ArrayList<>();
+  private boolean hasPatterns = false;
 
   protected abstract DataTracker<T> getDataTracker();
 
@@ -180,6 +182,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
   }
 
   protected final void register(T data) {
+    hasPatterns = true;
     String pattern = data.getPattern();
 
     whichInfo.add(data);
@@ -189,8 +192,30 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
         .put(pattern, data);
   }
 
+  protected boolean checkHasPatterns() {
+    if (hasPatterns)
+      return true;
+    Skript.error("A custom syntax must have at least one pattern");
+    return false;
+  }
+
+  protected SectionNode[] getParseNode() {
+    SectionNode parseNode = getEntryContainer().getOptional("parse", SectionNode.class, false);
+    SectionNode safeParseNode = getEntryContainer().getOptional("safe parse", SectionNode.class, false);
+    if (parseNode != null && safeParseNode != null) {
+      Skript.error("A custom syntax element cannot contain both 'parse' and 'safe parse' entries");
+      return null;
+    }
+    if (safeParseNode != null) {
+      Skript.warning("The 'safe parse' entry is deprecated and will act as a regular 'parse' entry."
+          + " Please use the 'parse' entry instead");
+      return new SectionNode[] {safeParseNode};
+    }
+    return new SectionNode[] {parseNode};
+  }
+
   @SuppressWarnings("unchecked")
-  protected boolean handleUsableSection(SectionNode sectionNode, Map<T, List<Supplier<Boolean>>> usableSuppliers) {
+  protected boolean handleUsableEntry(SectionNode sectionNode, Map<T, List<Supplier<Boolean>>> usableSuppliers) {
     Script currentScript = SkriptUtil.getCurrentScript();
     for (Node usableNode : sectionNode) {
       String usableKey = usableNode.getKey();
@@ -239,9 +264,9 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
 
   public static EntryValidator.EntryValidatorBuilder customSyntaxValidator() {
     return EntryValidator.builder()
-        .addSection("patterns", true)
+        .addEntryData(new PatternsEntryData("patterns", null, true))
         .addSection("parse", true)
-        .addSection("safe parse", true)
+        .addSection("safe parse", true) // Deprecated
         .addSection("usable in", true);
   }
 

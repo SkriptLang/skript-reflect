@@ -51,7 +51,7 @@ public class CustomEvent extends SkriptEvent {
 
     Boolean bool = StructCustomEvent.parseSectionLoaded.get(which);
     if (bool != null && !bool) {
-      Skript.error("You can't use custom effects with parse sections before they're loaded.");
+      Skript.error("You can't use custom events with parse sections before they're loaded.");
       return false;
     }
 

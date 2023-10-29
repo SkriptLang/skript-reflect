@@ -35,12 +35,12 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
 
   static {
     String[] syntax = {
-        "[(1¦local)] condition <.+>",
-        "[(1¦local)] condition",
-        "[(1¦local)] %*classinfos% property condition <.+>"
+        "[:local] condition <.+>",
+        "[:local] condition",
+        "[:local] %*classinfos% property condition <.+>"
     };
     Skript.registerStructure(StructCustomCondition.class, customSyntaxValidator()
-        .addSection("check", true)
+        .addSection("check", false)
         .build(), syntax);
   }
 
@@ -64,8 +64,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
     dataTracker.addManaged(parseSectionLoaded);
   }
 
-  private SectionNode parseNode, checkNode;
-  private Runnable register;
+  private SectionNode parseNode;
 
   @Override
   public DataTracker<ConditionSyntaxInfo> getDataTracker() {
@@ -78,28 +77,31 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
                       EntryContainer entryContainer) {
     customConditionsUsed = true;
 
-    SectionNode patterns = entryContainer.getOptional("patterns", SectionNode.class, false);
-    Script script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+    List<String> patterns = entryContainer.getOptional("patterns", List.class, false);
+    Script script = parseResult.hasTag("local") ? SkriptUtil.getCurrentScript() : null;
+
+    if (matchedPattern != 1 && patterns != null) {
+      Skript.error("A custom condition with an inline pattern cannot have a 'patterns' entry too");
+      return false;
+    }
 
     switch (matchedPattern) {
-      case 0:
+      case 0: // condition with an inline pattern
         String pattern = parseResult.regexes.get(0).group();
-        register = () -> register(ConditionSyntaxInfo.create(script, pattern, 1, false, false));
+        register(ConditionSyntaxInfo.create(script, pattern, 1, false, false));
         break;
-      case 1:
+      case 1: // condition with a 'patterns' entry
         if (patterns == null) {
-          Skript.error("Custom conditions without inline patterns must have a patterns section.");
+          Skript.error("A custom condition without an inline pattern must have a 'patterns' entry");
           return false;
         }
 
-        register = () -> {
-          int i = 1;
-          for (Node subNode : patterns) {
-            register(ConditionSyntaxInfo.create(script, subNode.getKey(), i++, false, false));
-          }
-        };
+        int i = 1;
+        for (String p : patterns) {
+          register(ConditionSyntaxInfo.create(script, p, i++, false, false));
+        }
         break;
-      case 2:
+      case 2: // property condition
         String property = parseResult.regexes.get(0).group();
         String type = Arrays.stream(((Literal<ClassInfo<?>>) args[0]).getArray())
             .map(ClassInfo::getCodeName)
@@ -113,49 +115,28 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
               return codeName;
             })
             .collect(Collectors.joining("/"));
-        register = () -> {
-          register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + property, 1, false, true));
-          register(
-              ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + property, 1, true, true));
-        };
+        register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + property, 1, false, true));
+        register(
+            ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + property, 1, true, true));
         break;
     }
 
-    if (matchedPattern != 1 && patterns != null) {
-      Skript.error("Custom conditions with inline patterns may not have a patterns section.");
-      return false;
-    }
-
-    return true;
+    return checkHasPatterns();
   }
 
   @Override
   public boolean preLoad() {
     super.preLoad();
-    register.run();
     EntryContainer entryContainer = getEntryContainer();
-    parseNode = entryContainer.getOptional("parse", SectionNode.class, false);
-    SectionNode safeParseNode = entryContainer.getOptional("safe parse", SectionNode.class, false);
-    if (parseNode != null) {
-      if (safeParseNode != null) {
-        Skript.error("You can't have two parse sections");
-        return false;
-      }
-      whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
-    } else if (safeParseNode != null) {
-        SyntaxParseEvent.register(safeParseNode, whichInfo, parserHandlers);
-        whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
-    }
+
+    SectionNode[] parseNode = getParseNode();
+    if (parseNode == null)
+      return false;
+    this.parseNode = parseNode[0];
+    whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
 
     SectionNode usableInNode = entryContainer.getOptional("usable in", SectionNode.class, false);
-    if (usableInNode != null && !handleUsableSection(usableInNode, usableSuppliers))
-      return false;
-
-    checkNode = entryContainer.getOptional("check", SectionNode.class, false);
-    if (checkNode == null)
-      Skript.warning("Custom conditions are useless without a check section");
-
-    return true;
+    return usableInNode == null || handleUsableEntry(usableInNode, usableSuppliers);
   }
 
   @Override
@@ -167,13 +148,12 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
       whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
     }
 
-    if (checkNode != null) {
-      SkriptLogger.setNode(checkNode);
-      getParser().setCurrentEvent("custom condition check", ConditionCheckEvent.class);
-      List<TriggerItem> items = SkriptUtil.getItemsFromNode(checkNode);
-      whichInfo.forEach(which -> conditionHandlers.put(which,
-          new Trigger(getParser().getCurrentScript(), "condition " + which, new SimpleEvent(), items)));
-    }
+    SectionNode checkNode = getEntryContainer().get("check", SectionNode.class, false);
+    SkriptLogger.setNode(checkNode);
+    getParser().setCurrentEvent("custom condition check", ConditionCheckEvent.class);
+    List<TriggerItem> items = SkriptUtil.getItemsFromNode(checkNode);
+    whichInfo.forEach(which -> conditionHandlers.put(which,
+        new Trigger(getParser().getCurrentScript(), "condition " + which, new SimpleEvent(), items)));
     SkriptLogger.setNode(null);
 
     return true;

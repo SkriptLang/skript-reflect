@@ -1,7 +1,6 @@
 package org.skriptlang.reflect.syntax.expression;
 
 import ch.njol.skript.ScriptLoader;
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
@@ -20,7 +19,8 @@ public class ChangerEntryData extends EntryData<NonNullPair<SectionNode, Class<?
   }
 
   @Override
-  public @Nullable NonNullPair<SectionNode, Class<?>[]> getValue(Node node) {
+  @Nullable
+  public NonNullPair<SectionNode, Class<?>[]> getValue(Node node) {
     String key = node.getKey();
     assert key != null;
     key = ScriptLoader.replaceOptions(node.getKey());

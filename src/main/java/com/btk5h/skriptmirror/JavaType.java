@@ -2,7 +2,7 @@ package com.btk5h.skriptmirror;
 
 import java.util.Objects;
 
-public class JavaType {
+public final class JavaType {
 
   private final Class<?> javaClass;
 

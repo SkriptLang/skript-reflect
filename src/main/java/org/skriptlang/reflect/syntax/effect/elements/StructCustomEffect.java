@@ -31,11 +31,11 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
 
   static {
     String[] syntax = {
-      "[(1¦local)] effect <.+>",
-      "[(1¦local)] effect"
+      "[:local] effect <.+>",
+      "[:local] effect"
     };
     Skript.registerStructure(StructCustomEffect.class, customSyntaxValidator()
-        .addSection("trigger", true)
+        .addSection("trigger", false)
         .build(), syntax);
   }
 
@@ -59,7 +59,7 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
     dataTracker.addManaged(parseSectionLoaded);
   }
 
-  private SectionNode parseNode, triggerNode;
+  private SectionNode parseNode;
 
   @Override
   public DataTracker<EffectSyntaxInfo> getDataTracker() {
@@ -71,64 +71,47 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
                          EntryContainer entryContainer) {
     customEffectsUsed = true;
 
-    SectionNode patterns = entryContainer.getOptional("patterns", SectionNode.class, false);
-    Script script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+    List<String> patterns = entryContainer.getOptional("patterns", List.class, false);
+    Script script = parseResult.hasTag("local") ? SkriptUtil.getCurrentScript() : null;
+
+    if (matchedPattern != 1 && patterns != null) {
+      Skript.error("A custom effect with an inline pattern cannot have a 'patterns' entry too");
+      return false;
+    }
 
     switch (matchedPattern) {
-      case 0:
+      case 0: // effect with an inline pattern
         register(EffectSyntaxInfo.create(script, parseResult.regexes.get(0).group(), 1));
         break;
-      case 1:
+      case 1: // effect with a 'patterns' entry
         if (patterns == null) {
-          Skript.error("Custom effects without inline patterns must have a patterns section.");
+          Skript.error("A custom effect without an inline pattern must have a 'patterns' entry");
           return false;
         }
 
         int i = 1;
-        for (Node subNode : patterns) {
-          register(EffectSyntaxInfo.create(script, subNode.getKey(), i++));
+        for (String pattern : patterns) {
+          register(EffectSyntaxInfo.create(script, pattern, i++));
         }
         break;
     }
 
-    if (matchedPattern != 1 && patterns != null) {
-      Skript.error("Custom effects with inline patterns may not have a patterns section.");
-      return false;
-    }
-
-    return true;
+    return checkHasPatterns();
   }
 
   @Override
   public boolean preLoad() {
     super.preLoad();
-
     EntryContainer entryContainer = getEntryContainer();
-    parseNode = entryContainer.getOptional("parse", SectionNode.class, false);
-    SectionNode safeParseNode = entryContainer.getOptional("safe parse", SectionNode.class, false);
-    if (parseNode != null) {
-      if (safeParseNode != null) {
-        Skript.error("You can't have two parse sections");
-        return false;
-      }
-      whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
-    } else {
-      if (safeParseNode != null) {
-        SyntaxParseEvent.register(safeParseNode, whichInfo, parserHandlers);
 
-        whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
-      }
-    }
+    SectionNode[] parseNode = getParseNode();
+    if (parseNode == null)
+      return false;
+    this.parseNode = parseNode[0];
+    whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
 
     SectionNode usableInNode = entryContainer.getOptional("usable in", SectionNode.class, false);
-    if (usableInNode != null && !handleUsableSection(usableInNode, usableSuppliers))
-      return false;
-
-    triggerNode = entryContainer.getOptional("trigger", SectionNode.class, false);
-    if (triggerNode == null)
-      Skript.warning("Custom effects are useless without a trigger section");
-
-    return true;
+    return usableInNode == null || handleUsableEntry(usableInNode, usableSuppliers);
   }
 
   @Override
@@ -140,14 +123,13 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
       whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
     }
 
-    if (triggerNode != null) {
-      SkriptLogger.setNode(triggerNode);
-      getParser().setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
-      List<TriggerItem> items = SkriptUtil.getItemsFromNode(triggerNode);
-      whichInfo.forEach(which ->
-          effectHandlers.put(which,
-              new Trigger(getParser().getCurrentScript(), "effect " + which, new SimpleEvent(), items)));
-    }
+    SectionNode triggerNode = getEntryContainer().get("trigger", SectionNode.class, false);
+    SkriptLogger.setNode(triggerNode);
+    getParser().setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
+    List<TriggerItem> items = SkriptUtil.getItemsFromNode(triggerNode);
+    whichInfo.forEach(which ->
+        effectHandlers.put(which,
+            new Trigger(getParser().getCurrentScript(), "effect " + which, new SimpleEvent(), items)));
     SkriptLogger.setNode(null);
 
     return true;

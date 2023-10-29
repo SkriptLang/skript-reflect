@@ -292,7 +292,7 @@ public class CustomExpression<T> implements Expression<T> {
 
     Boolean bool = StructCustomExpression.parseSectionLoaded.get(which);
     if (bool != null && !bool) {
-      Skript.error("You can't use custom effects with parse sections before they're loaded.");
+      Skript.error("You can't use custom expressions with parse sections before they're loaded.");
       return false;
     }
 

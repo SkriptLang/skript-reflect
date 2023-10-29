@@ -22,7 +22,7 @@ public class ExprChangeValue<T> implements Expression<T> {
   static {
     //noinspection unchecked
     Skript.registerExpression(ExprChangeValue.class, Object.class, ExpressionType.SIMPLE,
-        "[the] change value[(1¦s)]");
+        "[the] change value[1:s]");
   }
 
   private int index;

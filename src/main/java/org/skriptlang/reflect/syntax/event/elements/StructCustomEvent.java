@@ -2,7 +2,6 @@ package org.skriptlang.reflect.syntax.event.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEventInfo;
@@ -11,14 +10,14 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.registrations.Classes;
-import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
+import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.event.BukkitCustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
+import org.skriptlang.reflect.syntax.event.EventValuesEntryData;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -30,17 +29,21 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
 
   static {
     String[] syntax = {
-      "[(1¦local)] [custom] event %string%"
+      "[:local] [custom] event %string%"
     };
     Skript.registerStructure(StructCustomEvent.class, customSyntaxValidator()
         .addEntry("pattern", null, true)
-        .addEntry("event-values", null, true)
+        .addEntryData(new EventValuesEntryData("event values", null, true) {
+          @Override
+          public boolean canCreateWith(String node) {
+            return super.canCreateWith(node) || node.startsWith(getKey().replace(' ', '-') + getSeparator());
+          }
+        })
         .addSection("check", true)
         .build(), syntax);
   }
 
   private static final DataTracker<EventSyntaxInfo> dataTracker = new DataTracker<>();
-  private static final String listSplitPattern = "\\s*,?\\s+(and|n?or)\\s+|\\s*,\\s*"; // Found in SkriptParser
 
   static final Map<EventSyntaxInfo, String> nameValues = new HashMap<>();
   static final Map<EventSyntaxInfo, List<ClassInfo<?>>> eventValueTypes = new HashMap<>();
@@ -62,7 +65,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
     dataTracker.addManaged(parseSectionLoaded);
   }
 
-  private SectionNode parseNode, checkNode;
+  private SectionNode parseNode;
 
   @Override
   protected DataTracker<EventSyntaxInfo> getDataTracker() {
@@ -74,31 +77,25 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
                          EntryContainer entryContainer) {
     customEventsUsed = true;
 
-    Script script = (parseResult.mark & 1) == 1 ? SkriptUtil.getCurrentScript() : null;
+    Script script = parseResult.hasTag("local") ? SkriptUtil.getCurrentScript() : null;
 
-    List<String> patternStrings = new ArrayList<>();
-
-    SectionNode patternsNode = entryContainer.getOptional("patterns", SectionNode.class, false);
+    List<String> patterns = entryContainer.getOptional("patterns", List.class, false);
     String patternNode = entryContainer.getOptional("pattern", String.class, false);
-    if (patternsNode != null) {
-      for (Node subNode : patternsNode) {
-        patternStrings.add(subNode.getKey());
-      }
-    } else if (patternNode != null) {
-      patternStrings.add(patternNode);
-    } else {
-      Skript.error("You need at least one pattern");
+    if (patterns != null && patternNode != null) {
+      Skript.error("A custom event may not have both a 'patterns' and 'pattern' entries");
       return false;
+    } else if (patternNode != null) {
+      patterns = Collections.singletonList(patternNode);
+    }
+
+    if (patterns == null || patterns.isEmpty()) {
+      // Always false. Used for the error
+      return checkHasPatterns();
     }
 
     int i = 1;
-    for (String pattern : patternStrings) {
+    for (String pattern : patterns) {
       register(EventSyntaxInfo.create(script, pattern, i++));
-    }
-
-    if (whichInfo.isEmpty()) {
-      Skript.error("You need at least one pattern");
-      return false;
     }
 
     String name = (String) args[0].getSingle();
@@ -109,26 +106,18 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
 
     whichInfo.forEach(which -> nameValues.put(which, name));
 
+    // Register the custom events during #init, rather than #preLoad
+    super.preLoad();
     return true;
   }
 
   @Override
   public boolean preLoad() {
-    super.preLoad();
-
-    EntryContainer entryContainer = getEntryContainer();
-    parseNode = entryContainer.getOptional("parse", SectionNode.class, false);
-    SectionNode safeParseNode = entryContainer.getOptional("safe parse", SectionNode.class, false);
-    if (parseNode != null) {
-      if (safeParseNode != null) {
-        Skript.error("You can't have two parse sections");
-        return false;
-      }
-      whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
-    } else if (safeParseNode != null) {
-      SyntaxParseEvent.register(safeParseNode, whichInfo, parserHandlers);
-      whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
-    }
+    SectionNode[] parseNode = getParseNode();
+    if (parseNode == null)
+      return false;
+    this.parseNode = parseNode[0];
+    whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
 
     return true;
   }
@@ -137,20 +126,8 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
   public boolean load() {
     EntryContainer entryContainer = getEntryContainer();
 
-    String[] stringClasses = Optional.<String>ofNullable(entryContainer.getOptional("event-values", String.class, false))
-        .map(eventValues -> eventValues.split(listSplitPattern))
-        .orElse(null);
-    if (stringClasses != null) {
-      List<ClassInfo<?>> classInfoList = new ArrayList<>(stringClasses.length);
-      for (String stringClass : stringClasses) {
-        ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(stringClass);
-        if (classInfo == null) {
-          Skript.error("The type " + stringClass + " doesn't exist");
-          return false;
-        }
-        classInfoList.add(classInfo);
-      }
-
+    List<ClassInfo<?>> classInfoList = entryContainer.getOptional("event values", List.class, false);
+    if (classInfoList != null) {
       SkriptReflection.replaceEventValues(classInfoList);
       whichInfo.forEach(which -> eventValueTypes.put(which, classInfoList));
     }
@@ -162,7 +139,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
       whichInfo.forEach(which -> parseSectionLoaded.put(which, true));
     }
 
-    checkNode = entryContainer.getOptional("check", SectionNode.class, false);
+    SectionNode checkNode = entryContainer.getOptional("check", SectionNode.class, false);
     if (checkNode != null) {
       SkriptLogger.setNode(checkNode);
 
