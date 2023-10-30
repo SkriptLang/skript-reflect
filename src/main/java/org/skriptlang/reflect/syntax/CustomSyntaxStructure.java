@@ -202,16 +202,16 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
   protected SectionNode[] getParseNode() {
     SectionNode parseNode = getEntryContainer().getOptional("parse", SectionNode.class, false);
     SectionNode safeParseNode = getEntryContainer().getOptional("safe parse", SectionNode.class, false);
-    if (parseNode != null && safeParseNode != null) {
-      Skript.error("A custom syntax element cannot contain both 'parse' and 'safe parse' entries");
-      return null;
-    }
     if (safeParseNode != null) {
+      if (parseNode != null) {
+        Skript.error("A custom syntax element cannot contain both 'parse' and 'safe parse' entries");
+        return null;
+      }
       Skript.warning("The 'safe parse' entry is deprecated and will act as a regular 'parse' entry."
           + " Please use the 'parse' entry instead");
       return new SectionNode[] {safeParseNode};
     }
-    return new SectionNode[] {parseNode};
+      return new SectionNode[] {parseNode};
   }
 
   @SuppressWarnings("unchecked")

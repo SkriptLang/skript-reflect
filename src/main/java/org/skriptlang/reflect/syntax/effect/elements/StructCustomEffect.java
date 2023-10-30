@@ -36,7 +36,9 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
     };
     Skript.registerStructure(StructCustomEffect.class, customSyntaxValidator()
         .addSection("trigger", false)
-        .build(), syntax);
+        .build(),
+        syntax
+    );
   }
 
   private static final DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();

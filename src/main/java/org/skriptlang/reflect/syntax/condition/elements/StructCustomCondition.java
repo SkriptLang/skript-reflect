@@ -41,7 +41,9 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
     };
     Skript.registerStructure(StructCustomCondition.class, customSyntaxValidator()
         .addSection("check", false)
-        .build(), syntax);
+        .build(),
+        syntax
+    );
   }
 
   private static final DataTracker<ConditionSyntaxInfo> dataTracker = new DataTracker<>();

@@ -40,7 +40,9 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
           }
         })
         .addSection("check", true)
-        .build(), syntax);
+        .build(),
+        syntax
+    );
   }
 
   private static final DataTracker<EventSyntaxInfo> dataTracker = new DataTracker<>();

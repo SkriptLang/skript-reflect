@@ -56,7 +56,8 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     EntryValidator.EntryValidatorBuilder builder = customSyntaxValidator()
         .addEntryData(new KeyValueEntryData<Class<?>>("return type", null, true) {
           @Override
-          protected @Nullable Class<?> getValue(String value) {
+          @Nullable
+          protected Class<?> getValue(String value) {
             Class<?> returnType = Classes.getClassFromUserInput(value);
             if (returnType == null)
               Skript.error("The given return type doesn't exist");

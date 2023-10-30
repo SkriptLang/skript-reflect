@@ -9,7 +9,7 @@ import org.skriptlang.skript.lang.entry.EntryData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PatternsEntryData extends EntryData<List<String>> {
+class PatternsEntryData extends EntryData<List<String>> {
 
   public PatternsEntryData(String key, @Nullable List<String> defaultValue, boolean optional) {
     super(key, defaultValue, optional);
