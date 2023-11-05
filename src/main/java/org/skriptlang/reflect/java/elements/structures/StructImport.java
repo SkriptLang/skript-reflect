@@ -45,8 +45,7 @@ public class StructImport extends Structure {
 
     // TODO try replacing ImportHandler with JavaType's literal parsing
     Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
-    thisInfo = StreamSupport.stream(
-            Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
+    thisInfo = StreamSupport.stream(Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
         .filter(i -> i.c == ImportHandler.class)
         .findFirst().orElseGet(() -> {
           Skript.warning("Could not find custom import class. Custom imports will not work.");
@@ -74,6 +73,7 @@ public class StructImport extends Structure {
   @Override
   public void unload() {
     imports.remove(script);
+    updateImports();
   }
 
   @Override

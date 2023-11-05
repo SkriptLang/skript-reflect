@@ -119,7 +119,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
     if (parseNode == null)
       return false;
     this.parseNode = parseNode[0];
-    whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
+    whichInfo.forEach(which -> parseSectionLoaded.put(which, this.parseNode == null));
 
     return true;
   }

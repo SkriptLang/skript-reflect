@@ -135,7 +135,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
     if (parseNode == null)
       return false;
     this.parseNode = parseNode[0];
-    whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
+    whichInfo.forEach(which -> parseSectionLoaded.put(which, this.parseNode == null));
 
     SectionNode usableInNode = entryContainer.getOptional("usable in", SectionNode.class, false);
     return usableInNode == null || handleUsableEntry(usableInNode, usableSuppliers);

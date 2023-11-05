@@ -185,7 +185,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     if (parseNode == null)
       return false;
     this.parseNode = parseNode[0];
-    whichInfo.forEach(which -> parseSectionLoaded.put(which, false));
+    whichInfo.forEach(which -> parseSectionLoaded.put(which, this.parseNode == null));
 
     Class<?> returnType = entryContainer.getOptional("return type", Class.class, false);
     if (returnType != null)

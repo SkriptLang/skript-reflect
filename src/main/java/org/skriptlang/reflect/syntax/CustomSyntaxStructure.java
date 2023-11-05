@@ -211,7 +211,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
           + " Please use the 'parse' entry instead");
       return new SectionNode[] {safeParseNode};
     }
-      return new SectionNode[] {parseNode};
+    return new SectionNode[] {parseNode};
   }
 
   @SuppressWarnings("unchecked")
