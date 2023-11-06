@@ -118,8 +118,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
             })
             .collect(Collectors.joining("/"));
         register(ConditionSyntaxInfo.create(script, "%" + type + "% (is|are) " + property, 1, false, true));
-        register(
-            ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + property, 1, true, true));
+        register(ConditionSyntaxInfo.create(script, "%" + type + "% (isn't|is not|aren't|are not) " + property, 1, true, true));
         break;
     }
 
@@ -155,7 +154,8 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
     getParser().setCurrentEvent("custom condition check", ConditionCheckEvent.class);
     List<TriggerItem> items = SkriptUtil.getItemsFromNode(checkNode);
     whichInfo.forEach(which -> conditionHandlers.put(which,
-        new Trigger(getParser().getCurrentScript(), "condition " + which, new SimpleEvent(), items)));
+        new Trigger(getParser().getCurrentScript(), "condition " + which, new SimpleEvent(), items))
+    );
     SkriptLogger.setNode(null);
 
     return true;

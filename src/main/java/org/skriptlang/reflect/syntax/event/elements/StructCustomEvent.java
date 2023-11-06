@@ -28,9 +28,6 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
   public static boolean customEventsUsed = false;
 
   static {
-    String[] syntax = {
-      "[:local] [custom] event %string%"
-    };
     Skript.registerStructure(StructCustomEvent.class, customSyntaxValidator()
         .addEntry("pattern", null, true)
         .addEntryData(new EventValuesEntryData("event values", null, true) {
@@ -41,7 +38,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
         })
         .addSection("check", true)
         .build(),
-        syntax
+        "[:local] [custom] event %string%"
     );
   }
 
@@ -149,9 +146,9 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
       CustomEvent.setLastWhich(whichInfo.get(0));
       List<TriggerItem> items = SkriptUtil.getItemsFromNode(checkNode);
       CustomEvent.setLastWhich(null);
-      whichInfo.forEach(which ->
-          eventHandlers.put(which,
-              new Trigger(getParser().getCurrentScript(), "event " + which, new SimpleEvent(), items)));
+      whichInfo.forEach(which -> eventHandlers.put(which,
+          new Trigger(getParser().getCurrentScript(), "event " + which, new SimpleEvent(), items))
+      );
     }
     SkriptLogger.setNode(null);
 

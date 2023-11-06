@@ -47,10 +47,7 @@ public class StructImport extends Structure {
     Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
     thisInfo = StreamSupport.stream(Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
         .filter(expressionInfo -> ImportHandler.class.equals(expressionInfo.getElementClass()))
-        .findFirst().orElseGet(() -> {
-          Skript.warning("Could not find custom import class. Custom imports will not work.");
-          return null;
-        });
+        .findFirst().orElseThrow(RuntimeException::new); // Should never be null
   }
 
   private Script script;

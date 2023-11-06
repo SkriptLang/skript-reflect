@@ -1,9 +1,8 @@
 package org.skriptlang.reflect.syntax.expression.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.ExpressionType;
@@ -66,7 +65,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
         })
         .addEntry("loop of", null, true)
         .addSection("get", false);
-    Arrays.stream(Changer.ChangeMode.values())
+    Arrays.stream(ChangeMode.values())
         .sorted((mode1, mode2) -> {
           long words1 = StringUtils.count(mode1.toString(), '_');
           long words2 = StringUtils.count(mode2.toString(), '_');
@@ -82,9 +81,9 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
   static final Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
-  static final Map<ExpressionSyntaxInfo, List<Changer.ChangeMode>> hasChanger = new HashMap<>();
-  static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Trigger>> changerHandlers = new HashMap<>();
-  static final Map<ExpressionSyntaxInfo, Map<Changer.ChangeMode, Class<?>[]>> changerTypes = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, List<ChangeMode>> hasChanger = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Map<ChangeMode, Trigger>> changerHandlers = new HashMap<>();
+  static final Map<ExpressionSyntaxInfo, Map<ChangeMode, Class<?>[]>> changerTypes = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, String> loopOfs = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, List<Supplier<Boolean>>> usableSuppliers = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
@@ -109,7 +108,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     dataTracker.addManaged(parseSectionLoaded);
   }
 
-  private final Map<Changer.ChangeMode, SectionNode> changerNodes = new HashMap<>();
+  private final Map<ChangeMode, SectionNode> changerNodes = new HashMap<>();
   private SectionNode parseNode;
 
   @Override
@@ -199,7 +198,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     if (usableInNode != null && !handleUsableEntry(usableInNode, usableSuppliers))
       return false;
 
-    for (Changer.ChangeMode mode : Changer.ChangeMode.values()) {
+    for (ChangeMode mode : ChangeMode.values()) {
       String name = mode.toString().replace('_', ' ').toLowerCase(Locale.ENGLISH);
       NonNullPair<SectionNode, Class<?>[]> pair = entryContainer.getOptional(name, NonNullPair.class, false);
       if (pair == null)
@@ -207,7 +206,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
       changerNodes.put(mode, pair.getFirst());
 
       whichInfo.forEach(which -> {
-        List<Changer.ChangeMode> hasChangerList =
+        List<ChangeMode> hasChangerList =
             hasChanger.computeIfAbsent(which, k -> new ArrayList<>());
 
         hasChangerList.add(mode);
@@ -238,9 +237,9 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     {
       getParser().setCurrentEvent("custom expression getter", ExpressionGetEvent.class);
       List<TriggerItem> items = SkriptUtil.getItemsFromNode(getNode);
-      whichInfo.forEach(which ->
-          expressionHandlers.put(which,
-              new Trigger(getParser().getCurrentScript(), "get " + which.getPattern(), new SimpleEvent(), items)));
+      whichInfo.forEach(which -> expressionHandlers.put(which,
+          new Trigger(getParser().getCurrentScript(), "get " + which.getPattern(), new SimpleEvent(), items))
+      );
     }
 
     changerNodes.forEach((changeMode, node) -> {
@@ -248,13 +247,12 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
       getParser().setCurrentEvent("custom expression changer", ExpressionChangeEvent.class);
       List<TriggerItem> items = SkriptUtil.getItemsFromNode(node);
       whichInfo.forEach(which -> {
-        Map<Changer.ChangeMode, Trigger> changerMap =
-            changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
+        Map<ChangeMode, Trigger> changerMap = changerHandlers.computeIfAbsent(which, k -> new HashMap<>());
 
         String name = changeMode.toString().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-        changerMap.put(changeMode,
-            new Trigger(getParser().getCurrentScript(),
-                String.format("%s %s", name, which.getPattern()), new SimpleEvent(), items));
+        changerMap.put(changeMode, new Trigger(
+            getParser().getCurrentScript(), String.format("%s %s", name, which.getPattern()), new SimpleEvent(), items
+        ));
       });
     });
 

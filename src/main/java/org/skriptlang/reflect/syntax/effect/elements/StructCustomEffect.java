@@ -129,9 +129,9 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
     SkriptLogger.setNode(triggerNode);
     getParser().setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
     List<TriggerItem> items = SkriptUtil.getItemsFromNode(triggerNode);
-    whichInfo.forEach(which ->
-        effectHandlers.put(which,
-            new Trigger(getParser().getCurrentScript(), "effect " + which, new SimpleEvent(), items)));
+    whichInfo.forEach(which -> effectHandlers.put(which,
+        new Trigger(getParser().getCurrentScript(), "effect " + which, new SimpleEvent(), items))
+    );
     SkriptLogger.setNode(null);
 
     return true;
