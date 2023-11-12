@@ -21,7 +21,11 @@ import org.skriptlang.reflect.syntax.event.EventValuesEntryData;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
 
