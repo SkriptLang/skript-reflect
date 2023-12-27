@@ -38,10 +38,8 @@ public class EffReturn extends Effect {
     boolean isContinuable = CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents());
 
     if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)
-        && !isContinuable) {
-      Skript.error("The return effect can only be used in functions, custom expressions, sections, custom syntax parse sections and custom conditions");
+        && !isContinuable)
       return false;
-    }
 
     if (isContinuable) {
       expr = expr.getConvertedExpression(Boolean.class);
