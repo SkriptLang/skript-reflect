@@ -10,14 +10,14 @@ import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.skript.custom.CustomImport;
+import org.skriptlang.reflect.java.elements.structures.StructImport;
 import com.btk5h.skriptmirror.skript.reflect.sections.Section;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.script.Script;
 
-import java.io.File;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 
@@ -57,13 +57,13 @@ public class Types {
         .parser(new Parser<JavaType>() {
           @Override
           public JavaType parse(String s, ParseContext context) {
-            File script = SkriptUtil.getCurrentScriptFile();
-            return CustomImport.lookup(script, s);
+            Script script = SkriptUtil.getCurrentScript();
+            return StructImport.lookup(script, s);
           }
 
           @Override
           public boolean canParse(ParseContext context) {
-            // default context handled in CustomImport$ImportHandler
+            // default context handled in StructImport$ImportHandler
             return context != ParseContext.DEFAULT;
           }
 
@@ -77,9 +77,6 @@ public class Types {
             return "type:" + o.getJavaClass().getName();
           }
 
-          public String getVariableNamePattern() {
-            return "type:.+";
-          }
         })
         .serializer(new Serializer<JavaType>() {
           @Override

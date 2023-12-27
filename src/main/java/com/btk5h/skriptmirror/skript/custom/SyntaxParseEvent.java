@@ -6,9 +6,11 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.HandlerList;
+import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,15 +56,14 @@ public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
     return handlers;
   }
 
-  public static <T extends CustomSyntaxSection.SyntaxData> void register(CustomSyntaxSection<T> section,
-                                                                         SectionNode parseNode,
-                                                                         List<T> whichInfo, Map<T, Trigger> parserHandlers) {
+  public static <T extends CustomSyntaxStructure.SyntaxData> void register(SectionNode parseNode,
+                                                                           List<T> whichInfo, Map<T, Trigger> parserHandlers) {
     ParserInstance.get().setCurrentEvent("custom syntax parser", SyntaxParseEvent.class);
     List<TriggerItem> items = SkriptUtil.getItemsFromNode(parseNode);
 
     whichInfo.forEach(which ->
         parserHandlers.put(which,
-            new Trigger(ParserInstance.get().getCurrentScript(), "parse " + which.getPattern(), section, items)));
+            new Trigger(ParserInstance.get().getCurrentScript(), "parse " + which.getPattern(), new SimpleEvent(), items)));
   }
 
 }

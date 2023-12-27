@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror;
 import java.util.Objects;
 
 public final class JavaType {
+
   private final Class<?> javaClass;
 
   public JavaType(Class<?> javaClass) {
@@ -25,4 +26,5 @@ public final class JavaType {
   public int hashCode() {
     return Objects.hash(javaClass);
   }
+
 }

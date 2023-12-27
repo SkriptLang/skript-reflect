@@ -1,10 +1,10 @@
 name: skript-reflect
 version: @version@
-description: Reflection utilities for Skript
-authors: [Bryan Terce <bryan.terce@gmail.com>, TPGamesNL]
-website: https://github.com/TPGamesNL/skript-reflect
+description: Reflection utilities for Skript.
+authors: [Bryan Terce <bryan.terce@gmail.com>, TPGamesNL, 'SkriptLang Team']
+website: https://github.com/SkriptLang/skript-reflect
 api-version: 1.13
 
 main: com.btk5h.skriptmirror.SkriptMirror
-depend: [Skript]
+softdepend: [Skript]
 loadbefore: [skript-mirror]

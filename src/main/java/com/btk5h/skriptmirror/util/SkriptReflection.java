@@ -15,7 +15,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
-import com.btk5h.skriptmirror.skript.custom.event.ExprReplacedEventValue;
+import org.skriptlang.reflect.syntax.event.elements.ExprReplacedEventValue;
 import org.bukkit.event.Event;
 import org.skriptlang.skript.lang.script.Script;
 

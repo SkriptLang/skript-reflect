@@ -20,12 +20,14 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class SkriptUtil {
@@ -105,10 +107,17 @@ public class SkriptUtil {
    * {@return} the {@link ParserInstance#getCurrentScript()} as a {@link File}.
    */
   public static File getCurrentScriptFile() {
-    return ParserInstance.get()
-        .getCurrentScript()
-        .getConfig()
-        .getFile();
+    return Optional.ofNullable(getCurrentScript())
+        .map(Script::getConfig)
+        .map(Config::getFile)
+        .orElse(null);
+  }
+
+  public static Script getCurrentScript() {
+    return Optional.of(ParserInstance.get())
+        .filter(ParserInstance::isActive)
+        .map(ParserInstance::getCurrentScript)
+        .orElse(null);
   }
 
   /**
@@ -160,7 +169,8 @@ public class SkriptUtil {
    * using {@link Expression#getSingle(Event)} if {@link Expression#getSingle(Event)}
    * returns {@code true}, otherwise returning {@link Expression#getArray(Event)}.
    */
-  public static Function<Expression, Object> unwrapWithEvent(Event e) {
+  public static Function<Expression<?>, Object> unwrapWithEvent(Event e) {
     return expr -> expr.isSingle() ? expr.getSingle(e) : expr.getArray(e);
   }
+
 }

@@ -9,7 +9,6 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.util.JavaTypeWrapper;
-import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
