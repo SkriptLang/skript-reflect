@@ -38,11 +38,11 @@ public class ParseOrderWorkarounds {
 
   public static void reorderSyntax() {
     for (String c : PARSE_ORDER) {
-      ensureLast(Skript.getStatements(), o -> o.c.getName().equals(c));
-      ensureLast(Skript.getConditions(), o -> o.c.getName().equals(c));
-      ensureLast(Skript.getEffects(), o -> o.c.toString().equals(c));
-      ensureLast(SkriptReflection.getExpressions(), o -> o.c.getName().equals(c));
-      ensureLast(Skript.getEvents(), o -> o.c.getName().equals(c));
+      ensureLast(Skript.getStatements(), o -> o.getElementClass().getName().equals(c));
+      ensureLast(Skript.getConditions(), o -> o.getElementClass().getName().equals(c));
+      ensureLast(Skript.getEffects(), o -> o.getElementClass().toString().equals(c));
+      ensureLast(SkriptReflection.getExpressions(), o -> o.getElementClass().getName().equals(c));
+      ensureLast(Skript.getEvents(), o -> o.getElementClass().getName().equals(c));
     }
   }
 

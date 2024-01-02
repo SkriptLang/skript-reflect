@@ -2,7 +2,6 @@ package org.skriptlang.reflect.syntax.condition.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Literal;
@@ -13,9 +12,9 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Utils;
-import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
+import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
 import org.skriptlang.reflect.syntax.condition.ConditionSyntaxInfo;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -56,7 +55,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
   static {
     Skript.registerCondition(CustomCondition.class);
     Optional<SyntaxElementInfo<? extends Condition>> info = Skript.getConditions().stream()
-        .filter(i -> i.c == CustomCondition.class)
+        .filter(i -> i.getElementClass() == CustomCondition.class)
         .findFirst();
     info.ifPresent(dataTracker::setInfo);
 

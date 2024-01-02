@@ -44,7 +44,7 @@ public class StructCustomConstant extends CustomSyntaxStructure<ConstantSyntaxIn
     Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.SIMPLE);
     Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
-        .filter(i -> i.c == CustomExpression.class)
+        .filter(i -> i.getElementClass() == CustomExpression.class)
         .findFirst();
     info.ifPresent(dataTracker::setInfo);
   }
