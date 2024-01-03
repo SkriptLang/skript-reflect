@@ -13,8 +13,6 @@ public class EventSyntaxInfo extends CustomSyntaxStructure.SyntaxData {
   }
 
   public static EventSyntaxInfo create(Script script, String pattern, int matchedPattern) {
-    pattern = "[on] " + pattern;
-
     return new EventSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), matchedPattern);
   }
 
