@@ -15,8 +15,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
-import org.skriptlang.reflect.syntax.event.elements.ExprReplacedEventValue;
 import org.bukkit.event.Event;
+import org.skriptlang.reflect.syntax.event.elements.ExprReplacedEventValue;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.lang.reflect.Field;
@@ -102,7 +102,11 @@ public class SkriptReflection {
     }
 
     try {
-      _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class);
+      if (Skript.getVersion().compareTo(2, 8) >= 0) {
+          _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class);
+      } else {
+          _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class, int.class, int.class);
+      }
       _METHOD.setAccessible(true);
       PARSE_I = _METHOD;
     } catch (NoSuchMethodException e) {
