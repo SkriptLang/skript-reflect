@@ -102,7 +102,7 @@ public class SkriptReflection {
     }
 
     try {
-      _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class, int.class, int.class);
+      _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class);
       _METHOD.setAccessible(true);
       PARSE_I = _METHOD;
     } catch (NoSuchMethodException e) {
