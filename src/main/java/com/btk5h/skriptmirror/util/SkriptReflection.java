@@ -9,7 +9,6 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructOptions;
@@ -36,7 +35,6 @@ public class SkriptReflection {
   private static Method VARIABLES_MAP_COPY;
   private static Field DEFAULT_EXPRESSION;
   private static Field PARSED_VALUE;
-  private static Method PARSE_I;
   private static Field EXPRESSIONS;
   private static Field OPTIONS;
 
@@ -99,18 +97,6 @@ public class SkriptReflection {
     } catch (NoSuchFieldException e) {
       warning("Skript's parsed value field could not be resolved, " +
           "therefore and/or warnings won't be suppressed");
-    }
-
-    try {
-      if (Skript.getVersion().compareTo(2, 8) >= 0) {
-          _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class);
-      } else {
-          _METHOD = SkriptParser.class.getDeclaredMethod("parse_i", String.class, int.class, int.class);
-      }
-      _METHOD.setAccessible(true);
-      PARSE_I = _METHOD;
-    } catch (NoSuchMethodException e) {
-      warning("Skript's parse_i method could not be resolved, therefore prioritized loading won't work.");
     }
 
     try {
@@ -282,20 +268,6 @@ public class SkriptReflection {
       } catch (IllegalAccessException e) {
         throw new RuntimeException();
       }
-    }
-  }
-
-  /**
-   * Executes {@link SkriptParser}'s {@code parse_i} method with the given arguments.
-   */
-  public static SkriptParser.ParseResult parse_i(SkriptParser skriptParser, String pattern, int i, int j) {
-    if (PARSE_I == null)
-      return null;
-
-    try {
-      return (SkriptParser.ParseResult) PARSE_I.invoke(skriptParser, pattern, i, j);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException(e);
     }
   }
 
