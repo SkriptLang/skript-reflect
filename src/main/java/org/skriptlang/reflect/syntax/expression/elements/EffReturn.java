@@ -97,7 +97,7 @@ public class EffReturn extends Effect {
       if (parent instanceof SecLoop) {
         ((SecLoop) parent).exit(e);
       } else if (parent instanceof SecWhile) {
-        ((SecWhile) parent).reset();
+        ((SecWhile) parent).exit(e);
       }
       parent = parent.getParent();
     }

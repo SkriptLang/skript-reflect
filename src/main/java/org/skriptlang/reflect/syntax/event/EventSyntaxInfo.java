@@ -1,8 +1,7 @@
 package org.skriptlang.reflect.syntax.event;
 
-import ch.njol.skript.lang.SkriptEventInfo;
-import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.Objects;
@@ -14,8 +13,6 @@ public class EventSyntaxInfo extends CustomSyntaxStructure.SyntaxData {
   }
 
   public static EventSyntaxInfo create(Script script, String pattern, int matchedPattern) {
-    pattern = "[on] " + pattern + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
-
     return new EventSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), matchedPattern);
   }
 

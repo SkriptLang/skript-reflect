@@ -1,7 +1,6 @@
 package org.skriptlang.reflect.syntax.effect.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Literal;
@@ -11,9 +10,9 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
-import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
+import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.effect.EffectSyntaxInfo;
 import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -51,7 +50,7 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
   static {
     Skript.registerEffect(CustomEffect.class);
     Optional<SyntaxElementInfo<? extends Effect>> info = Skript.getEffects().stream()
-      .filter(i -> i.c == CustomEffect.class)
+      .filter(i -> i.getElementClass() == CustomEffect.class)
       .findFirst();
     info.ifPresent(dataTracker::setInfo);
 

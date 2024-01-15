@@ -57,7 +57,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
   static {
     Skript.registerEvent("custom event", CustomEvent.class, BukkitCustomEvent.class);
     Optional<SkriptEventInfo<?>> info = Skript.getEvents().stream()
-      .filter(i -> i.c == CustomEvent.class)
+      .filter(i -> i.getElementClass() == CustomEvent.class)
       .findFirst();
     info.ifPresent(dataTracker::setInfo);
 
