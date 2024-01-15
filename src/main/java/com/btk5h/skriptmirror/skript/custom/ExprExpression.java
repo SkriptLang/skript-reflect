@@ -7,19 +7,19 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
-import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
-import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
-import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
-import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
+import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
+import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
+import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
+import org.skriptlang.reflect.syntax.expression.ExpressionChangeEvent;
+import org.skriptlang.reflect.syntax.expression.ExpressionGetEvent;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Iterator;
 
@@ -105,7 +105,7 @@ public class ExprExpression<T> implements Expression<T> {
       return JavaUtil.newArray(superType, 0);
     }
 
-    return Converters.convertArray(expr.getAll(e), types, superType);
+    return Converters.convert(expr.getAll(e), types, superType);
   }
 
   @Nullable

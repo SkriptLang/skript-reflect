@@ -1,6 +1,7 @@
 package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.util.Utils;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
@@ -11,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SkriptMirrorUtil {
+
   /**
    * A word ($ also an allowed char) that doesn't start with a digit.
    */
@@ -66,7 +68,7 @@ public class SkriptMirrorUtil {
         newPattern.append(part);
       } else {
         if (part.startsWith("_")) {
-          part = part.endsWith("s") ? "javaobjects" : "javaobject";
+          part = Utils.getEnglishPlural(part).getSecond() ? "javaobjects" : "javaobject";
         } else {
           part = processTypes(part);
         }
@@ -119,4 +121,5 @@ public class SkriptMirrorUtil {
   public static Object reifyIfNull(Object o) {
     return o == null ? Null.getInstance() : o;
   }
+
 }

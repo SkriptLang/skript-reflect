@@ -2,6 +2,7 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class FunctionWrapper {
@@ -24,7 +25,14 @@ public class FunctionWrapper {
 
   @Nullable
   public Function<?> getFunction() {
-    return Functions.getFunction(name);
+    // Get current script file name
+    String script = null;
+    ParserInstance parserInstance = ParserInstance.get();
+    if (parserInstance.isActive()) {
+      script = parserInstance.getCurrentScript().getConfig().getFileName();
+    }
+
+    return Functions.getFunction(name, script);
   }
 
 }

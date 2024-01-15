@@ -8,7 +8,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -19,7 +18,7 @@ import com.btk5h.skriptmirror.JavaCallException;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import com.btk5h.skriptmirror.skript.custom.CustomImport;
+import org.skriptlang.reflect.java.elements.structures.StructImport;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.LRUCache;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
@@ -28,8 +27,9 @@ import com.btk5h.skriptmirror.util.StringSimilarity;
 import com.btk5h.skriptmirror.util.lookup.LookupGetter;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.script.Script;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
@@ -91,7 +91,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   private final LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
 
-  private File script;
+  private Script script;
   private boolean suppressErrors;
   private CallType type;
 
@@ -165,9 +165,9 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         if (staticDescriptor.getJavaClass() == null
-          && rawTarget instanceof CustomImport.ImportHandler) {
+          && rawTarget instanceof StructImport.ImportHandler) {
           staticDescriptor = staticDescriptor.orDefaultClass(
-            ((CustomImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
+            ((StructImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
           );
         }
 

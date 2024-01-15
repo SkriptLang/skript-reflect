@@ -6,11 +6,11 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.skript.custom.condition.ConditionCheckEvent;
-import com.btk5h.skriptmirror.skript.custom.effect.EffectTriggerEvent;
-import com.btk5h.skriptmirror.skript.custom.event.EventTriggerEvent;
-import com.btk5h.skriptmirror.skript.custom.expression.ExpressionChangeEvent;
-import com.btk5h.skriptmirror.skript.custom.expression.ExpressionGetEvent;
+import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
+import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
+import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
+import org.skriptlang.reflect.syntax.expression.ExpressionChangeEvent;
+import org.skriptlang.reflect.syntax.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
 
 public class ExprParseMark extends SimpleExpression<Number> {

@@ -6,7 +6,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -15,6 +14,7 @@ import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,7 +82,7 @@ public class ExprSpread<T> implements Expression<T> {
 
     obj = JavaUtil.boxPrimitiveArray(obj);
 
-    return Converters.convertArray((Object[]) obj, types, superType);
+    return Converters.convert((Object[]) obj, types, superType);
   }
 
   private Object[] toArray(Iterator<?> iter) {

@@ -4,11 +4,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.util.Version;
-import com.btk5h.skriptmirror.skript.CondParseLater;
-import com.btk5h.skriptmirror.skript.custom.condition.CustomConditionSection;
-import com.btk5h.skriptmirror.skript.custom.effect.CustomEffectSection;
-import com.btk5h.skriptmirror.skript.custom.event.CustomEventSection;
-import com.btk5h.skriptmirror.skript.custom.expression.CustomExpressionSection;
+import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
+import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
+import org.skriptlang.reflect.syntax.event.elements.StructCustomEvent;
+import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import com.btk5h.skriptmirror.skript.reflect.ExprProxy;
 import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SkriptMirror extends JavaPlugin {
+
   private static SkriptMirror instance;
   private static SkriptAddon addonInstance;
 
@@ -41,10 +41,9 @@ public class SkriptMirror extends JavaPlugin {
       return;
     }
 
-    if (!Skript.classExists("ch.njol.skript.lang.parser.ParserInstance") || !Skript.methodExists(ParserInstance.class, "get")) {
+    if (Skript.getVersion().isSmallerThan(new Version(2, 7))) {
       getLogger().severe("");
-      getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.6 is required to run this version of skript-reflect.");
-      getLogger().severe("If you want to use a version of Skript below 2.6, use skript-reflect 2.2.3: https://github.com/TPGamesNL/skript-reflect/releases/tag/v2.2.3");
+      getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.7 is required to run this version of skript-reflect.");
       getLogger().severe("");
       Bukkit.getPluginManager().disablePlugin(this);
       return;
@@ -54,10 +53,10 @@ public class SkriptMirror extends JavaPlugin {
       getLogger().warning("You shouldn't have both skript-mirror and skript-reflect enabled, it will probably cause issues");
     }
 
-    saveDefaultConfig();
-
     try {
-      getAddonInstance().loadClasses("com.btk5h.skriptmirror.skript");
+      getAddonInstance()
+          .loadClasses("com.btk5h.skriptmirror.skript")
+          .loadClasses("org.skriptlang.reflect", "syntax", "java.elements");
 
       Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
       LibraryLoader.loadLibraries(dataFolder);
@@ -84,11 +83,6 @@ public class SkriptMirror extends JavaPlugin {
       return map;
     }));
 
-    metrics.addCustomChart(new Metrics.SimplePie("preload_enabled",
-      () -> "" + getConfig().getBoolean("enable-preloading")));
-    metrics.addCustomChart(new Metrics.SimplePie("deferred_parsing_used",
-      () -> "" + CondParseLater.deferredParsingUsed));
-
     metrics.addCustomChart(new Metrics.SingleLineChart("java_calls_made", () -> {
       int i = ExprJavaCall.javaCallsMade;
       ExprJavaCall.javaCallsMade = 0;
@@ -96,13 +90,13 @@ public class SkriptMirror extends JavaPlugin {
     }));
 
     metrics.addCustomChart(new Metrics.SimplePie("custom_conditions_used",
-      () -> "" + CustomConditionSection.customConditionsUsed));
+      () -> "" + StructCustomCondition.customConditionsUsed));
     metrics.addCustomChart(new Metrics.SimplePie("custom_effects_used",
-      () -> "" + CustomEffectSection.customEffectsUsed));
+      () -> "" + StructCustomEffect.customEffectsUsed));
     metrics.addCustomChart(new Metrics.SimplePie("custom_events_used",
-      () -> "" + CustomEventSection.customEventsUsed));
+      () -> "" + StructCustomEvent.customEventsUsed));
     metrics.addCustomChart(new Metrics.SimplePie("custom_expressions_used",
-      () -> "" + CustomExpressionSection.customExpressionsUsed));
+      () -> "" + StructCustomExpression.customExpressionsUsed));
 
     metrics.addCustomChart(new Metrics.SimplePie("proxies_used",
       () -> "" + ExprProxy.proxiesUsed));

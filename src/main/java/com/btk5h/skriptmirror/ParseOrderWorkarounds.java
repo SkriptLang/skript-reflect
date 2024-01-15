@@ -3,11 +3,11 @@ package com.btk5h.skriptmirror;
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.EffReturn;
 import ch.njol.util.Checker;
+import org.skriptlang.reflect.syntax.condition.elements.CustomCondition;
+import org.skriptlang.reflect.syntax.effect.elements.CustomEffect;
+import org.skriptlang.reflect.syntax.expression.elements.CustomExpression;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
 import com.btk5h.skriptmirror.skript.custom.ExprMatchedPattern;
-import com.btk5h.skriptmirror.skript.custom.condition.CustomCondition;
-import com.btk5h.skriptmirror.skript.custom.effect.CustomEffect;
-import com.btk5h.skriptmirror.skript.custom.expression.CustomExpression;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 
 import java.util.Collection;
@@ -38,11 +38,11 @@ public class ParseOrderWorkarounds {
 
   public static void reorderSyntax() {
     for (String c : PARSE_ORDER) {
-      ensureLast(Skript.getStatements(), o -> o.c.getName().equals(c));
-      ensureLast(Skript.getConditions(), o -> o.c.getName().equals(c));
-      ensureLast(Skript.getEffects(), o -> o.c.toString().equals(c));
-      ensureLast(SkriptReflection.getExpressions(), o -> o.c.getName().equals(c));
-      ensureLast(Skript.getEvents(), o -> o.c.getName().equals(c));
+      ensureLast(Skript.getStatements(), o -> o.getElementClass().getName().equals(c));
+      ensureLast(Skript.getConditions(), o -> o.getElementClass().getName().equals(c));
+      ensureLast(Skript.getEffects(), o -> o.getElementClass().toString().equals(c));
+      ensureLast(SkriptReflection.getExpressions(), o -> o.getElementClass().getName().equals(c));
+      ensureLast(Skript.getEvents(), o -> o.getElementClass().getName().equals(c));
     }
   }
 
