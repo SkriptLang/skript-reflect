@@ -77,6 +77,14 @@ public class CustomEvent extends SkriptEvent {
   }
 
   @Override
+  public boolean load() {
+    CustomEvent.setLastWhich(which);
+    boolean parsed = super.load();
+    CustomEvent.setLastWhich(null);
+    return parsed;
+  }
+
+  @Override
   public boolean check(Event e) {
     BukkitCustomEvent bukkitCustomEvent = (BukkitCustomEvent) e;
     if (!bukkitCustomEvent.getName().equalsIgnoreCase(StructCustomEvent.nameValues.get(which)))
