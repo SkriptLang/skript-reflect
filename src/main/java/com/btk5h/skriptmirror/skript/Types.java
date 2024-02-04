@@ -3,6 +3,7 @@ package com.btk5h.skriptmirror.skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.Fields;
@@ -214,6 +215,31 @@ public class Types {
     Classes.registerClass(new ClassInfo<>(Section.class, "section")
       .user("sections?")
     );
+
+    Classes.registerClass(new ClassInfo<>(Expression.class, "expression")
+        .user("expressions?")
+        .parser(new Parser<Expression<?>>() {
+          @Override
+          public boolean canParse(ParseContext context) {
+            return false;
+          }
+
+          @Override
+          public String getDebugMessage(Expression<?> expression) {
+            return expression.toString(null, true);
+          }
+
+          @Override
+          public String toString(Expression<?> expression, int i) {
+            return expression.toString(null, false);
+          }
+
+          @Override
+          public String toVariableNameString(Expression<?> expression) {
+            return toString(expression, 0);
+          }
+        }));
+
   }
 
 }
