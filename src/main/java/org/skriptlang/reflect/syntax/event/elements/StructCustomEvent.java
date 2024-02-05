@@ -18,6 +18,7 @@ import org.skriptlang.reflect.syntax.event.BukkitCustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
 import org.skriptlang.reflect.syntax.event.EventValuesEntryData;
+import org.skriptlang.reflect.syntax.event.SyncOnlyEntryData;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -34,6 +35,11 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
   static {
     Skript.registerStructure(StructCustomEvent.class, customSyntaxValidator()
         .addEntry("pattern", null, true)
+        .addEntryData(new SyncOnlyEntryData("sync only", false, true) {
+          public boolean canCreateWith(String node) {
+            return super.canCreateWith(node) || node.startsWith(getKey().replace(' ', '-') + getSeparator());
+          }
+        })
         .addEntryData(new EventValuesEntryData("event values", null, true) {
           @Override
           public boolean canCreateWith(String node) {
@@ -47,13 +53,14 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
   }
 
   private static final DataTracker<EventSyntaxInfo> dataTracker = new DataTracker<>();
-
+  
   static final Map<EventSyntaxInfo, String> nameValues = new HashMap<>();
   static final Map<EventSyntaxInfo, List<ClassInfo<?>>> eventValueTypes = new HashMap<>();
   static final Map<EventSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
   static final Map<EventSyntaxInfo, Trigger> eventHandlers = new HashMap<>();
   static final Map<EventSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
-
+  static final Map<EventSyntaxInfo, Boolean> syncOnly = new HashMap<>();
+  
   static {
     Skript.registerEvent("custom event", CustomEvent.class, BukkitCustomEvent.class);
     Optional<SkriptEventInfo<?>> info = Skript.getEvents().stream()
@@ -66,6 +73,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
     dataTracker.addManaged(parserHandlers);
     dataTracker.addManaged(eventHandlers);
     dataTracker.addManaged(parseSectionLoaded);
+    dataTracker.addManaged(syncOnly);
   }
 
   private SectionNode parseNode;
@@ -90,25 +98,29 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
     } else if (patternNode != null) {
       patterns = Collections.singletonList(patternNode);
     }
-
+        
     if (patterns == null || patterns.isEmpty()) {
       // Always false. Used for the error
       return checkHasPatterns();
     }
-
+    
+    boolean syncOnlyEntry = entryContainer.getOptional("sync only", Boolean.class, true);
+    
     int i = 1;
     for (String pattern : patterns) {
       register(EventSyntaxInfo.create(script, pattern, i++));
     }
-
+    
     String name = (String) args[0].getSingle();
     if (nameValues.values().stream().anyMatch(name::equalsIgnoreCase)) {
       Skript.error("There is already a custom event with that name");
       return false;
     }
-
+    
+    whichInfo.forEach(which -> syncOnly.put(which, syncOnlyEntry));
+    
     whichInfo.forEach(which -> nameValues.put(which, name));
-
+    
     // Register the custom events during #init, rather than #preLoad
     super.preLoad();
     return true;
@@ -134,7 +146,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
       SkriptReflection.replaceEventValues(classInfoList);
       whichInfo.forEach(which -> eventValueTypes.put(which, classInfoList));
     }
-
+    
     if (parseNode != null) {
       SkriptLogger.setNode(parseNode);
       SyntaxParseEvent.register(parseNode, whichInfo, parserHandlers);

@@ -31,7 +31,8 @@ public class CustomEvent extends SkriptEvent {
   private Expression<?>[] exprs;
   private SkriptParser.ParseResult parseResult;
   private Object variablesMap;
-
+  private boolean syncOnly;
+  
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
     which = StructCustomEvent.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
@@ -39,7 +40,7 @@ public class CustomEvent extends SkriptEvent {
     if (which == null) {
       return false;
     }
-
+    
     this.exprs = Arrays.stream(args)
       .map(SkriptUtil::defendExpression)
       .toArray(Expression[]::new);
@@ -48,7 +49,9 @@ public class CustomEvent extends SkriptEvent {
     if (!SkriptUtil.canInitSafely(this.exprs)) {
       return false;
     }
-
+    
+    syncOnly = StructCustomEvent.syncOnly.get(which);
+    
     Boolean bool = StructCustomEvent.parseSectionLoaded.get(which);
     if (bool != null && !bool) {
       Skript.error("You can't use custom events with parse sections before they're loaded.");
@@ -83,7 +86,12 @@ public class CustomEvent extends SkriptEvent {
     CustomEvent.setLastWhich(null);
     return parsed;
   }
-
+  
+  @Override
+  public boolean canExecuteAsynchronously() {
+    return !syncOnly;
+  }
+  
   @Override
   public boolean check(Event e) {
     BukkitCustomEvent bukkitCustomEvent = (BukkitCustomEvent) e;
