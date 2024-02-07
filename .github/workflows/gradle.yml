@@ -1,17 +1,17 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+name: Build and test
 
-name: Java CI with Gradle
-
-on: [push]
+on:
+  push:
+    branches:
+      - 2.x
+  pull_request:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v2
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
@@ -20,6 +20,24 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
-      - uses: actions/upload-artifact@master
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
         with:
           path: build/libs/*.jar
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: extra-plugins/
+          merge-multiple: true
+      - name: Run tests
+        uses: SkriptLang/skript-test-action@v1.0
+        with:
+          test_script_directory: src/test/scripts
+          skript_repo_ref: 2.8.2
+          extra_plugins_directory: extra-plugins/
