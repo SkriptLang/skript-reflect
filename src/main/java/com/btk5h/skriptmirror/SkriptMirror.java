@@ -2,7 +2,8 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Version;
 import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
 import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
@@ -14,6 +15,8 @@ import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -63,6 +66,13 @@ public class SkriptMirror extends JavaPlugin {
     } catch (IOException e) {
       e.printStackTrace();
     }
+
+    Comparators.registerComparator(ClassInfo.class, JavaType.class, (classInfo, javaType) -> {
+      ClassInfo<?> matchingClassInfo = Classes.getExactClassInfo(javaType.getJavaClass());
+      if (matchingClassInfo == null)
+        return Relation.NOT_EQUAL;
+      return Comparators.compare(classInfo, matchingClassInfo);
+    });
 
     ParseOrderWorkarounds.reorderSyntax();
 
