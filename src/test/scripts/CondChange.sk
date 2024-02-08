@@ -1,0 +1,2 @@
+test "CondChange":
+  assert (raw {_v}) can be set to a string with "a variable can be set a string"
