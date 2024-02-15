@@ -10,6 +10,7 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -18,11 +19,17 @@ public class CondChange extends Condition {
 
   private static final Patterns<ChangeMode> PATTERNS = new Patterns<>(new Object[][] {
       {"%classinfo% can be added to %expressions%", ChangeMode.ADD},
+      {"%classinfo% (can't|cannot) be added to %expressions%", ChangeMode.ADD},
       {"%expressions% can be set to %classinfo%", ChangeMode.SET},
+      {"%expressions% (can't|cannot) be set to %classinfo%", ChangeMode.SET},
       {"%classinfo% can be removed from %expressions%", ChangeMode.REMOVE},
+      {"%classinfo% (can't|cannot) be removed from %expressions%", ChangeMode.REMOVE},
       {"all %classinfo% can be removed from %expressions%", ChangeMode.REMOVE_ALL},
+      {"all %classinfo% (can't|cannot) be removed from %expressions%", ChangeMode.REMOVE_ALL},
       {"%expressions% can be deleted", ChangeMode.DELETE},
-      {"%expressions% can be reset", ChangeMode.RESET}
+      {"%expressions% (can't|cannot) be deleted", ChangeMode.DELETE},
+      {"%expressions% can be reset", ChangeMode.RESET},
+      {"%expressions% (can't|cannot) be reset", ChangeMode.RESET}
   });
 
   static {
@@ -37,6 +44,7 @@ public class CondChange extends Condition {
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    setNegated((matchedPattern % 2) != 0);
     desiredChangeMode = PATTERNS.getInfo(matchedPattern);
     Expression<?> desiredType = null;
     switch (desiredChangeMode) {
@@ -56,6 +64,9 @@ public class CondChange extends Condition {
     }
     if (desiredType instanceof UnparsedLiteral) {
       UnparsedLiteral unparsedDesiredType = (UnparsedLiteral) desiredType;
+      desiredType = unparsedDesiredType.getConvertedExpression(ClassInfo.class);
+      if (desiredType == null)
+        return false;
       typeIsPlural = Utils.getEnglishPlural(unparsedDesiredType.getData()).getSecond();
     }
     this.desiredType = (Expression<ClassInfo<?>>) desiredType;
@@ -64,10 +75,13 @@ public class CondChange extends Condition {
 
   @Override
   public boolean check(Event event) {
+    if (desiredChangeMode == ChangeMode.DELETE || desiredChangeMode == ChangeMode.RESET)
+      //noinspection ConstantValue
+      return expressions.check(event, expressions -> expressions.acceptChange(desiredChangeMode) != null, isNegated());
     ClassInfo<?> desiredType = this.desiredType.getSingle(event);
     if (desiredType == null)
       return false;
-    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getC(), typeIsPlural));
+    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getC(), typeIsPlural), isNegated());
   }
 
   @Override
@@ -103,9 +117,8 @@ public class CondChange extends Condition {
         } else if (!typeIsPlural && acceptableType.isAssignableFrom(desiredType))
           return true;
       }
-      return false;
     }
-    return desiredChangeMode == ChangeMode.DELETE || desiredChangeMode == ChangeMode.RESET;
+    return false;
   }
 
 }
