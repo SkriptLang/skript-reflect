@@ -143,7 +143,7 @@ public class SkriptUtil {
   }
 
   /**
-   * @return the pair of the {@link ClassInfo} in the given string, and whether is is singular.
+   * @return the pair of the {@link ClassInfo} in the given string, and whether it is singular.
    */
   public static NonNullPair<ClassInfo<?>, Boolean> getUserClassInfoAndPlural(String name) {
     NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);

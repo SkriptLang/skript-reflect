@@ -1,2 +1,20 @@
-test "CondChange":
-  assert (raw {_v}) can be set to a string with "a variable can be set a string"
+test "CondChange - set":
+  assert raw ({_v}) can be set to a string with "a variable should be settable to a string"
+  assert raw (location of {_v}) can't be set to a string with "the location expression shouldn't be settable to a string"
+  assert raw (name of {_v}) can be set to a string with "the name expression should be settable to a string"
+  assert raw (name of {_v}) can't be set to an integer with "the name expression shouldn't be settable to an integer"
+  assert raw (name of {_v}) can't be set to strings with "the name expression shouldn't be settable to multiple strings"
+  assert raw ({_v}) can be set to strings with "a variable should be settable to multiple strings"
+
+test "CondChange - reset":
+  assert raw (uppercase "") can't be reset with "the uppercase expression shouldn't be resettable"
+  assert raw (portal cooldown of {_v}) can be reset with "the portal cooldown expression should be resettable"
+
+test "CondChange - delete":
+  assert raw ({_v}) can be deleted with "a variable should be deletable"
+  assert raw (uppercase "") can't be deleted with "the uppercase expression shouldn't be deletable"
+
+test "CondChange - add":
+  assert an integer can be added to raw ({_v}) with "an integer should be addable to a variable"
+  assert integers can be added to raw ({_v}) with "multiple integers should be addable to a variable"
+  assert a string can't be added to raw (all players) with "a string shouldn't be addable to all players"
