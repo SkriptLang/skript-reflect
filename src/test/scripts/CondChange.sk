@@ -1,6 +1,6 @@
 test "CondChange - set":
   assert raw ({_v}) can be set to a string with "a variable should be settable to a string"
-  assert raw (location of {_v}) can't be set to a string with "the location expression shouldn't be settable to a string"
+  assert raw (location of (random player out of all players)) can't be set to a string with "the location expression shouldn't be settable to a string"
   assert raw (name of {_v}) can be set to a string with "the name expression should be settable to a string"
   assert raw (name of {_v}) can't be set to an integer with "the name expression shouldn't be settable to an integer"
   assert raw (name of {_v}) can't be set to strings with "the name expression shouldn't be settable to multiple strings"

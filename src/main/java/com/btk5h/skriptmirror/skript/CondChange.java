@@ -10,7 +10,6 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
