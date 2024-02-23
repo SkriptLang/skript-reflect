@@ -41,6 +41,7 @@ public class CondChange extends Condition {
   private Expression<ClassInfo<?>> desiredType;
   private Expression<Expression<?>> expressions;
   private String rawForm;
+  private boolean wasUnparsed;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -65,6 +66,7 @@ public class CondChange extends Condition {
         expressions = (Expression<Expression<?>>) exprs[0];
     }
     if (desiredType instanceof UnparsedLiteral) {
+      wasUnparsed = true;
       UnparsedLiteral unparsedDesiredType = (UnparsedLiteral) desiredType;
       desiredType = unparsedDesiredType.getConvertedExpression(ClassInfo.class);
       if (desiredType == null)
@@ -85,6 +87,7 @@ public class CondChange extends Condition {
       return false;
     Bukkit.getConsoleSender().sendMessage(toString(event, true));
     Bukkit.getConsoleSender().sendMessage("- raw: " + rawForm);
+    Bukkit.getConsoleSender().sendMessage("- was unparsed: " + wasUnparsed);
     Bukkit.getConsoleSender().sendMessage("- plural: " + typeIsPlural);
     Bukkit.getConsoleSender().sendMessage("- change mode: " + desiredChangeMode.name());
     Bukkit.getConsoleSender().sendMessage("- desired type: " + desiredType.getC().getCanonicalName());
