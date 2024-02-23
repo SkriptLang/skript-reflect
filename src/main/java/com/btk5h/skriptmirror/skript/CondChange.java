@@ -10,6 +10,7 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -80,6 +81,10 @@ public class CondChange extends Condition {
     ClassInfo<?> desiredType = this.desiredType.getSingle(event);
     if (desiredType == null)
       return false;
+    Bukkit.getConsoleSender().sendMessage(toString(event, true));
+    Bukkit.getConsoleSender().sendMessage("- plural: " + typeIsPlural);
+    Bukkit.getConsoleSender().sendMessage("- change mode: " + desiredChangeMode.name());
+    Bukkit.getConsoleSender().sendMessage("- desired type: " + desiredType.getC().getCanonicalName());
     return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getC(), typeIsPlural), isNegated());
   }
 
