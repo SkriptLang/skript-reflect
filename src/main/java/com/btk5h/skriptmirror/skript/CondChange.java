@@ -40,10 +40,12 @@ public class CondChange extends Condition {
   private boolean typeIsPlural;
   private Expression<ClassInfo<?>> desiredType;
   private Expression<Expression<?>> expressions;
+  private String rawForm;
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    rawForm = parseResult.expr;
     setNegated((matchedPattern % 2) != 0);
     desiredChangeMode = PATTERNS.getInfo(matchedPattern);
     Expression<?> desiredType = null;
@@ -82,6 +84,7 @@ public class CondChange extends Condition {
     if (desiredType == null)
       return false;
     Bukkit.getConsoleSender().sendMessage(toString(event, true));
+    Bukkit.getConsoleSender().sendMessage("- raw: " + rawForm);
     Bukkit.getConsoleSender().sendMessage("- plural: " + typeIsPlural);
     Bukkit.getConsoleSender().sendMessage("- change mode: " + desiredChangeMode.name());
     Bukkit.getConsoleSender().sendMessage("- desired type: " + desiredType.getC().getCanonicalName());
