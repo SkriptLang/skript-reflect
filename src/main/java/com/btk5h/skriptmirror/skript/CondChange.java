@@ -20,8 +20,8 @@ public class CondChange extends Condition {
   private static final Patterns<ChangeMode> PATTERNS = new Patterns<>(new Object[][] {
       {"%classinfo% can be added to %expressions%", ChangeMode.ADD},
       {"%classinfo% (can't|cannot) be added to %expressions%", ChangeMode.ADD},
-      {"%expressions% can be set to %classinfo%", ChangeMode.SET},
-      {"%expressions% (can't|cannot) be set to %classinfo%", ChangeMode.SET},
+      {"%expressions% can be set to %*classinfo%", ChangeMode.SET},
+      {"%expressions% (can't|cannot) be set to %*classinfo%", ChangeMode.SET},
       {"%classinfo% can be removed from %expressions%", ChangeMode.REMOVE},
       {"%classinfo% (can't|cannot) be removed from %expressions%", ChangeMode.REMOVE},
       {"all %classinfo% can be removed from %expressions%", ChangeMode.REMOVE_ALL},
