@@ -10,7 +10,6 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -40,13 +39,10 @@ public class CondChange extends Condition {
   private boolean desiredTypeIsPlural;
   private Expression<ClassInfo<?>> desiredType;
   private Expression<Expression<?>> expressions;
-  private String rawForm;
-  private boolean wasUnparsed;
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-    rawForm = parseResult.expr;
     setNegated((matchedPattern % 2) != 0);
     desiredChangeMode = PATTERNS.getInfo(matchedPattern);
     Expression<?> desiredType = null;
@@ -68,7 +64,6 @@ public class CondChange extends Condition {
     if (desiredType != null) {
       Expression<?> desiredTypeSource = desiredType.getSource();
       if (desiredTypeSource instanceof UnparsedLiteral) {
-        wasUnparsed = true;
         UnparsedLiteral unparsedDesiredType = (UnparsedLiteral) desiredTypeSource;
         desiredTypeIsPlural = Utils.getEnglishPlural(unparsedDesiredType.getData()).getSecond();
       }
@@ -85,12 +80,6 @@ public class CondChange extends Condition {
     ClassInfo<?> desiredType = this.desiredType.getSingle(event);
     if (desiredType == null)
       return false;
-    Bukkit.getConsoleSender().sendMessage(toString(event, true));
-    Bukkit.getConsoleSender().sendMessage("- raw: " + rawForm);
-    Bukkit.getConsoleSender().sendMessage("- was unparsed: " + wasUnparsed);
-    Bukkit.getConsoleSender().sendMessage("- plural: " + desiredTypeIsPlural);
-    Bukkit.getConsoleSender().sendMessage("- change mode: " + desiredChangeMode.name());
-    Bukkit.getConsoleSender().sendMessage("- desired type: " + desiredType.getC().getCanonicalName());
     return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getC(), desiredTypeIsPlural), isNegated());
   }
 
