@@ -14,7 +14,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 
-public class CondChange extends Condition {
+public class CondAcceptsChange extends Condition {
 
   private static final Patterns<ChangeMode> PATTERNS = new Patterns<>(new Object[][] {
       {"%classinfo% can be added to %expressions%", ChangeMode.ADD},
@@ -32,7 +32,7 @@ public class CondChange extends Condition {
   });
 
   static {
-    Skript.registerCondition(CondChange.class, PATTERNS.getPatterns());
+    Skript.registerCondition(CondAcceptsChange.class, PATTERNS.getPatterns());
   }
 
   private ChangeMode desiredChangeMode;
