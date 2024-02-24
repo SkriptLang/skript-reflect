@@ -22,9 +22,14 @@ test "CondChange - add":
 
 test "CondChange - remove":
   assert an integer can be removed from raw ({_v::*}) with "an integer should be removable from a variable"
-  assert integers can be removed from to raw ({_v::*}}) with "multiple integers should be removable from a variable"
-  assert integers can be removed from to raw ({_v::*}}) with "multiple integers should be removable from a variable"
+  assert integers can be removed from raw ({_v::*}}) with "multiple integers should be removable from a variable"
+  assert integers can be removed from raw ({_v::*}}) with "multiple integers should be removable from a variable"
   assert a string can't be removed from raw (all players) with "a string shouldn't be removable all players"
-  assert an item can be removed from raw (inventory of {_v}) with "an item should be removable from an inventory"
+  assert an integer can be removed from raw (durability of {_v}) with "an integer should be removable from the durability expression"
 
 
+test "CondChange - remove all":
+  assert all integer can be removed from raw ({_v::*}) with "all integer should be removable from a variable"
+  assert all integers can be removed from to raw ({_v::*}}) with "all integers should be removable from a variable"
+  assert all integers can't be removed from raw (name of {_v}) with "all integers shouldn't be removable from the name expression"
+  assert all integer can't be removed from raw (name of {_v}) with "all integers shouldn't be removable from the name expression"
