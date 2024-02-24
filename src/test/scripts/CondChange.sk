@@ -19,3 +19,12 @@ test "CondChange - add":
   assert an integer can be added to raw ({_v}) with "an integer should be addable to a variable"
   assert integers can be added to raw ({_v}) with "multiple integers should be addable to a variable"
   assert a string can't be added to raw (all players) with "a string shouldn't be addable to all players"
+
+test "CondChange - remove":
+  assert an integer can be removed from raw ({_v::*}) with "an integer should be removable from a variable"
+  assert integers can be removed from to raw ({_v::*}}) with "multiple integers should be removable from a variable"
+  assert integers can be removed from to raw ({_v::*}}) with "multiple integers should be removable from a variable"
+  assert a string can't be removed from raw (all players) with "a string shouldn't be removable all players"
+  assert an item can be removed from raw (inventory of {_v}) with "an item should be removable from an inventory"
+
+
