@@ -4,7 +4,8 @@ test "CondChange - set":
   assert raw (name of {_v}) can be set to a string with "the name expression should be settable to a string"
   assert raw (name of {_v}) can't be set to an integer with "the name expression shouldn't be settable to an integer"
   assert raw (name of {_v}) can't be set to strings with "the name expression shouldn't be settable to multiple strings"
-  assert raw ({_v}) can be set to strings with "a variable should be settable to multiple strings"
+  assert raw ({_v::*}) can be set to strings with "a list variable should be settable to multiple strings"
+  assert raw ({_v}) can't be set to strings with "a non-list variable should not be settable to multiple strings"
 
 test "CondChange - reset":
   assert raw (uppercase "") can't be reset with "the uppercase expression shouldn't be resettable"
