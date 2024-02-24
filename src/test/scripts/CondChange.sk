@@ -22,7 +22,7 @@ test "CondChange - add":
 
 test "CondChange - remove":
   assert a player can be removed from raw ({_v::*}) with "a player should be removable from a variable"
-  assert players can be removed from raw ({_v::*}}) with "multiple players should be removable from a variable"
+  assert players can be removed from raw ({_v::*}) with "multiple players should be removable from a variable"
   assert a player can't be removed from raw (block at {_v}) with "a player shouldn't be removable the block expression"
   assert a integer can be removed from raw (durability of {_v}) with "an integer should be removable from the durability expression"
 
