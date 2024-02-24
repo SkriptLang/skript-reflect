@@ -20,8 +20,8 @@ public class CondChange extends Condition {
   private static final Patterns<ChangeMode> PATTERNS = new Patterns<>(new Object[][] {
       {"%classinfo% can be added to %expressions%", ChangeMode.ADD},
       {"%classinfo% (can't|cannot) be added to %expressions%", ChangeMode.ADD},
-      {"%expressions% can be set to %*classinfo%", ChangeMode.SET},
-      {"%expressions% (can't|cannot) be set to %*classinfo%", ChangeMode.SET},
+      {"%expressions% can be set to %classinfo%", ChangeMode.SET},
+      {"%expressions% (can't|cannot) be set to %classinfo%", ChangeMode.SET},
       {"%classinfo% can be removed from %expressions%", ChangeMode.REMOVE},
       {"%classinfo% (can't|cannot) be removed from %expressions%", ChangeMode.REMOVE},
       {"all %classinfo% can be removed from %expressions%", ChangeMode.REMOVE_ALL},
@@ -37,7 +37,7 @@ public class CondChange extends Condition {
   }
 
   private ChangeMode desiredChangeMode;
-  private boolean typeIsPlural;
+  private boolean desiredTypeIsPlural;
   private Expression<ClassInfo<?>> desiredType;
   private Expression<Expression<?>> expressions;
   private String rawForm;
@@ -65,15 +65,15 @@ public class CondChange extends Condition {
       case DELETE:
         expressions = (Expression<Expression<?>>) exprs[0];
     }
-    if (desiredType instanceof UnparsedLiteral) {
-      wasUnparsed = true;
-      UnparsedLiteral unparsedDesiredType = (UnparsedLiteral) desiredType;
-      desiredType = unparsedDesiredType.getConvertedExpression(ClassInfo.class);
-      if (desiredType == null)
-        return false;
-      typeIsPlural = Utils.getEnglishPlural(unparsedDesiredType.getData()).getSecond();
+    if (desiredType != null) {
+      Expression<?> desiredTypeSource = desiredType.getSource();
+      if (desiredTypeSource instanceof UnparsedLiteral) {
+        wasUnparsed = true;
+        UnparsedLiteral unparsedDesiredType = (UnparsedLiteral) desiredTypeSource;
+        desiredTypeIsPlural = Utils.getEnglishPlural(unparsedDesiredType.getData()).getSecond();
+      }
+      this.desiredType = (Expression<ClassInfo<?>>) desiredType;
     }
-    this.desiredType = (Expression<ClassInfo<?>>) desiredType;
     return true;
   }
 
@@ -88,10 +88,10 @@ public class CondChange extends Condition {
     Bukkit.getConsoleSender().sendMessage(toString(event, true));
     Bukkit.getConsoleSender().sendMessage("- raw: " + rawForm);
     Bukkit.getConsoleSender().sendMessage("- was unparsed: " + wasUnparsed);
-    Bukkit.getConsoleSender().sendMessage("- plural: " + typeIsPlural);
+    Bukkit.getConsoleSender().sendMessage("- plural: " + desiredTypeIsPlural);
     Bukkit.getConsoleSender().sendMessage("- change mode: " + desiredChangeMode.name());
     Bukkit.getConsoleSender().sendMessage("- desired type: " + desiredType.getC().getCanonicalName());
-    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getC(), typeIsPlural), isNegated());
+    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getC(), desiredTypeIsPlural), isNegated());
   }
 
   @Override
