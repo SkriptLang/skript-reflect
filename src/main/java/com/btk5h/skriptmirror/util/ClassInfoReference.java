@@ -4,6 +4,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -49,7 +50,12 @@ public class ClassInfoReference {
 
   public static Expression<ClassInfoReference> getFromClassInfoExpression(Expression<ClassInfo<?>> expression) {
     ClassInfoReference parsedReference = SkriptUtil.getClassInfoReference(expression);
-    return new WrapperExpression<ClassInfoReference>() {
+    return new SimpleExpression<ClassInfoReference>() {
+
+      @Override
+      public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        return expression.init(expressions, matchedPattern, isDelayed, parseResult);
+      }
 
       @Override
       protected ClassInfoReference[] get(Event event) {
@@ -69,14 +75,22 @@ public class ClassInfoReference {
         }
       }
 
-      @Override
-      public String toString(@Nullable Event event, boolean debug) {
-        return expression.toString(event, debug);
+      public Class<? extends ClassInfoReference> getReturnType() {
+        return ClassInfoReference.class;
       }
 
       @Override
-      public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        return expression.init(expressions, matchedPattern, isDelayed, parseResult);
+      public boolean isSingle() {
+        return expression.isSingle();
+      }
+
+
+      @Override
+      public String toString(@Nullable Event event, boolean debug) {
+        if (debug) {
+          return expression.toString(event, true) + " (wrapped by ClassInfoReference)";
+        }
+        return expression.toString(event, false);
       }
 
     };
