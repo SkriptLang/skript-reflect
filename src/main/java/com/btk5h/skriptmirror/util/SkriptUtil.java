@@ -9,17 +9,21 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
+import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -121,6 +125,23 @@ public class SkriptUtil {
   }
 
   /**
+   * Gets the UnparsedLiteral an expression was converted from
+   * @param expression the expression to get the UnparsedLiteral of
+   * @return the source UnparsedLiteral or null if there is no such source
+   */
+  public static UnparsedLiteral getSourceUnparsedLiteral(Expression<?> expression) {
+    Expression<?> sourceExpression = expression.getSource();
+    while (!(sourceExpression instanceof UnparsedLiteral)) {
+      Expression<?> nextSourceExpression = sourceExpression.getSource();
+      if (nextSourceExpression == sourceExpression) {
+          return null;
+      }
+      sourceExpression = nextSourceExpression;
+    }
+    return (UnparsedLiteral) sourceExpression;
+  }
+
+  /**
    * Gets the {@link ClassInfo} by first converting the given string to a singular.
    * Returns {@code Object.class}'s if no {@link ClassInfo} can be found for the given type.
    */
@@ -143,13 +164,78 @@ public class SkriptUtil {
   }
 
   /**
-   * @return the pair of the {@link ClassInfo} in the given string, and whether is is singular.
+   * @return the pair of the {@link ClassInfo} in the given string, and whether it is singular.
    */
   public static NonNullPair<ClassInfo<?>, Boolean> getUserClassInfoAndPlural(String name) {
     NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
     ClassInfo<?> ci = getUserClassInfo(name);
 
     return new NonNullPair<>(ci, wordData.getSecond());
+  }
+
+  /**
+   * Wraps a ClassInfo expression into a ClassInfoReference expression
+   * If possible, specific attributes of ClassInfoReference may be filled in.
+   * @param sourceExpression the ClassInfo expression
+   * @return the ClassInfoReference expression
+   */
+  public static Expression<ClassInfoReference> wrapClassInfoExpression(Expression<ClassInfo<?>> sourceExpression) {
+    ClassInfoReference parsedReference = null;
+    if (sourceExpression instanceof Literal) {
+      UnparsedLiteral sourceUnparsedLiteral = getSourceUnparsedLiteral(sourceExpression);
+      if (sourceUnparsedLiteral == null) {
+        return null;
+      }
+      boolean plural = Utils.getEnglishPlural(sourceUnparsedLiteral.getData()).getSecond();
+      ClassInfo<?> classInfo = ((Literal<ClassInfo<?>>) sourceExpression).getSingle();
+      if (classInfo != null) {
+        parsedReference = new ClassInfoReference(classInfo, plural);
+      }
+    }
+    ClassInfoReference finalParsedReference = parsedReference;
+    return new SimpleExpression<ClassInfoReference>() {
+
+      @Override
+      public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        return sourceExpression.init(expressions, matchedPattern, isDelayed, parseResult);
+      }
+
+      @Override
+      protected ClassInfoReference[] get(Event event) {
+        if (finalParsedReference != null) {
+          return new ClassInfoReference[] { finalParsedReference };
+        } else if (isSingle()) {
+          ClassInfo<?> classInfo = sourceExpression.getSingle(event);
+          if (classInfo == null) {
+            return new ClassInfoReference[0];
+          }
+          return new ClassInfoReference[] { new ClassInfoReference(classInfo) };
+        } else {
+          return sourceExpression.stream(event)
+              .filter(Objects::nonNull)
+              .map(ClassInfoReference::new)
+              .toArray(ClassInfoReference[]::new);
+        }
+      }
+
+      public Class<? extends ClassInfoReference> getReturnType() {
+        return ClassInfoReference.class;
+      }
+
+      @Override
+      public boolean isSingle() {
+        return sourceExpression.isSingle();
+      }
+
+      @Override
+      public String toString(@Nullable Event event, boolean debug) {
+        if (debug) {
+          return sourceExpression.toString(event, true) + " (wrapped by ClassInfoReference)";
+        }
+        return sourceExpression.toString(event, false);
+      }
+
+    };
   }
 
   /**
@@ -166,7 +252,7 @@ public class SkriptUtil {
 
   /**
    * {@return} a {@link Function} to get a {@link Expression}'s value,
-   * using {@link Expression#getSingle(Event)} if {@link Expression#getSingle(Event)}
+   * using {@link Expression#getSingle(Event)} if {@link Expression#isSingle()}
    * returns {@code true}, otherwise returning {@link Expression#getArray(Event)}.
    */
   public static Function<Expression<?>, Object> unwrapWithEvent(Event e) {
