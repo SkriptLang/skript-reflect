@@ -18,6 +18,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.skriptlang.skript.lang.script.Script;
@@ -121,6 +122,23 @@ public class SkriptUtil {
   }
 
   /**
+   * Gets the UnparsedLiteral an expression was converted from
+   * @param expression the expression to get the UnparsedLiteral of
+   * @return the source UnparsedLiteral or null if there is no such source
+   */
+  public static UnparsedLiteral getSourceUnparsedLiteral(Expression<?> expression) {
+    Expression<?> sourceExpression = expression.getSource();
+    while (!(sourceExpression instanceof UnparsedLiteral)) {
+      Expression<?> nextSourceExpression = sourceExpression.getSource();
+      if (nextSourceExpression == sourceExpression) {
+          return null;
+      }
+      sourceExpression = nextSourceExpression;
+    }
+    return (UnparsedLiteral) sourceExpression;
+  }
+
+  /**
    * Gets the {@link ClassInfo} by first converting the given string to a singular.
    * Returns {@code Object.class}'s if no {@link ClassInfo} can be found for the given type.
    */
@@ -152,6 +170,15 @@ public class SkriptUtil {
     return new NonNullPair<>(ci, wordData.getSecond());
   }
 
+  public static ClassInfoReference getClassInfoReference(Expression<ClassInfo<?>> sourceExpression) {
+    UnparsedLiteral sourceUnparsedLiteral = getSourceUnparsedLiteral(sourceExpression);
+    if (sourceUnparsedLiteral == null) {
+      return null;
+    }
+    Pair<ClassInfo<?>, Boolean> classInfoAndPlural = getUserClassInfoAndPlural(sourceUnparsedLiteral.getData());
+    return new ClassInfoReference(classInfoAndPlural.getFirst(), classInfoAndPlural.getSecond());
+  }
+
   /**
    * @return the singular form of the given string type,
    * converted back to plural if it was plural in the first place.
@@ -166,7 +193,7 @@ public class SkriptUtil {
 
   /**
    * {@return} a {@link Function} to get a {@link Expression}'s value,
-   * using {@link Expression#getSingle(Event)} if {@link Expression#getSingle(Event)}
+   * using {@link Expression#getSingle(Event)} if {@link Expression#isSingle()}
    * returns {@code true}, otherwise returning {@link Expression#getArray(Event)}.
    */
   public static Function<Expression<?>, Object> unwrapWithEvent(Event e) {

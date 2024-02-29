@@ -10,6 +10,8 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.util.ClassInfoReference;
+import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -37,7 +39,7 @@ public class CondAcceptsChange extends Condition {
 
   private ChangeMode desiredChangeMode;
   private boolean desiredTypeIsPlural;
-  private Expression<ClassInfo<?>> desiredType;
+  private Expression<ClassInfoReference> desiredType;
   private Expression<Expression<?>> expressions;
 
   @SuppressWarnings("unchecked")
@@ -62,12 +64,7 @@ public class CondAcceptsChange extends Condition {
         expressions = (Expression<Expression<?>>) exprs[0];
     }
     if (desiredType != null) {
-      Expression<?> desiredTypeSource = desiredType.getSource();
-      if (desiredTypeSource instanceof UnparsedLiteral) {
-        UnparsedLiteral unparsedDesiredType = (UnparsedLiteral) desiredTypeSource;
-        desiredTypeIsPlural = Utils.getEnglishPlural(unparsedDesiredType.getData()).getSecond();
-      }
-      this.desiredType = (Expression<ClassInfo<?>>) desiredType;
+      this.desiredType = ClassInfoReference.getFromClassInfoExpression((Expression<ClassInfo<?>>) desiredType);
     }
     return true;
   }
@@ -77,10 +74,11 @@ public class CondAcceptsChange extends Condition {
     if (desiredChangeMode == ChangeMode.DELETE || desiredChangeMode == ChangeMode.RESET)
       //noinspection ConstantValue
       return expressions.check(event, expressions -> expressions.acceptChange(desiredChangeMode) != null, isNegated());
-    ClassInfo<?> desiredType = this.desiredType.getSingle(event);
+    ClassInfoReference desiredType = this.desiredType.getSingle(event);
     if (desiredType == null)
       return false;
-    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getC(), desiredTypeIsPlural), isNegated());
+    boolean isPlural = desiredType.isSpecific() && desiredType.isPlural();
+    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getClassInfo().getC(), isPlural), isNegated());
   }
 
   @Override
