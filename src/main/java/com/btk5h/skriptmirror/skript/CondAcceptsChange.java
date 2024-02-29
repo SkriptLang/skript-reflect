@@ -6,9 +6,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.util.Patterns;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.util.ClassInfoReference;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -64,9 +62,9 @@ public class CondAcceptsChange extends Condition {
         expressions = (Expression<Expression<?>>) exprs[0];
     }
     if (desiredType != null) {
-      this.desiredType = ClassInfoReference.getFromClassInfoExpression((Expression<ClassInfo<?>>) desiredType);
+      this.desiredType = SkriptUtil.wrapClassInfoExpression((Expression<ClassInfo<?>>) desiredType);
     }
-    return true;
+    return SkriptUtil.canInitSafely(desiredType);
   }
 
   @Override
