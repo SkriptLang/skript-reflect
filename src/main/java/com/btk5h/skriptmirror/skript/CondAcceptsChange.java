@@ -77,8 +77,7 @@ public class CondAcceptsChange extends Condition {
     ClassInfoReference desiredType = this.desiredType.getSingle(event);
     if (desiredType == null)
       return false;
-    boolean isPlural = desiredType.isSpecific() && desiredType.isPlural();
-    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType.getClassInfo().getC(), isPlural), isNegated());
+    return expressions.check(event, expression -> acceptsChange(expression, desiredChangeMode, desiredType), isNegated());
   }
 
   @Override
@@ -103,15 +102,15 @@ public class CondAcceptsChange extends Condition {
     }
   }
 
-  private boolean acceptsChange(Expression<?> expression, ChangeMode desiredChangeMode, Class<?> desiredType, boolean typeIsPlural) {
+  private boolean acceptsChange(Expression<?> expression, ChangeMode desiredChangeMode, ClassInfoReference desiredType) {
     Class<?>[] acceptableTypes = expression.acceptChange(desiredChangeMode);
     //noinspection ConstantValue
     if (acceptableTypes != null) {
       for (Class<?> acceptableType : acceptableTypes) {
         if (acceptableType.isArray()
-            && acceptableType.getComponentType().isAssignableFrom(desiredType)) {
+            && acceptableType.getComponentType().isAssignableFrom(desiredType.getClassInfo().getC())) {
           return true;
-        } else if (!typeIsPlural && acceptableType.isAssignableFrom(desiredType))
+        } else if (desiredType.isPlural() && acceptableType.isAssignableFrom(desiredType.getClassInfo().getC()))
           return true;
       }
     }

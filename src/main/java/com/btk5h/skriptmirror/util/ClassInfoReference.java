@@ -43,14 +43,7 @@ public class ClassInfoReference {
     return specific;
   }
 
-  private void ensureIsSpecific() {
-    if (!isSpecific()) {
-      throw new IllegalStateException("Cannot get specific attributes from a non-specific " + getClass().getName());
-    }
-  }
-
   public boolean isPlural() {
-    ensureIsSpecific();
     return plural;
   }
 
@@ -78,12 +71,12 @@ public class ClassInfoReference {
 
       @Override
       public String toString(@Nullable Event event, boolean debug) {
-        return getExpr().toString(event, debug);
+        return expression.toString(event, debug);
       }
 
       @Override
       public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        return getExpr().init(expressions, matchedPattern, isDelayed, parseResult);
+        return expression.init(expressions, matchedPattern, isDelayed, parseResult);
       }
 
     };
