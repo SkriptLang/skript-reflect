@@ -36,7 +36,7 @@ jobs:
           path: extra-plugins/
           merge-multiple: true
       - name: Run tests
-        uses: SkriptLang/skript-test-action@v1.0
+        uses: SkriptLang/skript-test-action@v1.1
         with:
           test_script_directory: src/test/scripts
           skript_repo_ref: 2.8.2
