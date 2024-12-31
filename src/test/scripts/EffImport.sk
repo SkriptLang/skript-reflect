@@ -1,0 +1,3 @@
+test "import from effect":
+  import java.lang.Byte
+  assert Byte.SIZE is set with "Failed to use import from effect"
