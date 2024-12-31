@@ -25,108 +25,108 @@ import java.util.Map;
 
 public class SkriptMirror extends JavaPlugin {
 
-  private static SkriptMirror instance;
-  private static SkriptAddon addonInstance;
+	private static SkriptMirror instance;
+	private static SkriptAddon addonInstance;
 
-  public SkriptMirror() {
-    if (instance == null) {
-      instance = this;
-    } else {
-      throw new IllegalStateException();
-    }
-  }
+	public SkriptMirror() {
+		if (instance == null) {
+			instance = this;
+		} else {
+			throw new IllegalStateException();
+		}
+	}
 
-  @Override
-  public void onEnable() {
-    if (!Bukkit.getPluginManager().isPluginEnabled("Skript")) {
-      getLogger().severe("Disabling skript-reflect because Skript is disabled");
-      Bukkit.getPluginManager().disablePlugin(this);
-      return;
-    }
+	@Override
+	public void onEnable() {
+		if (!Bukkit.getPluginManager().isPluginEnabled("Skript")) {
+			getLogger().severe("Disabling skript-reflect because Skript is disabled");
+			Bukkit.getPluginManager().disablePlugin(this);
+			return;
+		}
 
-    if (Skript.getVersion().isSmallerThan(new Version(2, 7))) {
-      getLogger().severe("");
-      getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.7 is required to run this version of skript-reflect.");
-      getLogger().severe("");
-      Bukkit.getPluginManager().disablePlugin(this);
-      return;
-    }
+		if (Skript.getVersion().isSmallerThan(new Version(2, 7))) {
+			getLogger().severe("");
+			getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.7 is required to run this version of skript-reflect.");
+			getLogger().severe("");
+			Bukkit.getPluginManager().disablePlugin(this);
+			return;
+		}
 
-    if (Bukkit.getPluginManager().getPlugin("skript-mirror") != null) {
-      getLogger().warning("You shouldn't have both skript-mirror and skript-reflect enabled, it will probably cause issues");
-    }
+		if (Bukkit.getPluginManager().getPlugin("skript-mirror") != null) {
+			getLogger().warning("You shouldn't have both skript-mirror and skript-reflect enabled, it will probably cause issues");
+		}
 
-    try {
-      getAddonInstance()
-          .loadClasses("com.btk5h.skriptmirror.skript")
-          .loadClasses("org.skriptlang.reflect", "syntax", "java.elements");
+		try {
+			getAddonInstance()
+				.loadClasses("com.btk5h.skriptmirror.skript")
+				.loadClasses("org.skriptlang.reflect", "syntax", "java.elements");
 
-      Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
-      LibraryLoader.loadLibraries(dataFolder);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+			Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
+			LibraryLoader.loadLibraries(dataFolder);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-    Comparators.registerComparator(ClassInfo.class, JavaType.class, (classInfo, javaType) -> {
-      ClassInfo<?> matchingClassInfo = Classes.getExactClassInfo(javaType.getJavaClass());
-      if (matchingClassInfo == null)
-        return Relation.NOT_EQUAL;
-      return Comparators.compare(classInfo, matchingClassInfo);
-    });
+		Comparators.registerComparator(ClassInfo.class, JavaType.class, (classInfo, javaType) -> {
+			ClassInfo<?> matchingClassInfo = Classes.getExactClassInfo(javaType.getJavaClass());
+			if (matchingClassInfo == null)
+				return Relation.NOT_EQUAL;
+			return Comparators.compare(classInfo, matchingClassInfo);
+		});
 
-    ParseOrderWorkarounds.reorderSyntax();
+		ParseOrderWorkarounds.reorderSyntax();
 
-    // Disable *all* and/or warnings
-    SkriptReflection.disableAndOrWarnings();
+		// Disable *all* and/or warnings
+		SkriptReflection.disableAndOrWarnings();
 
-    Metrics metrics = new Metrics(this, 10157);
+		Metrics metrics = new Metrics(this, 10157);
 
-    metrics.addCustomChart(new Metrics.DrilldownPie("skript_version", () -> {
-      Map<String, Map<String, Integer>> map = new HashMap<>();
+		metrics.addCustomChart(new Metrics.DrilldownPie("skript_version", () -> {
+			Map<String, Map<String, Integer>> map = new HashMap<>();
 
-      Version version = Skript.getVersion();
-      Map<String, Integer> entry = new HashMap<>();
-      entry.put(version.toString(), 1);
+			Version version = Skript.getVersion();
+			Map<String, Integer> entry = new HashMap<>();
+			entry.put(version.toString(), 1);
 
-      map.put("" + version.getMajor() + "." + version.getMinor(), entry);
+			map.put("" + version.getMajor() + "." + version.getMinor(), entry);
 
-      return map;
-    }));
+			return map;
+		}));
 
-    metrics.addCustomChart(new Metrics.SingleLineChart("java_calls_made", () -> {
-      int i = ExprJavaCall.javaCallsMade;
-      ExprJavaCall.javaCallsMade = 0;
-      return i;
-    }));
+		metrics.addCustomChart(new Metrics.SingleLineChart("java_calls_made", () -> {
+			int i = ExprJavaCall.javaCallsMade;
+			ExprJavaCall.javaCallsMade = 0;
+			return i;
+		}));
 
-    metrics.addCustomChart(new Metrics.SimplePie("custom_conditions_used",
-      () -> "" + StructCustomCondition.customConditionsUsed));
-    metrics.addCustomChart(new Metrics.SimplePie("custom_effects_used",
-      () -> "" + StructCustomEffect.customEffectsUsed));
-    metrics.addCustomChart(new Metrics.SimplePie("custom_events_used",
-      () -> "" + StructCustomEvent.customEventsUsed));
-    metrics.addCustomChart(new Metrics.SimplePie("custom_expressions_used",
-      () -> "" + StructCustomExpression.customExpressionsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_conditions_used",
+			() -> "" + StructCustomCondition.customConditionsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_effects_used",
+			() -> "" + StructCustomEffect.customEffectsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_events_used",
+			() -> "" + StructCustomEvent.customEventsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_expressions_used",
+			() -> "" + StructCustomExpression.customExpressionsUsed));
 
-    metrics.addCustomChart(new Metrics.SimplePie("proxies_used",
-      () -> "" + ExprProxy.proxiesUsed));
-    metrics.addCustomChart(new Metrics.SimplePie("sections_used",
-      () -> "" + SecSection.sectionsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("proxies_used",
+			() -> "" + ExprProxy.proxiesUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("sections_used",
+			() -> "" + SecSection.sectionsUsed));
 
-  }
+	}
 
-  public static SkriptAddon getAddonInstance() {
-    if (addonInstance == null) {
-      addonInstance = Skript.registerAddon(getInstance()).setLanguageFileDirectory("lang");
-    }
-    return addonInstance;
-  }
+	public static SkriptAddon getAddonInstance() {
+		if (addonInstance == null) {
+			addonInstance = Skript.registerAddon(getInstance()).setLanguageFileDirectory("lang");
+		}
+		return addonInstance;
+	}
 
-  public static SkriptMirror getInstance() {
-    if (instance == null) {
-      throw new IllegalStateException();
-    }
-    return instance;
-  }
+	public static SkriptMirror getInstance() {
+		if (instance == null) {
+			throw new IllegalStateException();
+		}
+		return instance;
+	}
 
 }

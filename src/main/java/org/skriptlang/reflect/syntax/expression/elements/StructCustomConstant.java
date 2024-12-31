@@ -27,56 +27,56 @@ import java.util.stream.StreamSupport;
 
 public class StructCustomConstant extends CustomSyntaxStructure<ConstantSyntaxInfo> {
 
-  static {
-    Skript.registerStructure(StructCustomConstant.class, EntryValidator.builder()
-        .addSection("get", false)
-        // We only have one entry, so we know it's 'get'
-        .missingRequiredEntryMessage(key -> "Computed options don't work without a get section")
-        .build(),
-        "option <.+>"
-    );
-  }
+	static {
+		Skript.registerStructure(StructCustomConstant.class, EntryValidator.builder()
+			.addSection("get", false)
+			// We only have one entry, so we know it's 'get'
+			.missingRequiredEntryMessage(key -> "Computed options don't work without a get section")
+			.build(),
+			"option <.+>"
+		);
+	}
 
-  private static final DataTracker<ConstantSyntaxInfo> dataTracker = new DataTracker<>();
+	private static final DataTracker<ConstantSyntaxInfo> dataTracker = new DataTracker<>();
 
-  static {
-    // noinspection unchecked
-    Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.SIMPLE);
-    Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
-        Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
-        .filter(i -> i.getElementClass() == CustomExpression.class)
-        .findFirst();
-    info.ifPresent(dataTracker::setInfo);
-  }
+	static {
+		// noinspection unchecked
+		Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.SIMPLE);
+		Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
+			Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
+			.filter(i -> i.getElementClass() == CustomExpression.class)
+			.findFirst();
+		info.ifPresent(dataTracker::setInfo);
+	}
 
-  @Override
-  protected DataTracker<ConstantSyntaxInfo> getDataTracker() {
-    return dataTracker;
-  }
+	@Override
+	protected DataTracker<ConstantSyntaxInfo> getDataTracker() {
+		return dataTracker;
+	}
 
-  @Override
-  public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, EntryContainer entryContainer) {
-    String option = parseResult.regexes.get(0).group();
+	@Override
+	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, EntryContainer entryContainer) {
+		String option = parseResult.regexes.get(0).group();
 
-    SectionNode sectionNode = entryContainer.get("get", SectionNode.class, false);
-    getParser().setCurrentEvent("custom constant getter", ConstantGetEvent.class);
-    List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
-    Trigger getter = new Trigger(getParser().getCurrentScript(), "get @{" + option + "}", new SimpleEvent(), items);
+		SectionNode sectionNode = entryContainer.get("get", SectionNode.class, false);
+		getParser().setCurrentEvent("custom constant getter", ConstantGetEvent.class);
+		List<TriggerItem> items = SkriptUtil.getItemsFromNode(sectionNode);
+		Trigger getter = new Trigger(getParser().getCurrentScript(), "get @{" + option + "}", new SimpleEvent(), items);
 
-    computeOption(option, getter);
-    return true;
-  }
+		computeOption(option, getter);
+		return true;
+	}
 
-  private static void computeOption(String option, Trigger getter) {
-    ConstantGetEvent constantEvent = new ConstantGetEvent(0, null);
-    getter.execute(constantEvent);
-    // Get result as a string
-    String result = StringUtils.join(constantEvent.getOutput());
+	private static void computeOption(String option, Trigger getter) {
+		ConstantGetEvent constantEvent = new ConstantGetEvent(0, null);
+		getter.execute(constantEvent);
+		// Get result as a string
+		String result = StringUtils.join(constantEvent.getOutput());
 
-    // Get options of current script, and add it to that
-    SkriptReflection.getOptions(ParserInstance.get().getCurrentScript())
-        .put(option, result);
-  }
+		// Get options of current script, and add it to that
+		SkriptReflection.getOptions(ParserInstance.get().getCurrentScript())
+			.put(option, result);
+	}
 
 }
 

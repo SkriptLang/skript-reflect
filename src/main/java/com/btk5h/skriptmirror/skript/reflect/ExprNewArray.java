@@ -16,51 +16,51 @@ import java.lang.reflect.Array;
 
 public class ExprNewArray extends SimpleExpression<ObjectWrapper> {
 
-  static {
-    Skript.registerExpression(ExprNewArray.class, ObjectWrapper.class, ExpressionType.COMBINED,
-      "new (<(" + JavaTypeWrapper.PRIMITIVE_PATTERNS + ")>|%-javatype%)\\[%number%\\]");
-  }
+	static {
+		Skript.registerExpression(ExprNewArray.class, ObjectWrapper.class, ExpressionType.COMBINED,
+			"new (<(" + JavaTypeWrapper.PRIMITIVE_PATTERNS + ")>|%-javatype%)\\[%number%\\]");
+	}
 
-  private JavaTypeWrapper javaTypeWrapper;
-  private Expression<? extends Number> sizeExpression;
+	private JavaTypeWrapper javaTypeWrapper;
+	private Expression<? extends Number> sizeExpression;
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-    javaTypeWrapper = JavaTypeWrapper.of(exprs[0], parseResult.regexes);
-    sizeExpression = (Expression<? extends Number>) exprs[1];
-    return true;
-  }
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		javaTypeWrapper = JavaTypeWrapper.of(exprs[0], parseResult.regexes);
+		sizeExpression = (Expression<? extends Number>) exprs[1];
+		return true;
+	}
 
-  @Override
-  @Nullable
-  protected ObjectWrapper[] get(Event e) {
-    JavaType javaType = javaTypeWrapper.get(e);
-    Number length = sizeExpression.getSingle(e);
+	@Override
+	@Nullable
+	protected ObjectWrapper[] get(Event e) {
+		JavaType javaType = javaTypeWrapper.get(e);
+		Number length = sizeExpression.getSingle(e);
 
-    if (javaType == null || length == null)
-      return null;
+		if (javaType == null || length == null)
+			return null;
 
-    int size = length.intValue();
-    Class<?> clazz = javaType.getJavaClass();
+		int size = length.intValue();
+		Class<?> clazz = javaType.getJavaClass();
 
-    Object array = Array.newInstance(clazz, size);
-    return new ObjectWrapper[] {ObjectWrapper.create(array)};
-  }
+		Object array = Array.newInstance(clazz, size);
+		return new ObjectWrapper[] {ObjectWrapper.create(array)};
+	}
 
-  @Override
-  public boolean isSingle() {
-    return true;
-  }
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
 
-  @Override
-  public Class<? extends ObjectWrapper> getReturnType() {
-    return ObjectWrapper.class;
-  }
+	@Override
+	public Class<? extends ObjectWrapper> getReturnType() {
+		return ObjectWrapper.class;
+	}
 
-  @Override
-  public String toString(@Nullable Event e, boolean debug) {
-    return "new " + javaTypeWrapper.toString(e, debug) + "[" + sizeExpression.toString(e, debug) + "]";
-  }
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return "new " + javaTypeWrapper.toString(e, debug) + "[" + sizeExpression.toString(e, debug) + "]";
+	}
 
 }

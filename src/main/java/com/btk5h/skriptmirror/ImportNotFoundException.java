@@ -6,15 +6,15 @@ package com.btk5h.skriptmirror;
  */
 public class ImportNotFoundException extends Exception {
 
-  private final String userType;
+	private final String userType;
 
-  public ImportNotFoundException(String userType) {
-    super("Import not found: " + userType);
-    this.userType = userType;
-  }
+	public ImportNotFoundException(String userType) {
+		super("Import not found: " + userType);
+		this.userType = userType;
+	}
 
-  public String getUserType() {
-    return userType;
-  }
+	public String getUserType() {
+		return userType;
+	}
 
 }

@@ -21,40 +21,40 @@ import java.util.Optional;
  * guarantee that another addon's syntax will be parsed before skript-reflect.
  */
 public class ParseOrderWorkarounds {
-  private static final String[] PARSE_ORDER = {
-    EffExpressionStatement.class.getCanonicalName(),
-    CustomEffect.class.getCanonicalName(),
-    CustomCondition.class.getCanonicalName(),
-    CustomExpression.class.getCanonicalName(),
-    "com.w00tmast3r.skquery.elements.conditions.CondBoolean",
-    "com.pie.tlatoani.Miscellaneous.CondBoolean",
-    "us.tlatoani.tablisknu.core.base.CondBoolean",
-    "com.pie.tlatoani.CustomEvent.EvtCustomEvent",
-    EffReturn.class.getCanonicalName(),
-    ExprMatchedPattern.class.getCanonicalName(),
-    "ch.njol.skript.effects.EffContinue",
-    "com.ankoki.skjade.elements.conditions.CondBoolean"
-  };
+	private static final String[] PARSE_ORDER = {
+		EffExpressionStatement.class.getCanonicalName(),
+		CustomEffect.class.getCanonicalName(),
+		CustomCondition.class.getCanonicalName(),
+		CustomExpression.class.getCanonicalName(),
+		"com.w00tmast3r.skquery.elements.conditions.CondBoolean",
+		"com.pie.tlatoani.Miscellaneous.CondBoolean",
+		"us.tlatoani.tablisknu.core.base.CondBoolean",
+		"com.pie.tlatoani.CustomEvent.EvtCustomEvent",
+		EffReturn.class.getCanonicalName(),
+		ExprMatchedPattern.class.getCanonicalName(),
+		"ch.njol.skript.effects.EffContinue",
+		"com.ankoki.skjade.elements.conditions.CondBoolean"
+	};
 
-  public static void reorderSyntax() {
-    for (String c : PARSE_ORDER) {
-      ensureLast(Skript.getStatements(), o -> o.getElementClass().getName().equals(c));
-      ensureLast(Skript.getConditions(), o -> o.getElementClass().getName().equals(c));
-      ensureLast(Skript.getEffects(), o -> o.getElementClass().toString().equals(c));
-      ensureLast(SkriptReflection.getExpressions(), o -> o.getElementClass().getName().equals(c));
-      ensureLast(Skript.getEvents(), o -> o.getElementClass().getName().equals(c));
-    }
-  }
+	public static void reorderSyntax() {
+		for (String c : PARSE_ORDER) {
+			ensureLast(Skript.getStatements(), o -> o.getElementClass().getName().equals(c));
+			ensureLast(Skript.getConditions(), o -> o.getElementClass().getName().equals(c));
+			ensureLast(Skript.getEffects(), o -> o.getElementClass().toString().equals(c));
+			ensureLast(SkriptReflection.getExpressions(), o -> o.getElementClass().getName().equals(c));
+			ensureLast(Skript.getEvents(), o -> o.getElementClass().getName().equals(c));
+		}
+	}
 
-  private static <E> void ensureLast(Collection<E> elements, Checker<E> checker) {
-    Optional<E> optionalE = elements.stream()
-      .filter(checker::check)
-      .findFirst();
+	private static <E> void ensureLast(Collection<E> elements, Checker<E> checker) {
+		Optional<E> optionalE = elements.stream()
+			.filter(checker::check)
+			.findFirst();
 
-    optionalE.ifPresent(value -> {
-      elements.remove(value);
-      elements.add(value);
-    });
-  }
+		optionalE.ifPresent(value -> {
+			elements.remove(value);
+			elements.add(value);
+		});
+	}
 
 }

@@ -8,8 +8,8 @@ import java.lang.invoke.MethodHandles;
  */
 public class LookupGetter {
 
-  public static MethodHandles.Lookup getLookup() {
-    return MethodHandles.lookup();
-  }
+	public static MethodHandles.Lookup getLookup() {
+		return MethodHandles.lookup();
+	}
 
 }

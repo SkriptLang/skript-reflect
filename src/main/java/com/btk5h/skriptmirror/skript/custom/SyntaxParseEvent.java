@@ -18,52 +18,52 @@ import java.util.Map;
 
 public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
 
-  private final static HandlerList handlers = new HandlerList();
-  private final Class<?>[] eventClasses;
-  private boolean markedContinue = false;
+	private final static HandlerList handlers = new HandlerList();
+	private final Class<?>[] eventClasses;
+	private boolean markedContinue = false;
 
-  public SyntaxParseEvent(Expression<?>[] expressions, int matchedPattern, SkriptParser.ParseResult parseResult,
-                          Class<?>[] eventClasses) {
-    super(null, wrapRawExpressions(expressions), matchedPattern, parseResult);
-    this.eventClasses = eventClasses;
-  }
+	public SyntaxParseEvent(Expression<?>[] expressions, int matchedPattern, SkriptParser.ParseResult parseResult,
+							Class<?>[] eventClasses) {
+		super(null, wrapRawExpressions(expressions), matchedPattern, parseResult);
+		this.eventClasses = eventClasses;
+	}
 
-  private static Expression<?>[] wrapRawExpressions(Expression<?>[] expressions) {
-    return Arrays.stream(expressions)
-        .map(expr -> expr == null ? null : new SimpleLiteral<>(expr, false))
-        .toArray(Expression[]::new);
-  }
+	private static Expression<?>[] wrapRawExpressions(Expression<?>[] expressions) {
+		return Arrays.stream(expressions)
+			.map(expr -> expr == null ? null : new SimpleLiteral<>(expr, false))
+			.toArray(Expression[]::new);
+	}
 
-  public static HandlerList getHandlerList() {
-    return handlers;
-  }
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
 
-  public Class<?>[] getEventClasses() {
-    return eventClasses;
-  }
+	public Class<?>[] getEventClasses() {
+		return eventClasses;
+	}
 
-  public boolean isMarkedContinue() {
-    return markedContinue;
-  }
+	public boolean isMarkedContinue() {
+		return markedContinue;
+	}
 
-  @Override
-  public void setContinue(boolean b) {
-    markedContinue = b;
-  }
+	@Override
+	public void setContinue(boolean b) {
+		markedContinue = b;
+	}
 
-  @Override
-  public HandlerList getHandlers() {
-    return handlers;
-  }
+	@Override
+	public HandlerList getHandlers() {
+		return handlers;
+	}
 
-  public static <T extends CustomSyntaxStructure.SyntaxData> void register(SectionNode parseNode,
-                                                                           List<T> whichInfo, Map<T, Trigger> parserHandlers) {
-    ParserInstance.get().setCurrentEvent("custom syntax parser", SyntaxParseEvent.class);
-    List<TriggerItem> items = SkriptUtil.getItemsFromNode(parseNode);
+	public static <T extends CustomSyntaxStructure.SyntaxData> void register(SectionNode parseNode,
+																			 List<T> whichInfo, Map<T, Trigger> parserHandlers) {
+		ParserInstance.get().setCurrentEvent("custom syntax parser", SyntaxParseEvent.class);
+		List<TriggerItem> items = SkriptUtil.getItemsFromNode(parseNode);
 
-    whichInfo.forEach(which ->
-        parserHandlers.put(which,
-            new Trigger(ParserInstance.get().getCurrentScript(), "parse " + which.getPattern(), new SimpleEvent(), items)));
-  }
+		whichInfo.forEach(which ->
+			parserHandlers.put(which,
+				new Trigger(ParserInstance.get().getCurrentScript(), "parse " + which.getPattern(), new SimpleEvent(), items)));
+	}
 
 }

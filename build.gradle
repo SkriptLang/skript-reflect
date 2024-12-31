@@ -6,35 +6,35 @@ version '2.4'
 apply plugin: 'java'
 
 repositories {
-  mavenCentral()
-  maven {
-    url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-  }
-  maven {
-    url 'https://oss.sonatype.org/content/groups/public/'
-  }
-  maven {
-    url 'https://repo.destroystokyo.com/repository/maven-public/'
-  }
-  maven {
-    url 'https://repo.skriptlang.org/releases'
-  }
+	mavenCentral()
+	maven {
+		url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+	}
+	maven {
+		url 'https://oss.sonatype.org/content/groups/public/'
+	}
+	maven {
+		url 'https://repo.destroystokyo.com/repository/maven-public/'
+	}
+	maven {
+		url 'https://repo.skriptlang.org/releases'
+	}
 }
 
 processResources {
-  filter ReplaceTokens, tokens: [
-    "version": version
-  ]
+	filter ReplaceTokens, tokens: [
+		"version": version
+	]
 }
 
-compileJava   {
-  sourceCompatibility = '1.8'
-  targetCompatibility = '1.8'
-  options.encoding = 'UTF-8'
+compileJava {
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+	options.encoding = 'UTF-8'
 }
 
 dependencies {
-  implementation 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
-  implementation 'com.github.SkriptLang:Skript:2.8.0'
-  implementation 'org.eclipse.jdt:org.eclipse.jdt.annotation:1.1.0'
+	implementation 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+	implementation 'com.github.SkriptLang:Skript:2.8.0'
+	implementation 'org.eclipse.jdt:org.eclipse.jdt.annotation:1.1.0'
 }

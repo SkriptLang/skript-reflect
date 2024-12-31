@@ -33,176 +33,176 @@ import java.util.stream.StreamSupport;
 
 public class StructImport extends Structure {
 
-  public static final Priority PRIORITY = new Priority(150);
-  private static final Pattern IMPORT_STATEMENT =
-      Pattern.compile("(" + SkriptMirrorUtil.PACKAGE + ")(?:\\s+as (" + SkriptMirrorUtil.IDENTIFIER + "))?");
-  private static final SyntaxElementInfo<?> thisInfo;
-  private static final Map<Script, Map<String, JavaType>> imports = new HashMap<>();
+	public static final Priority PRIORITY = new Priority(150);
+	private static final Pattern IMPORT_STATEMENT =
+		Pattern.compile("(" + SkriptMirrorUtil.PACKAGE + ")(?:\\s+as (" + SkriptMirrorUtil.IDENTIFIER + "))?");
+	private static final SyntaxElementInfo<?> thisInfo;
+	private static final Map<Script, Map<String, JavaType>> imports = new HashMap<>();
 
-  static {
-    Skript.registerStructure(StructImport.class, "import");
-    Skript.registerEffect(EffImport.class, "import <" + IMPORT_STATEMENT.pattern() + ">");
+	static {
+		Skript.registerStructure(StructImport.class, "import");
+		Skript.registerEffect(EffImport.class, "import <" + IMPORT_STATEMENT.pattern() + ">");
 
-    // TODO try replacing ImportHandler with JavaType's literal parsing
-    Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
-    thisInfo = StreamSupport.stream(Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
-        .filter(expressionInfo -> ImportHandler.class.equals(expressionInfo.getElementClass()))
-        .findFirst().orElseThrow(RuntimeException::new); // Should never be null
-  }
+		// TODO try replacing ImportHandler with JavaType's literal parsing
+		Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
+		thisInfo = StreamSupport.stream(Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
+			.filter(expressionInfo -> ImportHandler.class.equals(expressionInfo.getElementClass()))
+			.findFirst().orElseThrow(RuntimeException::new); // Should never be null
+	}
 
-  private Script script;
+	private Script script;
 
-  @Override
-  public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
-    this.script = getParser().getCurrentScript();
-    getEntryContainer().getSource().forEach(node -> registerImport(Optional.ofNullable(node.getKey())
-        .map(ScriptLoader::replaceOptions)
-        .orElse(null), script));
-    updateImports();
-    return true;
-  }
+	@Override
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+		this.script = getParser().getCurrentScript();
+		getEntryContainer().getSource().forEach(node -> registerImport(Optional.ofNullable(node.getKey())
+			.map(ScriptLoader::replaceOptions)
+			.orElse(null), script));
+		updateImports();
+		return true;
+	}
 
-  @Override
-  public boolean load() {
-    return true;
-  }
+	@Override
+	public boolean load() {
+		return true;
+	}
 
-  @Override
-  public void unload() {
-    imports.remove(script);
-    updateImports();
-  }
+	@Override
+	public void unload() {
+		imports.remove(script);
+		updateImports();
+	}
 
-  @Override
-  public Priority getPriority() {
-    return PRIORITY;
-  }
+	@Override
+	public Priority getPriority() {
+		return PRIORITY;
+	}
 
-  @Override
-  public String toString(@Nullable Event e, boolean debug) {
-    return "import";
-  }
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return "import";
+	}
 
-  private static boolean registerImport(String rawStatement, @Nullable Script script) {
-    Matcher statement = IMPORT_STATEMENT.matcher(ScriptLoader.replaceOptions(rawStatement));
-    if (!statement.matches()) {
-      Skript.error(rawStatement + " is an invalid import statement.");
-      return false;
-    }
+	private static boolean registerImport(String rawStatement, @Nullable Script script) {
+		Matcher statement = IMPORT_STATEMENT.matcher(ScriptLoader.replaceOptions(rawStatement));
+		if (!statement.matches()) {
+			Skript.error(rawStatement + " is an invalid import statement.");
+			return false;
+		}
 
-    String cls = statement.group(1);
-    Class<?> javaClass;
+		String cls = statement.group(1);
+		Class<?> javaClass;
 
-    try {
-      javaClass = LibraryLoader.getClassLoader().loadClass(cls);
-    } catch (ClassNotFoundException ex) {
-      Skript.error(cls + " refers to a non-existent class.");
-      return false;
-    }
+		try {
+			javaClass = LibraryLoader.getClassLoader().loadClass(cls);
+		} catch (ClassNotFoundException ex) {
+			Skript.error(cls + " refers to a non-existent class.");
+			return false;
+		}
 
-    String importName = statement.group(2);
+		String importName = statement.group(2);
 
-    if (javaClass.getSimpleName().equals(importName)) {
-      Skript.warning(cls + " doesn't need the alias " + importName + ", as it will already be imported under that name");
-    }
+		if (javaClass.getSimpleName().equals(importName)) {
+			Skript.warning(cls + " doesn't need the alias " + importName + ", as it will already be imported under that name");
+		}
 
-    if (importName == null) {
-      importName = javaClass.getSimpleName();
-    }
+		if (importName == null) {
+			importName = javaClass.getSimpleName();
+		}
 
-    imports.computeIfAbsent(script, s -> new HashMap<>())
-        .compute(importName,
-            (name, oldClass) -> {
-              if (oldClass != null) {
-                Skript.error(name + " is already mapped to " + oldClass.getJavaClass() + ". " +
-                    "It will not be remapped to " + javaClass + ".");
-                return oldClass;
-              }
-              return new JavaType(javaClass);
-            });
+		imports.computeIfAbsent(script, s -> new HashMap<>())
+			.compute(importName,
+				(name, oldClass) -> {
+					if (oldClass != null) {
+						Skript.error(name + " is already mapped to " + oldClass.getJavaClass() + ". " +
+								"It will not be remapped to " + javaClass + ".");
+						return oldClass;
+					}
+					return new JavaType(javaClass);
+				});
 
-    return true;
-  }
+		return true;
+	}
 
-  private static void updateImports() {
-    String[] patterns = imports.values().stream()
-        .flatMap(m -> m.keySet().stream())
-        .distinct()
-        .toArray(String[]::new);
-    SkriptReflection.setPatterns(thisInfo, patterns);
-  }
+	private static void updateImports() {
+		String[] patterns = imports.values().stream()
+			.flatMap(m -> m.keySet().stream())
+			.distinct()
+			.toArray(String[]::new);
+		SkriptReflection.setPatterns(thisInfo, patterns);
+	}
 
-  public static class ImportHandler extends SimpleExpression<JavaType> {
+	public static class ImportHandler extends SimpleExpression<JavaType> {
 
-    private JavaType type;
+		private JavaType type;
 
-    @Override
-    protected JavaType[] get(Event e) {
-      return new JavaType[]{type};
-    }
+		@Override
+		protected JavaType[] get(Event e) {
+			return new JavaType[]{type};
+		}
 
-    @Override
-    public boolean isSingle() {
-      return true;
-    }
+		@Override
+		public boolean isSingle() {
+			return true;
+		}
 
-    @Override
-    public Class<? extends JavaType> getReturnType() {
-      return JavaType.class;
-    }
+		@Override
+		public Class<? extends JavaType> getReturnType() {
+			return JavaType.class;
+		}
 
-    @Override
-    public String toString(Event e, boolean debug) {
-      return type.getJavaClass().getName();
-    }
+		@Override
+		public String toString(Event e, boolean debug) {
+			return type.getJavaClass().getName();
+		}
 
-    @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-      type = lookup(SkriptUtil.getCurrentScript(), parseResult.expr);
-      return type != null;
-    }
+		@Override
+		public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+			type = lookup(SkriptUtil.getCurrentScript(), parseResult.expr);
+			return type != null;
+		}
 
-    public JavaType getJavaType() {
-      return type;
-    }
+		public JavaType getJavaType() {
+			return type;
+		}
 
-  }
+	}
 
-  public static JavaType lookup(Script script, String identifier) {
-    Map<String, JavaType> localImports = imports.get(script);
+	public static JavaType lookup(Script script, String identifier) {
+		Map<String, JavaType> localImports = imports.get(script);
 
-    if (localImports == null)
-      return null;
+		if (localImports == null)
+			return null;
 
-    return localImports.get(identifier);
-  }
+		return localImports.get(identifier);
+	}
 
-  public static class EffImport extends Effect {
+	public static class EffImport extends Effect {
 
-    private String className;
+		private String className;
 
-    @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-      if (!getParser().isCurrentEvent(EffectCommandEvent.class)) {
-        Skript.error("The import effect can only be used in effect commands. " +
-            "To use imports in scripts, use the section.");
-        return false;
-      }
+		@Override
+		public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+			if (!getParser().isCurrentEvent(EffectCommandEvent.class)) {
+				Skript.error("The import effect can only be used in effect commands. " +
+					"To use imports in scripts, use the section.");
+				return false;
+			}
 
-      className = parseResult.regexes.get(0).group();
+			className = parseResult.regexes.get(0).group();
 
-      return registerImport(className, null);
-    }
+			return registerImport(className, null);
+		}
 
-    @Override
-    protected void execute(Event e) {
-      updateImports();
-    }
+		@Override
+		protected void execute(Event e) {
+			updateImports();
+		}
 
-    @Override
-    public String toString(@Nullable Event e, boolean debug) {
-      return "import " + className;
-    }
-  }
+		@Override
+		public String toString(@Nullable Event e, boolean debug) {
+			return "import " + className;
+		}
+	}
 
 }

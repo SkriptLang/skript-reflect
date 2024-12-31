@@ -23,99 +23,99 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 public class EffReturn extends Effect {
 
-  static {
-    Skript.registerEffect(EffReturn.class, "return [%-objects%]");
-  }
+	static {
+		Skript.registerEffect(EffReturn.class, "return [%-objects%]");
+	}
 
-  private Expression<?> objects;
+	private Expression<?> objects;
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-    Expression<?> expr = SkriptUtil.defendExpression(exprs[0]);
-    if (!SkriptUtil.canInitSafely(expr)) {
-      Skript.error("Can't understand this expression: " + expr);
-      return false;
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		Expression<?> expr = SkriptUtil.defendExpression(exprs[0]);
+		if (!SkriptUtil.canInitSafely(expr)) {
+			Skript.error("Can't understand this expression: " + expr);
+			return false;
+		}
 
-    boolean isContinuable = CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents());
+		boolean isContinuable = CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents());
 
-    if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)
-        && !isContinuable) {
-      Skript.error("The return effect can only be used in functions, custom expressions, sections, custom syntax parse sections and custom conditions");
-      return false;
-    }
+		if (!getParser().isCurrentEvent(ExpressionGetEvent.class, ConstantGetEvent.class, SectionEvent.class)
+				&& !isContinuable) {
+			Skript.error("The return effect can only be used in functions, custom expressions, sections, custom syntax parse sections and custom conditions");
+			return false;
+		}
 
-    if (isContinuable) {
-      expr = expr.getConvertedExpression(Boolean.class);
-      if (expr == null || !expr.isSingle()) {
-        Skript.error(exprs[0] + " is not a single boolean value");
-        return false;
-      }
-    }
+		if (isContinuable) {
+			expr = expr.getConvertedExpression(Boolean.class);
+			if (expr == null || !expr.isSingle()) {
+				Skript.error(exprs[0] + " is not a single boolean value");
+				return false;
+			}
+		}
 
-    Structure structure = getParser().getCurrentStructure();
-    if (expr != null && structure instanceof StructCustomExpression) {
-      StructCustomExpression customExpressionSection = (StructCustomExpression) structure;
-      ExpressionSyntaxInfo which = customExpressionSection.getFirstWhich();
-      Class<?> returnType = StructCustomExpression.returnTypes.get(which);
-      if (returnType != null) {
-        Expression<?> newExpr = expr.getConvertedExpression(returnType);
-        if (newExpr == null) {
-          Skript.error(expr + " is not " + Classes.getSuperClassInfo(returnType).getName().withIndefiniteArticle());
-          return false;
-        }
-        expr = newExpr;
-      }
-    }
+		Structure structure = getParser().getCurrentStructure();
+		if (expr != null && structure instanceof StructCustomExpression) {
+			StructCustomExpression customExpressionSection = (StructCustomExpression) structure;
+			ExpressionSyntaxInfo which = customExpressionSection.getFirstWhich();
+			Class<?> returnType = StructCustomExpression.returnTypes.get(which);
+			if (returnType != null) {
+				Expression<?> newExpr = expr.getConvertedExpression(returnType);
+				if (newExpr == null) {
+					Skript.error(expr + " is not " + Classes.getSuperClassInfo(returnType).getName().withIndefiniteArticle());
+					return false;
+				}
+				expr = newExpr;
+			}
+		}
 
-    if (!isDelayed.isFalse()) {
-      Skript.error("Return may not be used if the code before it contains any delays", ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
+		if (!isDelayed.isFalse()) {
+			Skript.error("Return may not be used if the code before it contains any delays", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
 
-    objects = expr;
+		objects = expr;
 
-    return true;
-  }
+		return true;
+	}
 
-  @Override
-  protected TriggerItem walk(Event e) {
-    if (e instanceof SectionEvent) {
-      ((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
-    } else if (e instanceof ExpressionGetEvent) {
-      ((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
-    } else {
-      // objects is always a single boolean expression, see init
-      // Doesn't require casting, and deals with null
-      boolean b = Boolean.TRUE.equals(objects.getSingle(e));
-      ((Continuable) e).setContinue(b);
-    }
+	@Override
+	protected TriggerItem walk(Event e) {
+		if (e instanceof SectionEvent) {
+			((SectionEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
+		} else if (e instanceof ExpressionGetEvent) {
+			((ExpressionGetEvent) e).setOutput(objects == null ? new Object[0] : objects.getArray(e));
+		} else {
+			// objects is always a single boolean expression, see init
+			// Doesn't require casting, and deals with null
+			boolean b = Boolean.TRUE.equals(objects.getSingle(e));
+			((Continuable) e).setContinue(b);
+		}
 
-    TriggerSection parent = getParent();
-    while (parent != null) {
-      if (parent instanceof SecLoop) {
-        ((SecLoop) parent).exit(e);
-      } else if (parent instanceof SecWhile) {
-        ((SecWhile) parent).exit(e);
-      }
-      parent = parent.getParent();
-    }
+		TriggerSection parent = getParent();
+		while (parent != null) {
+			if (parent instanceof SecLoop) {
+				((SecLoop) parent).exit(e);
+			} else if (parent instanceof SecWhile) {
+				((SecWhile) parent).exit(e);
+			}
+			parent = parent.getParent();
+		}
 
-    return null;
-  }
+		return null;
+	}
 
-  @Override
-  protected void execute(Event e) {
-    throw new UnsupportedOperationException();
-  }
+	@Override
+	protected void execute(Event e) {
+		throw new UnsupportedOperationException();
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    if (objects == null) {
-      return "return";
-    }
-    return "return " + objects.toString(e, debug);
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		if (objects == null) {
+			return "return";
+		}
+		return "return " + objects.toString(e, debug);
+	}
 
 }

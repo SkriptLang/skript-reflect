@@ -10,28 +10,28 @@ import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
 
 public class EffNegateCondition extends Effect {
-  static {
-    Skript.registerEffect(EffNegateCondition.class, "negate [the] [current] condition");
-  }
+	static {
+		Skript.registerEffect(EffNegateCondition.class, "negate [the] [current] condition");
+	}
 
-  @Override
-  protected void execute(Event e) {
-    ((ConditionCheckEvent) e).markNegated();
-  }
+	@Override
+	protected void execute(Event e) {
+		((ConditionCheckEvent) e).markNegated();
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return "negate condition";
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return "negate condition";
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    if (!getParser().isCurrentEvent(ConditionCheckEvent.class)) {
-      Skript.error("The effect 'negate condition' may only be used in a custom condition.",
-          ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
-    return true;
-  }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(ConditionCheckEvent.class)) {
+			Skript.error("The effect 'negate condition' may only be used in a custom condition.",
+				ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
+		return true;
+	}
 }

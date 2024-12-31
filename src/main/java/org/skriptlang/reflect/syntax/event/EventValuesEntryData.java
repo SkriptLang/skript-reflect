@@ -14,40 +14,40 @@ import java.util.List;
 
 public class EventValuesEntryData extends KeyValueEntryData<List<ClassInfo<?>>> {
 
-  private static final String listSplitPattern = "\\s*,?\\s+(and|n?or)\\s+|\\s*,\\s*"; // Found in SkriptParser
+	private static final String listSplitPattern = "\\s*,?\\s+(and|n?or)\\s+|\\s*,\\s*"; // Found in SkriptParser
 
-  public EventValuesEntryData(String key, @Nullable List<ClassInfo<?>> defaultValue, boolean optional) {
-    super(key, defaultValue, optional);
-  }
+	public EventValuesEntryData(String key, @Nullable List<ClassInfo<?>> defaultValue, boolean optional) {
+		super(key, defaultValue, optional);
+	}
 
-  @Override
-  @Nullable
-  protected List<ClassInfo<?>> getValue(String value) {
-    String[] stringClasses = value.split(listSplitPattern);
-    List<ClassInfo<?>> classInfos = new ArrayList<>(stringClasses.length);
-    for (String stringClass : stringClasses) {
-        ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(stringClass);
-        if (classInfo == null) {
-            Skript.error("The type " + stringClass + " doesn't exist");
-            return null;
-        }
-        classInfos.add(classInfo);
-    }
-    return classInfos;
-  }
+	@Override
+	@Nullable
+	protected List<ClassInfo<?>> getValue(String value) {
+		String[] stringClasses = value.split(listSplitPattern);
+		List<ClassInfo<?>> classInfos = new ArrayList<>(stringClasses.length);
+		for (String stringClass : stringClasses) {
+			ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(stringClass);
+			if (classInfo == null) {
+				Skript.error("The type " + stringClass + " doesn't exist");
+				return null;
+			}
+			classInfos.add(classInfo);
+		}
+		return classInfos;
+	}
 
-  @Override
-  public final boolean canCreateWith(Node node) {
-    if (!(node instanceof SimpleNode))
-      return false;
-    String key = node.getKey();
-    if (key == null)
-      return false;
-    return canCreateWith(ScriptLoader.replaceOptions(key));
-  }
+	@Override
+	public final boolean canCreateWith(Node node) {
+		if (!(node instanceof SimpleNode))
+			return false;
+		String key = node.getKey();
+		if (key == null)
+			return false;
+		return canCreateWith(ScriptLoader.replaceOptions(key));
+	}
 
-  protected boolean canCreateWith(String node) {
-    return node.startsWith(getKey() + getSeparator());
-  }
+	protected boolean canCreateWith(String node) {
+		return node.startsWith(getKey() + getSeparator());
+	}
 
 }

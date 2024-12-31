@@ -12,63 +12,63 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 public class ExprRawExpression extends SimpleExpression<Expression> {
-  static {
-    Skript.registerExpression(ExprRawExpression.class, Expression.class, ExpressionType.COMBINED,
-        "[the] raw %objects%");
-  }
+	static {
+		Skript.registerExpression(ExprRawExpression.class, Expression.class, ExpressionType.COMBINED,
+			"[the] raw %objects%");
+	}
 
-  private Expression<?> expr;
+	private Expression<?> expr;
 
-  @Override
-  protected Expression[] get(Event e) {
-    Expression<?> expr = this.expr;
-    if (expr instanceof ExprExpression && e instanceof CustomSyntaxEvent) {
-      expr = ((ExprExpression) expr).getExpression(e);
-      if (expr == null)
-        return null;
-      expr = expr.getSource();
-    }
-    return new Expression[] {expr};
-  }
+	@Override
+	protected Expression[] get(Event e) {
+		Expression<?> expr = this.expr;
+		if (expr instanceof ExprExpression && e instanceof CustomSyntaxEvent) {
+			expr = ((ExprExpression) expr).getExpression(e);
+			if (expr == null)
+				return null;
+			expr = expr.getSource();
+		}
+		return new Expression[] {expr};
+	}
 
-  @Override
-  public boolean isSingle() {
-    return true;
-  }
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
 
-  @Override
-  public Class<? extends Expression> getReturnType() {
-    return Expression.class;
-  }
+	@Override
+	public Class<? extends Expression> getReturnType() {
+		return Expression.class;
+	}
 
-  @Override
-  public Class<?>[] acceptChange(Changer.ChangeMode changeMode) {
-    return expr instanceof ExprExpression ? new Class[] {Object[].class} : null;
-  }
+	@Override
+	public Class<?>[] acceptChange(Changer.ChangeMode changeMode) {
+		return expr instanceof ExprExpression ? new Class[] {Object[].class} : null;
+	}
 
-  @Override
-  public void change(Event event, Object[] delta, Changer.ChangeMode changeMode) {
-    if (!(expr instanceof ExprExpression && event instanceof CustomSyntaxEvent))
-      return;
+	@Override
+	public void change(Event event, Object[] delta, Changer.ChangeMode changeMode) {
+		if (!(expr instanceof ExprExpression && event instanceof CustomSyntaxEvent))
+			return;
 
-    Expression<?> expr = ((ExprExpression<?>) this.expr).getExpression(event);
-    if (expr == null)
-      return;
-    Expression<?> source = expr.getSource();
+		Expression<?> expr = ((ExprExpression<?>) this.expr).getExpression(event);
+		if (expr == null)
+			return;
+		Expression<?> source = expr.getSource();
 
-    event = ((WrappedEvent) event).getDirectEvent();
-    source.change(event, delta, changeMode);
-  }
+		event = ((WrappedEvent) event).getDirectEvent();
+		source.change(event, delta, changeMode);
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return "raw " + expr.toString(e, debug);
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return "raw " + expr.toString(e, debug);
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    expr = SkriptUtil.defendExpression(exprs[0]);
-    return SkriptUtil.canInitSafely(expr);
-  }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
+		expr = SkriptUtil.defendExpression(exprs[0]);
+		return SkriptUtil.canInitSafely(expr);
+	}
 }
