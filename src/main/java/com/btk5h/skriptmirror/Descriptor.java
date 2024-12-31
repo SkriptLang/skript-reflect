@@ -34,11 +34,11 @@ public final class Descriptor {
 	 * A regex {@link Pattern} for a {@link Descriptor}.
 	 */
 	private static final Pattern DESCRIPTOR =
-			Pattern.compile("" +
-				"(?:\\[(" + SkriptMirrorUtil.PACKAGE + ")])?" +
-				"(" + SkriptMirrorUtil.IDENTIFIER + ")" +
-				"(?:\\[((?:" + PACKAGE_ARRAY + "\\s*,\\s*)*(?:" + PACKAGE_ARRAY + "))])?"
-			);
+		Pattern.compile("" +
+			"(?:\\[(" + SkriptMirrorUtil.PACKAGE + ")])?" +
+			"(" + SkriptMirrorUtil.IDENTIFIER + ")" +
+			"(?:\\[((?:" + PACKAGE_ARRAY + "\\s*,\\s*)*(?:" + PACKAGE_ARRAY + "))])?"
+		);
 
 	private final Class<?> javaClass;
 	private final String name;
