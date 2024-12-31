@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.WrappedEvent;
+import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
@@ -56,13 +57,19 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 			return;
 		Expression<?> source = expr.getSource();
 
-		event = ((WrappedEvent) event).getDirectEvent();
-		source.change(event, delta, changeMode);
+		Event unwrappedEvent = ((WrappedEvent) event).getDirectEvent();
+		// Ensure acceptChange has been called before change
+		try {
+			source.acceptChange(changeMode);
+			source.change(unwrappedEvent, delta, changeMode);
+		} catch (Throwable throwable) {
+			ExprJavaCall.lastError = throwable;
+		}
 	}
 
 	@Override
-	public String toString(Event e, boolean debug) {
-		return "raw " + expr.toString(e, debug);
+	public String toString(Event event, boolean debug) {
+		return "raw " + expr.toString(event, debug);
 	}
 
 	@Override

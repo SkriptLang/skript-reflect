@@ -3,7 +3,7 @@ package org.skriptlang.reflect.java.elements.events;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.SkriptMirror;
@@ -22,21 +22,32 @@ import java.util.stream.Collectors;
 public class EvtByReflection extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("*reflection", EvtByReflection.class, BukkitEvent.class, "[1:all] %javatypes%");
+		Skript.registerEvent("*reflection", EvtByReflection.class, BukkitEvent.class, "%javatypes%");
 	}
 
 	private static class MyEventExecutor implements EventExecutor {
 		private final Class<? extends Event> eventClass;
+		private final ListeningBehavior listeningBehavior;
 		private final Trigger trigger;
 
 		public MyEventExecutor(Class<? extends Event> eventClass, Trigger trigger) {
 			this.eventClass = eventClass;
+			this.listeningBehavior = ListeningBehavior.UNCANCELLED;
+			this.trigger = trigger;
+		}
+
+		public MyEventExecutor(Class<? extends Event> eventClass, ListeningBehavior listeningBehavior, Trigger trigger) {
+			this.eventClass = eventClass;
+			this.listeningBehavior = listeningBehavior;
 			this.trigger = trigger;
 		}
 
 		@Override
 		public void execute(Listener listener, Event event) throws EventException {
 			if (eventClass.isInstance(event)) {
+				if (event instanceof Cancellable && listeningBehavior != null && !listeningBehavior.matches(((Cancellable) event).isCancelled()))
+					return;
+
 				Event scriptEvent;
 				scriptEvent = event instanceof Cancellable
 					? new CancellableBukkitEvent((Cancellable) event) : new BukkitEvent(event);
@@ -77,12 +88,11 @@ public class EvtByReflection extends SkriptEvent {
 	}
 
 	private Class<? extends Event>[] classes;
-	private boolean ignoreCancelled;
 	private Listener listener;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		JavaType[] javaTypes = ((Literal<JavaType>) args[0]).getArray();
 
 		classes = new Class[javaTypes.length];
@@ -99,8 +109,6 @@ public class EvtByReflection extends SkriptEvent {
 			classes[i] = (Class<? extends Event>) clazz;
 		}
 
-		ignoreCancelled = (parseResult.mark & 1) != 1;
-
 		listener = new Listener() {};
 
 		return true;
@@ -114,10 +122,10 @@ public class EvtByReflection extends SkriptEvent {
 	@Override
 	public boolean postLoad() {
 		for (Class<? extends Event> eventClass : classes) {
-			EventExecutor executor = new MyEventExecutor(eventClass, trigger);
+			EventExecutor executor = new MyEventExecutor(eventClass, listeningBehavior, trigger);
 
 			Bukkit.getPluginManager()
-				.registerEvent(eventClass, listener, getEventPriority(), executor, SkriptMirror.getInstance(), ignoreCancelled);
+					.registerEvent(eventClass, listener, getEventPriority(), executor, SkriptMirror.getInstance(), listeningBehavior == ListeningBehavior.UNCANCELLED);
 		}
 		return true;
 	}
@@ -126,11 +134,19 @@ public class EvtByReflection extends SkriptEvent {
 		HandlerList.unregisterAll(listener);
 	}
 
+	@Override
+	public boolean isListeningBehaviorSupported() {
+		return true;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends Event>[] getEventClasses() {
 		boolean hasUncancellable = false;
 		boolean hasCancellable = false;
+
+		if (classes == null)
+			return new Class[]{BukkitEvent.class};
 
 		for (Class<? extends Event> eventClass : classes) {
 			if (Cancellable.class.isAssignableFrom(eventClass)) {
@@ -151,8 +167,7 @@ public class EvtByReflection extends SkriptEvent {
 
 	@Override
 	public String toString(Event e, boolean debug) {
-		return (ignoreCancelled ? "all " : "")
-			+ Arrays.stream(classes)
+		return Arrays.stream(classes)
 			.map(Class::getSimpleName)
 			.collect(Collectors.joining(", "));
 	}

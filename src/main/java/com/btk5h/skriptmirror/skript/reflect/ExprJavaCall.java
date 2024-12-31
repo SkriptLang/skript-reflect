@@ -87,7 +87,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 		}
 	}
 
-	static Throwable lastError;
+	public static Throwable lastError;
 
 	private final LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
 
