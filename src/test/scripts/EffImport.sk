@@ -1,3 +1,15 @@
+import:
+  ch.njol.skript.SkriptConfig
+
+function runEffectCommand(effect: str):
+  set {_effect command token} to SkriptConfig.effectCommandToken.value()
+  execute console command "%{_effect command token}%%{_effect}%"
+
+on script load:
+  delete {tests::EffImport::byte size}
+  runEffectCommand("import java.lang.Byte")
+  runEffectCommand("set {tests::EffImport::byte size} to Byte.SIZE")
+
 test "import from effect":
-  import java.lang.Byte
   assert Byte.SIZE is set with "Failed to use import from effect"
+  delete {tests::EffImport::byte size}
