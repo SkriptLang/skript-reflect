@@ -125,11 +125,11 @@ public class StructImport extends Structure {
   }
 
   private static void updateImports() {
-    String[] patterns = imports.values().stream()
-        .flatMap(m -> m.keySet().stream())
-        .distinct()
-        .toArray(String[]::new);
-    SkriptReflection.setPatterns(thisInfo, patterns);
+//    String[] patterns = imports.values().stream()
+//        .flatMap(m -> m.keySet().stream())
+//        .distinct()
+//        .toArray(String[]::new);
+//    SkriptReflection.setPatterns(thisInfo, patterns);
   }
 
   public static class ImportHandler extends SimpleExpression<JavaType> {
