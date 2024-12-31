@@ -183,15 +183,22 @@ public class StructImport extends Structure {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-      if (!getParser().isCurrentEvent(EffectCommandEvent.class) && !Skript.testing()) {
+      boolean inEffectCommand = getParser().isCurrentEvent(EffectCommandEvent.class);
+      if (!inEffectCommand && !Skript.testing()) {
         Skript.error("The import effect can only be used in effect commands. " +
             "To use imports in scripts, use the section.");
         return false;
       }
 
       className = parseResult.regexes.get(0).group();
-
-      return registerImport(className, null);
+      if (inEffectCommand) {
+        return registerImport(className, null);
+      }
+      boolean registrationResult = registerImport(className, getParser().getCurrentScript());
+      if (registrationResult) {
+        updateImports();
+      }
+      return registrationResult;
     }
 
     @Override

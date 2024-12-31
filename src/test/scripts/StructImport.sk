@@ -5,4 +5,3 @@ import:
 test "import from structure available":
   assert Math.PI is set with "Failed to use import from structure"
   assert AliasForMath.PI is set with "Failed to use import alias from structure"
-
