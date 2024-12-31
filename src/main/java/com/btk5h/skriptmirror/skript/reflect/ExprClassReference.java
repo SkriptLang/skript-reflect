@@ -14,42 +14,42 @@ import org.eclipse.jdt.annotation.Nullable;
 
 public class ExprClassReference extends SimpleExpression<ObjectWrapper> {
 
-  static {
-    Skript.registerExpression(ExprClassReference.class, ObjectWrapper.class, ExpressionType.COMBINED,
-      "(<(" + JavaTypeWrapper.PRIMITIVE_PATTERNS + ")>|%-javatype%).class");
-  }
+	static {
+		Skript.registerExpression(ExprClassReference.class, ObjectWrapper.class, ExpressionType.COMBINED,
+			"(<(" + JavaTypeWrapper.PRIMITIVE_PATTERNS + ")>|%-javatype%).class");
+	}
 
-  private JavaTypeWrapper javaTypeWrapper;
+	private JavaTypeWrapper javaTypeWrapper;
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-    javaTypeWrapper = JavaTypeWrapper.of(exprs[0], parseResult.regexes);
-    return true;
-  }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		javaTypeWrapper = JavaTypeWrapper.of(exprs[0], parseResult.regexes);
+		return true;
+	}
 
-  @Nullable
-  @Override
-  protected ObjectWrapper[] get(Event e) {
-    JavaType javaType = javaTypeWrapper.get(e);
-    if (javaType == null) {
-      return null;
-    }
-    return new ObjectWrapper[] {ObjectWrapper.create(javaType.getJavaClass())};
-  }
+	@Nullable
+	@Override
+	protected ObjectWrapper[] get(Event e) {
+		JavaType javaType = javaTypeWrapper.get(e);
+		if (javaType == null) {
+			return null;
+		}
+		return new ObjectWrapper[] {ObjectWrapper.create(javaType.getJavaClass())};
+	}
 
-  @Override
-  public boolean isSingle() {
-    return true;
-  }
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
 
-  @Override
-  public Class<? extends ObjectWrapper> getReturnType() {
-    return ObjectWrapper.class;
-  }
+	@Override
+	public Class<? extends ObjectWrapper> getReturnType() {
+		return ObjectWrapper.class;
+	}
 
-  @Override
-  public String toString(@Nullable Event e, boolean debug) {
-    return javaTypeWrapper.toString(e, debug) + ".class";
-  }
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return javaTypeWrapper.toString(e, debug) + ".class";
+	}
 
 }

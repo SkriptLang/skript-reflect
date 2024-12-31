@@ -23,73 +23,73 @@ import java.util.concurrent.Executors;
 
 public class CondExpressionStatement extends Condition {
 
-  static {
-    Skript.registerCondition(CondExpressionStatement.class, "[(1¦await)] %~javaobject%");
-  }
+	static {
+		Skript.registerCondition(CondExpressionStatement.class, "[(1¦await)] %~javaobject%");
+	}
 
-  private static final ExecutorService threadPool = Executors.newCachedThreadPool();
+	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-  private Expression<Object> arg;
-  private boolean isAsynchronous;
-  private boolean isCondition;
+	private Expression<Object> arg;
+	private boolean isAsynchronous;
+	private boolean isCondition;
 
-  @Override
-  public boolean check(Event e) {
-    Object result = ObjectWrapper.unwrapIfNecessary(arg.getSingle(e));
-    return !isCondition || isTruthy(result);
-  }
+	@Override
+	public boolean check(Event e) {
+		Object result = ObjectWrapper.unwrapIfNecessary(arg.getSingle(e));
+		return !isCondition || isTruthy(result);
+	}
 
-  private boolean isTruthy(Object o) {
-    return o != Boolean.FALSE
-        && o != null
-        && (!(o instanceof Number) || !(((Number) o).doubleValue() == 0 || Double.isNaN(((Number) o).doubleValue())));
-  }
+	private boolean isTruthy(Object o) {
+		return o != Boolean.FALSE
+			&& o != null
+			&& (!(o instanceof Number) || !(((Number) o).doubleValue() == 0 || Double.isNaN(((Number) o).doubleValue())));
+	}
 
-  @Override
-  protected TriggerItem walk(Event e) {
-    if (isAsynchronous) {
-      Delay.addDelayedEvent(e);
+	@Override
+	protected TriggerItem walk(Event e) {
+		if (isAsynchronous) {
+			Delay.addDelayedEvent(e);
 
-      Object localVariables = SkriptReflection.getLocals(e);
-      CompletableFuture.runAsync(() -> {
-        SkriptReflection.putLocals(localVariables, e);
-        check(e);
-      }, threadPool)
-        .thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
-          if (getNext() != null)
-            TriggerItem.walk(getNext(), e);
+			Object localVariables = SkriptReflection.getLocals(e);
+			CompletableFuture.runAsync(() -> {
+				SkriptReflection.putLocals(localVariables, e);
+				check(e);
+			}, threadPool)
+				.thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
+					if (getNext() != null)
+						TriggerItem.walk(getNext(), e);
 
-          SkriptReflection.removeLocals(e);
-        }));
-      return null;
-    }
-    return super.walk(e);
-  }
+					SkriptReflection.removeLocals(e);
+				}));
+			return null;
+		}
+		return super.walk(e);
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return arg.toString(e, debug);
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return arg.toString(e, debug);
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    arg = SkriptUtil.defendExpression(exprs[0]);
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
+		arg = SkriptUtil.defendExpression(exprs[0]);
 
-    if (!(arg instanceof ExprJavaCall))
-      return false;
+		if (!(arg instanceof ExprJavaCall))
+			return false;
 
-    isAsynchronous = (parseResult.mark & 1) == 1;
-    isCondition = SkriptLogger.getNode() instanceof SectionNode;
+		isAsynchronous = (parseResult.mark & 1) == 1;
+		isCondition = SkriptLogger.getNode() instanceof SectionNode;
 
-    if (isCondition && isAsynchronous) {
-      Skript.error("Asynchronous java calls may not be used as conditions.");
-      return false;
-    }
+		if (isCondition && isAsynchronous) {
+			Skript.error("Asynchronous java calls may not be used as conditions.");
+			return false;
+		}
 
-    if (isAsynchronous)
-      getParser().setHasDelayBefore(Kleenean.TRUE);
+		if (isAsynchronous)
+			getParser().setHasDelayBefore(Kleenean.TRUE);
 
-    return SkriptUtil.canInitSafely(arg);
-  }
+		return SkriptUtil.canInitSafely(arg);
+	}
 }

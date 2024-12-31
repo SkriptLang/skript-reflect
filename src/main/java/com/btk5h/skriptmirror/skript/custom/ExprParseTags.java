@@ -16,45 +16,45 @@ import org.eclipse.jdt.annotation.Nullable;
 
 public class ExprParseTags extends SimpleExpression<String> {
 
-  static {
-    Skript.registerExpression(ExprParseTags.class, String.class, ExpressionType.SIMPLE, "[the] parse[r] tags");
-  }
+	static {
+		Skript.registerExpression(ExprParseTags.class, String.class, ExpressionType.SIMPLE, "[the] parse[r] tags");
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-    if (!getParser().isCurrentEvent(
-        SyntaxParseEvent.class,
-        ConditionCheckEvent.class,
-        EffectTriggerEvent.class,
-        EventTriggerEvent.class,
-        ExpressionChangeEvent.class,
-        ExpressionGetEvent.class
-    )) {
-      Skript.error("The parse tags may only be used in custom syntax");
-      return false;
-    }
-    return true;
-  }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(
+			SyntaxParseEvent.class,
+			ConditionCheckEvent.class,
+			EffectTriggerEvent.class,
+			EventTriggerEvent.class,
+			ExpressionChangeEvent.class,
+			ExpressionGetEvent.class
+		)) {
+			Skript.error("The parse tags may only be used in custom syntax");
+			return false;
+		}
+		return true;
+	}
 
-  @Override
-  @Nullable
-  protected String[] get(Event e) {
-    return ((CustomSyntaxEvent) e).getParseResult().tags.toArray(new String[0]);
-  }
+	@Override
+	@Nullable
+	protected String[] get(Event e) {
+		return ((CustomSyntaxEvent) e).getParseResult().tags.toArray(new String[0]);
+	}
 
-  @Override
-  public boolean isSingle() {
-    return false;
-  }
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
 
-  @Override
-  public Class<? extends String> getReturnType() {
-    return String.class;
-  }
+	@Override
+	public Class<? extends String> getReturnType() {
+		return String.class;
+	}
 
-  @Override
-  public String toString(@Nullable Event e, boolean debug) {
-    return "parse tags";
-  }
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return "parse tags";
+	}
 
 }

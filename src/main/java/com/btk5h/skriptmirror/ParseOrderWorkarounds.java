@@ -32,57 +32,57 @@ import java.util.function.Predicate;
 @SuppressWarnings("UnstableApiUsage")
 public class ParseOrderWorkarounds {
 
-  private static final Priority POSITION = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
+	private static final Priority POSITION = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
-  private static final String[] PARSE_ORDER = {
-    EffExpressionStatement.class.getCanonicalName(),
-    CustomEffect.class.getCanonicalName(),
-    CustomCondition.class.getCanonicalName(),
-    CustomExpression.class.getCanonicalName(),
-    "com.w00tmast3r.skquery.elements.conditions.CondBoolean",
-    "com.pie.tlatoani.Miscellaneous.CondBoolean",
-    "us.tlatoani.tablisknu.core.base.CondBoolean",
-    "com.pie.tlatoani.CustomEvent.EvtCustomEvent",
-    EffReturn.class.getCanonicalName(),
-    ExprMatchedPattern.class.getCanonicalName(),
-    "ch.njol.skript.effects.EffContinue",
-    "com.ankoki.skjade.elements.conditions.CondBoolean"
-  };
+	private static final String[] PARSE_ORDER = {
+		EffExpressionStatement.class.getCanonicalName(),
+		CustomEffect.class.getCanonicalName(),
+		CustomCondition.class.getCanonicalName(),
+		CustomExpression.class.getCanonicalName(),
+		"com.w00tmast3r.skquery.elements.conditions.CondBoolean",
+		"com.pie.tlatoani.Miscellaneous.CondBoolean",
+		"us.tlatoani.tablisknu.core.base.CondBoolean",
+		"com.pie.tlatoani.CustomEvent.EvtCustomEvent",
+		EffReturn.class.getCanonicalName(),
+		ExprMatchedPattern.class.getCanonicalName(),
+		"ch.njol.skript.effects.EffContinue",
+		"com.ankoki.skjade.elements.conditions.CondBoolean"
+	};
 
-  public static void reorderSyntax() {
-    for (String c : PARSE_ORDER) {
-      ensureLast(SyntaxRegistry.CONDITION, o -> o.type().getName().equals(c));
-      ensureLast(SyntaxRegistry.EFFECT, o -> o.type().getName().equals(c));
-      ensureLast(SyntaxRegistry.EXPRESSION, o -> o.type().getName().equals(c));
-      ensureLast(BukkitRegistryKeys.EVENT, o -> o.type().getName().equals(c));
-      ensureLast(SyntaxRegistry.STRUCTURE, o -> o.type().getName().equals(c));
-    }
-  }
+	public static void reorderSyntax() {
+		for (String c : PARSE_ORDER) {
+			ensureLast(SyntaxRegistry.CONDITION, o -> o.type().getName().equals(c));
+			ensureLast(SyntaxRegistry.EFFECT, o -> o.type().getName().equals(c));
+			ensureLast(SyntaxRegistry.EXPRESSION, o -> o.type().getName().equals(c));
+			ensureLast(BukkitRegistryKeys.EVENT, o -> o.type().getName().equals(c));
+			ensureLast(SyntaxRegistry.STRUCTURE, o -> o.type().getName().equals(c));
+		}
+	}
 
-  private static <T> void ensureLast(SyntaxRegistry.Key<? extends SyntaxInfo<? extends T>> elementKey, Predicate<SyntaxInfo<? extends T>> checker) {
-    SyntaxRegistry syntaxRegistry = SkriptMirror.getAddonInstance().syntaxRegistry();
-    Optional<? extends SyntaxInfo<? extends T>> optionalE = syntaxRegistry.syntaxes(elementKey).stream()
-      .filter(checker)
-      .findFirst();
+	private static <T> void ensureLast(SyntaxRegistry.Key<? extends SyntaxInfo<? extends T>> elementKey, Predicate<SyntaxInfo<? extends T>> checker) {
+		SyntaxRegistry syntaxRegistry = SkriptMirror.getAddonInstance().syntaxRegistry();
+		Optional<? extends SyntaxInfo<? extends T>> optionalE = syntaxRegistry.syntaxes(elementKey).stream()
+			.filter(checker)
+			.findFirst();
 
-    optionalE.ifPresent(value -> {
-      syntaxRegistry.unregister((SyntaxRegistry.Key) elementKey, value);
-      var newInfo = value.toBuilder().priority(POSITION).build();
-      syntaxRegistry.register((SyntaxRegistry.Key) elementKey, newInfo);
+		optionalE.ifPresent(value -> {
+			syntaxRegistry.unregister((SyntaxRegistry.Key) elementKey, value);
+			var newInfo = value.toBuilder().priority(POSITION).build();
+			syntaxRegistry.register((SyntaxRegistry.Key) elementKey, newInfo);
 
-      // need to update custom syntax references
-      CustomSyntaxStructure.DataTracker<?> tracker = null;
-      if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.EFFECT) {
-        tracker = StructCustomEffect.dataTracker;
-      } else if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.CONDITION) {
-        tracker = StructCustomCondition.dataTracker;
-      } else if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.EXPRESSION) {
-        tracker = StructCustomExpression.dataTracker;
-      }
-      if (tracker != null && tracker.getInfo() == value) {
-        tracker.setInfo(newInfo);
-      }
-    });
-  }
+			// need to update custom syntax references
+			CustomSyntaxStructure.DataTracker<?> tracker = null;
+			if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.EFFECT) {
+				tracker = StructCustomEffect.dataTracker;
+			} else if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.CONDITION) {
+				tracker = StructCustomCondition.dataTracker;
+			} else if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.EXPRESSION) {
+				tracker = StructCustomExpression.dataTracker;
+			}
+			if (tracker != null && tracker.getInfo() == value) {
+				tracker.setInfo(newInfo);
+			}
+		});
+	}
 
 }

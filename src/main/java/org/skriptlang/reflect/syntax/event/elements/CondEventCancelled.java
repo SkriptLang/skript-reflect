@@ -9,18 +9,18 @@ import org.bukkit.event.Cancellable;
 // backwards compatibility. And for some reason this works, so I'll keep it.
 public class CondEventCancelled<T> extends PropertyCondition<T> {
 
-  static {
-    register(CondEventCancelled.class, "cancelled", "events");
-  }
+	static {
+		register(CondEventCancelled.class, "cancelled", "events");
+	}
 
-  @Override
-  public boolean check(T event) {
-    return event instanceof Cancellable && ((Cancellable) event).isCancelled();
-  }
+	@Override
+	public boolean check(T event) {
+		return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+	}
 
-  @Override
-  protected String getPropertyName() {
-    return "cancelled";
-  }
+	@Override
+	protected String getPropertyName() {
+		return "cancelled";
+	}
 
 }

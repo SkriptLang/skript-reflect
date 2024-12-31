@@ -5,28 +5,28 @@ import org.bukkit.event.HandlerList;
 
 public class SectionEvent extends Event {
 
-  private final Section section;
-  private Object[] output;
+	private final Section section;
+	private Object[] output;
 
-  public SectionEvent(Section section) {
-    this.section = section;
-  }
+	public SectionEvent(Section section) {
+		this.section = section;
+	}
 
-  public Section getSection() {
-    return section;
-  }
+	public Section getSection() {
+		return section;
+	}
 
-  public Object[] getOutput() {
-    return output;
-  }
+	public Object[] getOutput() {
+		return output;
+	}
 
-  public void setOutput(Object[] output) {
-    this.output = output;
-  }
+	public void setOutput(Object[] output) {
+		this.output = output;
+	}
 
-  @Override
-  public HandlerList getHandlers() {
-    throw new IllegalStateException();
-  }
+	@Override
+	public HandlerList getHandlers() {
+		throw new IllegalStateException();
+	}
 
 }
