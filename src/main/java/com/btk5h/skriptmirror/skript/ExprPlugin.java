@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
@@ -22,19 +23,21 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-    super.init(exprs, matchedPattern, isDelayed, parseResult);
+    boolean superInitResult = super.init(exprs, matchedPattern, isDelayed, parseResult);
 
-    if (exprs[0] instanceof StructImport.ImportHandler) {
-      JavaType javaType = ((StructImport.ImportHandler) exprs[0]).getJavaType();
-      Class<?> clazz = javaType.getJavaClass();
+    if (getExpr() instanceof Literal) {
+      Object literalValue = ((Literal<?>) getExpr()).getSingle();
+      if (literalValue instanceof JavaType) {
+        Class<?> clazz = ((JavaType) literalValue).getJavaClass();
 
-      if (!JavaPlugin.class.isAssignableFrom(clazz) || JavaPlugin.class.equals(clazz)) {
-        Skript.error("The class " + clazz.getSimpleName() + " is not a plugin class");
-        return false;
+        if (!JavaPlugin.class.isAssignableFrom(clazz) || JavaPlugin.class.equals(clazz)) {
+          Skript.error("The class " + clazz.getSimpleName() + " is not a plugin class");
+          return false;
+        }
       }
     }
 
-    return true;
+    return superInitResult;
   }
 
   @Override

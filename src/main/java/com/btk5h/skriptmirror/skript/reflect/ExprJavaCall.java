@@ -2,10 +2,7 @@ package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -165,10 +162,11 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         if (staticDescriptor.getJavaClass() == null
-          && rawTarget instanceof StructImport.ImportHandler) {
-          staticDescriptor = staticDescriptor.orDefaultClass(
-            ((StructImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
-          );
+          && rawTarget instanceof Literal) {
+          Object rawTargetValue = ((Literal<?>) rawTarget).getSingle();
+          if (rawTargetValue instanceof JavaType) {
+            staticDescriptor = staticDescriptor.orDefaultClass(((JavaType) rawTargetValue).getJavaClass());
+          }
         }
 
         if (staticDescriptor.getParameterTypes() != null && type.equals(CallType.FIELD)) {
