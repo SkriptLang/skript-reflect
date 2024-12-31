@@ -11,5 +11,5 @@ on script load:
   runEffectCommand("set {tests::EffImport::byte size} to Byte.SIZE")
 
 test "import from effect":
-  assert Byte.SIZE is set with "Failed to use import from effect"
+  assert {tests::EffImport::byte size} is set with "Failed to use import from effect"
   delete {tests::EffImport::byte size}
