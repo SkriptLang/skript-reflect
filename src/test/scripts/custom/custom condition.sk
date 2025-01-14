@@ -17,7 +17,7 @@ boolean property condition test property condition:
 test "custom conditions":
   assert test true condition with "Failed true condition"
 
-  assert to fail test false condition with "Failed false condition"
+  assert test false condition to fail with "Failed false condition"
 
   assert test input based condition (true) with "Failed input based true condition"
   assert test input based condition (false) with "Failed input based false condition"
