@@ -62,7 +62,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
   static final Map<EventSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
   static {
-    Skript.registerEvent("custom event", CustomEvent.class, BukkitCustomEvent.class);
+    Skript.registerEvent("custom event", CustomEvent.class, BukkitCustomEvent.class, "this is here because at least one pattern is required");
     Optional<BukkitSyntaxInfos.Event<?>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT).stream()
       .filter(i -> i.type() == CustomEvent.class)
       .findFirst();

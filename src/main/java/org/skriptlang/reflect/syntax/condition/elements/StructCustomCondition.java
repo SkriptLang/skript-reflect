@@ -57,7 +57,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
   static final Map<ConditionSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
   static {
-    Skript.registerCondition(CustomCondition.class);
+    Skript.registerCondition(CustomCondition.class, "this is here because at least one pattern is required");
     Optional<SyntaxInfo<? extends Condition>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(SyntaxRegistry.CONDITION).stream()
         .filter(i -> i.type() == CustomCondition.class)
         .findFirst();

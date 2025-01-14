@@ -39,7 +39,7 @@ public class StructCustomConstant extends CustomSyntaxStructure<ConstantSyntaxIn
 
   static {
     // noinspection unchecked
-    Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.SIMPLE);
+    Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.SIMPLE, "this is here because at least one pattern is required");
     Optional<SyntaxInfo<?>> info = SkriptMirror.getAddonInstance().syntaxRegistry().elements().stream()
         .filter(i -> Expression.class.isAssignableFrom(i.type()))
         .filter(i -> i.type() == CustomExpression.class)

@@ -259,6 +259,11 @@ public class CustomExpression<T> implements Expression<T> {
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
+    // prevent the user from using the placeholder pattern we register in order to satisfy the registration requirements
+    if (matchedPattern == 1) {
+      return false;
+    }
+
     which = StructCustomExpression.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
     if (which == null) {

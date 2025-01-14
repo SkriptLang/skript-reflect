@@ -51,7 +51,7 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
   static final Map<EffectSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
   static {
-    Skript.registerEffect(CustomEffect.class);
+    Skript.registerEffect(CustomEffect.class, "this is here because at least one pattern is required");
     Optional<SyntaxInfo<? extends Effect>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(SyntaxRegistry.EFFECT).stream()
       .filter(i -> i.type() == CustomEffect.class)
       .findFirst();
