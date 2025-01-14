@@ -37,7 +37,6 @@ public class SkriptReflection {
   private static Method VARIABLES_MAP_COPY;
   private static Field DEFAULT_EXPRESSION;
   private static Field PARSED_VALUE;
-  private static Field EXPRESSIONS;
   private static Field OPTIONS;
 
   static {
@@ -90,15 +89,6 @@ public class SkriptReflection {
     } catch (NoSuchFieldException e) {
       warning("Skript's parsed value field could not be resolved, " +
           "therefore and/or warnings won't be suppressed");
-    }
-
-    try {
-      _FIELD = Skript.class.getDeclaredField("expressions");
-      _FIELD.setAccessible(true);
-      EXPRESSIONS = _FIELD;
-    } catch (NoSuchFieldException e) {
-      warning("Skript's expressions field could not be resolved, " +
-          "therefore you might get syntax conflict problems");
     }
 
     try {
@@ -250,20 +240,6 @@ public class SkriptReflection {
       } catch (IllegalAccessException e) {
         throw new RuntimeException();
       }
-    }
-  }
-
-  /**
-   * {@return} a list of all of Skript's registered {@link ch.njol.skript.lang.Expression}s.
-   */
-  public static List<ExpressionInfo<?, ?>> getExpressions() {
-    if (EXPRESSIONS == null)
-      return new ArrayList<>();
-
-    try {
-      return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
     }
   }
 
