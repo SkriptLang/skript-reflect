@@ -163,8 +163,8 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         if (staticDescriptor.getJavaClass() == null
-          && rawTarget instanceof Literal) {
-          Object rawTargetValue = ((Literal<?>) rawTarget).getSingle();
+          && rawTarget instanceof Literal<?> literal) {
+          Object rawTargetValue = literal.getSingle();
           if (rawTargetValue instanceof JavaType) {
             staticDescriptor = staticDescriptor.orDefaultClass(((JavaType) rawTargetValue).getJavaClass());
           }

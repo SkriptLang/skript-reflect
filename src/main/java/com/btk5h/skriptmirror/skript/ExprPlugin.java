@@ -25,10 +25,10 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     boolean superInitResult = super.init(exprs, matchedPattern, isDelayed, parseResult);
 
-    if (getExpr() instanceof Literal) {
-      Object literalValue = ((Literal<?>) getExpr()).getSingle();
-      if (literalValue instanceof JavaType) {
-        Class<?> clazz = ((JavaType) literalValue).getJavaClass();
+    if (getExpr() instanceof Literal<?> literal) {
+      Object literalValue = literal.getSingle();
+      if (literalValue instanceof JavaType javaType) {
+        Class<?> clazz = javaType.getJavaClass();
 
         if (!JavaPlugin.class.isAssignableFrom(clazz) || JavaPlugin.class.equals(clazz)) {
           Skript.error("The class " + clazz.getSimpleName() + " is not a plugin class");
@@ -42,8 +42,7 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
 
   @Override
   public ObjectWrapper convert(Object plugin) {
-    if (plugin instanceof String) {
-      String pluginName = (String) plugin;
+    if (plugin instanceof String pluginName) {
       for (Plugin pluginInstance : Bukkit.getPluginManager().getPlugins()) {
         if (pluginInstance.getName().equalsIgnoreCase(pluginName)) {
           return ObjectWrapper.create(pluginInstance);
