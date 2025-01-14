@@ -35,6 +35,7 @@ on script load:
   call custom event "test custom event with check"
   assert {skript-reflect::tests::custom events::ran custom event with check} is not set with "Ran custom event when check did not continue"
   set {skript-reflect::tests::custom events::run test with check} to true
+  call custom event "test custom event with check"
   assert {skript-reflect::tests::custom events::ran custom event with check} is set with "Did not run custom event when check continued"
 
   set {_data::data} to "this is the value"
