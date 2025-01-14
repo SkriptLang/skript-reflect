@@ -197,7 +197,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
     syntaxRegistry.unregister((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), (SyntaxInfo<?>) oldSyntaxInfo);
 
     List<String> patterns = new ArrayList<>(getDataTracker().getPatterns());
-    if (!patterns.isEmpty()) {
+    if (patterns.isEmpty()) {
       patterns.add(DEFAULT_PATTERN);
     }
     SyntaxInfo<?> newSyntaxInfo = oldSyntaxInfo.builder()
