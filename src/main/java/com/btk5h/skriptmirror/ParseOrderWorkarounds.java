@@ -41,8 +41,6 @@ public class ParseOrderWorkarounds {
   };
 
   public static void reorderSyntax() {
-    if (true) // temporary test
-      return;
     for (String c : PARSE_ORDER) {
       ensureLast(SyntaxRegistry.STATEMENT, o -> o.type().getName().equals(c));
       ensureLast(SyntaxRegistry.CONDITION, o -> o.type().getName().equals(c));
