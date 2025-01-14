@@ -10,5 +10,5 @@ test "custom expressions":
   assert test custom expression is true with "Failed to get custom expression"
   assert (raw (test custom expression)).isSingle() is true with "Custom expression is incorrectly non-single"
 
-   assert test plural custom expression is (true and true) with "Failed to get custom expression"
-   assert (raw (test plural custom expression)).isSingle() is false with "Custom expression is incorrectly single"
+  assert test plural custom expression is (true and true) with "Failed to get custom expression"
+  assert (raw (test plural custom expression)).isSingle() is false with "Custom expression is incorrectly single"
