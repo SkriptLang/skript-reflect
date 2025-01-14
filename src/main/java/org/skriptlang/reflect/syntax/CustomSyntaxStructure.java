@@ -195,14 +195,10 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
     SyntaxInfo<?> oldSyntaxInfo = getDataTracker().getInfo();
     // an angel weeps
     syntaxRegistry.unregister((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), (SyntaxInfo<?>) oldSyntaxInfo);
-
-    List<String> patterns = new ArrayList<>(getDataTracker().getPatterns());
-    if (patterns.isEmpty()) {
-      patterns.add(DEFAULT_PATTERN);
-    }
     SyntaxInfo<?> newSyntaxInfo = oldSyntaxInfo.builder()
         .clearPatterns()
-        .addPatterns(patterns)
+        .addPattern(DEFAULT_PATTERN)
+        .addPatterns(getDataTracker().getPatterns())
         .build();
     syntaxRegistry.register((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), newSyntaxInfo);
     getDataTracker().setInfo(newSyntaxInfo);
