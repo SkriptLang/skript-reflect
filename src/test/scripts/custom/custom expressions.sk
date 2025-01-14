@@ -20,5 +20,5 @@ test "custom expressions":
   set {_world} to random world out of all worlds
   assert test property expression of {_world} is 5 with "Failed to get custom property expression (single)"
   assert test property expression of ({_world} and {_world}) is 5 with "Failed to get custom property expression (multiple)"
-  assert (raw expression (test property expression of {_world}).isSingle() is true with "Custom property expression is incorrectly non-single"
-  assert (raw expression (test property expression of ({_world} and {_world})).isSingle() is false with "Custom property expression is incorrectly single"
+  assert (raw expression (test property expression of {_world})).isSingle() is true with "Custom property expression is incorrectly non-single"
+  assert (raw expression (test property expression of ({_world} and {_world}))).isSingle() is false with "Custom property expression is incorrectly single"

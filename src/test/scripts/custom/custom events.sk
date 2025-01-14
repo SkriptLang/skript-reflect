@@ -20,8 +20,8 @@ on test custom event:
 on test custom event with check:
   set {skript-reflect::tests::custom events::ran custom event with check} to true
 
- on test custom event with event values:
-   set {skript-reflect::tests::custom events::event-string} to event-string
+on test custom event with event values:
+  set {skript-reflect::tests::custom events::event-string} to event-string
 
 on test custom event with event data:
   set {skript-reflect::tests::custom events::provided data} to data "data"
