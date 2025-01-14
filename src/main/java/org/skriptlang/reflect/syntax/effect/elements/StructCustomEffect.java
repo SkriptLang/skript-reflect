@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
+import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
@@ -17,6 +18,8 @@ import org.skriptlang.reflect.syntax.effect.EffectSyntaxInfo;
 import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,11 +52,12 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
 
   static {
     Skript.registerEffect(CustomEffect.class);
-    Optional<SyntaxElementInfo<? extends Effect>> info = Skript.getEffects().stream()
-      .filter(i -> i.getElementClass() == CustomEffect.class)
+    Optional<SyntaxInfo<? extends Effect>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(SyntaxRegistry.EFFECT).stream()
+      .filter(i -> i.type() == CustomEffect.class)
       .findFirst();
     info.ifPresent(dataTracker::setInfo);
 
+    dataTracker.setSyntaxKey(SyntaxRegistry.EFFECT);
     dataTracker.addManaged(effectHandlers);
     dataTracker.addManaged(parserHandlers);
     dataTracker.addManaged(usableSuppliers);

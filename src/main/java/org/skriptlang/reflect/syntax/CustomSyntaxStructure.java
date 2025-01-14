@@ -5,6 +5,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.VariableString;
+import com.btk5h.skriptmirror.SkriptMirror;
 import org.skriptlang.reflect.java.elements.structures.StructImport;
 import org.skriptlang.reflect.syntax.event.elements.CustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
@@ -18,6 +19,8 @@ import org.bukkit.event.HandlerList;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +51,8 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
     private List<String> patterns = new ArrayList<>();
     private final Map<Script, Map<String, T>> primaryData = new HashMap<>();
     private final List<Map<T, ?>> managedData = new ArrayList<>();
-    private SyntaxElementInfo<?> info;
+    private SyntaxRegistry.Key<?> syntaxKey;
+    private SyntaxInfo<?> info;
 
     public List<String> getPatterns() {
       return patterns;
@@ -62,7 +66,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
       return managedData;
     }
 
-    public SyntaxElementInfo<?> getInfo() {
+    public SyntaxInfo<?> getInfo() {
       return info;
     }
 
@@ -78,7 +82,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
       managedData.add(data);
     }
 
-    public void setInfo(SyntaxElementInfo<?> info) {
+    public void setInfo(SyntaxInfo<?> info) {
       this.info = info;
     }
 
@@ -100,6 +104,14 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
       }
 
       return globalSyntax.get(originalSyntax);
+    }
+
+    public SyntaxRegistry.Key<?> getSyntaxKey() {
+      return syntaxKey;
+    }
+
+    public void setSyntaxKey(SyntaxRegistry.Key<?> syntaxKey) {
+      this.syntaxKey = syntaxKey;
     }
   }
 
@@ -178,7 +190,10 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
 
   private void update() {
     getDataTracker().recomputePatterns();
-    SkriptReflection.setPatterns(getDataTracker().getInfo(), getDataTracker().getPatterns().toArray(new String[0]));
+    SyntaxRegistry syntaxRegistry = SkriptMirror.getAddonInstance().syntaxRegistry();
+    SyntaxInfo<?> oldSyntaxInfo = getDataTracker().getInfo();
+    // an angel weeps
+    syntaxRegistry.unregister((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), (SyntaxInfo<?>) oldSyntaxInfo);
   }
 
   protected final void register(T data) {

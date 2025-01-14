@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 
@@ -152,12 +153,12 @@ public class CustomExpression<T> implements Expression<T> {
   }
 
   @Override
-  public boolean check(Event e, Checker<? super T> c, boolean negated) {
+  public boolean check(Event e, Predicate<? super T> c, boolean negated) {
     return SimpleExpression.check(getAll(e), c, negated, getAnd());
   }
 
   @Override
-  public boolean check(Event e, Checker<? super T> c) {
+  public boolean check(Event e, Predicate<? super T> c) {
     return SimpleExpression.check(getAll(e), c, false, getAnd());
   }
 

@@ -5,17 +5,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
-import com.btk5h.skriptmirror.util.SkriptReflection;
-import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -25,11 +20,8 @@ import org.skriptlang.skript.lang.structure.Structure;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 public class StructImport extends Structure {
 
