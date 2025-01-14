@@ -77,6 +77,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
           .flatMap(Set::stream)
           .distinct()
           .collect(Collectors.toList());
+      patterns.add(0, DEFAULT_PATTERN); // registration api compatibility workaround
     }
 
     public void addManaged(Map<T, ?> data) {
@@ -197,7 +198,6 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
     syntaxRegistry.unregister((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), (SyntaxInfo<?>) oldSyntaxInfo);
     SyntaxInfo<?> newSyntaxInfo = oldSyntaxInfo.builder()
         .clearPatterns()
-        .addPattern(DEFAULT_PATTERN)
         .addPatterns(getDataTracker().getPatterns())
         .build();
     syntaxRegistry.register((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), newSyntaxInfo);
