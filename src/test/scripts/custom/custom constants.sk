@@ -4,4 +4,4 @@ option test constant value:
 
 
 test "custom constants":
-  assert {@test constant value} is "test constant value"
+  assert "{@test constant value}" is "test constant value"
