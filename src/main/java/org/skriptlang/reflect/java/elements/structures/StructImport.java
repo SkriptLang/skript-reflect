@@ -136,7 +136,7 @@ public class StructImport extends Structure {
       }
 
       className = parseResult.regexes.get(0).group();
-      return registerImport(className, getParser().getCurrentScript());
+      return registerImport(className, null); // No script in an effect command
     }
 
     @Override
