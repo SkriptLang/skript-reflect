@@ -199,6 +199,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
         .addPatterns(getDataTracker().getPatterns())
         .build();
     syntaxRegistry.register((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), newSyntaxInfo);
+    getDataTracker().setInfo(newSyntaxInfo);
   }
 
   protected final void register(T data) {
