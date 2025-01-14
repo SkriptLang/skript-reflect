@@ -40,4 +40,4 @@ jobs:
         with:
           test_script_directory: src/test/scripts
           extra_plugins_directory: extra-plugins/
-          skript_repo_ref: 2.10.0-pre1
+          skript_repo_ref: dev/feature
