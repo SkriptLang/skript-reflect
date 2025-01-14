@@ -2,16 +2,20 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.EffReturn;
-import ch.njol.util.Checker;
 import org.skriptlang.reflect.syntax.condition.elements.CustomCondition;
 import org.skriptlang.reflect.syntax.effect.elements.CustomEffect;
 import org.skriptlang.reflect.syntax.expression.elements.CustomExpression;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
 import com.btk5h.skriptmirror.skript.custom.ExprMatchedPattern;
 import com.btk5h.skriptmirror.util.SkriptReflection;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import javax.naming.ServiceUnavailableException;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Explicitly declares the relative parse orders of different statement types. Classes at the start of the list should
@@ -38,22 +42,24 @@ public class ParseOrderWorkarounds {
 
   public static void reorderSyntax() {
     for (String c : PARSE_ORDER) {
-      ensureLast(Skript.getStatements(), o -> o.getElementClass().getName().equals(c));
-      ensureLast(Skript.getConditions(), o -> o.getElementClass().getName().equals(c));
-      ensureLast(Skript.getEffects(), o -> o.getElementClass().toString().equals(c));
-      ensureLast(SkriptReflection.getExpressions(), o -> o.getElementClass().getName().equals(c));
-      ensureLast(Skript.getEvents(), o -> o.getElementClass().getName().equals(c));
+      ensureLast(SyntaxRegistry.STATEMENT, o -> o.type().getName().equals(c));
+      ensureLast(SyntaxRegistry.CONDITION, o -> o.type().getName().equals(c));
+      ensureLast(SyntaxRegistry.EFFECT, o -> o.type().equals(c));
+      ensureLast(SyntaxRegistry.EXPRESSION, o -> o.type().getName().equals(c));
+      ensureLast(BukkitRegistryKeys.EVENT, o -> o.type().getName().equals(c));
+      ensureLast(SyntaxRegistry.STRUCTURE, o -> o.type().getName().equals(c));
     }
   }
 
-  private static <E> void ensureLast(Collection<E> elements, Checker<E> checker) {
-    Optional<E> optionalE = elements.stream()
-      .filter(checker::check)
+  private static <T> void ensureLast(SyntaxRegistry.Key<? extends SyntaxInfo<? extends T>> elementKey, Predicate<SyntaxInfo<? extends T>> checker) {
+    SyntaxRegistry syntaxRegistry = SkriptMirror.getAddonInstance().syntaxRegistry();
+    Optional<? extends SyntaxInfo<? extends T>> optionalE = syntaxRegistry.syntaxes(elementKey).stream()
+      .filter(checker::test)
       .findFirst();
 
     optionalE.ifPresent(value -> {
-      elements.remove(value);
-      elements.add(value);
+      syntaxRegistry.unregister((SyntaxRegistry.Key) elementKey, value);
+      syntaxRegistry.register((SyntaxRegistry.Key) elementKey, value);
     });
   }
 
