@@ -88,7 +88,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
 
   static {
     // noinspection unchecked
-    Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "this is here because at least one pattern is required");
+    Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, DEFAULT_PATTERN);
     Optional<SyntaxInfo<?>> info = SkriptMirror.getAddonInstance().syntaxRegistry().elements().stream()
         .filter(i -> Expression.class.isAssignableFrom(i.type()))
         .filter(i -> i.type() == CustomExpression.class)

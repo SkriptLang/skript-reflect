@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.SyntaxData> extends Structure {
 
+  public static final String DEFAULT_PATTERN = "this is here because at least one pattern is required";
   public static final Priority PRIORITY = new Priority(350);
 
   public static class CustomSyntaxEvent extends Event {
@@ -194,9 +195,14 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
     SyntaxInfo<?> oldSyntaxInfo = getDataTracker().getInfo();
     // an angel weeps
     syntaxRegistry.unregister((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), (SyntaxInfo<?>) oldSyntaxInfo);
+
+    List<String> patterns = new ArrayList<>(getDataTracker().getPatterns());
+    if (!patterns.isEmpty()) {
+      patterns.add(DEFAULT_PATTERN);
+    }
     SyntaxInfo<?> newSyntaxInfo = oldSyntaxInfo.builder()
         .clearPatterns()
-        .addPatterns(getDataTracker().getPatterns())
+        .addPatterns(patterns)
         .build();
     syntaxRegistry.register((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), newSyntaxInfo);
     getDataTracker().setInfo(newSyntaxInfo);
