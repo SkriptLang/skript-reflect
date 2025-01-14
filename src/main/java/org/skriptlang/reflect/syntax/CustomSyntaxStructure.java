@@ -194,6 +194,11 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
     SyntaxInfo<?> oldSyntaxInfo = getDataTracker().getInfo();
     // an angel weeps
     syntaxRegistry.unregister((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), (SyntaxInfo<?>) oldSyntaxInfo);
+    SyntaxInfo<?> newSyntaxInfo = oldSyntaxInfo.builder()
+        .clearPatterns()
+        .addPatterns(getDataTracker().getPatterns())
+        .build();
+    syntaxRegistry.register((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), newSyntaxInfo);
   }
 
   protected final void register(T data) {
