@@ -49,7 +49,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
     );
   }
 
-  private static final DataTracker<ConditionSyntaxInfo> dataTracker = new DataTracker<>();
+  public static final DataTracker<ConditionSyntaxInfo> dataTracker = new DataTracker<>();
 
   static final Map<ConditionSyntaxInfo, Trigger> conditionHandlers = new HashMap<>();
   static final Map<ConditionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();

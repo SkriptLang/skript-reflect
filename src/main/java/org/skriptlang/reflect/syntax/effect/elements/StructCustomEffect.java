@@ -43,7 +43,7 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
     );
   }
 
-  private static final DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
+  public static final DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
 
   static final Map<EffectSyntaxInfo, Trigger> effectHandlers = new HashMap<>();
   static final Map<EffectSyntaxInfo, Trigger> parserHandlers = new HashMap<>();

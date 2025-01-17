@@ -74,7 +74,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     Skript.registerStructure(StructCustomExpression.class, builder.build(), syntax);
   }
 
-  private static final DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
+  public static final DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
 
   static final Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();

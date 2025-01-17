@@ -23,7 +23,9 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-    boolean superInitResult = super.init(exprs, matchedPattern, isDelayed, parseResult);
+    if (!super.init(exprs, matchedPattern, isDelayed, parseResult)) {
+      return false;
+    }
 
     if (getExpr() instanceof Literal<?> literal) {
       Object literalValue = literal.getSingle();
@@ -37,7 +39,7 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
       }
     }
 
-    return superInitResult;
+    return true;
   }
 
   @Override
