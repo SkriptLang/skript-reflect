@@ -72,11 +72,11 @@ public class ParseOrderWorkarounds {
 
       // need to update custom syntax references
       CustomSyntaxStructure.DataTracker<?> tracker = null;
-      if (elementKey == SyntaxRegistry.EFFECT) {
+      if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.EFFECT) {
         tracker = StructCustomEffect.dataTracker;
-      } else if (elementKey == SyntaxRegistry.CONDITION) {
+      } else if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.CONDITION) {
         tracker = StructCustomCondition.dataTracker;
-      } else if (elementKey == SyntaxRegistry.EXPRESSION) {
+      } else if (elementKey == (SyntaxRegistry.Key) SyntaxRegistry.EXPRESSION) {
         tracker = StructCustomExpression.dataTracker;
       }
       if (tracker != null && tracker.getInfo() == value) {
