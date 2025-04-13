@@ -2,10 +2,7 @@ package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -49,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -165,10 +163,11 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         if (staticDescriptor.getJavaClass() == null
-          && rawTarget instanceof StructImport.ImportHandler) {
-          staticDescriptor = staticDescriptor.orDefaultClass(
-            ((StructImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
-          );
+          && rawTarget instanceof Literal<?> literal) {
+          Object rawTargetValue = literal.getSingle();
+          if (rawTargetValue instanceof JavaType) {
+            staticDescriptor = staticDescriptor.orDefaultClass(((JavaType) rawTargetValue).getJavaClass());
+          }
         }
 
         if (staticDescriptor.getParameterTypes() != null && type.equals(CallType.FIELD)) {
@@ -253,12 +252,12 @@ public class ExprJavaCall<T> implements Expression<T> {
   }
 
   @Override
-  public boolean check(Event e, Checker<? super T> c, boolean negated) {
+  public boolean check(Event e, Predicate<? super T> c, boolean negated) {
     return SimpleExpression.check(getAll(e), c, negated, getAnd());
   }
 
   @Override
-  public boolean check(Event e, Checker<? super T> c) {
+  public boolean check(Event e, Predicate<? super T> c) {
     return SimpleExpression.check(getAll(e), c, false, getAnd());
   }
 

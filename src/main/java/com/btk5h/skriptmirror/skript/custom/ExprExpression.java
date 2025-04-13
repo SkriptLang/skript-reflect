@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Iterator;
+import java.util.function.Predicate;
 
 public class ExprExpression<T> implements Expression<T> {
   static {
@@ -123,12 +124,12 @@ public class ExprExpression<T> implements Expression<T> {
   }
 
   @Override
-  public boolean check(Event e, Checker<? super T> c, boolean negated) {
+  public boolean check(Event e, Predicate<? super T> c, boolean negated) {
     return SimpleExpression.check(getAll(e), c, negated, getAnd());
   }
 
   @Override
-  public boolean check(Event e, Checker<? super T> c) {
+  public boolean check(Event e, Predicate<? super T> c) {
     return SimpleExpression.check(getAll(e), c, false, getAnd());
   }
 

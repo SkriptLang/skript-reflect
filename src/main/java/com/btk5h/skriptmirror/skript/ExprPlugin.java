@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
@@ -22,15 +23,19 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
 
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-    super.init(exprs, matchedPattern, isDelayed, parseResult);
+    if (!super.init(exprs, matchedPattern, isDelayed, parseResult)) {
+      return false;
+    }
 
-    if (exprs[0] instanceof StructImport.ImportHandler) {
-      JavaType javaType = ((StructImport.ImportHandler) exprs[0]).getJavaType();
-      Class<?> clazz = javaType.getJavaClass();
+    if (getExpr() instanceof Literal<?> literal) {
+      Object literalValue = literal.getSingle();
+      if (literalValue instanceof JavaType javaType) {
+        Class<?> clazz = javaType.getJavaClass();
 
-      if (!JavaPlugin.class.isAssignableFrom(clazz) || JavaPlugin.class.equals(clazz)) {
-        Skript.error("The class " + clazz.getSimpleName() + " is not a plugin class");
-        return false;
+        if (!JavaPlugin.class.isAssignableFrom(clazz) || JavaPlugin.class.equals(clazz)) {
+          Skript.error("The class " + clazz.getSimpleName() + " is not a plugin class");
+          return false;
+        }
       }
     }
 
@@ -39,8 +44,7 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
 
   @Override
   public ObjectWrapper convert(Object plugin) {
-    if (plugin instanceof String) {
-      String pluginName = (String) plugin;
+    if (plugin instanceof String pluginName) {
       for (Plugin pluginInstance : Bukkit.getPluginManager().getPlugins()) {
         if (pluginInstance.getName().equalsIgnoreCase(pluginName)) {
           return ObjectWrapper.create(pluginInstance);

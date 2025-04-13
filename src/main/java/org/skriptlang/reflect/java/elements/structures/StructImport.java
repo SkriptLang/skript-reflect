@@ -5,17 +5,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.LibraryLoader;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
-import com.btk5h.skriptmirror.util.SkriptReflection;
-import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -25,29 +20,19 @@ import org.skriptlang.skript.lang.structure.Structure;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 public class StructImport extends Structure {
 
   public static final Priority PRIORITY = new Priority(150);
   private static final Pattern IMPORT_STATEMENT =
       Pattern.compile("(" + SkriptMirrorUtil.PACKAGE + ")(?:\\s+as (" + SkriptMirrorUtil.IDENTIFIER + "))?");
-  private static final SyntaxElementInfo<?> thisInfo;
   private static final Map<Script, Map<String, JavaType>> imports = new HashMap<>();
 
   static {
     Skript.registerStructure(StructImport.class, "import");
     Skript.registerEffect(EffImport.class, "import <" + IMPORT_STATEMENT.pattern() + ">");
-
-    // TODO try replacing ImportHandler with JavaType's literal parsing
-    Skript.registerExpression(ImportHandler.class, JavaType.class, ExpressionType.SIMPLE);
-    thisInfo = StreamSupport.stream(Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
-        .filter(expressionInfo -> ImportHandler.class.equals(expressionInfo.getElementClass()))
-        .findFirst().orElseThrow(RuntimeException::new); // Should never be null
   }
 
   private Script script;
@@ -55,10 +40,10 @@ public class StructImport extends Structure {
   @Override
   public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
     this.script = getParser().getCurrentScript();
-    getEntryContainer().getSource().forEach(node -> registerImport(Optional.ofNullable(node.getKey())
+    assert entryContainer != null; // entryContainer will always be non-null as this is not a simple structure
+    entryContainer.getSource().forEach(node -> registerImport(Optional.ofNullable(node.getKey())
         .map(ScriptLoader::replaceOptions)
         .orElse(null), script));
-    updateImports();
     return true;
   }
 
@@ -70,7 +55,6 @@ public class StructImport extends Structure {
   @Override
   public void unload() {
     imports.remove(script);
-    updateImports();
   }
 
   @Override
@@ -83,6 +67,12 @@ public class StructImport extends Structure {
     return "import";
   }
 
+  /**
+   * Registers an import
+   * @param rawStatement the raw statement representing the string to import
+   * @param script the script this import belongs to
+   * @return whether the import was registered successfully
+   */
   private static boolean registerImport(String rawStatement, @Nullable Script script) {
     Matcher statement = IMPORT_STATEMENT.matcher(ScriptLoader.replaceOptions(rawStatement));
     if (!statement.matches()) {
@@ -124,50 +114,6 @@ public class StructImport extends Structure {
     return true;
   }
 
-  private static void updateImports() {
-    String[] patterns = imports.values().stream()
-        .flatMap(m -> m.keySet().stream())
-        .distinct()
-        .toArray(String[]::new);
-    SkriptReflection.setPatterns(thisInfo, patterns);
-  }
-
-  public static class ImportHandler extends SimpleExpression<JavaType> {
-
-    private JavaType type;
-
-    @Override
-    protected JavaType[] get(Event e) {
-      return new JavaType[]{type};
-    }
-
-    @Override
-    public boolean isSingle() {
-      return true;
-    }
-
-    @Override
-    public Class<? extends JavaType> getReturnType() {
-      return JavaType.class;
-    }
-
-    @Override
-    public String toString(Event e, boolean debug) {
-      return type.getJavaClass().getName();
-    }
-
-    @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-      type = lookup(SkriptUtil.getCurrentScript(), parseResult.expr);
-      return type != null;
-    }
-
-    public JavaType getJavaType() {
-      return type;
-    }
-
-  }
-
   public static JavaType lookup(Script script, String identifier) {
     Map<String, JavaType> localImports = imports.get(script);
 
@@ -190,13 +136,11 @@ public class StructImport extends Structure {
       }
 
       className = parseResult.regexes.get(0).group();
-
-      return registerImport(className, null);
+      return registerImport(className, null); // No script in an effect command
     }
 
     @Override
-    protected void execute(Event e) {
-      updateImports();
+    protected void execute(Event event) {
     }
 
     @Override

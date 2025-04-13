@@ -1,0 +1,24 @@
+expression test custom expression:
+  get:
+    return true
+
+plural expression test plural custom expression:
+  get:
+    return true and true
+
+world property test property expression:
+  get:
+    return 5
+
+test "custom expressions":
+  assert test custom expression is true with "Failed to get custom expression"
+  assert (raw expression (test custom expression)).isSingle() is true with "Custom expression is incorrectly non-single"
+
+  assert test plural custom expression is (true and true) with "Failed to get custom expression"
+  assert (raw expression (test plural custom expression)).isSingle() is false with "Custom expression is incorrectly single"
+
+  set {_world} to random world out of all worlds
+  assert test property expression of {_world} is 5 with "Failed to get custom property expression (single)"
+  assert test property expression of ({_world} and {_world}) is 5 with "Failed to get custom property expression (multiple)"
+  assert (raw expression (test property expression of {_world})).isSingle() is true with "Custom property expression is incorrectly non-single"
+  assert (raw expression (test property expression of ({_world} and {_world}))).isSingle() is false with "Custom property expression is incorrectly single"

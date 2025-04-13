@@ -1,0 +1,7 @@
+option test constant value:
+  get:
+    return "test constant value"
+
+
+test "custom constants":
+  assert "{@test constant value}" is "test constant value" with "Failed to get constant"

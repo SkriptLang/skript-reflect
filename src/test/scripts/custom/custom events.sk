@@ -1,0 +1,47 @@
+event "test custom event":
+  pattern: test custom event
+
+event "test custom event with check":
+  pattern: test custom event with check
+  check:
+    continue if {skript-reflect::tests::custom events::run test with check} is set
+
+event "test custom event with event values":
+  pattern: test custom event with event values
+  event-values: string
+
+event "test custom event with event data":
+  pattern: test custom event with event data
+  event-values: string
+
+on test custom event:
+  set {skript-reflect::tests::custom events::ran custom event} to true
+
+on test custom event with check:
+  set {skript-reflect::tests::custom events::ran custom event with check} to true
+
+on test custom event with event values:
+  set {skript-reflect::tests::custom events::event-string} to event-string
+
+on test custom event with event data:
+  set {skript-reflect::tests::custom events::provided data} to data "data"
+
+on script load:
+  delete {skript-reflect::tests::custom events::*}
+
+  call custom event "test custom event"
+  assert {skript-reflect::tests::custom events::ran custom event} is set with "Failed to run custom event"
+
+  call custom event "test custom event with check"
+  assert {skript-reflect::tests::custom events::ran custom event with check} is not set with "Ran custom event when check did not continue"
+  set {skript-reflect::tests::custom events::run test with check} to true
+  call custom event "test custom event with check"
+  assert {skript-reflect::tests::custom events::ran custom event with check} is set with "Did not run custom event when check continued"
+
+  set {_data::data} to "this is the value"
+  call custom event "test custom event with event data" with data {_data::*}
+  assert {skript-reflect::tests::custom events::provided data} is {_data::data} with "Failed to get event data"
+
+  set {_event values::string} to "this is the event value"
+  call custom event "test custom event with event values" with event-values {_event values::*}
+  assert {skript-reflect::tests::custom events::event-string} is {_event values::string} with "Failed to get event-string"

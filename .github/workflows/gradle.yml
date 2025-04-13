@@ -15,7 +15,7 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
@@ -36,7 +36,7 @@ jobs:
           path: extra-plugins/
           merge-multiple: true
       - name: Run tests
-        uses: SkriptLang/skript-test-action@v1.1
+        uses: SkriptLang/skript-test-action@v1.2
         with:
           test_script_directory: src/test/scripts
           extra_plugins_directory: extra-plugins/

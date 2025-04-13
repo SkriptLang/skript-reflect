@@ -15,7 +15,7 @@ import org.bukkit.event.Event;
 public class ExprRawExpression extends SimpleExpression<Expression> {
   static {
     Skript.registerExpression(ExprRawExpression.class, Expression.class, ExpressionType.COMBINED,
-        "[the] raw %objects%");
+        "[the] raw [expression] %objects%");
   }
 
   private Expression<?> expr;

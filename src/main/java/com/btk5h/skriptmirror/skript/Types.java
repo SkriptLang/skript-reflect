@@ -63,8 +63,7 @@ public class Types {
 
           @Override
           public boolean canParse(ParseContext context) {
-            // default context handled in StructImport$ImportHandler
-            return context != ParseContext.DEFAULT;
+            return true;
           }
 
           @Override

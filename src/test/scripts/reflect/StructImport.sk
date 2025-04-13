@@ -1,0 +1,7 @@
+import:
+  java.lang.Math
+  java.lang.Math as AliasForMath
+
+test "import from structure":
+  assert Math.PI is set with "Failed to use import from structure"
+  assert AliasForMath.PI is set with "Failed to use import alias from structure"

@@ -1,0 +1,26 @@
+condition test true condition:
+  check:
+    continue
+
+condition test false condition:
+  check:
+    stop
+
+condition test input based condition %boolean%:
+  check:
+    continue if expr-1 is true
+
+boolean property condition test property condition:
+  check:
+    continue if expr-1 is true
+
+test "custom conditions":
+  assert test true condition with "Failed true condition"
+
+  assert test false condition to fail with "Failed false condition"
+
+  assert test input based condition (true) with "Failed input based true condition"
+  assert test input based condition (false) to fail with "Failed input based false condition"
+
+  assert true is test property condition with "Failed input based true property condition"
+  assert false isn't test property condition with "Failed input based false property condition"

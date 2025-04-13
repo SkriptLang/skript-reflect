@@ -15,8 +15,11 @@ import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
+import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.event.elements.ExprReplacedEventValue;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -29,27 +32,16 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class SkriptReflection {
 
-  private static Field PATTERNS;
   private static Field LOCAL_VARIABLES;
   private static Field NODES;
   private static Method VARIABLES_MAP_COPY;
   private static Field DEFAULT_EXPRESSION;
   private static Field PARSED_VALUE;
-  private static Field EXPRESSIONS;
   private static Field OPTIONS;
 
   static {
     Field _FIELD;
     Method _METHOD;
-
-    try {
-      _FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
-      _FIELD.setAccessible(true);
-      PATTERNS = _FIELD;
-    } catch (NoSuchFieldException e) {
-      warning("Skript's pattern info field could not be resolved. " +
-          "Custom syntax and imports will not work.");
-    }
 
     try {
       _FIELD = Variables.class.getDeclaredField("localVariables");
@@ -100,15 +92,6 @@ public class SkriptReflection {
     }
 
     try {
-      _FIELD = Skript.class.getDeclaredField("expressions");
-      _FIELD.setAccessible(true);
-      EXPRESSIONS = _FIELD;
-    } catch (NoSuchFieldException e) {
-      warning("Skript's expressions field could not be resolved, " +
-          "therefore you might get syntax conflict problems");
-    }
-
-    try {
       _FIELD = StructOptions.OptionsData.class.getDeclaredField("options");
       _FIELD.setAccessible(true);
       OPTIONS = _FIELD;
@@ -119,17 +102,6 @@ public class SkriptReflection {
 
   private static void warning(String message) {
     SkriptMirror.getInstance().getLogger().warning(message);
-  }
-
-  public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
-    if (PATTERNS == null)
-      return;
-
-    try {
-      PATTERNS.set(info, patterns);
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
   }
 
   /**
@@ -268,20 +240,6 @@ public class SkriptReflection {
       } catch (IllegalAccessException e) {
         throw new RuntimeException();
       }
-    }
-  }
-
-  /**
-   * {@return} a list of all of Skript's registered {@link ch.njol.skript.lang.Expression}s.
-   */
-  public static List<ExpressionInfo<?, ?>> getExpressions() {
-    if (EXPRESSIONS == null)
-      return new ArrayList<>();
-
-    try {
-      return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
     }
   }
 

@@ -1,0 +1,8 @@
+effect skript-reflect test set var %string%:
+  trigger:
+    set {%expr-1%} to true
+
+test "custom effects":
+  delete {skript-reflect.tests.custom effects}
+  skript-reflect test set var "skript-reflect.tests.custom effects"
+  assert {skript-reflect.tests.custom effects} is set with "Failed custom effect"

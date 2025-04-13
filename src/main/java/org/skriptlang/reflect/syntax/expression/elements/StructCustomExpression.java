@@ -4,18 +4,14 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import com.btk5h.skriptmirror.SkriptMirror;
 import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -28,6 +24,8 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,7 +74,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
     Skript.registerStructure(StructCustomExpression.class, builder.build(), syntax);
   }
 
-  private static final DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
+  public static final DataTracker<ExpressionSyntaxInfo> dataTracker = new DataTracker<>();
 
   static final Map<ExpressionSyntaxInfo, Class<?>> returnTypes = new HashMap<>();
   static final Map<ExpressionSyntaxInfo, Trigger> expressionHandlers = new HashMap<>();
@@ -90,13 +88,14 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
 
   static {
     // noinspection unchecked
-    Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING);
-    Optional<ExpressionInfo<?, ?>> info = StreamSupport.stream(
-        Spliterators.spliteratorUnknownSize(Skript.getExpressions(), Spliterator.ORDERED), false)
-        .filter(i -> i.getElementClass() == CustomExpression.class)
+    Skript.registerExpression(CustomExpression.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, DEFAULT_PATTERN);
+    Optional<SyntaxInfo<?>> info = SkriptMirror.getAddonInstance().syntaxRegistry().elements().stream()
+        .filter(i -> Expression.class.isAssignableFrom(i.type()))
+        .filter(i -> i.type() == CustomExpression.class)
         .findFirst();
     info.ifPresent(dataTracker::setInfo);
 
+    dataTracker.setSyntaxKey(SyntaxRegistry.EXPRESSION);
     dataTracker.addManaged(returnTypes);
     dataTracker.addManaged(expressionHandlers);
     dataTracker.addManaged(hasChanger);
