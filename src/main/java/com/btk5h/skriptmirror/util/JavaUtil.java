@@ -111,15 +111,50 @@ public final class JavaUtil {
    */
   public static Object boxPrimitiveArray(Object obj) {
     Class<?> componentType = obj.getClass().getComponentType();
-    if (componentType != null && componentType.isPrimitive()) {
-      int length = Array.getLength(obj);
-      Object[] boxedArray = newArray(WRAPPER_CLASSES.get(componentType), length);
-
-      for (int i = 0; i < length; i++) {
-        boxedArray[i] = Array.get(obj, i);
-      }
-
-      obj = boxedArray;
+    if (componentType == null || !componentType.isPrimitive()) {
+      return obj;
+    }
+    int length = Array.getLength(obj);
+    if (componentType == int.class) {
+      int[] source = (int[]) obj;
+      Integer[] target = new Integer[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
+    } else if (componentType == long.class) {
+      long[] source = (long[]) obj;
+      Long[] target = new Long[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
+    } else if (componentType == double.class) {
+      double[] source = (double[]) obj;
+      Double[] target = new Double[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
+    } else if (componentType == float.class) {
+      float[] source = (float[]) obj;
+      Float[] target = new Float[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
+    } else if (componentType == boolean.class) {
+      boolean[] source = (boolean[]) obj;
+      Boolean[] target = new Boolean[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
+    } else if (componentType == byte.class) {
+      byte[] source = (byte[]) obj;
+      Byte[] target = new Byte[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
+    } else if (componentType == char.class) {
+      char[] source = (char[]) obj;
+      Character[] target = new Character[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
+    } else if (componentType == short.class) {
+      short[] source = (short[]) obj;
+      Short[] target = new Short[length];
+      for (int i = 0; i < length; i++) target[i] = source[i];
+      return target;
     }
     return obj;
   }
