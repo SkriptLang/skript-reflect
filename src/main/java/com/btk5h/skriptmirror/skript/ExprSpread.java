@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class ExprSpread<T> implements Expression<T> {
   static {
     //noinspection unchecked
-    Skript.registerExpression(ExprSpread.class, Object.class, ExpressionType.COMBINED, "...%object%");
+    Skript.registerExpression(ExprSpread.class, Object.class, ExpressionType.COMBINED, "...%object%", "…%object%");
   }
 
   private Expression<Object> object;
