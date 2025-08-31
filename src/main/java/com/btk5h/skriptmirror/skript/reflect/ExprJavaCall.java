@@ -6,21 +6,10 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import com.btk5h.skriptmirror.Descriptor;
-import com.btk5h.skriptmirror.ImportNotFoundException;
-import com.btk5h.skriptmirror.JavaCallException;
-import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.Null;
-import com.btk5h.skriptmirror.ObjectWrapper;
-import org.skriptlang.reflect.java.elements.structures.StructImport;
-import com.btk5h.skriptmirror.util.JavaUtil;
-import com.btk5h.skriptmirror.util.LRUCache;
-import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
-import com.btk5h.skriptmirror.util.SkriptUtil;
-import com.btk5h.skriptmirror.util.StringSimilarity;
+import com.btk5h.skriptmirror.*;
+import com.btk5h.skriptmirror.util.*;
 import com.btk5h.skriptmirror.util.lookup.LookupGetter;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -32,20 +21,8 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.lang.reflect.*;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,8 +41,8 @@ public class ExprJavaCall<T> implements Expression<T> {
    * See Descriptor's {@code DESCRIPTOR} field for the extended version of this.
    */
   private static final String LITE_DESCRIPTOR = "(\\[[\\w.$]*])?" +
-    "([^0-9. \\[\\]][^. \\[\\]]*\\b)" +
-    "(\\[[\\w.$, ]*])?";
+      "([^0-9. \\[\\]][^. \\[\\]]*\\b)" +
+      "(\\[[\\w.$, ]*])?";
 
   static {
     //noinspection unchecked
@@ -87,7 +64,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   public static Throwable lastError;
 
-  private final LRUCache<Descriptor, Collection<MethodHandle>> callSiteCache = new LRUCache<>(8);
+  private final LRUCache<Descriptor, Collection<MethodData>> callSiteCache = new LRUCache<>(8);
 
   private Script script;
   private boolean suppressErrors;
@@ -163,7 +140,7 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         if (staticDescriptor.getJavaClass() == null
-          && rawTarget instanceof Literal<?> literal) {
+            && rawTarget instanceof Literal<?> literal) {
           Object rawTargetValue = literal.getSingle();
           if (rawTargetValue instanceof JavaType) {
             staticDescriptor = staticDescriptor.orDefaultClass(((JavaType) rawTargetValue).getJavaClass());
@@ -361,46 +338,50 @@ public class ExprJavaCall<T> implements Expression<T> {
     }
   }
 
-  private synchronized Collection<MethodHandle> getCallSite(Descriptor e) {
+  private record MethodData(MethodHandle methodHandle, int modifiers) {
+  }
+
+  private synchronized Collection<MethodData> getCallSite(Descriptor e) {
     return callSiteCache.computeIfAbsent(e, this::createCallSite);
   }
 
-  private Collection<MethodHandle> createCallSite(Descriptor descriptor) {
+  private Collection<MethodData> createCallSite(Descriptor descriptor) {
     Class<?> javaClass = descriptor.getJavaClass();
 
     switch (type) {
       case FIELD:
-        ArrayList<MethodHandle> methodHandles = new ArrayList<>();
+        ArrayList<MethodData> methodHandles = new ArrayList<>();
 
         JavaUtil.fields(javaClass)
-          .filter(f -> f.getName().equals(descriptor.getName()))
-          .map(ExprJavaCall::getAccess)
-          .filter(Objects::nonNull)
-          .forEach(field -> {
-            try {
-              methodHandles.add(LOOKUP.unreflectGetter(field));
-            } catch (IllegalAccessException ex) {
-              Skript.warning(
-                String.format("skript-reflect encountered a %s: %s%n" +
-                    "Run Skript with the verbosity 'very high' for the stack trace.",
-                  ex.getClass().getSimpleName(), ex.getMessage()));
+            .filter(f -> f.getName().equals(descriptor.getName()))
+            .map(ExprJavaCall::getAccess)
+            .filter(Objects::nonNull)
+            .forEach(field -> {
+              try {
+                methodHandles.add(new MethodData(LOOKUP.unreflectGetter(field), field.getModifiers()));
+              } catch (IllegalAccessException ex) {
+                Skript.warning(
+                    String.format("skript-reflect encountered a %s: %s%n" +
+                            "Run Skript with the verbosity 'very high' for the stack trace.",
+                        ex.getClass().getSimpleName(), ex.getMessage()));
 
-              if (Skript.logVeryHigh()) {
-                StringWriter errors = new StringWriter();
-                ex.printStackTrace(new PrintWriter(errors));
-                Skript.warning(errors.toString());
+                if (Skript.logVeryHigh()) {
+                  StringWriter errors = new StringWriter();
+                  ex.printStackTrace(new PrintWriter(errors));
+                  Skript.warning(errors.toString());
+                }
               }
-            }
 
-            try {
-              methodHandles.add(LOOKUP.unreflectSetter(field));
-            } catch (IllegalAccessException ignored) { }
-          });
+              try {
+                methodHandles.add(new MethodData(LOOKUP.unreflectSetter(field), field.getModifiers()));
+              } catch (IllegalAccessException ignored) {
+              }
+            });
 
         return methodHandles.stream()
-          .filter(Objects::nonNull)
-          .limit(2)
-          .collect(Collectors.toList());
+            .filter(Objects::nonNull)
+            .limit(2)
+            .collect(Collectors.toList());
       case METHOD:
         Stream<Method> methodStream = JavaUtil.methods(javaClass)
             .filter(m -> m.getName().equals(descriptor.getName()));
@@ -410,18 +391,18 @@ public class ExprJavaCall<T> implements Expression<T> {
         }
 
         return methodStream
-          .map(ExprJavaCall::getAccess)
-          .filter(Objects::nonNull)
-          .map(JavaUtil.propagateErrors(LOOKUP::unreflect))
-          .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+            .map(ExprJavaCall::getAccess)
+            .filter(Objects::nonNull)
+            .map(JavaUtil.propagateErrors(m -> new MethodData(LOOKUP.unreflect(m), m.getModifiers())))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
       case CONSTRUCTOR:
         return JavaUtil.constructors(javaClass)
-          .map(ExprJavaCall::getAccess)
-          .filter(Objects::nonNull)
-          .map(JavaUtil.propagateErrors(LOOKUP::unreflectConstructor))
-          .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+            .map(ExprJavaCall::getAccess)
+            .filter(Objects::nonNull)
+            .map(JavaUtil.propagateErrors(c -> new MethodData(LOOKUP.unreflectConstructor(c), c.getModifiers())))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
       default:
         throw new IllegalStateException();
     }
@@ -465,11 +446,11 @@ public class ExprJavaCall<T> implements Expression<T> {
       }
     }
 
-    Optional<MethodHandle> method = findCompatibleMethod(descriptor, argumentsCopy);
+    Optional<MethodHandle> method = findCompatibleMethod(descriptor, argumentsCopy, isStatic);
 
     if (!method.isPresent()) {
       error(String.format("No matching %s %s: %s%s",
-        isStatic ? "static" : "non-static", type, descriptor.toString(isStatic), argumentsMessage(arguments)));
+          isStatic ? "static" : "non-static", type, descriptor.toString(isStatic), argumentsMessage(arguments)));
 
       suggestParameters(descriptor, isStatic);
       suggestTypo(descriptor, isStatic);
@@ -485,8 +466,8 @@ public class ExprJavaCall<T> implements Expression<T> {
       returnedValue = (T) mh.invokeWithArguments(argumentsCopy);
     } catch (Throwable throwable) {
       error(throwable, String.format("%s %s%s threw a %s: %s%n",
-        type, descriptor, argumentsMessage(arguments),
-        throwable.getClass().getSimpleName(), throwable.getMessage()));
+          type, descriptor, argumentsMessage(arguments),
+          throwable.getClass().getSimpleName(), throwable.getMessage()));
     }
 
     if (returnedValue == null) {
@@ -561,10 +542,15 @@ public class ExprJavaCall<T> implements Expression<T> {
   /**
    * Returns an optional {@link MethodHandle} that matches the given {@link Descriptor} with the given arguments.
    */
-  private Optional<MethodHandle> findCompatibleMethod(Descriptor descriptor, Object[] args) {
+  private Optional<MethodHandle> findCompatibleMethod(Descriptor descriptor, Object[] args, boolean isStatic) {
     return getCallSite(descriptor).stream()
-        .filter(mh -> matchesArgs(args, mh))
-        .min(ExprJavaCall::prioritizeMethodHandles);
+        .filter(md -> matchesArgs(args, md.methodHandle()))
+        .filter(md -> {
+          if (type == CallType.CONSTRUCTOR) return true;
+          return Modifier.isStatic(md.modifiers()) == isStatic;
+        })
+        .min((a, b) -> ExprJavaCall.prioritizeMethodHandles(a.methodHandle(), b.methodHandle()))
+        .map(MethodData::methodHandle);
   }
 
   /**
@@ -682,7 +668,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
     if (!matches.isEmpty()) {
       directError("Did you pass the wrong parameters? Here are the parameter signatures for the "
-        + (isStatic ? "static" : "non-static") + " " + type + " " + guess + ":");
+          + (isStatic ? "static" : "non-static") + " " + type + " " + guess + ":");
       matches.forEach(parameterList -> directError(String.format("* %s(%s)", guess, parameterList)));
     }
   }
@@ -762,9 +748,9 @@ public class ExprJavaCall<T> implements Expression<T> {
 
   private static String argumentsToString(Object... arguments) {
     return Arrays.stream(arguments)
-      .map(arg -> String.format("%s (%s)",
-        Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
-      .collect(Collectors.joining(", "));
+        .map(arg -> String.format("%s (%s)",
+            Classes.toString(arg), SkriptMirrorUtil.getDebugName(SkriptMirrorUtil.getClass(arg))))
+        .collect(Collectors.joining(", "));
   }
 
   /**
@@ -849,9 +835,9 @@ public class ExprJavaCall<T> implements Expression<T> {
         return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName();
       case METHOD:
         return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName() + "(" +
-          (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
+            (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
       case CONSTRUCTOR:
-        return "new " + rawTarget.toString(e, debug) + "(" +  (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
+        return "new " + rawTarget.toString(e, debug) + "(" + (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
     }
     return null;
   }
