@@ -7,33 +7,33 @@ import org.eclipse.jdt.annotation.Nullable;
 
 public class FunctionWrapper {
 
-  private final String name;
-  private final Object[] arguments;
+	private final String name;
+	private final Object[] arguments;
 
-  public FunctionWrapper(String name, Object[] arguments) {
-    this.name = name;
-    this.arguments = arguments;
-  }
+	public FunctionWrapper(String name, Object[] arguments) {
+		this.name = name;
+		this.arguments = arguments;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public Object[] getArguments() {
-    return arguments;
-  }
+	public Object[] getArguments() {
+		return arguments;
+	}
 
-  @Nullable
-  public Function<?> getFunction() {
-    // Get current script file name
-    String script = null;
-    ParserInstance parserInstance = ParserInstance.get();
-    if (parserInstance.isActive()) {
-      script = parserInstance.getCurrentScript().getConfig().getFileName();
-    }
+	@Nullable
+	public Function<?> getFunction() {
+		// Get current script file name
+		String script = null;
+		ParserInstance parserInstance = ParserInstance.get();
+		if (parserInstance.isActive()) {
+			script = parserInstance.getCurrentScript().getConfig().getFileName();
+		}
 
-    return Functions.getFunction(name, script);
-  }
+		return Functions.getFunction(name, script);
+	}
 
 }
 

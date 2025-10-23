@@ -12,42 +12,42 @@ import java.util.List;
  */
 public class CustomEventUtils {
 
-  /**
-   * @param which The EventSyntaxInfo that belongs to the used custom event
-   * @param classInfo The used ClassInfo
-   * @return whether the given CustomEvent supports the given ClassInfo as an event-value.
-   */
-  public static boolean hasEventValue(EventSyntaxInfo which, ClassInfo<?> classInfo) {
-    List<ClassInfo<?>> eventValueClassInfoList = StructCustomEvent.eventValueTypes.get(which);
-    if (eventValueClassInfoList == null)
-      return false;
+	/**
+	 * @param which The EventSyntaxInfo that belongs to the used custom event
+	 * @param classInfo The used ClassInfo
+	 * @return whether the given CustomEvent supports the given ClassInfo as an event-value.
+	 */
+	public static boolean hasEventValue(EventSyntaxInfo which, ClassInfo<?> classInfo) {
+		List<ClassInfo<?>> eventValueClassInfoList = StructCustomEvent.eventValueTypes.get(which);
+		if (eventValueClassInfoList == null)
+			return false;
 
-    Class<?> classInfoClass = classInfo.getC();
-    for (ClassInfo<?> loopedClassInfo : eventValueClassInfoList) {
-      if (classInfoClass.isAssignableFrom(loopedClassInfo.getC())) {
-        return true;
-      }
-    }
-    return false;
-  }
+		Class<?> classInfoClass = classInfo.getC();
+		for (ClassInfo<?> loopedClassInfo : eventValueClassInfoList) {
+			if (classInfoClass.isAssignableFrom(loopedClassInfo.getC())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-  /**
-   * @param classInfo The ClassInfo which name is returned
-   * @return Skripts name for the given ClassInfo.
-   */
-  public static String getName(ClassInfo<?> classInfo) {
-    return Classes.getSuperClassInfo(classInfo.getC()).getName().toString();
-  }
+	/**
+	 * @param classInfo The ClassInfo which name is returned
+	 * @return Skripts name for the given ClassInfo.
+	 */
+	public static String getName(ClassInfo<?> classInfo) {
+		return Classes.getSuperClassInfo(classInfo.getC()).getName().toString();
+	}
 
-  /**
-   * @param which The EventSyntaxInfo that belongs to the used custom event
-   * @return The defined name (identifier) of the custom event from the given EventSyntaxInfo
-   */
-  public static String getName(EventSyntaxInfo which) {
-    if (which == null)
-      return null;
+	/**
+	 * @param which The EventSyntaxInfo that belongs to the used custom event
+	 * @return The defined name (identifier) of the custom event from the given EventSyntaxInfo
+	 */
+	public static String getName(EventSyntaxInfo which) {
+		if (which == null)
+			return null;
 
-    return StructCustomEvent.nameValues.get(which);
-  }
+		return StructCustomEvent.nameValues.get(which);
+	}
 
 }

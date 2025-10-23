@@ -11,31 +11,31 @@ import java.util.List;
 
 class PatternsEntryData extends EntryData<List<String>> {
 
-  public PatternsEntryData(String key, @Nullable List<String> defaultValue, boolean optional) {
-    super(key, defaultValue, optional);
-  }
+	public PatternsEntryData(String key, @Nullable List<String> defaultValue, boolean optional) {
+		super(key, defaultValue, optional);
+	}
 
-  @Override
-  public List<String> getValue(Node node) {
-    List<String> patterns = new ArrayList<>();
-    for (Node subNode : (SectionNode) node) {
-      String key = subNode.getKey();
-      if (key == null)
-        continue;
-      patterns.add(key);
-    }
-    return patterns;
-  }
+	@Override
+	public List<String> getValue(Node node) {
+		List<String> patterns = new ArrayList<>();
+		for (Node subNode : (SectionNode) node) {
+			String key = subNode.getKey();
+			if (key == null)
+				continue;
+			patterns.add(key);
+		}
+		return patterns;
+	}
 
-  @Override
-  public boolean canCreateWith(Node node) {
-    if (!(node instanceof SectionNode))
-      return false;
-    String key = node.getKey();
-    if (key == null)
-      return false;
-    key = ScriptLoader.replaceOptions(key);
-    return getKey().equalsIgnoreCase(key);
-  }
+	@Override
+	public boolean canCreateWith(Node node) {
+		if (!(node instanceof SectionNode))
+			return false;
+		String key = node.getKey();
+		if (key == null)
+			return false;
+		key = ScriptLoader.replaceOptions(key);
+		return getKey().equalsIgnoreCase(key);
+	}
 
 }

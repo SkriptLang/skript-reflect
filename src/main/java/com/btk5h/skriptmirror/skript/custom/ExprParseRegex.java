@@ -19,67 +19,67 @@ import java.util.List;
 import java.util.regex.MatchResult;
 
 public class ExprParseRegex extends SimpleExpression<String> {
-  static {
-    Skript.registerExpression(ExprParseRegex.class, String.class, ExpressionType.SIMPLE,
-        "[the] [parse[r]] (regex|regular expression)(-| )<\\d+>");
-  }
+	static {
+		Skript.registerExpression(ExprParseRegex.class, String.class, ExpressionType.SIMPLE,
+			"[the] [parse[r]] (regex|regular expression)(-| )<\\d+>");
+	}
 
-  private int index;
+	private int index;
 
-  @Override
-  protected String[] get(Event e) {
-    List<MatchResult> regexes = ((CustomSyntaxEvent) e).getParseResult().regexes;
-    if (index < regexes.size()) {
-      MatchResult match = regexes.get(index);
-      int groupCount = match.groupCount();
-      String[] groups = new String[groupCount];
+	@Override
+	protected String[] get(Event e) {
+		List<MatchResult> regexes = ((CustomSyntaxEvent) e).getParseResult().regexes;
+		if (index < regexes.size()) {
+			MatchResult match = regexes.get(index);
+			int groupCount = match.groupCount();
+			String[] groups = new String[groupCount];
 
-      for (int i = 1; i <= groupCount; i++) {
-        groups[i - 1] = match.group(i);
-      }
+			for (int i = 1; i <= groupCount; i++) {
+				groups[i - 1] = match.group(i);
+			}
 
-      return groups;
-    }
-    return new String[0];
-  }
+			return groups;
+		}
+		return new String[0];
+	}
 
-  @Override
-  public boolean isSingle() {
-    return false;
-  }
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
 
-  @Override
-  public Class<? extends String> getReturnType() {
-    return String.class;
-  }
+	@Override
+	public Class<? extends String> getReturnType() {
+		return String.class;
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return "parser mark";
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return "parser mark";
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    if (!getParser().isCurrentEvent(
-      SyntaxParseEvent.class,
-      ConditionCheckEvent.class,
-      EffectTriggerEvent.class,
-      EventTriggerEvent.class,
-      ExpressionChangeEvent.class,
-      ExpressionGetEvent.class
-    )) {
-      Skript.error("The parsed regular expression may only be used in custom syntax.",
-        ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(
+			SyntaxParseEvent.class,
+			ConditionCheckEvent.class,
+			EffectTriggerEvent.class,
+			EventTriggerEvent.class,
+			ExpressionChangeEvent.class,
+			ExpressionGetEvent.class
+		)) {
+			Skript.error("The parsed regular expression may only be used in custom syntax.",
+				ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
 
-    index = Utils.parseInt(parseResult.regexes.get(0).group(0));
-    if (index <= 0) {
-      Skript.error("The expression index must be a natural number.", ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
-    index--;
-    return true;
-  }
+		index = Utils.parseInt(parseResult.regexes.get(0).group(0));
+		if (index <= 0) {
+			Skript.error("The expression index must be a natural number.", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
+		index--;
+		return true;
+	}
 }

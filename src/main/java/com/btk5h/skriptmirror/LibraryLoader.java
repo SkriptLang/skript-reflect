@@ -16,39 +16,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryLoader {
-  private static ClassLoader classLoader = LibraryLoader.class.getClassLoader();
+	private static ClassLoader classLoader = LibraryLoader.class.getClassLoader();
 
-  private static final PathMatcher MATCHER =
-      FileSystems.getDefault().getPathMatcher("glob:**/*.jar");
+	private static final PathMatcher MATCHER =
+		FileSystems.getDefault().getPathMatcher("glob:**/*.jar");
 
-  private static class LibraryVisitor extends SimpleFileVisitor<Path> {
-    private List<URL> urls = new ArrayList<>();
+	private static class LibraryVisitor extends SimpleFileVisitor<Path> {
+		private List<URL> urls = new ArrayList<>();
 
-    @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-      if (MATCHER.matches(file)) {
-        Skript.info("Loaded external library " + file.getFileName());
-        urls.add(file.toUri().toURL());
-      }
-      return super.visitFile(file, attrs);
-    }
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+			if (MATCHER.matches(file)) {
+				Skript.info("Loaded external library " + file.getFileName());
+				urls.add(file.toUri().toURL());
+			}
+			return super.visitFile(file, attrs);
+		}
 
-    public URL[] getUrls() {
-      return urls.toArray(new URL[urls.size()]);
-    }
-  }
+		public URL[] getUrls() {
+			return urls.toArray(new URL[urls.size()]);
+		}
+	}
 
-  public static void loadLibraries(Path dataFolder) throws IOException {
-    if (Files.isDirectory(dataFolder)) {
-      LibraryVisitor visitor = new LibraryVisitor();
-      Files.walkFileTree(dataFolder, visitor);
-      classLoader = new URLClassLoader(visitor.getUrls(), LibraryLoader.class.getClassLoader());
-    } else {
-      Files.createDirectory(dataFolder);
-    }
-  }
+	public static void loadLibraries(Path dataFolder) throws IOException {
+		if (Files.isDirectory(dataFolder)) {
+			LibraryVisitor visitor = new LibraryVisitor();
+			Files.walkFileTree(dataFolder, visitor);
+			classLoader = new URLClassLoader(visitor.getUrls(), LibraryLoader.class.getClassLoader());
+		} else {
+			Files.createDirectory(dataFolder);
+		}
+	}
 
-  public static ClassLoader getClassLoader() {
-    return classLoader;
-  }
+	public static ClassLoader getClassLoader() {
+		return classLoader;
+	}
 }

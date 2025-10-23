@@ -25,95 +25,95 @@ import java.util.Arrays;
  */
 public class CustomEvent extends SkriptEvent {
 
-  public static EventSyntaxInfo lastWhich;
+	public static EventSyntaxInfo lastWhich;
 
-  private EventSyntaxInfo which;
-  private Expression<?>[] exprs;
-  private SkriptParser.ParseResult parseResult;
-  private Object variablesMap;
+	private EventSyntaxInfo which;
+	private Expression<?>[] exprs;
+	private SkriptParser.ParseResult parseResult;
+	private Object variablesMap;
 
-  @Override
-  public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-    // prevent the user from using the placeholder pattern we register in order to satisfy the registration requirements
-    if (matchedPattern == 0) {
-      return false;
-    }
+	@Override
+	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+		// prevent the user from using the placeholder pattern we register in order to satisfy the registration requirements
+		if (matchedPattern == 0) {
+			return false;
+		}
 
-    which = StructCustomEvent.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
+		which = StructCustomEvent.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
-    if (which == null) {
-      return false;
-    }
+		if (which == null) {
+			return false;
+		}
 
-    this.exprs = Arrays.stream(args)
-      .map(SkriptUtil::defendExpression)
-      .toArray(Expression[]::new);
-    this.parseResult = parseResult;
+		this.exprs = Arrays.stream(args)
+			.map(SkriptUtil::defendExpression)
+			.toArray(Expression[]::new);
+		this.parseResult = parseResult;
 
-    if (!SkriptUtil.canInitSafely(this.exprs)) {
-      return false;
-    }
+		if (!SkriptUtil.canInitSafely(this.exprs)) {
+			return false;
+		}
 
-    Boolean bool = StructCustomEvent.parseSectionLoaded.get(which);
-    if (bool != null && !bool) {
-      Skript.error("You can't use custom events with parse sections before they're loaded.");
-      return false;
-    }
+		Boolean bool = StructCustomEvent.parseSectionLoaded.get(which);
+		if (bool != null && !bool) {
+			Skript.error("You can't use custom events with parse sections before they're loaded.");
+			return false;
+		}
 
-    Trigger parseHandler = StructCustomEvent.parserHandlers.get(which);
+		Trigger parseHandler = StructCustomEvent.parserHandlers.get(which);
 
-    if (parseHandler == null) {
-      setLastWhich(which);
+		if (parseHandler == null) {
+			setLastWhich(which);
 
-      return true;
-    }
+			return true;
+		}
 
-    SyntaxParseEvent event =
-      new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
+		SyntaxParseEvent event =
+			new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
 
-    setLastWhich(which);
+		setLastWhich(which);
 
-    TriggerItem.walk(parseHandler, event);
-    variablesMap = SkriptReflection.removeLocals(event);
+		TriggerItem.walk(parseHandler, event);
+		variablesMap = SkriptReflection.removeLocals(event);
 
-    setLastWhich(which);
+		setLastWhich(which);
 
-    return event.isMarkedContinue();
-  }
+		return event.isMarkedContinue();
+	}
 
-  @Override
-  public boolean load() {
-    CustomEvent.setLastWhich(which);
-    boolean parsed = super.load();
-    CustomEvent.setLastWhich(null);
-    return parsed;
-  }
+	@Override
+	public boolean load() {
+		CustomEvent.setLastWhich(which);
+		boolean parsed = super.load();
+		CustomEvent.setLastWhich(null);
+		return parsed;
+	}
 
-  @Override
-  public boolean check(Event e) {
-    BukkitCustomEvent bukkitCustomEvent = (BukkitCustomEvent) e;
-    if (!bukkitCustomEvent.getName().equalsIgnoreCase(StructCustomEvent.nameValues.get(which)))
-      return false;
+	@Override
+	public boolean check(Event e) {
+		BukkitCustomEvent bukkitCustomEvent = (BukkitCustomEvent) e;
+		if (!bukkitCustomEvent.getName().equalsIgnoreCase(StructCustomEvent.nameValues.get(which)))
+			return false;
 
-    EventTriggerEvent eventTriggerEvent = new EventTriggerEvent(e, exprs, which.getMatchedPattern(), parseResult, which.getPattern());
-    SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), eventTriggerEvent);
+		EventTriggerEvent eventTriggerEvent = new EventTriggerEvent(e, exprs, which.getMatchedPattern(), parseResult, which.getPattern());
+		SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), eventTriggerEvent);
 
-    Trigger trigger = StructCustomEvent.eventHandlers.get(which);
-    if (trigger != null) {
-      trigger.execute(eventTriggerEvent);
-      return eventTriggerEvent.isMarkedContinue();
-    }
+		Trigger trigger = StructCustomEvent.eventHandlers.get(which);
+		if (trigger != null) {
+			trigger.execute(eventTriggerEvent);
+			return eventTriggerEvent.isMarkedContinue();
+		}
 
-    return true;
-  }
+		return true;
+	}
 
-  public static void setLastWhich(EventSyntaxInfo which) {
-    lastWhich = which;
-  }
+	public static void setLastWhich(EventSyntaxInfo which) {
+		lastWhich = which;
+	}
 
-  @Override
-  public String toString(@Nullable Event e, boolean debug) {
-    return which.getPattern();
-  }
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return which.getPattern();
+	}
 
 }

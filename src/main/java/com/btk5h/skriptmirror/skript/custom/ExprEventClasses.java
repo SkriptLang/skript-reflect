@@ -12,36 +12,36 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class ExprEventClasses extends SimpleExpression<JavaType> {
-  static {
-    Skript.registerExpression(ExprEventClasses.class, JavaType.class, ExpressionType.SIMPLE, "event-classes");
-  }
+	static {
+		Skript.registerExpression(ExprEventClasses.class, JavaType.class, ExpressionType.SIMPLE, "event-classes");
+	}
 
-  @Override
-  protected JavaType[] get(Event e) {
-    return Arrays.stream(((SyntaxParseEvent) e).getEventClasses())
-      .map(JavaType::new)
-      .toArray(JavaType[]::new);
-  }
+	@Override
+	protected JavaType[] get(Event e) {
+		return Arrays.stream(((SyntaxParseEvent) e).getEventClasses())
+			.map(JavaType::new)
+			.toArray(JavaType[]::new);
+	}
 
-  @Override
-  public boolean isSingle() {
-    return false;
-  }
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
 
-  @Override
-  public Class<? extends JavaType> getReturnType() {
-    return JavaType.class;
-  }
+	@Override
+	public Class<? extends JavaType> getReturnType() {
+		return JavaType.class;
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return "event-classes";
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return "event-classes";
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    return getParser().isCurrentEvent(SyntaxParseEvent.class);
-  }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
+		return getParser().isCurrentEvent(SyntaxParseEvent.class);
+	}
 
 }
