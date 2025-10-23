@@ -26,8 +26,7 @@ public class EffCallEvent extends Effect {
 
 	@Override
 	protected void execute(Event e) {
-		for (Event event : eventExpr.getArray(e))
-			Bukkit.getPluginManager().callEvent(event);
+		for (Event event : eventExpr.getArray(e)) {Bukkit.getPluginManager().callEvent(event);}
 	}
 
 	@Override

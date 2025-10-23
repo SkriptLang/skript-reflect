@@ -14,6 +14,7 @@ import org.skriptlang.reflect.syntax.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
 
 public class ExprParseMark extends SimpleExpression<Number> {
+
 	static {
 		Skript.registerExpression(ExprParseMark.class, Number.class, ExpressionType.SIMPLE,
 			"[the] [parse[r]] mark");
@@ -54,4 +55,5 @@ public class ExprParseMark extends SimpleExpression<Number> {
 	public String toString(Event e, boolean debug) {
 		return "parser mark";
 	}
+
 }

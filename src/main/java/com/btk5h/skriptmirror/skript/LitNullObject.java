@@ -10,6 +10,7 @@ import com.btk5h.skriptmirror.Null;
 import org.bukkit.event.Event;
 
 public class LitNullObject extends SimpleLiteral<Null> {
+
 	static {
 		Skript.registerExpression(LitNullObject.class, Null.class, ExpressionType.SIMPLE, "null");
 	}
@@ -28,4 +29,5 @@ public class LitNullObject extends SimpleLiteral<Null> {
 	public String toString(Event e, boolean debug) {
 		return "null";
 	}
+
 }

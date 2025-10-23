@@ -54,4 +54,5 @@ public class EffContinue extends Effect {
 	public String toString(Event e, boolean debug) {
 		return "continue";
 	}
+
 }

@@ -44,9 +44,8 @@ public class CustomEffect extends Effect {
 		new Thread(() -> {
 			try {
 				Thread.sleep(1);
-				if (!effectEvent.hasContinued())
-					SkriptReflection.putLocals(localVars, effectEvent.getDirectEvent());
-			} catch (InterruptedException ignored) { }
+				if (!effectEvent.hasContinued()) {SkriptReflection.putLocals(localVars, effectEvent.getDirectEvent());}
+			} catch (InterruptedException ignored) {}
 		}).start();
 		return null;
 	}
@@ -72,6 +71,11 @@ public class CustomEffect extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
 						SkriptParser.ParseResult parseResult) {
+		// prevent the user from using the placeholder pattern we register in order to satisfy the registration requirements
+		if (matchedPattern == 0) {
+			return false;
+		}
+
 		which = StructCustomEffect.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
 		if (which == null) {
@@ -88,8 +92,7 @@ public class CustomEffect extends Effect {
 		}
 
 		List<Supplier<Boolean>> suppliers = StructCustomEffect.usableSuppliers.get(which);
-		if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
-			return false;
+		if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get)) {return false;}
 
 		Boolean bool = StructCustomEffect.parseSectionLoaded.get(which);
 		if (bool != null && !bool) {

@@ -38,12 +38,9 @@ public class EffRunSection extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		sectionExpression = SkriptUtil.defendExpression(exprs[0]);
 
-		if ((parseResult.mark & 0b0001) != 0)
-			runsAsync = Kleenean.FALSE;
-		else if ((parseResult.mark & 0b0010) != 0)
+		if ((parseResult.mark & 0b0001) != 0) {runsAsync = Kleenean.FALSE;} else if ((parseResult.mark & 0b0010) != 0) {
 			runsAsync = Kleenean.TRUE;
-		else
-			runsAsync = Kleenean.UNKNOWN;
+		} else {runsAsync = Kleenean.UNKNOWN;}
 
 		Expression<Object> expr = SkriptUtil.defendExpression(exprs[1]);
 		arguments = new ArrayList<>();
@@ -60,11 +57,11 @@ public class EffRunSection extends Effect {
 		}
 
 		shouldWait = (parseResult.mark & 0b0100) != 0;
-		if (!runsAsync.isUnknown() && !shouldWait && variableStorage != null)
+		if (!runsAsync.isUnknown() && !shouldWait && variableStorage != null) {
 			Skript.warning("You need to wait until the section is finished if you want to get a result.");
+		}
 
-		if (!runsAsync.isUnknown() && shouldWait)
-			getParser().setHasDelayBefore(Kleenean.TRUE);
+		if (!runsAsync.isUnknown() && shouldWait) {getParser().setHasDelayBefore(Kleenean.TRUE);}
 
 		return SkriptUtil.canInitSafely(variableStorage) &&
 			(arguments.size() == 0 || arguments.stream().allMatch(SkriptUtil::canInitSafely));
@@ -72,13 +69,11 @@ public class EffRunSection extends Effect {
 
 	@Override
 	protected TriggerItem walk(Event e) {
-		if (runsAsync.isUnknown())
-			return super.walk(e);
+		if (runsAsync.isUnknown()) {return super.walk(e);}
 
 		Section section = sectionExpression.getSingle(e);
 
-		if (section == null)
-			return getNext();
+		if (section == null) {return getNext();}
 
 		Object[][] args = getArgs(e);
 
@@ -106,8 +101,7 @@ public class EffRunSection extends Effect {
 			}
 		};
 
-		if (needsContinue)
-			Delay.addDelayedEvent(e);
+		if (needsContinue) {Delay.addDelayedEvent(e);}
 
 		runTask(runSection, runsAsync.isTrue());
 
@@ -130,22 +124,19 @@ public class EffRunSection extends Effect {
 
 	private Object[][] getArgs(Event event) {
 		Object[][] args = new Object[arguments.size()][];
-		for (int i = 0; i < arguments.size(); i++)
-			args[i] = arguments.get(i).getArray(event);
+		for (int i = 0; i < arguments.size(); i++) {args[i] = arguments.get(i).getArray(event);}
 		return args;
 	}
 
 	private void storeResult(SectionEvent sectionEvent, Event event) {
 		Object[] output = sectionEvent.getOutput();
-		if (variableStorage != null && output != null)
-			variableStorage.change(event, output, Changer.ChangeMode.SET);
+		if (variableStorage != null && output != null) {variableStorage.change(event, output, Changer.ChangeMode.SET);}
 	}
 
 	private void runTask(Runnable task, boolean async) {
-		if (async)
-			Bukkit.getScheduler().runTaskAsynchronously(SkriptMirror.getInstance(), task);
-		else
+		if (async) {Bukkit.getScheduler().runTaskAsynchronously(SkriptMirror.getInstance(), task);} else {
 			Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), task);
+		}
 	}
 
 }

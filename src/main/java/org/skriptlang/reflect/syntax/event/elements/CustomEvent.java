@@ -34,6 +34,11 @@ public class CustomEvent extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+		// prevent the user from using the placeholder pattern we register in order to satisfy the registration requirements
+		if (matchedPattern == 0) {
+			return false;
+		}
+
 		which = StructCustomEvent.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
 		if (which == null) {
@@ -87,8 +92,7 @@ public class CustomEvent extends SkriptEvent {
 	@Override
 	public boolean check(Event e) {
 		BukkitCustomEvent bukkitCustomEvent = (BukkitCustomEvent) e;
-		if (!bukkitCustomEvent.getName().equalsIgnoreCase(StructCustomEvent.nameValues.get(which)))
-			return false;
+		if (!bukkitCustomEvent.getName().equalsIgnoreCase(StructCustomEvent.nameValues.get(which))) {return false;}
 
 		EventTriggerEvent eventTriggerEvent = new EventTriggerEvent(e, exprs, which.getMatchedPattern(), parseResult, which.getPattern());
 		SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), eventTriggerEvent);

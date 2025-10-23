@@ -11,6 +11,7 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 
 public class CondIsInstanceOf extends Condition {
+
 	static {
 		Skript.registerCondition(CondIsInstanceOf.class,
 			"%objects% (is|are) [a[n]] instance[s] of %javatypes%",
@@ -43,4 +44,5 @@ public class CondIsInstanceOf extends Condition {
 		setNegated(matchedPattern == 1);
 		return true;
 	}
+
 }

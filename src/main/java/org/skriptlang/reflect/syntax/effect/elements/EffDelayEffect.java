@@ -10,6 +10,7 @@ import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
 
 public class EffDelayEffect extends Effect {
+
 	static {
 		Skript.registerEffect(EffDelayEffect.class, "delay [the] [current] effect");
 	}
@@ -33,4 +34,5 @@ public class EffDelayEffect extends Effect {
 		}
 		return true;
 	}
+
 }

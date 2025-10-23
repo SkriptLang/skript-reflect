@@ -28,8 +28,7 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!SkriptUtil.canInitSafely(exprs))
-			return false;
+		if (!SkriptUtil.canInitSafely(exprs)) {return false;}
 
 		this.customEventName = SkriptUtil.defendExpression(exprs[0]);
 
@@ -65,24 +64,24 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 	@Override
 	protected Event[] get(Event e) {
 		String name = this.customEventName.getSingle(e);
-		if (name == null)
-			return null;
+		if (name == null) {return null;}
 		BukkitCustomEvent bukkitCustomEvent = new BukkitCustomEvent(name);
 
-		if (eventValueVarList != null)
+		if (eventValueVarList != null) {
 			eventValueVarList.variablesIterator(e).forEachRemaining(pair -> {
-				if (pair.getKey() == null)
-					return;
+				if (pair.getKey() == null) {return;}
 				ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(pair.getKey());
 				bukkitCustomEvent.setEventValue(classInfo, pair.getValue());
 			});
+		}
 
-		if (dataVarList != null)
+		if (dataVarList != null) {
 			dataVarList.variablesIterator(e).forEachRemaining(pair -> {
 				bukkitCustomEvent.setData(pair.getKey(), pair.getValue());
 			});
+		}
 
-		return new Event[] {bukkitCustomEvent};
+		return new Event[]{bukkitCustomEvent};
 	}
 
 	@Override

@@ -34,8 +34,7 @@ public class ExprEventData extends SimpleExpression<Object> {
 	@Override
 	protected Object[] get(Event e) {
 		String key = dataIndex.getSingle(e);
-		if (key == null)
-			return null;
+		if (key == null) {return null;}
 
 		BukkitCustomEvent bukkitCustomEvent;
 		if (e instanceof BukkitCustomEvent) {
@@ -45,7 +44,7 @@ public class ExprEventData extends SimpleExpression<Object> {
 		}
 
 		Object data = bukkitCustomEvent.getData(key);
-		return new Object[] {data};
+		return new Object[]{data};
 	}
 
 	@Override

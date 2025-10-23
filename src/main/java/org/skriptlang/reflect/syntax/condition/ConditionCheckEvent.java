@@ -43,4 +43,5 @@ public class ConditionCheckEvent extends CustomSyntaxEvent implements Continuabl
 	public HandlerList getHandlers() {
 		return handlers;
 	}
+
 }

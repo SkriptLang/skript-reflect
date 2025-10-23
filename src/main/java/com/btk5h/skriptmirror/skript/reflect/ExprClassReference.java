@@ -34,7 +34,7 @@ public class ExprClassReference extends SimpleExpression<ObjectWrapper> {
 		if (javaType == null) {
 			return null;
 		}
-		return new ObjectWrapper[] {ObjectWrapper.create(javaType.getJavaClass())};
+		return new ObjectWrapper[]{ObjectWrapper.create(javaType.getJavaClass())};
 	}
 
 	@Override

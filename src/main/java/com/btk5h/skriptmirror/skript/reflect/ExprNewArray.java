@@ -38,14 +38,13 @@ public class ExprNewArray extends SimpleExpression<ObjectWrapper> {
 		JavaType javaType = javaTypeWrapper.get(e);
 		Number length = sizeExpression.getSingle(e);
 
-		if (javaType == null || length == null)
-			return null;
+		if (javaType == null || length == null) {return null;}
 
 		int size = length.intValue();
 		Class<?> clazz = javaType.getJavaClass();
 
 		Object array = Array.newInstance(clazz, size);
-		return new ObjectWrapper[] {ObjectWrapper.create(array)};
+		return new ObjectWrapper[]{ObjectWrapper.create(array)};
 	}
 
 	@Override

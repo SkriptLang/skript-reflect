@@ -2,10 +2,7 @@ package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -49,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,7 +77,9 @@ public class ExprJavaCall<T> implements Expression<T> {
 	}
 
 	private enum CallType {
-		FIELD, METHOD, CONSTRUCTOR;
+		FIELD,
+		METHOD,
+		CONSTRUCTOR;
 
 		@Override
 		public String toString() {
@@ -140,8 +140,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 		rawTarget = SkriptUtil.defendExpression(exprs[0]);
 		rawArgs = SkriptUtil.defendExpression(exprs[matchedPattern == 0 ? 2 : 1]);
 
-		if (!SkriptUtil.canInitSafely(rawTarget, rawArgs))
-			return false;
+		if (!SkriptUtil.canInitSafely(rawTarget, rawArgs)) {return false;}
 
 		switch (matchedPattern) {
 			case 0:
@@ -165,10 +164,11 @@ public class ExprJavaCall<T> implements Expression<T> {
 				}
 
 				if (staticDescriptor.getJavaClass() == null
-					&& rawTarget instanceof StructImport.ImportHandler) {
-					staticDescriptor = staticDescriptor.orDefaultClass(
-						((StructImport.ImportHandler) rawTarget).getJavaType().getJavaClass()
-					);
+					&& rawTarget instanceof Literal<?> literal) {
+					Object rawTargetValue = literal.getSingle();
+					if (rawTargetValue instanceof JavaType) {
+						staticDescriptor = staticDescriptor.orDefaultClass(((JavaType) rawTargetValue).getJavaClass());
+					}
 				}
 
 				if (staticDescriptor.getParameterTypes() != null && type.equals(CallType.FIELD)) {
@@ -253,12 +253,12 @@ public class ExprJavaCall<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c, boolean negated) {
+	public boolean check(Event e, Predicate<? super T> c, boolean negated) {
 		return SimpleExpression.check(getAll(e), c, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c) {
+	public boolean check(Event e, Predicate<? super T> c) {
 		return SimpleExpression.check(getAll(e), c, false, getAnd());
 	}
 
@@ -316,7 +316,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		if (type == CallType.FIELD &&
-				(mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)) {
+			(mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)) {
 			return new Class<?>[]{Object.class};
 		}
 		return null;
@@ -383,7 +383,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 						} catch (IllegalAccessException ex) {
 							Skript.warning(
 								String.format("skript-reflect encountered a %s: %s%n" +
-									"Run Skript with the verbosity 'very high' for the stack trace.",
+										"Run Skript with the verbosity 'very high' for the stack trace.",
 									ex.getClass().getSimpleName(), ex.getMessage()));
 
 							if (Skript.logVeryHigh()) {
@@ -395,7 +395,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 
 						try {
 							methodHandles.add(LOOKUP.unreflectSetter(field));
-						} catch (IllegalAccessException ignored) { }
+						} catch (IllegalAccessException ignored) {}
 					});
 
 				return methodHandles.stream()
@@ -443,7 +443,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 		// If a declaring class is explicitly written, check if the target is a subclass
 		if (!descriptor.getJavaClass().isAssignableFrom(targetClass)) {
 			error(String.format("Incompatible %s call: %s on %s",
-					type, descriptor, SkriptMirrorUtil.getDebugName(targetClass)));
+				type, descriptor, SkriptMirrorUtil.getDebugName(targetClass)));
 			return null;
 		}
 
@@ -516,8 +516,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 	}
 
 	private Descriptor getDescriptor(Event e) {
-		if (staticDescriptor != null)
-			return staticDescriptor;
+		if (staticDescriptor != null) {return staticDescriptor;}
 
 		String desc = dynamicDescriptor.getSingle(e);
 
@@ -580,7 +579,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 		// Fail early if there is an arity mismatch
 		// If the method has varargs, make sure args has the minimum arity (exclude the varargs parameter)
 		if (args.length != params.length
-				&& !(hasVarargs && args.length >= varargsIndex)) {
+			&& !(hasVarargs && args.length >= varargsIndex)) {
 			return false;
 		}
 
@@ -700,18 +699,16 @@ public class ExprJavaCall<T> implements Expression<T> {
 
 		List<Member> matchingMembers = new ArrayList<>();
 
-		outer: for (Member member : members.collect(Collectors.toList())) {
+		outer:
+		for (Member member : members.collect(Collectors.toList())) {
 			String name = member.getName();
-			if (name.equals(guess) && isStatic == isStatic(member))
-				continue;
+			if (name.equals(guess) && isStatic == isStatic(member)) {continue;}
 			// Distinct
 			for (Member loopMember : matchingMembers) {
-				if (loopMember.getName().equals(name))
-					continue outer;
+				if (loopMember.getName().equals(name)) {continue outer;}
 			}
 			StringSimilarity.Result result = StringSimilarity.compare(guess, name, 3);
-			if (result == null)
-				continue;
+			if (result == null) {continue;}
 			matchingMembers.add(member);
 		}
 
@@ -779,8 +776,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 	@Nullable
 	private static <T extends AccessibleObject> T getAccess(T member) {
 		try {
-			if (!member.isAccessible())
-				member.setAccessible(true);
+			if (!member.isAccessible()) {member.setAccessible(true);}
 			return member;
 		} catch (RuntimeException e) {
 			// InaccessibleObjectException exists in Java 9+ only
@@ -798,11 +794,9 @@ public class ExprJavaCall<T> implements Expression<T> {
 	 */
 	@Nullable
 	private static Member getSuperMember(Member member) {
-		if (!(member instanceof Method))
-			return null;
+		if (!(member instanceof Method)) {return null;}
 		Method method = (Method) member;
-		if (isStatic(method))
-			return null;
+		if (isStatic(method)) {return null;}
 
 		return getSuperMember(method, method.getDeclaringClass());
 	}
@@ -819,21 +813,19 @@ public class ExprJavaCall<T> implements Expression<T> {
 		if (method.getDeclaringClass() != declaringClass) {
 			for (Method loopMethod : declaringClass.getDeclaredMethods()) {
 				if (method.getName().equals(loopMethod.getName())
-						&& Arrays.equals(method.getParameterTypes(), loopMethod.getParameterTypes())) {
+					&& Arrays.equals(method.getParameterTypes(), loopMethod.getParameterTypes())) {
 					return loopMethod;
 				}
 			}
 		}
 
 		List<Class<?>> superClasses = new ArrayList<>();
-		if (declaringClass.getSuperclass() != null)
-			superClasses.add(declaringClass.getSuperclass());
+		if (declaringClass.getSuperclass() != null) {superClasses.add(declaringClass.getSuperclass());}
 		superClasses.addAll(Arrays.asList(declaringClass.getInterfaces()));
 
 		for (Class<?> superClass : superClasses) {
 			Method superMethod = getSuperMember(method, superClass);
-			if (superMethod != null)
-				return superMethod;
+			if (superMethod != null) {return superMethod;}
 		}
 
 		return null;
@@ -852,7 +844,7 @@ public class ExprJavaCall<T> implements Expression<T> {
 				return "" + rawTarget.toString(e, debug) + "." + staticDescriptor.getName() + "(" +
 					(rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
 			case CONSTRUCTOR:
-				return "new " + rawTarget.toString(e, debug) + "(" +  (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
+				return "new " + rawTarget.toString(e, debug) + "(" + (rawArgs == null ? "" : rawArgs.toString(e, debug)) + ")";
 		}
 		return null;
 	}

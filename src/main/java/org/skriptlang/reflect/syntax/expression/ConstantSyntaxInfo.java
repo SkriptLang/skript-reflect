@@ -23,7 +23,7 @@ public class ConstantSyntaxInfo extends CustomSyntaxStructure.SyntaxData {
 		ConstantSyntaxInfo that = (ConstantSyntaxInfo) o;
 		return
 			Objects.equals(getScript(), that.getScript()) &&
-			Objects.equals(getPattern(), that.getPattern());
+				Objects.equals(getPattern(), that.getPattern());
 	}
 
 	@Override

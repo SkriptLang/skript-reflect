@@ -8,6 +8,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public abstract class CustomSyntaxEvent extends WrappedEvent {
+
 	private final Expression<?>[] expressions;
 	private final int matchedPattern;
 	private final SkriptParser.ParseResult parseResult;

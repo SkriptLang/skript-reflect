@@ -12,6 +12,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class ExprEventClasses extends SimpleExpression<JavaType> {
+
 	static {
 		Skript.registerExpression(ExprEventClasses.class, JavaType.class, ExpressionType.SIMPLE, "event-classes");
 	}

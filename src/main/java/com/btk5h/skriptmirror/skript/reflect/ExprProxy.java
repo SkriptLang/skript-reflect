@@ -37,7 +37,7 @@ public class ExprProxy extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprProxy.class, Object.class, ExpressionType.COMBINED,
-				"[a] [new] proxy [instance] of %javatypes% (using|from) %objects%");
+			"[a] [new] proxy [instance] of %javatypes% (using|from) %objects%");
 	}
 
 	private Expression<JavaType> interfaces;
@@ -112,8 +112,10 @@ public class ExprProxy extends SimpleExpression<Object> {
 	}
 
 	private static class VariableInvocationHandler implements InvocationHandler {
+
 		@Nullable
 		private static final Method INVOKE_DEFAULT;
+
 		static {
 			Method method;
 			try {
@@ -153,8 +155,8 @@ public class ExprProxy extends SimpleExpression<Object> {
 						// Default impl of hashCode
 						return System.identityHashCode(proxy);
 					} else if (method.getName().equals("equals")
-							&& method.getParameterCount() == 1
-							&& method.getParameterTypes()[0] == Object.class) {
+						&& method.getParameterCount() == 1
+						&& method.getParameterTypes()[0] == Object.class) {
 						// Default impl of equals
 						return proxy == methodArgs[0];
 					}
@@ -207,6 +209,7 @@ public class ExprProxy extends SimpleExpression<Object> {
 				return JavaUtil.convert(returnValue, returnType);
 			}
 		}
+
 	}
 
 }

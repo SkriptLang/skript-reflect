@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ExprCollect extends SimpleExpression<ObjectWrapper> {
+
 	static {
 		Skript.registerExpression(ExprCollect.class, ObjectWrapper.class, ExpressionType.COMBINED,
 			"\\[%objects%[ as %-javatype%[ ]]\\]");
@@ -94,4 +95,5 @@ public class ExprCollect extends SimpleExpression<ObjectWrapper> {
 		type = (Expression<JavaType>) exprs[1];
 		return SkriptUtil.canInitSafely(objects);
 	}
+
 }

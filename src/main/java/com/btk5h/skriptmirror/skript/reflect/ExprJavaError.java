@@ -9,6 +9,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 public class ExprJavaError extends SimpleExpression<Throwable> {
+
 	static {
 		Skript.registerExpression(ExprJavaError.class, Throwable.class, ExpressionType.SIMPLE,
 			"[the] [last] [java] (throwable|exception|error)");
@@ -39,4 +40,5 @@ public class ExprJavaError extends SimpleExpression<Throwable> {
 						SkriptParser.ParseResult parseResult) {
 		return true;
 	}
+
 }

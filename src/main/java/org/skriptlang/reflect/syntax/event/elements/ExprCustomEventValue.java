@@ -36,11 +36,9 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
-			return false;
+		if (!getParser().isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class)) {return false;}
 		EventSyntaxInfo which = CustomEvent.lastWhich;
-		if (which == null)
-			return false;
+		if (which == null) {return false;}
 
 		String stringClass = parseResult.regexes.get(0).group();
 		classInfo = (ClassInfo<? super T>) Classes.getClassInfoFromUserInput(stringClass);
@@ -60,8 +58,7 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public T[] get(Event event) {
-		if (!(event instanceof BukkitCustomEvent || event instanceof EventTriggerEvent))
-			return null;
+		if (!(event instanceof BukkitCustomEvent || event instanceof EventTriggerEvent)) {return null;}
 		BukkitCustomEvent bukkitCustomEvent;
 		if (event instanceof BukkitCustomEvent) {
 			bukkitCustomEvent = (BukkitCustomEvent) event;
@@ -82,8 +79,7 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
 
 	@Override
 	public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
-		if (changer == null)
-			throw new UnsupportedOperationException();
+		if (changer == null) {throw new UnsupportedOperationException();}
 		Changer.ChangerUtils.change(changer, getArray(e), delta, mode);
 	}
 

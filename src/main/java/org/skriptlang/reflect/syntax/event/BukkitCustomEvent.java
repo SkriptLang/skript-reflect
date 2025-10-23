@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * The Bukkit event class which is used for custom events. Event values can be accessed with
  * {@link #getEventValue(ClassInfo)} or {@link #getEventValue(String)}.
- *
+ * <p>
  * If extra data is needed, {@link #setData(String, Object)} and {@link #getData(String)} can be used.
  */
 public class BukkitCustomEvent extends Event implements Cancellable {
@@ -40,8 +40,7 @@ public class BukkitCustomEvent extends Event implements Cancellable {
 	}
 
 	public void setEventValue(ClassInfo<?> classInfo, Object value) {
-		if (classInfo != null && classInfo.getC().isInstance(value))
-			this.eventValueMap.put(classInfo, value);
+		if (classInfo != null && classInfo.getC().isInstance(value)) {this.eventValueMap.put(classInfo, value);}
 	}
 
 	public void setEventValue(String type, Object value) {
@@ -95,4 +94,5 @@ public class BukkitCustomEvent extends Event implements Cancellable {
 	public void setCancelled(boolean cancel) {
 		isCancelled = cancel;
 	}
+
 }

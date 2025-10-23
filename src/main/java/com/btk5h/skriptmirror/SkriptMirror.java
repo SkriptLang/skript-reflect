@@ -69,8 +69,7 @@ public class SkriptMirror extends JavaPlugin {
 
 		Comparators.registerComparator(ClassInfo.class, JavaType.class, (classInfo, javaType) -> {
 			ClassInfo<?> matchingClassInfo = Classes.getExactClassInfo(javaType.getJavaClass());
-			if (matchingClassInfo == null)
-				return Relation.NOT_EQUAL;
+			if (matchingClassInfo == null) {return Relation.NOT_EQUAL;}
 			return Comparators.compare(classInfo, matchingClassInfo);
 		});
 

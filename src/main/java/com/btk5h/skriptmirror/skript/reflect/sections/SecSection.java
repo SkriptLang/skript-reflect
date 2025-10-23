@@ -37,8 +37,7 @@ public class SecSection extends ch.njol.skript.lang.Section {
 		Expression<?> varList = SkriptUtil.defendExpression(exprs[0]);
 		variableStore = SkriptUtil.defendExpression(exprs[1]);
 
-		if (!SkriptUtil.canInitSafely(varList, variableStore))
-			return false;
+		if (!SkriptUtil.canInitSafely(varList, variableStore)) {return false;}
 
 		variableArguments = new ArrayList<>();
 		if (varList != null) {

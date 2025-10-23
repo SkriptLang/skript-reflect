@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EffExpressionStatement extends Effect {
+
 	static {
 		Skript.registerEffect(EffExpressionStatement.class, "[(1¦await)] %~javaobject%");
 	}
@@ -41,12 +42,11 @@ public class EffExpressionStatement extends Effect {
 
 			Object localVariables = SkriptReflection.getLocals(e);
 			CompletableFuture.runAsync(() -> {
-				SkriptReflection.putLocals(localVariables, e);
-				execute(e);
-			}, threadPool)
+					SkriptReflection.putLocals(localVariables, e);
+					execute(e);
+				}, threadPool)
 				.thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
-					if (getNext() != null)
-						TriggerItem.walk(getNext(), e);
+					if (getNext() != null) {TriggerItem.walk(getNext(), e);}
 
 					SkriptReflection.removeLocals(e);
 				}));
@@ -70,8 +70,8 @@ public class EffExpressionStatement extends Effect {
 		}
 
 		isAsynchronous = (parseResult.mark & 1) == 1;
-		if (isAsynchronous)
-			getParser().setHasDelayBefore(Kleenean.TRUE);
+		if (isAsynchronous) {getParser().setHasDelayBefore(Kleenean.TRUE);}
 		return SkriptUtil.canInitSafely(arg);
 	}
+
 }

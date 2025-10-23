@@ -20,12 +20,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class ExprSpread<T> implements Expression<T> {
+
 	static {
 		//noinspection unchecked
-		Skript.registerExpression(ExprSpread.class, Object.class, ExpressionType.COMBINED, "...%object%");
+		Skript.registerExpression(ExprSpread.class, Object.class, ExpressionType.COMBINED, "...%object%", "…%object%");
 	}
 
 	private Expression<Object> object;
@@ -97,12 +99,12 @@ public class ExprSpread<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c, boolean negated) {
+	public boolean check(Event e, Predicate<? super T> c, boolean negated) {
 		return SimpleExpression.check(getAll(e), c, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c) {
+	public boolean check(Event e, Predicate<? super T> c) {
 		return SimpleExpression.check(getAll(e), c, false, getAnd());
 	}
 
@@ -183,4 +185,5 @@ public class ExprSpread<T> implements Expression<T> {
 		object = SkriptUtil.defendExpression(exprs[0]);
 		return SkriptUtil.canInitSafely(object);
 	}
+
 }

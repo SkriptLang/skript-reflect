@@ -11,6 +11,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class ExprBits extends SimpleExpression<Number> {
+
 	static {
 		// parse mark also indicates the offset of the first argument
 		PropertyExpression.register(ExprBits.class, Number.class,
@@ -76,7 +77,7 @@ public class ExprBits extends SimpleExpression<Number> {
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		if (isSingle() && (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)
-				&& Changer.ChangerUtils.acceptsChange(numbers, Changer.ChangeMode.SET, Number.class)) {
+			&& Changer.ChangerUtils.acceptsChange(numbers, Changer.ChangeMode.SET, Number.class)) {
 			return new Class[]{Number.class, Boolean.class};
 		}
 		return null;
@@ -134,4 +135,5 @@ public class ExprBits extends SimpleExpression<Number> {
 
 		return true;
 	}
+
 }

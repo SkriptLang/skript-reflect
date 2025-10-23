@@ -20,8 +20,7 @@ class PatternsEntryData extends EntryData<List<String>> {
 		List<String> patterns = new ArrayList<>();
 		for (Node subNode : (SectionNode) node) {
 			String key = subNode.getKey();
-			if (key == null)
-				continue;
+			if (key == null) {continue;}
 			patterns.add(key);
 		}
 		return patterns;
@@ -29,11 +28,9 @@ class PatternsEntryData extends EntryData<List<String>> {
 
 	@Override
 	public boolean canCreateWith(Node node) {
-		if (!(node instanceof SectionNode))
-			return false;
+		if (!(node instanceof SectionNode)) {return false;}
 		String key = node.getKey();
-		if (key == null)
-			return false;
+		if (key == null) {return false;}
 		key = ScriptLoader.replaceOptions(key);
 		return getKey().equalsIgnoreCase(key);
 	}

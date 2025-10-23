@@ -7,6 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class ExpressionGetEvent extends CustomSyntaxEvent {
+
 	private final static HandlerList handlers = new HandlerList();
 	private Object[] output;
 
@@ -31,4 +32,5 @@ public class ExpressionGetEvent extends CustomSyntaxEvent {
 	public HandlerList getHandlers() {
 		return handlers;
 	}
+
 }

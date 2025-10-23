@@ -15,17 +15,16 @@ public class EventSyntaxInfo extends CustomSyntaxStructure.SyntaxData {
 	}
 
 	public static EventSyntaxInfo create(Script script, String pattern, int matchedPattern) {
-		if (Skript.getVersion().isSmallerThan(new Version(2, 8)))
+		if (Skript.getVersion().isSmallerThan(new Version(2, 8))) {
 			pattern = "[on] " + pattern + " [with priority (lowest|low|normal|high|highest|monitor)]";
+		}
 		return new EventSyntaxInfo(script, SkriptMirrorUtil.preprocessPattern(pattern), matchedPattern);
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
+		if (this == o) {return true;}
+		if (o == null || getClass() != o.getClass()) {return false;}
 		EventSyntaxInfo that = (EventSyntaxInfo) o;
 		return Objects.equals(getScript(), that.getScript()) &&
 			Objects.equals(getPattern(), that.getPattern());

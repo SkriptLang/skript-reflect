@@ -5,6 +5,7 @@ import java.util.Arrays;
 public class StringSimilarity {
 
 	public static class Result implements Comparable<Result> {
+
 		private final String left;
 		private final String right;
 		private final int editDistance;
@@ -32,6 +33,7 @@ public class StringSimilarity {
 		public int compareTo(Result o) {
 			return getEditDistance() - o.getEditDistance();
 		}
+
 	}
 
 	/**

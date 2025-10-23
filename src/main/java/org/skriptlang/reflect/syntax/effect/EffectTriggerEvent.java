@@ -8,6 +8,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class EffectTriggerEvent extends CustomSyntaxEvent {
+
 	private final static HandlerList handlers = new HandlerList();
 	private final String which;
 	private final TriggerItem next;
@@ -53,4 +54,5 @@ public class EffectTriggerEvent extends CustomSyntaxEvent {
 	public HandlerList getHandlers() {
 		return handlers;
 	}
+
 }

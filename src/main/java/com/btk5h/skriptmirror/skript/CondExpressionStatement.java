@@ -52,12 +52,11 @@ public class CondExpressionStatement extends Condition {
 
 			Object localVariables = SkriptReflection.getLocals(e);
 			CompletableFuture.runAsync(() -> {
-				SkriptReflection.putLocals(localVariables, e);
-				check(e);
-			}, threadPool)
+					SkriptReflection.putLocals(localVariables, e);
+					check(e);
+				}, threadPool)
 				.thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
-					if (getNext() != null)
-						TriggerItem.walk(getNext(), e);
+					if (getNext() != null) {TriggerItem.walk(getNext(), e);}
 
 					SkriptReflection.removeLocals(e);
 				}));
@@ -76,8 +75,7 @@ public class CondExpressionStatement extends Condition {
 						SkriptParser.ParseResult parseResult) {
 		arg = SkriptUtil.defendExpression(exprs[0]);
 
-		if (!(arg instanceof ExprJavaCall))
-			return false;
+		if (!(arg instanceof ExprJavaCall)) {return false;}
 
 		isAsynchronous = (parseResult.mark & 1) == 1;
 		isCondition = SkriptLogger.getNode() instanceof SectionNode;
@@ -87,9 +85,9 @@ public class CondExpressionStatement extends Condition {
 			return false;
 		}
 
-		if (isAsynchronous)
-			getParser().setHasDelayBefore(Kleenean.TRUE);
+		if (isAsynchronous) {getParser().setHasDelayBefore(Kleenean.TRUE);}
 
 		return SkriptUtil.canInitSafely(arg);
 	}
+
 }

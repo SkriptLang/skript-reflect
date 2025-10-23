@@ -10,6 +10,7 @@ import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
 
 public class EffNegateCondition extends Effect {
+
 	static {
 		Skript.registerEffect(EffNegateCondition.class, "negate [the] [current] condition");
 	}
@@ -34,4 +35,5 @@ public class EffNegateCondition extends Effect {
 		}
 		return true;
 	}
+
 }

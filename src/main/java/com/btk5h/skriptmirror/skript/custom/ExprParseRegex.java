@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.regex.MatchResult;
 
 public class ExprParseRegex extends SimpleExpression<String> {
+
 	static {
 		Skript.registerExpression(ExprParseRegex.class, String.class, ExpressionType.SIMPLE,
 			"[the] [parse[r]] (regex|regular expression)(-| )<\\d+>");
@@ -82,4 +83,5 @@ public class ExprParseRegex extends SimpleExpression<String> {
 		index--;
 		return true;
 	}
+
 }

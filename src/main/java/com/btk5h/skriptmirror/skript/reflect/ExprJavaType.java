@@ -11,6 +11,7 @@ import com.btk5h.skriptmirror.LibraryLoader;
 import org.bukkit.event.Event;
 
 public class ExprJavaType extends SimpleExpression<JavaType> {
+
 	static {
 		Skript.registerExpression(ExprJavaType.class, JavaType.class, ExpressionType.COMBINED,
 			"[the] [java] class %string%");
@@ -55,4 +56,5 @@ public class ExprJavaType extends SimpleExpression<JavaType> {
 		className = (Expression<String>) exprs[0];
 		return true;
 	}
+
 }

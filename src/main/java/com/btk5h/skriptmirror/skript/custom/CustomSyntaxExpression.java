@@ -7,6 +7,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 public class CustomSyntaxExpression extends SimpleExpression<Object> {
+
 	private final Expression<?> source;
 	private final Event realEvent;
 	private final Object[] value;

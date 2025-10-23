@@ -25,8 +25,7 @@ public class ChangerEntryData extends EntryData<NonNullPair<SectionNode, Class<?
 		assert key != null;
 		key = ScriptLoader.replaceOptions(node.getKey());
 		String rawTypes = key.substring(getKey().length()).trim();
-		if (rawTypes.isEmpty())
-			return new NonNullPair<>((SectionNode) node, new Class<?>[0]);
+		if (rawTypes.isEmpty()) {return new NonNullPair<>((SectionNode) node, new Class<?>[0]);}
 		Class<?>[] acceptedClasses = Arrays.stream(rawTypes.split(","))
 			.map(String::trim)
 			.map(SkriptUtil::getUserClassInfoAndPlural)
@@ -46,11 +45,9 @@ public class ChangerEntryData extends EntryData<NonNullPair<SectionNode, Class<?
 
 	@Override
 	public boolean canCreateWith(Node node) {
-		if (!(node instanceof SectionNode))
-			return false;
+		if (!(node instanceof SectionNode)) {return false;}
 		String key = node.getKey();
-		if (key == null)
-			return false;
+		if (key == null) {return false;}
 		key = ScriptLoader.replaceOptions(key);
 		return key.startsWith(getKey());
 	}

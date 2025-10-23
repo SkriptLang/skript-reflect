@@ -15,8 +15,11 @@ import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
+import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.event.elements.ExprReplacedEventValue;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -29,27 +32,16 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class SkriptReflection {
 
-	private static Field PATTERNS;
 	private static Field LOCAL_VARIABLES;
 	private static Field NODES;
 	private static Method VARIABLES_MAP_COPY;
 	private static Field DEFAULT_EXPRESSION;
 	private static Field PARSED_VALUE;
-	private static Field EXPRESSIONS;
 	private static Field OPTIONS;
 
 	static {
 		Field _FIELD;
 		Method _METHOD;
-
-		try {
-			_FIELD = SyntaxElementInfo.class.getDeclaredField("patterns");
-			_FIELD.setAccessible(true);
-			PATTERNS = _FIELD;
-		} catch (NoSuchFieldException e) {
-			warning("Skript's pattern info field could not be resolved. " +
-				"Custom syntax and imports will not work.");
-		}
 
 		try {
 			_FIELD = Variables.class.getDeclaredField("localVariables");
@@ -100,15 +92,6 @@ public class SkriptReflection {
 		}
 
 		try {
-			_FIELD = Skript.class.getDeclaredField("expressions");
-			_FIELD.setAccessible(true);
-			EXPRESSIONS = _FIELD;
-		} catch (NoSuchFieldException e) {
-			warning("Skript's expressions field could not be resolved, " +
-				"therefore you might get syntax conflict problems");
-		}
-
-		try {
 			_FIELD = StructOptions.OptionsData.class.getDeclaredField("options");
 			_FIELD.setAccessible(true);
 			OPTIONS = _FIELD;
@@ -119,17 +102,6 @@ public class SkriptReflection {
 
 	private static void warning(String message) {
 		SkriptMirror.getInstance().getLogger().warning(message);
-	}
-
-	public static void setPatterns(SyntaxElementInfo<?> info, String[] patterns) {
-		if (PATTERNS == null)
-			return;
-
-		try {
-			PATTERNS.set(info, patterns);
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -166,6 +138,7 @@ public class SkriptReflection {
 
 	/**
 	 * Retrieves the local variables from an {@link Event}.
+	 *
 	 * @param event The {@link Event} to get the local variables from.
 	 * @return The local variables of the given {@link Event}.
 	 */
@@ -181,12 +154,12 @@ public class SkriptReflection {
 
 	/**
 	 * Copies the VariablesMap contained in the given {@link Object}.
+	 *
 	 * @param locals The local variables to copy.
 	 * @return The copied local variables.
 	 */
 	public static Object copyLocals(Object locals) {
-		if (locals == null)
-			return null;
+		if (locals == null) {return null;}
 
 		try {
 			return VARIABLES_MAP_COPY.invoke(locals);
@@ -199,13 +172,13 @@ public class SkriptReflection {
 
 	/**
 	 * Retrieves the {@link Node}s of a {@link SectionNode}.
+	 *
 	 * @param sectionNode The {@link SectionNode} to get the nodes from.
 	 * @return The {@link Node}s of the given {@link SectionNode}
 	 */
 	@SuppressWarnings("unchecked")
 	public static ArrayList<Node> getNodes(SectionNode sectionNode) {
-		if (NODES == null)
-			return new ArrayList<>();
+		if (NODES == null) {return new ArrayList<>();}
 
 		try {
 			return (ArrayList<Node>) NODES.get(sectionNode);
@@ -221,8 +194,7 @@ public class SkriptReflection {
 	 * @param classInfoList A list of {@link ClassInfo}s to replace
 	 */
 	public static void replaceEventValues(List<ClassInfo<?>> classInfoList) {
-		if (DEFAULT_EXPRESSION == null)
-			return;
+		if (DEFAULT_EXPRESSION == null) {return;}
 
 		try {
 			List<ClassInfo<?>> replaceExtraList = new ArrayList<>();
@@ -258,8 +230,7 @@ public class SkriptReflection {
 	 * Disable Skript's missing and / or warnings.
 	 */
 	public static void disableAndOrWarnings() {
-		if (PARSED_VALUE == null)
-			return;
+		if (PARSED_VALUE == null) {return;}
 
 		Option<Boolean> option = SkriptConfig.disableMissingAndOrWarnings;
 		if (!option.value()) {
@@ -272,34 +243,19 @@ public class SkriptReflection {
 	}
 
 	/**
-	 * {@return} a list of all of Skript's registered {@link ch.njol.skript.lang.Expression}s.
-	 */
-	public static List<ExpressionInfo<?, ?>> getExpressions() {
-		if (EXPRESSIONS == null)
-			return new ArrayList<>();
-
-		try {
-			return (List<ExpressionInfo<?, ?>>) EXPRESSIONS.get(null);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
 	 * Gets the modifiable options map from an options data object.
 	 *
 	 * @param script the script to get the options from.
 	 * @return the modifiable options map.
-	 *
-	 * @throws NullPointerException if the given options data object is null.
+	 * @throws NullPointerException  if the given options data object is null.
 	 * @throws IllegalStateException if skript-reflect could not find the modifiable options map.
 	 */
 	public static Map<String, String> getOptions(Script script) {
-		if (script == null)
-			throw new NullPointerException();
+		if (script == null) {throw new NullPointerException();}
 
-		if (OPTIONS == null)
+		if (OPTIONS == null) {
 			throw new IllegalStateException("OPTIONS field not initialized, computed options cannot be used");
+		}
 
 		StructOptions.OptionsData optionsData = script.getData(StructOptions.OptionsData.class,
 			StructOptions.OptionsData::new);

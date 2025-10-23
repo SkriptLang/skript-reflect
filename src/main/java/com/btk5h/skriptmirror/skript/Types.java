@@ -63,8 +63,7 @@ public class Types {
 
 				@Override
 				public boolean canParse(ParseContext context) {
-					// default context handled in StructImport$ImportHandler
-					return context != ParseContext.DEFAULT;
+					return true;
 				}
 
 				@Override
@@ -76,6 +75,7 @@ public class Types {
 				public String toVariableNameString(JavaType o) {
 					return "type:" + o.getJavaClass().getName();
 				}
+
 			})
 			.serializer(new Serializer<JavaType>() {
 				@Override
@@ -92,7 +92,7 @@ public class Types {
 
 				@Override
 				protected JavaType deserialize(Fields fields) throws StreamCorruptedException,
-						NotSerializableException {
+					NotSerializableException {
 					try {
 						return new JavaType(LibraryLoader.getClassLoader().loadClass((String) fields.getObject("type")));
 					} catch (ClassNotFoundException e) {

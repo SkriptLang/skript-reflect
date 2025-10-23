@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ExprMemberNames extends SimpleExpression<String> {
+
 	static {
 		PropertyExpression.register(ExprMemberNames.class, String.class, "(0¦field|1¦method) names", "objects");
 	}
@@ -65,4 +66,5 @@ public class ExprMemberNames extends SimpleExpression<String> {
 
 		return SkriptUtil.canInitSafely(target);
 	}
+
 }

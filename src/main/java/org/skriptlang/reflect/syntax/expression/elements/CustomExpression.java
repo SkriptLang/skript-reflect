@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 
@@ -152,19 +153,19 @@ public class CustomExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c, boolean negated) {
+	public boolean check(Event e, Predicate<? super T> c, boolean negated) {
 		return SimpleExpression.check(getAll(e), c, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c) {
+	public boolean check(Event e, Predicate<? super T> c) {
 		return SimpleExpression.check(getAll(e), c, false, getAnd());
 	}
 
 	@Override
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>[] to) {
 		if (StructCustomExpression.returnTypes.containsKey(which)
-				&& !Converters.converterExists(StructCustomExpression.returnTypes.get(which), to)) {
+			&& !Converters.converterExists(StructCustomExpression.returnTypes.get(which), to)) {
 			return null;
 		}
 
@@ -229,7 +230,7 @@ public class CustomExpression<T> implements Expression<T> {
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		if (StructCustomExpression.hasChanger.containsKey(which)
-				&& StructCustomExpression.hasChanger.get(which).contains(mode)) {
+			&& StructCustomExpression.hasChanger.get(which).contains(mode)) {
 			return StructCustomExpression.changerTypes
 				.getOrDefault(which, Collections.emptyMap())
 				.getOrDefault(mode, new Class[]{Object[].class});
@@ -258,6 +259,11 @@ public class CustomExpression<T> implements Expression<T> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
 						SkriptParser.ParseResult parseResult) {
+		// prevent the user from using the placeholder pattern we register in order to satisfy the registration requirements
+		if (matchedPattern == 0) {
+			return false;
+		}
+
 		which = StructCustomExpression.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
 		if (which == null) {
@@ -287,8 +293,7 @@ public class CustomExpression<T> implements Expression<T> {
 		}
 
 		List<Supplier<Boolean>> suppliers = StructCustomExpression.usableSuppliers.get(which);
-		if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get))
-			return false;
+		if (suppliers != null && suppliers.size() != 0 && suppliers.stream().noneMatch(Supplier::get)) {return false;}
 
 		Boolean bool = StructCustomExpression.parseSectionLoaded.get(which);
 		if (bool != null && !bool) {
@@ -310,4 +315,5 @@ public class CustomExpression<T> implements Expression<T> {
 
 		return true;
 	}
+
 }

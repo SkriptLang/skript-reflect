@@ -5,6 +5,7 @@ import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.event.HandlerList;
 
 public class ConstantGetEvent extends ExpressionGetEvent {
+
 	private final static HandlerList handlers = new HandlerList();
 
 	public ConstantGetEvent(int matchedPattern, SkriptParser.ParseResult parseResult) {
@@ -19,4 +20,5 @@ public class ConstantGetEvent extends ExpressionGetEvent {
 	public HandlerList getHandlers() {
 		return handlers;
 	}
+
 }

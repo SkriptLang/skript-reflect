@@ -12,13 +12,17 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Utils;
+import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
 import org.skriptlang.reflect.syntax.condition.ConditionSyntaxInfo;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,13 +43,13 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
 			"[:local] %*classinfos% property condition <.+>"
 		};
 		Skript.registerStructure(StructCustomCondition.class, customSyntaxValidator()
-			.addSection("check", false)
-			.build(),
+				.addSection("check", false)
+				.build(),
 			syntax
 		);
 	}
 
-	private static final DataTracker<ConditionSyntaxInfo> dataTracker = new DataTracker<>();
+	public static final DataTracker<ConditionSyntaxInfo> dataTracker = new DataTracker<>();
 
 	static final Map<ConditionSyntaxInfo, Trigger> conditionHandlers = new HashMap<>();
 	static final Map<ConditionSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
@@ -53,11 +57,12 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
 	static final Map<ConditionSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
 	static {
-		Skript.registerCondition(CustomCondition.class);
-		Optional<SyntaxElementInfo<? extends Condition>> info = Skript.getConditions().stream()
-			.filter(i -> i.getElementClass() == CustomCondition.class)
+		Skript.registerCondition(CustomCondition.class, DEFAULT_PATTERN);
+		Optional<SyntaxInfo<? extends Condition>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(SyntaxRegistry.CONDITION).stream()
+			.filter(i -> i.type() == CustomCondition.class)
 			.findFirst();
 		info.ifPresent(dataTracker::setInfo);
+		dataTracker.setSyntaxKey(SyntaxRegistry.CONDITION);
 
 		dataTracker.addManaged(conditionHandlers);
 		dataTracker.addManaged(parserHandlers);
@@ -130,8 +135,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<ConditionSyntax
 		EntryContainer entryContainer = getEntryContainer();
 
 		SectionNode[] parseNode = getParseNode();
-		if (parseNode == null)
-			return false;
+		if (parseNode == null) {return false;}
 		this.parseNode = parseNode[0];
 		whichInfo.forEach(which -> parseSectionLoaded.put(which, this.parseNode == null));
 

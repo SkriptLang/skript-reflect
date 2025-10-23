@@ -97,7 +97,7 @@ public class Metrics {
 	/**
 	 * Class constructor.
 	 *
-	 * @param plugin The plugin which stats should be submitted.
+	 * @param plugin   The plugin which stats should be submitted.
 	 * @param pluginId The id of the plugin.
 	 *                 It can be found at <a href="https://bstats.org/what-is-my-plugin-id">What is my plugin id?</a>
 	 */
@@ -136,7 +136,7 @@ public class Metrics {
 			).copyDefaults(true);
 			try {
 				config.save(configFile);
-			} catch (IOException ignored) { }
+			} catch (IOException ignored) {}
 		}
 
 		// Load the data
@@ -154,7 +154,7 @@ public class Metrics {
 					service.getField("B_STATS_VERSION"); // Our identifier :)
 					found = true; // We aren't the first
 					break;
-				} catch (NoSuchFieldException ignored) { }
+				} catch (NoSuchFieldException ignored) {}
 			}
 			// Register our service
 			Bukkit.getServicesManager().register(Metrics.class, this, plugin, ServicePriority.Normal);
@@ -320,9 +320,10 @@ public class Metrics {
 								}
 							}
 						}
-					} catch (NullPointerException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) { }
+					} catch (NullPointerException | NoSuchMethodException | IllegalAccessException |
+							 InvocationTargetException ignored) {}
 				}
-			} catch (NoSuchFieldException ignored) { }
+			} catch (NoSuchFieldException ignored) {}
 		}
 
 		data.add("plugins", pluginData);
@@ -345,7 +346,7 @@ public class Metrics {
 	 * Sends the data to the bStats server.
 	 *
 	 * @param plugin Any plugin. It's just used to get a logger instance.
-	 * @param data The data to send.
+	 * @param data   The data to send.
 	 * @throws Exception If the request failed.
 	 */
 	private static void sendData(Plugin plugin, JsonObject data) throws Exception {
@@ -462,7 +463,7 @@ public class Metrics {
 		/**
 		 * Class constructor.
 		 *
-		 * @param chartId The id of the chart.
+		 * @param chartId  The id of the chart.
 		 * @param callable The callable which is used to request the chart data.
 		 */
 		public SimplePie(String chartId, Callable<String> callable) {
@@ -481,6 +482,7 @@ public class Metrics {
 			data.addProperty("value", value);
 			return data;
 		}
+
 	}
 
 	/**
@@ -493,7 +495,7 @@ public class Metrics {
 		/**
 		 * Class constructor.
 		 *
-		 * @param chartId The id of the chart.
+		 * @param chartId  The id of the chart.
 		 * @param callable The callable which is used to request the chart data.
 		 */
 		public AdvancedPie(String chartId, Callable<Map<String, Integer>> callable) {
@@ -525,6 +527,7 @@ public class Metrics {
 			data.add("values", values);
 			return data;
 		}
+
 	}
 
 	/**
@@ -537,7 +540,7 @@ public class Metrics {
 		/**
 		 * Class constructor.
 		 *
-		 * @param chartId The id of the chart.
+		 * @param chartId  The id of the chart.
 		 * @param callable The callable which is used to request the chart data.
 		 */
 		public DrilldownPie(String chartId, Callable<Map<String, Map<String, Integer>>> callable) {
@@ -574,6 +577,7 @@ public class Metrics {
 			data.add("values", values);
 			return data;
 		}
+
 	}
 
 	/**
@@ -586,7 +590,7 @@ public class Metrics {
 		/**
 		 * Class constructor.
 		 *
-		 * @param chartId The id of the chart.
+		 * @param chartId  The id of the chart.
 		 * @param callable The callable which is used to request the chart data.
 		 */
 		public SingleLineChart(String chartId, Callable<Integer> callable) {
@@ -618,7 +622,7 @@ public class Metrics {
 		/**
 		 * Class constructor.
 		 *
-		 * @param chartId The id of the chart.
+		 * @param chartId  The id of the chart.
 		 * @param callable The callable which is used to request the chart data.
 		 */
 		public MultiLineChart(String chartId, Callable<Map<String, Integer>> callable) {
@@ -663,7 +667,7 @@ public class Metrics {
 		/**
 		 * Class constructor.
 		 *
-		 * @param chartId The id of the chart.
+		 * @param chartId  The id of the chart.
 		 * @param callable The callable which is used to request the chart data.
 		 */
 		public SimpleBarChart(String chartId, Callable<Map<String, Integer>> callable) {
@@ -701,7 +705,7 @@ public class Metrics {
 		/**
 		 * Class constructor.
 		 *
-		 * @param chartId The id of the chart.
+		 * @param chartId  The id of the chart.
 		 * @param callable The callable which is used to request the chart data.
 		 */
 		public AdvancedBarChart(String chartId, Callable<Map<String, int[]>> callable) {
@@ -737,6 +741,7 @@ public class Metrics {
 			data.add("values", values);
 			return data;
 		}
+
 	}
 
 }

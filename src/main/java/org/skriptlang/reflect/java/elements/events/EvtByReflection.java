@@ -26,6 +26,7 @@ public class EvtByReflection extends SkriptEvent {
 	}
 
 	private static class MyEventExecutor implements EventExecutor {
+
 		private final Class<? extends Event> eventClass;
 		private final ListeningBehavior listeningBehavior;
 		private final Trigger trigger;
@@ -45,8 +46,9 @@ public class EvtByReflection extends SkriptEvent {
 		@Override
 		public void execute(Listener listener, Event event) throws EventException {
 			if (eventClass.isInstance(event)) {
-				if (event instanceof Cancellable && listeningBehavior != null && !listeningBehavior.matches(((Cancellable) event).isCancelled()))
+				if (event instanceof Cancellable && listeningBehavior != null && !listeningBehavior.matches(((Cancellable) event).isCancelled())) {
 					return;
+				}
 
 				Event scriptEvent;
 				scriptEvent = event instanceof Cancellable
@@ -55,9 +57,11 @@ public class EvtByReflection extends SkriptEvent {
 				trigger.execute(scriptEvent);
 			}
 		}
+
 	}
 
 	private static class BukkitEvent extends WrappedEvent {
+
 		public BukkitEvent(Event event) {
 			super(event, event.isAsynchronous());
 		}
@@ -67,9 +71,11 @@ public class EvtByReflection extends SkriptEvent {
 			// No HandlerList implementation because this event should never be called
 			throw new IllegalStateException();
 		}
+
 	}
 
 	private static class CancellableBukkitEvent extends BukkitEvent implements Cancellable {
+
 		public CancellableBukkitEvent(Cancellable event) {
 			super((Event) event);
 		}
@@ -85,6 +91,7 @@ public class EvtByReflection extends SkriptEvent {
 			Event event = getDirectEvent();
 			((Cancellable) event).setCancelled(cancel);
 		}
+
 	}
 
 	private Class<? extends Event>[] classes;
@@ -125,7 +132,7 @@ public class EvtByReflection extends SkriptEvent {
 			EventExecutor executor = new MyEventExecutor(eventClass, listeningBehavior, trigger);
 
 			Bukkit.getPluginManager()
-					.registerEvent(eventClass, listener, getEventPriority(), executor, SkriptMirror.getInstance(), listeningBehavior == ListeningBehavior.UNCANCELLED);
+				.registerEvent(eventClass, listener, getEventPriority(), executor, SkriptMirror.getInstance(), listeningBehavior == ListeningBehavior.UNCANCELLED);
 		}
 		return true;
 	}
@@ -145,8 +152,7 @@ public class EvtByReflection extends SkriptEvent {
 		boolean hasUncancellable = false;
 		boolean hasCancellable = false;
 
-		if (classes == null)
-			return new Class[]{BukkitEvent.class};
+		if (classes == null) {return new Class[]{BukkitEvent.class};}
 
 		for (Class<? extends Event> eventClass : classes) {
 			if (Cancellable.class.isAssignableFrom(eventClass)) {
@@ -157,11 +163,11 @@ public class EvtByReflection extends SkriptEvent {
 		}
 
 		if (hasCancellable && hasUncancellable) {
-			return new Class[] {BukkitEvent.class, CancellableBukkitEvent.class};
+			return new Class[]{BukkitEvent.class, CancellableBukkitEvent.class};
 		} else if (hasCancellable) {
-			return new Class[] {CancellableBukkitEvent.class};
+			return new Class[]{CancellableBukkitEvent.class};
 		} else {
-			return new Class[] {BukkitEvent.class};
+			return new Class[]{BukkitEvent.class};
 		}
 	}
 

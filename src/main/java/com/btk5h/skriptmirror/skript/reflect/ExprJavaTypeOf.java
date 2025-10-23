@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
+
 	static {
 		PropertyExpression.register(ExprJavaTypeOf.class, JavaType.class, "[java] class[es]", "objects");
 	}
@@ -49,4 +50,5 @@ public class ExprJavaTypeOf extends SimpleExpression<JavaType> {
 		target = SkriptUtil.defendExpression(exprs[0]);
 		return SkriptUtil.canInitSafely(target);
 	}
+
 }

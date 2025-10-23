@@ -15,6 +15,7 @@ import org.skriptlang.reflect.syntax.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
 
 public class ExprMatchedPattern extends SimpleExpression<Number> {
+
 	static {
 		Skript.registerExpression(ExprMatchedPattern.class, Number.class, ExpressionType.SIMPLE, "[the] [matched] pattern");
 	}
@@ -55,4 +56,5 @@ public class ExprMatchedPattern extends SimpleExpression<Number> {
 		}
 		return true;
 	}
+
 }

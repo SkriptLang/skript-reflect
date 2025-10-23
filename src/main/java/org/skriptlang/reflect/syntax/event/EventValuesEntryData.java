@@ -38,11 +38,9 @@ public class EventValuesEntryData extends KeyValueEntryData<List<ClassInfo<?>>> 
 
 	@Override
 	public final boolean canCreateWith(Node node) {
-		if (!(node instanceof SimpleNode))
-			return false;
+		if (!(node instanceof SimpleNode)) {return false;}
 		String key = node.getKey();
-		if (key == null)
-			return false;
+		if (key == null) {return false;}
 		return canCreateWith(ScriptLoader.replaceOptions(key));
 	}
 

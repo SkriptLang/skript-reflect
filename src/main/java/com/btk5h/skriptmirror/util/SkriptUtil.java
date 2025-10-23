@@ -35,7 +35,7 @@ public class SkriptUtil {
 	/**
 	 * Returns the given {@link Expression}, unless it is (or has) an {@link UnparsedLiteral},
 	 * in which case every {@link UnparsedLiteral} will be parsed, and returned if successful.
-	 *
+	 * <p>
 	 * Can also be used as an alternative to casting to a generic type.
 	 */
 	@SuppressWarnings("unchecked")
@@ -56,14 +56,12 @@ public class SkriptUtil {
 	 * @return whether the given {@link Expression} is / has an {@link UnparsedLiteral}.
 	 */
 	public static boolean hasUnparsedLiteral(Expression<?> expr) {
-		if (expr instanceof UnparsedLiteral)
-			return true;
+		if (expr instanceof UnparsedLiteral) {return true;}
 
 		if (expr instanceof ExpressionList) {
 			Expression<?>[] expressions = ((ExpressionList<?>) expr).getExpressions();
 			for (Expression<?> expression : expressions) {
-				if (expression instanceof UnparsedLiteral)
-					return true;
+				if (expression instanceof UnparsedLiteral) {return true;}
 			}
 		}
 

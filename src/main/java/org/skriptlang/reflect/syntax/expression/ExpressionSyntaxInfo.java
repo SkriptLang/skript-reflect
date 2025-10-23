@@ -55,15 +55,15 @@ public class ExpressionSyntaxInfo extends CustomSyntaxStructure.SyntaxData {
 		}
 
 		return new ExpressionSyntaxInfo(
-				script,
-				newPattern.toString(),
-				matchedPattern,
-				inheritedSingles.stream()
-					.mapToInt(i -> i)
-					.toArray(),
-				alwaysPlural,
-				adaptArgument,
-				property);
+			script,
+			newPattern.toString(),
+			matchedPattern,
+			inheritedSingles.stream()
+				.mapToInt(i -> i)
+				.toArray(),
+			alwaysPlural,
+			adaptArgument,
+			property);
 	}
 
 	public int[] getInheritedSingles() {

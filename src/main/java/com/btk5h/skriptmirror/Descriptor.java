@@ -162,8 +162,7 @@ public final class Descriptor {
 	 */
 	private static Class<?> lookupClass(Script script, String userType) throws ImportNotFoundException {
 		JavaType customImport = StructImport.lookup(script, userType);
-		if (customImport == null)
-			throw new ImportNotFoundException(userType);
+		if (customImport == null) {throw new ImportNotFoundException(userType);}
 
 		return customImport.getJavaClass();
 	}

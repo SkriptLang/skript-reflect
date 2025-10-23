@@ -13,14 +13,13 @@ import java.util.List;
 public class CustomEventUtils {
 
 	/**
-	 * @param which The EventSyntaxInfo that belongs to the used custom event
+	 * @param which     The EventSyntaxInfo that belongs to the used custom event
 	 * @param classInfo The used ClassInfo
 	 * @return whether the given CustomEvent supports the given ClassInfo as an event-value.
 	 */
 	public static boolean hasEventValue(EventSyntaxInfo which, ClassInfo<?> classInfo) {
 		List<ClassInfo<?>> eventValueClassInfoList = StructCustomEvent.eventValueTypes.get(which);
-		if (eventValueClassInfoList == null)
-			return false;
+		if (eventValueClassInfoList == null) {return false;}
 
 		Class<?> classInfoClass = classInfo.getC();
 		for (ClassInfo<?> loopedClassInfo : eventValueClassInfoList) {
@@ -44,8 +43,7 @@ public class CustomEventUtils {
 	 * @return The defined name (identifier) of the custom event from the given EventSyntaxInfo
 	 */
 	public static String getName(EventSyntaxInfo which) {
-		if (which == null)
-			return null;
+		if (which == null) {return null;}
 
 		return StructCustomEvent.nameValues.get(which);
 	}

@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import java.util.Arrays;
 
 public class ExprFunction extends SimpleExpression<FunctionWrapper> {
+
 	static {
 		Skript.registerExpression(ExprFunction.class, FunctionWrapper.class, ExpressionType.PROPERTY,
 			"[the] function(s| [reference[s]]) %strings% [called with [[the] [arg[ument][s]]] %-objects%]");
@@ -57,4 +58,5 @@ public class ExprFunction extends SimpleExpression<FunctionWrapper> {
 
 		return SkriptUtil.canInitSafely(args);
 	}
+
 }
