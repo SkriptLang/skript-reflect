@@ -21,155 +21,155 @@ import java.util.stream.Collectors;
 
 public class EvtByReflection extends SkriptEvent {
 
-  static {
-    Skript.registerEvent("*reflection", EvtByReflection.class, BukkitEvent.class, "%javatypes%");
-  }
+	static {
+		Skript.registerEvent("*reflection", EvtByReflection.class, BukkitEvent.class, "%javatypes%");
+	}
 
-  private static class MyEventExecutor implements EventExecutor {
-    private final Class<? extends Event> eventClass;
-    private final ListeningBehavior listeningBehavior;
-    private final Trigger trigger;
+	private static class MyEventExecutor implements EventExecutor {
+		private final Class<? extends Event> eventClass;
+		private final ListeningBehavior listeningBehavior;
+		private final Trigger trigger;
 
-    public MyEventExecutor(Class<? extends Event> eventClass, Trigger trigger) {
-      this.eventClass = eventClass;
-      this.listeningBehavior = ListeningBehavior.UNCANCELLED;
-      this.trigger = trigger;
-    }
+		public MyEventExecutor(Class<? extends Event> eventClass, Trigger trigger) {
+			this.eventClass = eventClass;
+			this.listeningBehavior = ListeningBehavior.UNCANCELLED;
+			this.trigger = trigger;
+		}
 
-    public MyEventExecutor(Class<? extends Event> eventClass, ListeningBehavior listeningBehavior, Trigger trigger) {
-      this.eventClass = eventClass;
-      this.listeningBehavior = listeningBehavior;
-      this.trigger = trigger;
-    }
+		public MyEventExecutor(Class<? extends Event> eventClass, ListeningBehavior listeningBehavior, Trigger trigger) {
+			this.eventClass = eventClass;
+			this.listeningBehavior = listeningBehavior;
+			this.trigger = trigger;
+		}
 
-    @Override
-    public void execute(Listener listener, Event event) throws EventException {
-      if (eventClass.isInstance(event)) {
-        if (event instanceof Cancellable && listeningBehavior != null && !listeningBehavior.matches(((Cancellable) event).isCancelled()))
-          return;
+		@Override
+		public void execute(Listener listener, Event event) throws EventException {
+			if (eventClass.isInstance(event)) {
+				if (event instanceof Cancellable && listeningBehavior != null && !listeningBehavior.matches(((Cancellable) event).isCancelled()))
+					return;
 
-        Event scriptEvent;
-        scriptEvent = event instanceof Cancellable
-            ? new CancellableBukkitEvent((Cancellable) event) : new BukkitEvent(event);
+				Event scriptEvent;
+				scriptEvent = event instanceof Cancellable
+						? new CancellableBukkitEvent((Cancellable) event) : new BukkitEvent(event);
 
-        trigger.execute(scriptEvent);
-      }
-    }
-  }
+				trigger.execute(scriptEvent);
+			}
+		}
+	}
 
-  private static class BukkitEvent extends WrappedEvent {
-    public BukkitEvent(Event event) {
-      super(event, event.isAsynchronous());
-    }
+	private static class BukkitEvent extends WrappedEvent {
+		public BukkitEvent(Event event) {
+			super(event, event.isAsynchronous());
+		}
 
-    @Override
-    public HandlerList getHandlers() {
-      // No HandlerList implementation because this event should never be called
-      throw new IllegalStateException();
-    }
-  }
+		@Override
+		public HandlerList getHandlers() {
+			// No HandlerList implementation because this event should never be called
+			throw new IllegalStateException();
+		}
+	}
 
-  private static class CancellableBukkitEvent extends BukkitEvent implements Cancellable {
-    public CancellableBukkitEvent(Cancellable event) {
-      super((Event) event);
-    }
+	private static class CancellableBukkitEvent extends BukkitEvent implements Cancellable {
+		public CancellableBukkitEvent(Cancellable event) {
+			super((Event) event);
+		}
 
-    @Override
-    public boolean isCancelled() {
-      Event event = getDirectEvent();
-      return ((Cancellable) event).isCancelled();
-    }
+		@Override
+		public boolean isCancelled() {
+			Event event = getDirectEvent();
+			return ((Cancellable) event).isCancelled();
+		}
 
-    @Override
-    public void setCancelled(boolean cancel) {
-      Event event = getDirectEvent();
-      ((Cancellable) event).setCancelled(cancel);
-    }
-  }
+		@Override
+		public void setCancelled(boolean cancel) {
+			Event event = getDirectEvent();
+			((Cancellable) event).setCancelled(cancel);
+		}
+	}
 
-  private Class<? extends Event>[] classes;
-  private Listener listener;
+	private Class<? extends Event>[] classes;
+	private Listener listener;
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-    JavaType[] javaTypes = ((Literal<JavaType>) args[0]).getArray();
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		JavaType[] javaTypes = ((Literal<JavaType>) args[0]).getArray();
 
-    classes = new Class[javaTypes.length];
+		classes = new Class[javaTypes.length];
 
-    for (int i = 0; i < javaTypes.length; i++) {
-      JavaType javaType = javaTypes[i];
-      Class<?> clazz = javaType.getJavaClass();
+		for (int i = 0; i < javaTypes.length; i++) {
+			JavaType javaType = javaTypes[i];
+			Class<?> clazz = javaType.getJavaClass();
 
-      if (!Event.class.isAssignableFrom(clazz)) {
-        Skript.error(clazz.getSimpleName() + " is not a Bukkit event");
-        return false;
-      }
+			if (!Event.class.isAssignableFrom(clazz)) {
+				Skript.error(clazz.getSimpleName() + " is not a Bukkit event");
+				return false;
+			}
 
-      classes[i] = (Class<? extends Event>) clazz;
-    }
+			classes[i] = (Class<? extends Event>) clazz;
+		}
 
-    listener = new Listener() {};
+		listener = new Listener() {};
 
-    return true;
-  }
+		return true;
+	}
 
-  @Override
-  public boolean check(Event event) {
-    throw new UnsupportedOperationException(); // Should never be called
-  }
+	@Override
+	public boolean check(Event event) {
+		throw new UnsupportedOperationException(); // Should never be called
+	}
 
-  @Override
-  public boolean postLoad() {
-    for (Class<? extends Event> eventClass : classes) {
-      EventExecutor executor = new MyEventExecutor(eventClass, listeningBehavior, trigger);
+	@Override
+	public boolean postLoad() {
+		for (Class<? extends Event> eventClass : classes) {
+			EventExecutor executor = new MyEventExecutor(eventClass, listeningBehavior, trigger);
 
-      Bukkit.getPluginManager()
-          .registerEvent(eventClass, listener, getEventPriority(), executor, SkriptMirror.getInstance(), listeningBehavior == ListeningBehavior.UNCANCELLED);
-    }
-    return true;
-  }
+			Bukkit.getPluginManager()
+					.registerEvent(eventClass, listener, getEventPriority(), executor, SkriptMirror.getInstance(), listeningBehavior == ListeningBehavior.UNCANCELLED);
+		}
+		return true;
+	}
 
-  public void unload() {
-    HandlerList.unregisterAll(listener);
-  }
+	public void unload() {
+		HandlerList.unregisterAll(listener);
+	}
 
-  @Override
-  public boolean isListeningBehaviorSupported() {
-    return true;
-  }
+	@Override
+	public boolean isListeningBehaviorSupported() {
+		return true;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Class<? extends Event>[] getEventClasses() {
-    boolean hasUncancellable = false;
-    boolean hasCancellable = false;
+	@SuppressWarnings("unchecked")
+	@Override
+	public Class<? extends Event>[] getEventClasses() {
+		boolean hasUncancellable = false;
+		boolean hasCancellable = false;
 
-    if (classes == null)
-      return new Class[]{BukkitEvent.class};
+		if (classes == null)
+			return new Class[]{BukkitEvent.class};
 
-    for (Class<? extends Event> eventClass : classes) {
-      if (Cancellable.class.isAssignableFrom(eventClass)) {
-        hasCancellable = true;
-      } else {
-        hasUncancellable = true;
-      }
-    }
+		for (Class<? extends Event> eventClass : classes) {
+			if (Cancellable.class.isAssignableFrom(eventClass)) {
+				hasCancellable = true;
+			} else {
+				hasUncancellable = true;
+			}
+		}
 
-    if (hasCancellable && hasUncancellable) {
-      return new Class[] {BukkitEvent.class, CancellableBukkitEvent.class};
-    } else if (hasCancellable) {
-      return new Class[] {CancellableBukkitEvent.class};
-    } else {
-      return new Class[] {BukkitEvent.class};
-    }
-  }
+		if (hasCancellable && hasUncancellable) {
+			return new Class[] {BukkitEvent.class, CancellableBukkitEvent.class};
+		} else if (hasCancellable) {
+			return new Class[] {CancellableBukkitEvent.class};
+		} else {
+			return new Class[] {BukkitEvent.class};
+		}
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return Arrays.stream(classes)
-        .map(Class::getSimpleName)
-        .collect(Collectors.joining(", "));
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return Arrays.stream(classes)
+				.map(Class::getSimpleName)
+				.collect(Collectors.joining(", "));
+	}
 
 }

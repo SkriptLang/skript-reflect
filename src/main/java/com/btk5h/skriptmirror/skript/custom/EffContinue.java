@@ -13,45 +13,45 @@ import org.bukkit.event.Event;
 
 public class EffContinue extends Effect {
 
-  static {
-    Skript.registerEffect(EffContinue.class, "continue");
-  }
+	static {
+		Skript.registerEffect(EffContinue.class, "continue");
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    if (!(getParser().isCurrentEvent(EffectTriggerEvent.class)
-      || CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents()))) {
-      Skript.error("Continue may only be used in loops, custom effects, custom syntax parse sections and custom conditions", ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
+		if (!(getParser().isCurrentEvent(EffectTriggerEvent.class)
+			|| CollectionUtils.containsAnySuperclass(new Class[]{Continuable.class}, getParser().getCurrentEvents()))) {
+			Skript.error("Continue may only be used in loops, custom effects, custom syntax parse sections and custom conditions", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
 
-    return true;
-  }
+		return true;
+	}
 
-  @Override
-  protected void execute(Event e) {
-    throw new UnsupportedOperationException();
-  }
+	@Override
+	protected void execute(Event e) {
+		throw new UnsupportedOperationException();
+	}
 
-  @Override
-  protected TriggerItem walk(Event e) {
-    if (e instanceof EffectTriggerEvent) {
-      EffectTriggerEvent effectTriggerEvent = (EffectTriggerEvent) e;
-      if (effectTriggerEvent.isSync()) {
-        Skript.warning("Synchronous events should not be continued. Call 'delay effect' to delay the effect's execution.");
-      } else {
-        effectTriggerEvent.setContinued();
-        TriggerItem.walk(effectTriggerEvent.getNext(), effectTriggerEvent.getDirectEvent());
-      }
-    } else if (e instanceof Continuable) {
-      ((Continuable) e).markContinue();
-    }
-    return null;
-  }
+	@Override
+	protected TriggerItem walk(Event e) {
+		if (e instanceof EffectTriggerEvent) {
+			EffectTriggerEvent effectTriggerEvent = (EffectTriggerEvent) e;
+			if (effectTriggerEvent.isSync()) {
+				Skript.warning("Synchronous events should not be continued. Call 'delay effect' to delay the effect's execution.");
+			} else {
+				effectTriggerEvent.setContinued();
+				TriggerItem.walk(effectTriggerEvent.getNext(), effectTriggerEvent.getDirectEvent());
+			}
+		} else if (e instanceof Continuable) {
+			((Continuable) e).markContinue();
+		}
+		return null;
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return "continue";
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return "continue";
+	}
 }

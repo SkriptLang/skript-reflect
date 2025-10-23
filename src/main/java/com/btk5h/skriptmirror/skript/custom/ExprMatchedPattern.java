@@ -15,44 +15,44 @@ import org.skriptlang.reflect.syntax.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
 
 public class ExprMatchedPattern extends SimpleExpression<Number> {
-  static {
-    Skript.registerExpression(ExprMatchedPattern.class, Number.class, ExpressionType.SIMPLE, "[the] [matched] pattern");
-  }
+	static {
+		Skript.registerExpression(ExprMatchedPattern.class, Number.class, ExpressionType.SIMPLE, "[the] [matched] pattern");
+	}
 
-  @Override
-  protected Number[] get(Event e) {
-    return new Number[]{((CustomSyntaxEvent) e).getMatchedPattern()};
-  }
+	@Override
+	protected Number[] get(Event e) {
+		return new Number[]{((CustomSyntaxEvent) e).getMatchedPattern()};
+	}
 
-  @Override
-  public boolean isSingle() {
-    return true;
-  }
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
 
-  @Override
-  public Class<? extends Number> getReturnType() {
-    return Number.class;
-  }
+	@Override
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
+	}
 
-  @Override
-  public String toString(Event e, boolean debug) {
-    return "matched pattern";
-  }
+	@Override
+	public String toString(Event e, boolean debug) {
+		return "matched pattern";
+	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    if (!getParser().isCurrentEvent(
-      SyntaxParseEvent.class,
-      ConditionCheckEvent.class,
-      EffectTriggerEvent.class,
-      EventTriggerEvent.class,
-      ExpressionChangeEvent.class,
-      ExpressionGetEvent.class
-    )) {
-      Skript.error("The matched pattern may only be used in custom syntax.", ErrorQuality.SEMANTIC_ERROR);
-      return false;
-    }
-    return true;
-  }
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(
+			SyntaxParseEvent.class,
+			ConditionCheckEvent.class,
+			EffectTriggerEvent.class,
+			EventTriggerEvent.class,
+			ExpressionChangeEvent.class,
+			ExpressionGetEvent.class
+		)) {
+			Skript.error("The matched pattern may only be used in custom syntax.", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
+		return true;
+	}
 }
