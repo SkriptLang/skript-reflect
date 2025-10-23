@@ -5,7 +5,6 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.VariableString;
-import com.btk5h.skriptmirror.SkriptMirror;
 import org.skriptlang.reflect.java.elements.structures.StructImport;
 import org.skriptlang.reflect.syntax.event.elements.CustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
@@ -19,8 +18,6 @@ import org.bukkit.event.HandlerList;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +30,6 @@ import java.util.stream.Collectors;
 
 public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.SyntaxData> extends Structure {
 
-	public static final String DEFAULT_PATTERN = "this is here because at least one pattern is required";
 	public static final Priority PRIORITY = new Priority(350);
 
 	public static class CustomSyntaxEvent extends Event {
@@ -52,8 +48,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
 		private List<String> patterns = new ArrayList<>();
 		private final Map<Script, Map<String, T>> primaryData = new HashMap<>();
 		private final List<Map<T, ?>> managedData = new ArrayList<>();
-		private SyntaxRegistry.Key<?> syntaxKey;
-		private SyntaxInfo<?> info;
+		private SyntaxElementInfo<?> info;
 
 		public List<String> getPatterns() {
 			return patterns;
@@ -67,24 +62,23 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
 			return managedData;
 		}
 
-		public SyntaxInfo<?> getInfo() {
+		public SyntaxElementInfo<?> getInfo() {
 			return info;
 		}
 
 		public void recomputePatterns() {
 			patterns = primaryData.values().stream()
-					.map(Map::keySet)
-					.flatMap(Set::stream)
-					.distinct()
-					.collect(Collectors.toList());
-			patterns.add(0, DEFAULT_PATTERN); // registration api compatibility workaround
+				.map(Map::keySet)
+				.flatMap(Set::stream)
+				.distinct()
+				.collect(Collectors.toList());
 		}
 
 		public void addManaged(Map<T, ?> data) {
 			managedData.add(data);
 		}
 
-		public void setInfo(SyntaxInfo<?> info) {
+		public void setInfo(SyntaxElementInfo<?> info) {
 			this.info = info;
 		}
 
@@ -106,14 +100,6 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
 			}
 
 			return globalSyntax.get(originalSyntax);
-		}
-
-		public SyntaxRegistry.Key<?> getSyntaxKey() {
-			return syntaxKey;
-		}
-
-		public void setSyntaxKey(SyntaxRegistry.Key<?> syntaxKey) {
-			this.syntaxKey = syntaxKey;
 		}
 	}
 
@@ -192,16 +178,7 @@ public abstract class CustomSyntaxStructure<T extends CustomSyntaxStructure.Synt
 
 	private void update() {
 		getDataTracker().recomputePatterns();
-		SyntaxRegistry syntaxRegistry = SkriptMirror.getAddonInstance().syntaxRegistry();
-		SyntaxInfo<?> oldSyntaxInfo = getDataTracker().getInfo();
-		// an angel weeps
-		syntaxRegistry.unregister((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), (SyntaxInfo<?>) oldSyntaxInfo);
-		SyntaxInfo<?> newSyntaxInfo = oldSyntaxInfo.toBuilder()
-				.clearPatterns()
-				.addPatterns(getDataTracker().getPatterns())
-				.build();
-		syntaxRegistry.register((SyntaxRegistry.Key) getDataTracker().getSyntaxKey(), newSyntaxInfo);
-		getDataTracker().setInfo(newSyntaxInfo);
+		SkriptReflection.setPatterns(getDataTracker().getInfo(), getDataTracker().getPatterns().toArray(new String[0]));
 	}
 
 	protected final void register(T data) {

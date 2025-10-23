@@ -50,7 +50,7 @@ public class EvtByReflection extends SkriptEvent {
 
 				Event scriptEvent;
 				scriptEvent = event instanceof Cancellable
-						? new CancellableBukkitEvent((Cancellable) event) : new BukkitEvent(event);
+					? new CancellableBukkitEvent((Cancellable) event) : new BukkitEvent(event);
 
 				trigger.execute(scriptEvent);
 			}
@@ -168,8 +168,8 @@ public class EvtByReflection extends SkriptEvent {
 	@Override
 	public String toString(Event e, boolean debug) {
 		return Arrays.stream(classes)
-				.map(Class::getSimpleName)
-				.collect(Collectors.joining(", "));
+			.map(Class::getSimpleName)
+			.collect(Collectors.joining(", "));
 	}
 
 }

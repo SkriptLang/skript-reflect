@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
-import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
@@ -19,14 +18,8 @@ import org.skriptlang.reflect.syntax.event.BukkitCustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
 import org.skriptlang.reflect.syntax.event.EventValuesEntryData;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
-import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.registration.DefaultSyntaxInfos;
-import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,13 +55,12 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
 	static final Map<EventSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
 	static {
-		Skript.registerEvent("custom event", CustomEvent.class, BukkitCustomEvent.class, DEFAULT_PATTERN);
-		Optional<BukkitSyntaxInfos.Event<?>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT).stream()
-			.filter(i -> i.type() == CustomEvent.class)
+		Skript.registerEvent("custom event", CustomEvent.class, BukkitCustomEvent.class);
+		Optional<SkriptEventInfo<?>> info = Skript.getEvents().stream()
+			.filter(i -> i.getElementClass() == CustomEvent.class)
 			.findFirst();
 		info.ifPresent(dataTracker::setInfo);
 
-		dataTracker.setSyntaxKey(BukkitRegistryKeys.EVENT);
 		dataTracker.addManaged(nameValues);
 		dataTracker.addManaged(eventValueTypes);
 		dataTracker.addManaged(parserHandlers);

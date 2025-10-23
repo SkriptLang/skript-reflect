@@ -61,10 +61,11 @@ public class Types {
 					return StructImport.lookup(script, s);
 				}
 
-					@Override
-					public boolean canParse(ParseContext context) {
-						return true;
-					}
+				@Override
+				public boolean canParse(ParseContext context) {
+					// default context handled in StructImport$ImportHandler
+					return context != ParseContext.DEFAULT;
+				}
 
 				@Override
 				public String toString(JavaType o, int flags) {

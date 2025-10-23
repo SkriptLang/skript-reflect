@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.log.SkriptLogger;
-import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
@@ -18,8 +17,6 @@ import org.skriptlang.reflect.syntax.effect.EffectSyntaxInfo;
 import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +40,7 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
 		);
 	}
 
-	public static final DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
+	private static final DataTracker<EffectSyntaxInfo> dataTracker = new DataTracker<>();
 
 	static final Map<EffectSyntaxInfo, Trigger> effectHandlers = new HashMap<>();
 	static final Map<EffectSyntaxInfo, Trigger> parserHandlers = new HashMap<>();
@@ -51,13 +48,12 @@ public class StructCustomEffect extends CustomSyntaxStructure<EffectSyntaxInfo> 
 	static final Map<EffectSyntaxInfo, Boolean> parseSectionLoaded = new HashMap<>();
 
 	static {
-		Skript.registerEffect(CustomEffect.class, DEFAULT_PATTERN);
-		Optional<SyntaxInfo<? extends Effect>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(SyntaxRegistry.EFFECT).stream()
-			.filter(i -> i.type() == CustomEffect.class)
+		Skript.registerEffect(CustomEffect.class);
+		Optional<SyntaxElementInfo<? extends Effect>> info = Skript.getEffects().stream()
+			.filter(i -> i.getElementClass() == CustomEffect.class)
 			.findFirst();
 		info.ifPresent(dataTracker::setInfo);
 
-		dataTracker.setSyntaxKey(SyntaxRegistry.EFFECT);
 		dataTracker.addManaged(effectHandlers);
 		dataTracker.addManaged(parserHandlers);
 		dataTracker.addManaged(usableSuppliers);

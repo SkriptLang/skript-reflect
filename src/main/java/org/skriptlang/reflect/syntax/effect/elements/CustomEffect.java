@@ -69,14 +69,9 @@ public class CustomEffect extends Effect {
 		return which.getPattern();
 	}
 
-  @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-		// prevent the user from using the placeholder pattern we register in order to satisfy the registration requirements
-		if (matchedPattern == 0) {
-			return false;
-		}
-
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult parseResult) {
 		which = StructCustomEffect.lookup(SkriptUtil.getCurrentScript(), matchedPattern);
 
 		if (which == null) {

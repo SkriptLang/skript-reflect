@@ -17,7 +17,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
-import java.util.function.Predicate;
 
 public class ExprArrayAccess<T> implements Expression<T> {
 
@@ -107,12 +106,12 @@ public class ExprArrayAccess<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event e, Predicate<? super T> c, boolean negated) {
+	public boolean check(Event e, Checker<? super T> c, boolean negated) {
 		return SimpleExpression.check(getAll(e), c, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event e, Predicate<? super T> c) {
+	public boolean check(Event e, Checker<? super T> c) {
 		return SimpleExpression.check(getAll(e), c, false, getAnd());
 	}
 
