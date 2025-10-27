@@ -9,11 +9,11 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.ObjectWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.reflect.java.elements.structures.StructImport;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.NonNull;
 
 public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> {
 
@@ -64,13 +64,13 @@ public class ExprPlugin extends SimplePropertyExpression<Object, ObjectWrapper> 
 	}
 
 	@Override
-	@NonNull
+	@NotNull
 	public Class<? extends ObjectWrapper> getReturnType() {
 		return ObjectWrapper.class;
 	}
 
 	@Override
-	@NonNull
+	@NotNull
 	protected String getPropertyName() {
 		return "plugin instance";
 	}

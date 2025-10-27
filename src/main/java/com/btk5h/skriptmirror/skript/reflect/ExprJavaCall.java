@@ -15,6 +15,7 @@ import com.btk5h.skriptmirror.JavaCallException;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.java.elements.structures.StructImport;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.LRUCache;
@@ -23,7 +24,6 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import com.btk5h.skriptmirror.util.StringSimilarity;
 import com.btk5h.skriptmirror.util.lookup.LookupGetter;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 

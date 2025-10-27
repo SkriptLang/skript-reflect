@@ -19,7 +19,7 @@ import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -124,7 +124,7 @@ public class SkriptUtil {
 	 * Gets the {@link ClassInfo} by first converting the given string to a singular.
 	 * Returns {@code Object.class}'s if no {@link ClassInfo} can be found for the given type.
 	 */
-	@NonNull
+	@NotNull
 	public static ClassInfo<?> getUserClassInfo(String name) {
 		NonNullPair<String, Boolean> wordData = Utils.getEnglishPlural(name);
 

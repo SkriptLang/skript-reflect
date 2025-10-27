@@ -6,13 +6,13 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
 import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
 import org.skriptlang.reflect.syntax.expression.ExpressionChangeEvent;
 import org.skriptlang.reflect.syntax.expression.ExpressionGetEvent;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 public class ExprParseTags extends SimpleExpression<String> {
 

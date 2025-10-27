@@ -7,7 +7,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.util.SkriptUtil;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 
 import java.util.Arrays;

@@ -11,7 +11,7 @@ import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.event.BukkitCustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
