@@ -3,7 +3,7 @@ package com.btk5h.skriptmirror.util;
 import ch.njol.skript.lang.Expression;
 import com.btk5h.skriptmirror.JavaType;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.regex.MatchResult;

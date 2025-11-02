@@ -11,6 +11,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
 import org.skriptlang.reflect.syntax.effect.EffectTriggerEvent;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
@@ -18,7 +19,6 @@ import org.skriptlang.reflect.syntax.expression.ExpressionChangeEvent;
 import org.skriptlang.reflect.syntax.expression.ExpressionGetEvent;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Iterator;

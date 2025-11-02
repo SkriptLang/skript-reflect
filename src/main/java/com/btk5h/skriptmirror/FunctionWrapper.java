@@ -3,7 +3,7 @@ package com.btk5h.skriptmirror;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.parser.ParserInstance;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class FunctionWrapper {
 
@@ -36,4 +36,3 @@ public class FunctionWrapper {
 	}
 
 }
-

@@ -11,7 +11,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.event.BukkitCustomEvent;
 
 public class ExprCustomEvent extends SimpleExpression<Event> {
