@@ -11,6 +11,7 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
+import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -138,7 +139,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 			ChangeMode mode = entry.getKey();
 			ChangerNode changerNode = entry.getValue();
 			parser.setCurrentEvent("custom expression " + changerNode.name() + " trigger", ExpressionChangeEvent.class);
-			parser.getData(ChangerData.class).acceptedClasses = changerNode.acceptedClasses();
+			parser.getData(ChangerData.class).acceptedClasses(changerNode.acceptedClasses());
 			Trigger trigger = new Trigger(
 				parser.getCurrentScript(),
 				"entry with key: " + changerNode.name(),
@@ -193,13 +194,46 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 	public static class ChangerData extends ParserInstance.Data {
 
 		private Class<?>[] acceptedClasses;
+		private Kleenean plural = Kleenean.UNKNOWN;
 
 		public ChangerData(ParserInstance parser) {
 			super(parser);
 		}
 
+		private void acceptedClasses(Class<?>[] acceptedClasses) {
+			plural = null;
+			for (int i = 0; i < acceptedClasses.length; i++) {
+				Class<?> type = acceptedClasses[i];
+				if (type.isArray()) {
+					acceptedClasses[i] = type.componentType();
+					if (plural == null) {
+						plural = Kleenean.TRUE;
+					} else if (plural == Kleenean.FALSE) {
+						plural = Kleenean.UNKNOWN;
+					}
+					continue;
+				}
+				if (plural == null) {
+					plural = Kleenean.FALSE;
+				} else if (plural == Kleenean.TRUE) {
+					plural = Kleenean.UNKNOWN;
+				}
+			}
+
+			if (plural == null)
+				plural = Kleenean.UNKNOWN;
+		}
+
 		public Class<?>[] acceptedClasses() {
 			return acceptedClasses;
+		}
+
+		public boolean testPlurality(boolean plural) {
+			return switch (this.plural) {
+				case UNKNOWN -> true;
+				case TRUE -> plural;
+				case  FALSE -> !plural;
+			};
 		}
 
 	}

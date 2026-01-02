@@ -1,5 +1,6 @@
 package org.skriptlang.reflect.syntax.custom.expression.elements;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -11,6 +12,7 @@ import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.expression.ExpressionChangeEvent;
+import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression.ChangerData;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -37,7 +39,14 @@ public class ExprChangeValue extends SimpleExpression<Object> implements EventRe
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.plural = parseResult.hasTag("s");
-		this.types = getParser().getData(StructCustomExpression.ChangerData.class).acceptedClasses();
+		ChangerData data = getParser().getData(ChangerData.class);
+		this.types = data.acceptedClasses();
+		if (!data.testPlurality(plural)) {
+			Skript.error(plural
+				? "The changed value may only be a single value"
+				: "The changed value cannot be a single value");
+			return false;
+		}
 		return true;
 	}
 
