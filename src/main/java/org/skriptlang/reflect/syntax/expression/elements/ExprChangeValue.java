@@ -32,15 +32,9 @@ public class ExprChangeValue extends SimpleExpression<Object> {
 		}
 
 		isPlural = parseResult.hasTag("plural");
+
+		// TODO better return type
 		returnType = Object.class;
-		if (parser.getCurrentStructure() instanceof StructCustomExpression structCustomExpression) {
-			if (structCustomExpression.returnType != null) {
-				returnType = structCustomExpression.returnType;
-				if (returnType.isArray()) {
-					returnType = returnType.getComponentType();
-				}
-			}
-		}
 
 		return true;
 	}

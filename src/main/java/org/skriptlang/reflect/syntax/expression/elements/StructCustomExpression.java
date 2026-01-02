@@ -109,7 +109,6 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
 
 	private final Map<ChangeMode, SectionNode> changerNodes = new HashMap<>();
 	private SectionNode parseNode;
-	@Nullable Class<?> returnType;
 
 	@Override
 	protected DataTracker<ExpressionSyntaxInfo> getDataTracker() {
@@ -189,7 +188,6 @@ public class StructCustomExpression extends CustomSyntaxStructure<ExpressionSynt
 		Class<?> returnType = entryContainer.getOptional("return type", Class.class, false);
 		if (returnType != null)
 			whichInfo.forEach(which -> returnTypes.put(which, returnType));
-		this.returnType = returnType;
 
 		String loopOf = entryContainer.getOptional("loop of", String.class, false);
 		if (loopOf != null)
