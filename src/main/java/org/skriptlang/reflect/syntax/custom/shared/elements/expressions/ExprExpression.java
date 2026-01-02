@@ -5,12 +5,16 @@ import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
+import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
+import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure.ExpressionsData;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -28,6 +32,7 @@ public class ExprExpression extends SimpleExpression<Object> implements EventRes
 
 	private int index;
 	private boolean all, plural;
+	private Class<?>[] possibleReturnTypes;
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
@@ -43,6 +48,15 @@ public class ExprExpression extends SimpleExpression<Object> implements EventRes
 		}
 		this.all = parseResult.hasTag("all");
 		this.plural = all || parseResult.hasTag("s");
+		ExpressionsData data = getParser().getData(ExpressionsData.class);
+		possibleReturnTypes = data.possibleReturnTypes(index);
+		if (!data.testPlurality(index, plural)) {
+			String expression = "The " + StringUtils.fancyOrderNumber(index) + " expression";
+			Skript.error(plural
+				? expression + " can only be a single value"
+				: expression + " may return more than one value");
+			return false;
+		}
 		return true;
 	}
 
@@ -58,7 +72,12 @@ public class ExprExpression extends SimpleExpression<Object> implements EventRes
 
 	@Override
 	public Class<?> getReturnType() {
-		return Object.class;
+		return Utils.getSuperType(possibleReturnTypes);
+	}
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return possibleReturnTypes;
 	}
 
 	@Override

@@ -201,23 +201,14 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 		}
 
 		private void acceptedClasses(Class<?>[] acceptedClasses) {
+			this.acceptedClasses = acceptedClasses;
 			plural = null;
 			for (int i = 0; i < acceptedClasses.length; i++) {
 				Class<?> type = acceptedClasses[i];
-				if (type.isArray()) {
+				boolean isArray = type.isArray();
+				if (isArray)
 					acceptedClasses[i] = type.componentType();
-					if (plural == null) {
-						plural = Kleenean.TRUE;
-					} else if (plural == Kleenean.FALSE) {
-						plural = Kleenean.UNKNOWN;
-					}
-					continue;
-				}
-				if (plural == null) {
-					plural = Kleenean.FALSE;
-				} else if (plural == Kleenean.TRUE) {
-					plural = Kleenean.UNKNOWN;
-				}
+				plural = CustomSyntaxStructure.ExpressionsData.updatePlurality(plural, isArray);
 			}
 
 			if (plural == null)
