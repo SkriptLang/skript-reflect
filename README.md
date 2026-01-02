@@ -19,3 +19,8 @@ Discord: https://discord.gg/jDW8UbD
 * Class proxy fixes + documentation
 * Fixed multiple issues with local variables
 * \+ much more
+
+## Requirements
+
+skript-reflect, as of version 2.6.2, requires Skript 2.14 or newer.
+It supports all versions and platforms supported by Skript 2.14.

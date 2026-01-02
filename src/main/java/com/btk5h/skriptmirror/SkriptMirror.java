@@ -44,9 +44,9 @@ public class SkriptMirror extends JavaPlugin {
 			return;
 		}
 
-		if (Skript.getVersion().isSmallerThan(new Version(2, 7))) {
+		if (Skript.getVersion().isSmallerThan(new Version("2.14.0-pre1"))) {
 			getLogger().severe("");
-			getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.7 is required to run this version of skript-reflect.");
+			getLogger().severe("Your version of Skript (" + Skript.getVersion() + ") is not supported, at least Skript 2.14 is required to run this version of skript-reflect.");
 			getLogger().severe("");
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
