@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.util;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
@@ -8,18 +7,14 @@ import ch.njol.skript.config.Option;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.DefaultExpression;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.registrations.EventValues.EventValueInfo;
 import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
-import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
-import org.skriptlang.reflect.syntax.event.elements.ExprReplacedEventValue;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +33,7 @@ public class SkriptReflection {
 	private static Field DEFAULT_EXPRESSION;
 	private static Field PARSED_VALUE;
 	private static Field OPTIONS;
+	private static Method GET_EVENT_VALUES_LIST;
 
 	static {
 		Field _FIELD;
@@ -97,6 +93,15 @@ public class SkriptReflection {
 			OPTIONS = _FIELD;
 		} catch (NoSuchFieldException e) {
 			warning("Skript's options field could not be resolved, computed options won't work");
+		}
+
+		try {
+			_METHOD = EventValues.class.getDeclaredMethod("getEventValuesList", int.class);
+			_METHOD.setAccessible(true);
+			GET_EVENT_VALUES_LIST = _METHOD;
+		} catch (NoSuchMethodException e) {
+			warning("Skript's default expression field could not be resolved, " +
+				"therefore event-values won't work in custom events");
 		}
 	}
 
@@ -187,46 +192,6 @@ public class SkriptReflection {
 	}
 
 	/**
-	 * Replaces the event-values of a list of {@link ClassInfo}s with
-	 * {@link ExprReplacedEventValue}'s to make them work in custom events.
-	 *
-	 * @param classInfoList A list of {@link ClassInfo}s to replace
-	 */
-	public static void replaceEventValues(List<ClassInfo<?>> classInfoList) {
-		if (DEFAULT_EXPRESSION == null)
-			return;
-
-		try {
-			List<ClassInfo<?>> replaceExtraList = new ArrayList<>();
-			for (ClassInfo<?> classInfo : classInfoList) {
-				DefaultExpression<?> defaultExpression = classInfo.getDefaultExpression();
-				if (defaultExpression instanceof EventValueExpression && !(defaultExpression instanceof ExprReplacedEventValue)) {
-					DEFAULT_EXPRESSION.set(classInfo,
-						new ExprReplacedEventValue<>((EventValueExpression<?>) defaultExpression));
-
-					replaceExtraList.add(classInfo);
-				}
-			}
-
-			replaceExtraList.forEach(SkriptReflection::replaceExtra);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Replaces {@link ClassInfo}s related to the given {@link ClassInfo}.
-	 */
-	public static void replaceExtra(ClassInfo<?> classInfo) {
-		List<ClassInfo<?>> classInfoList = Classes.getClassInfos().stream()
-			.filter(loopedClassInfo -> !(loopedClassInfo.getDefaultExpression() instanceof ExprReplacedEventValue))
-			.filter(loopedClassInfo -> classInfo.getC().isAssignableFrom(loopedClassInfo.getC())
-				|| loopedClassInfo.getC().isAssignableFrom(classInfo.getC()))
-			.collect(Collectors.toList());
-		replaceEventValues(classInfoList);
-	}
-
-	/**
 	 * Disable Skript's missing and / or warnings.
 	 */
 	public static void disableAndOrWarnings() {
@@ -266,6 +231,16 @@ public class SkriptReflection {
 			return (Map<String, String>) OPTIONS.get(optionsData);
 		} catch (IllegalAccessException e) {
 			throw new IllegalStateException(e); // setAccessible called
+		}
+	}
+
+	public static List<EventValueInfo<?, ?>> getEventValuesList(int time) {
+		if (GET_EVENT_VALUES_LIST == null)
+			throw new IllegalStateException("GET_EVENT_VALUES_LIST method not initialized, event-values cannot be used");
+		try {
+			return (List<EventValueInfo<?, ?>>) GET_EVENT_VALUES_LIST.invoke(null, time);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 

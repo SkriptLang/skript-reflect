@@ -5,10 +5,7 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Version;
-import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
-import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
-import org.skriptlang.reflect.syntax.event.elements.StructCustomEvent;
-import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
+import org.skriptlang.reflect.syntax.custom.CustomSyntaxModule;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import com.btk5h.skriptmirror.skript.reflect.ExprProxy;
 import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
@@ -59,7 +56,9 @@ public class SkriptMirror extends JavaPlugin {
 		try {
 			getAddonInstance()
 				.loadClasses("com.btk5h.skriptmirror.skript")
-				.loadClasses("org.skriptlang.reflect", "syntax", "java.elements");
+				.loadClasses("org.skriptlang.reflect", "java.elements");
+
+			getAddonInstance().loadModules(new CustomSyntaxModule());
 
 			Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
 			LibraryLoader.loadLibraries(dataFolder);
@@ -99,14 +98,14 @@ public class SkriptMirror extends JavaPlugin {
 			return i;
 		}));
 
-		metrics.addCustomChart(new Metrics.SimplePie("custom_conditions_used",
-			() -> "" + StructCustomCondition.customConditionsUsed));
-		metrics.addCustomChart(new Metrics.SimplePie("custom_effects_used",
-			() -> "" + StructCustomEffect.customEffectsUsed));
-		metrics.addCustomChart(new Metrics.SimplePie("custom_events_used",
-			() -> "" + StructCustomEvent.customEventsUsed));
-		metrics.addCustomChart(new Metrics.SimplePie("custom_expressions_used",
-			() -> "" + StructCustomExpression.customExpressionsUsed));
+//		metrics.addCustomChart(new Metrics.SimplePie("custom_conditions_used",
+//			() -> "" + StructCustomCondition.customConditionsUsed));
+//		metrics.addCustomChart(new Metrics.SimplePie("custom_effects_used",
+//			() -> "" + StructCustomEffect.customEffectsUsed));
+//		metrics.addCustomChart(new Metrics.SimplePie("custom_events_used",
+//			() -> "" + StructCustomEvent.customEventsUsed));
+//		metrics.addCustomChart(new Metrics.SimplePie("custom_expressions_used",
+//			() -> "" + StructCustomExpression.customExpressionsUsed));
 
 		metrics.addCustomChart(new Metrics.SimplePie("proxies_used",
 			() -> "" + ExprProxy.proxiesUsed));

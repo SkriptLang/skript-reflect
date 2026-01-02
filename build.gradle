@@ -28,4 +28,5 @@ tasks.withType(JavaCompile).configureEach {
 dependencies {
 	compileOnly group: 'io.papermc.paper', name: 'paper-api', version: '1.21.10-R0.1-SNAPSHOT'
 	compileOnly group: 'com.github.SkriptLang', name: 'Skript', version: '2.13.0'
+	compileOnly group: 'org.ow2.asm', name: 'asm', version: '9.9'
 }
