@@ -34,7 +34,7 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 	@Override
 	protected Expression<?>[] get(Event event) {
 		Expression<?> expr = this.expr;
-		if (expr instanceof ExprExpression<?> exprExpr && event instanceof CustomSyntaxEvent) {
+		if (expr instanceof ExprExpression exprExpr && event instanceof CustomSyntaxEvent) {
 			expr = exprExpr.getExpression(event);
 			if (expr == null)
 				return null;
@@ -50,15 +50,15 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 
 	@Override
 	public void change(Event event, Object[] delta, ChangeMode changeMode) {
-		if (!(expr instanceof ExprExpression && event instanceof CustomSyntaxEvent))
+		if (!(expr instanceof ExprExpression exprExpression && event instanceof CustomSyntaxEvent customEvent))
 			return;
 
-		Expression<?> expr = ((ExprExpression<?>) this.expr).getExpression(event);
+		Expression<?> expr = exprExpression.getExpression(event);
 		if (expr == null)
 			return;
 		Expression<?> source = expr.getSource();
 
-		Event unwrappedEvent = ((WrappedEvent) event).getDirectEvent();
+		Event unwrappedEvent = customEvent.getDirectEvent();
 		// Ensure acceptChange has been called before change
 		try {
 			source.acceptChange(changeMode);
