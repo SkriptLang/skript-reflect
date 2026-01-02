@@ -136,6 +136,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 			ChangeMode mode = entry.getKey();
 			ChangerNode changerNode = entry.getValue();
 			parser.setCurrentEvent("custom expression " + changerNode.name() + " trigger", ExpressionChangeEvent.class);
+			parser.getData(ChangerData.class).acceptedClasses = changerNode.acceptedClasses();
 			Trigger trigger = new Trigger(
 				parser.getCurrentScript(),
 				"entry with key: " + changerNode.name(),
@@ -185,6 +186,20 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 		if (!hasPatternsSection)
 			builder.append(patterns[0]);
 		return builder.toString();
+	}
+
+	public static class ChangerData extends ParserInstance.Data {
+
+		private Class<?>[] acceptedClasses;
+
+		public ChangerData(ParserInstance parser) {
+			super(parser);
+		}
+
+		public Class<?>[] acceptedClasses() {
+			return acceptedClasses;
+		}
+
 	}
 
 }

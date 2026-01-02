@@ -4,6 +4,7 @@ import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.SkriptMirror;
@@ -26,6 +27,7 @@ public class ExprChangeValue extends SimpleExpression<Object> implements EventRe
 	}
 
 	private boolean plural;
+	private Class<?>[] types;
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
@@ -35,6 +37,7 @@ public class ExprChangeValue extends SimpleExpression<Object> implements EventRe
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.plural = parseResult.hasTag("s");
+		this.types = getParser().getData(StructCustomExpression.ChangerData.class).acceptedClasses();
 		return true;
 	}
 
@@ -47,7 +50,12 @@ public class ExprChangeValue extends SimpleExpression<Object> implements EventRe
 
 	@Override
 	public Class<?> getReturnType() {
-		return Object.class;
+		return Utils.getSuperType(types);
+	}
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return types;
 	}
 
 	@Override
