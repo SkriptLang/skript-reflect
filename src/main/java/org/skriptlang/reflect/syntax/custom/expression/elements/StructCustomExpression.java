@@ -70,6 +70,8 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 			.addPattern("[:local] [:plural|plural:non[-| ]single] %classinfos% [:default] property <.+>")
 			.entryValidator(builder.build())
 			.build());
+
+		ParserInstance.registerData(ChangerData.class, ChangerData::new);
 	}
 
 	private final Map<ChangeMode, ChangerNode> changeModes = new EnumMap<>(ChangeMode.class);
