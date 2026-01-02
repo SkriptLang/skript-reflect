@@ -19,7 +19,6 @@ import org.skriptlang.reflect.syntax.event.BukkitCustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
 import org.skriptlang.reflect.syntax.event.EventValuesEntryData;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
@@ -63,12 +62,12 @@ public class StructCustomEvent extends CustomSyntaxStructure<EventSyntaxInfo> {
 
 	static {
 		Skript.registerEvent("custom event", CustomEvent.class, BukkitCustomEvent.class, DEFAULT_PATTERN);
-		Optional<BukkitSyntaxInfos.Event<?>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT).stream()
+		Optional<BukkitSyntaxInfos.Event<?>> info = SkriptMirror.getAddonInstance().syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY).stream()
 			.filter(i -> i.type() == CustomEvent.class)
 			.findFirst();
 		info.ifPresent(dataTracker::setInfo);
 
-		dataTracker.setSyntaxKey(BukkitRegistryKeys.EVENT);
+		dataTracker.setSyntaxKey(BukkitSyntaxInfos.Event.KEY);
 		dataTracker.addManaged(nameValues);
 		dataTracker.addManaged(eventValueTypes);
 		dataTracker.addManaged(parserHandlers);
