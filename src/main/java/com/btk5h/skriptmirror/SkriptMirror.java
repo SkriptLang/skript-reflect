@@ -47,7 +47,8 @@ public class SkriptMirror extends JavaPlugin {
 		Version minVersion = new Version(2, 14);
 		// Skip post fix checks
 		if (currentVersion.getMajor() < minVersion.getMajor()
-		|| (currentVersion.getMajor() == minVersion.getMajor() && currentVersion.getMinor() < minVersion.getMinor())) {
+		|| (currentVersion.getMajor() == minVersion.getMajor() && currentVersion.getMinor() < minVersion.getMinor())
+	    || (currentVersion.getMajor() == minVersion.getMajor() && currentVersion.getMinor() == minVersion.getMinor() && currentVersion.getRevision() < minVersion.getRevision())) {
 			getLogger().severe("");
 			getLogger().severe("Your version of Skript (" + currentVersion + ") is not supported, at least Skript 2.14 is required to run this version of skript-reflect.");
 			getLogger().severe("");
