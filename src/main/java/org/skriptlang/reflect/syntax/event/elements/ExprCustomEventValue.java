@@ -4,12 +4,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.lang.reflect.Array;
 
 @SuppressWarnings("unused")
-public class ExprCustomEventValue<T> extends EventValueExpression<T> implements EventRestrictedSyntax {
+public class ExprCustomEventValue<T> extends EventValueExpression<T> {
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage", "RedundantCast", "rawtypes"})
 	public static void register(SyntaxRegistry registry) {
@@ -46,6 +44,9 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
+			return false;
+
 		EventSyntaxInfo which = CustomEvent.lastWhich;
 		if (which == null)
 			return false;
@@ -106,8 +107,4 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> implements 
 		return (Class<T>) classInfo.getC();
 	}
 
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(BukkitCustomEvent.class, EventTriggerEvent.class);
-	}
 }
