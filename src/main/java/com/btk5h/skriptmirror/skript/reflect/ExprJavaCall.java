@@ -72,8 +72,8 @@ public class ExprJavaCall<T> implements Expression<T> {
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 	static final SyntaxInfo<?> SYNTAX_INFO = SyntaxInfo.Expression.builder(ExprJavaCall.class, Object.class)
-		.addPattern("[2:try] %object%..%string%[\\([1:%-objects%]\\)]")
-		.addPattern("[2:try] %object%.<" + LITE_DESCRIPTOR + ">[\\([1:%-objects%]\\)]")
+		.addPattern("[2:try] %object%..%string%[\\((1:[%-objects%])\\)]")
+		.addPattern("[2:try] %object%.<" + LITE_DESCRIPTOR + ">[\\((1:[%-objects%])\\)]")
 		.addPattern("[2:try] [a] new %javatype%\\([%-objects%]\\)")
 		.supplier(ExprJavaCall::new)
 		.priority(SkriptMirror.SHADOW_REALM)
