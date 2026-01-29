@@ -30,11 +30,11 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> implements 
 		Skript.registerExpression(ExprCustomEventValue.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "[the] [event-]<.+>");
 	}
 
-	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+	@SuppressWarnings({"unchecked", "UnstableApiUsage", "RedundantCast", "rawtypes"})
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			SyntaxInfo.Expression.builder(ExprCustomEventValue.class, Object.class)
+			(SyntaxInfo.Expression) SyntaxInfo.Expression.builder(ExprCustomEventValue.class, Object.class)
 				.addPattern("[the] [event-]<.+>")
 				.supplier(ExprCustomEventValue::new)
 				.priority(SkriptMirror.SHADOW_REALM)
