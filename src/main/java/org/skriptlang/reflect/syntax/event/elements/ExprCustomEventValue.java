@@ -6,7 +6,6 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
@@ -24,11 +23,6 @@ import java.lang.reflect.Array;
 
 @SuppressWarnings("unused")
 public class ExprCustomEventValue<T> extends EventValueExpression<T> implements EventRestrictedSyntax {
-
-	static {
-		//noinspection unchecked
-		Skript.registerExpression(ExprCustomEventValue.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "[the] [event-]<.+>");
-	}
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage", "RedundantCast", "rawtypes"})
 	public static void register(SyntaxRegistry registry) {

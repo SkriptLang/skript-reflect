@@ -15,11 +15,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
 import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
+import org.skriptlang.reflect.syntax.event.elements.ExprCustomEventValue;
 import org.skriptlang.reflect.syntax.event.elements.StructCustomEvent;
 import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Priority;
 
 import java.io.IOException;
@@ -67,9 +69,11 @@ public class SkriptMirror extends JavaPlugin {
 				.loadClasses("com.btk5h.skriptmirror.skript")
 				.loadClasses("org.skriptlang.reflect", "syntax", "java.elements");
 
-			ExprJavaCall.register(addonInstance.syntaxRegistry());
-			CondExpressionStatement.register(addonInstance.syntaxRegistry());
-			EffExpressionStatement.register(addonInstance.syntaxRegistry());
+			SyntaxRegistry registry = addonInstance.syntaxRegistry();
+			ExprCustomEventValue.register(registry);
+			ExprJavaCall.register(registry);
+			CondExpressionStatement.register(registry);
+			EffExpressionStatement.register(registry);
 
 			Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
 			LibraryLoader.loadLibraries(dataFolder);
