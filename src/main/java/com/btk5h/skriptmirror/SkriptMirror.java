@@ -5,18 +5,22 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Version;
-import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
-import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
-import org.skriptlang.reflect.syntax.event.elements.StructCustomEvent;
-import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
+import com.btk5h.skriptmirror.skript.CondExpressionStatement;
+import com.btk5h.skriptmirror.skript.EffExpressionStatement;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import com.btk5h.skriptmirror.skript.reflect.ExprProxy;
 import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
+import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
+import org.skriptlang.reflect.syntax.event.elements.StructCustomEvent;
+import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.util.Priority;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,6 +31,8 @@ public class SkriptMirror extends JavaPlugin {
 
 	private static SkriptMirror instance;
 	private static SkriptAddon addonInstance;
+
+	public static final Priority SHADOW_REALM = Priority.after(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
 	public SkriptMirror() {
 		if (instance == null) {
@@ -60,6 +66,10 @@ public class SkriptMirror extends JavaPlugin {
 			getAddonInstance()
 				.loadClasses("com.btk5h.skriptmirror.skript")
 				.loadClasses("org.skriptlang.reflect", "syntax", "java.elements");
+
+			ExprJavaCall.register(addonInstance.syntaxRegistry());
+			CondExpressionStatement.register(addonInstance.syntaxRegistry());
+			EffExpressionStatement.register(addonInstance.syntaxRegistry());
 
 			Path dataFolder = SkriptMirror.getInstance().getDataFolder().toPath();
 			LibraryLoader.loadLibraries(dataFolder);

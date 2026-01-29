@@ -16,6 +16,8 @@ import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -23,13 +25,19 @@ import java.util.concurrent.Executors;
 
 public class CondExpressionStatement extends Condition {
 
-	static {
-		Skript.registerCondition(CondExpressionStatement.class, "[(1¦await)] %~javaobject%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondExpressionStatement.class)
+				.addPattern("[1:await] <.+>")
+				.supplier(CondExpressionStatement::new)
+				.priority(SkriptMirror.SHADOW_REALM)
+				.build());
 	}
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-	private Expression<Object> arg;
+	private Expression<?> arg;
 	private boolean isAsynchronous;
 	private boolean isCondition;
 
@@ -74,10 +82,13 @@ public class CondExpressionStatement extends Condition {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
 						SkriptParser.ParseResult parseResult) {
-		arg = SkriptUtil.defendExpression(exprs[0]);
+		String rawInput = parseResult.regexes.getFirst().group();
+		// parse directly as ExprJavaCall to avoid useless parse attempts
+		arg = ExprJavaCall.parse(rawInput);
 
-		if (!(arg instanceof ExprJavaCall))
+		if (arg == null) {
 			return false;
+		}
 
 		isAsynchronous = (parseResult.mark & 1) == 1;
 		isCondition = SkriptLogger.getNode() instanceof SectionNode;

@@ -4,25 +4,41 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.event.BukkitCustomEvent;
 import org.skriptlang.reflect.syntax.event.EventSyntaxInfo;
 import org.skriptlang.reflect.syntax.event.EventTriggerEvent;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
 
 @SuppressWarnings("unused")
-public class ExprCustomEventValue<T> extends EventValueExpression<T> {
+public class ExprCustomEventValue<T> extends EventValueExpression<T> implements EventRestrictedSyntax {
 
 	static {
 		//noinspection unchecked
 		Skript.registerExpression(ExprCustomEventValue.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "[the] [event-]<.+>");
+	}
+
+	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprCustomEventValue.class, Object.class)
+				.addPattern("[the] [event-]<.+>")
+				.supplier(ExprCustomEventValue::new)
+				.priority(SkriptMirror.SHADOW_REALM)
+				.build());
 	}
 
 	private ClassInfo<? super T> classInfo;
@@ -36,8 +52,6 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(BukkitCustomEvent.class, EventTriggerEvent.class))
-			return false;
 		EventSyntaxInfo which = CustomEvent.lastWhich;
 		if (which == null)
 			return false;
@@ -98,4 +112,8 @@ public class ExprCustomEventValue<T> extends EventValueExpression<T> {
 		return (Class<T>) classInfo.getC();
 	}
 
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(BukkitCustomEvent.class, EventTriggerEvent.class);
+	}
 }
