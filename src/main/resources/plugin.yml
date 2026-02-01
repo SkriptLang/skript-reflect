@@ -3,7 +3,7 @@ version: @version@
 description: Reflection utilities for Skript.
 authors: [Bryan Terce <bryan.terce@gmail.com>, TPGamesNL, 'SkriptLang Team']
 website: https://github.com/SkriptLang/skript-reflect
-api-version: 1.13
+api-version: 1.19
 
 main: com.btk5h.skriptmirror.SkriptMirror
 softdepend: [Skript]
