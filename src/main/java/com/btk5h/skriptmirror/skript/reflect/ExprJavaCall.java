@@ -2,11 +2,13 @@ package com.btk5h.skriptmirror.skript.reflect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.Descriptor;
@@ -15,8 +17,7 @@ import com.btk5h.skriptmirror.JavaCallException;
 import com.btk5h.skriptmirror.JavaType;
 import com.btk5h.skriptmirror.Null;
 import com.btk5h.skriptmirror.ObjectWrapper;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.reflect.java.elements.structures.StructImport;
+import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.util.JavaUtil;
 import com.btk5h.skriptmirror.util.LRUCache;
 import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
@@ -24,8 +25,11 @@ import com.btk5h.skriptmirror.util.SkriptUtil;
 import com.btk5h.skriptmirror.util.StringSimilarity;
 import com.btk5h.skriptmirror.util.lookup.LookupGetter;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -57,7 +61,6 @@ public class ExprJavaCall<T> implements Expression<T> {
 	private static final MethodHandles.Lookup LOOKUP = LookupGetter.getLookup();
 	private static final Object[] NO_ARGS = new Object[0];
 	private static final Descriptor CONSTRUCTOR_DESCRIPTOR = new Descriptor(null, "<init>", null);
-
 	/**
 	 * A regular expression that captures potential descriptors without actually validating the descriptor. This is done
 	 * both for performance reasons and to provide more helpful error messages when using a malformed descriptor.
@@ -67,13 +70,22 @@ public class ExprJavaCall<T> implements Expression<T> {
 		"([^0-9. \\[\\]][^. \\[\\]]*\\b)" +
 		"(\\[[\\w.$, ]*])?";
 
-	static {
-		//noinspection unchecked
-		Skript.registerExpression(ExprJavaCall.class, Object.class,
-			ExpressionType.PATTERN_MATCHES_EVERYTHING,
-			"[(2¦try)] %object%..%string%[\\((1¦[%-objects%])\\)]",
-			"[(2¦try)] %object%.<" + LITE_DESCRIPTOR + ">[\\((1¦[%-objects%])\\)]",
-			"[(2¦try)] [a] new %javatype%\\([%-objects%]\\)");
+	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+	static final SyntaxInfo<?> SYNTAX_INFO = SyntaxInfo.Expression.builder(ExprJavaCall.class, Object.class)
+		.addPattern("[2:try] %object%..%string%[\\((1:[%-objects%])\\)]")
+		.addPattern("[2:try] %object%.<" + LITE_DESCRIPTOR + ">[\\((1:[%-objects%])\\)]")
+		.addPattern("[2:try] [a] new %javatype%\\([%-objects%]\\)")
+		.supplier(ExprJavaCall::new)
+		.priority(SkriptMirror.SHADOW_REALM)
+		.build();
+
+	@SuppressWarnings({"UnstableApiUsage", "rawtypes"})
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, (SyntaxInfo.Expression) SYNTAX_INFO);
+	}
+
+	public static @Nullable ExprJavaCall<?> parse(String rawInput) {
+		return (ExprJavaCall<?>) SkriptParser.parse(rawInput, List.of(SYNTAX_INFO).iterator(), null);
 	}
 
 	private enum CallType {
