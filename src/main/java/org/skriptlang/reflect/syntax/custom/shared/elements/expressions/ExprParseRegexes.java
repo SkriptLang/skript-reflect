@@ -11,8 +11,8 @@ import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class ExprParseRegexes extends SimpleExpression<String> implements EventR
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprParseRegexes.class, String.class)
-			.origin(SyntaxOrigin.of(SkriptMirror.getAddonInstance()))
+			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(ExprParseRegexes::new)
 			.addPattern("[the] [parse[r]] (regex|regular expression)(-| )<\\d+>")
 			.priority(SyntaxInfo.SIMPLE)

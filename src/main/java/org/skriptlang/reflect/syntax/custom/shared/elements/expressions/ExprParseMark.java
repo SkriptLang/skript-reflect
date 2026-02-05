@@ -10,15 +10,15 @@ import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class ExprParseMark extends SimpleExpression<Integer> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprParseMark.class, Integer.class)
-			.origin(SyntaxOrigin.of(SkriptMirror.getAddonInstance()))
+			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(ExprParseMark::new)
 			.addPattern("[the] [parse[r]] mark")
 			.priority(SyntaxInfo.SIMPLE)

@@ -16,14 +16,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntax;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxCore;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.ref.WeakReference;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -71,7 +69,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		this.eventValueTypes = eventValueTypes;
 		this.checkTrigger = checkTrigger;
 		this.info = BukkitSyntaxInfos.Event.builder(CustomEvent.class, identifier)
-			.origin(SyntaxOrigin.of(SkriptMirror.getAddonInstance()))
+			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(this::copy)
 			.addPatterns(core.patterns())
 			.priority(core.priority())
@@ -80,7 +78,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 
 	@Override
 	public SyntaxRegistry.Key<BukkitSyntaxInfos.Event<?>> key() {
-		return BukkitRegistryKeys.EVENT;
+		return BukkitSyntaxInfos.Event.KEY;
 	}
 
 	@Override

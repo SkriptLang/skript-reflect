@@ -49,4 +49,9 @@ public class CustomSyntaxModule implements AddonModule {
 		ExprRawExpression.register(addon.syntaxRegistry());
 	}
 
+	@Override
+	public String name() {
+		return "custom syntax";
+	}
+
 }

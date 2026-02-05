@@ -14,11 +14,6 @@ import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
-import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
-import org.skriptlang.reflect.syntax.event.elements.ExprCustomEventValue;
-import org.skriptlang.reflect.syntax.event.elements.StructCustomEvent;
-import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -73,7 +68,6 @@ public class SkriptMirror extends JavaPlugin {
 			getAddonInstance().loadModules(new CustomSyntaxModule());
 
 			SyntaxRegistry registry = addonInstance.syntaxRegistry();
-			ExprCustomEventValue.register(registry);
 			ExprJavaCall.register(registry);
 			CondExpressionStatement.register(registry);
 			EffExpressionStatement.register(registry);

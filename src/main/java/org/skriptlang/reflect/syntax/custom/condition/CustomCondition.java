@@ -12,9 +12,9 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntax;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxCore;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.function.Predicate;
@@ -50,7 +50,7 @@ public class CustomCondition extends Condition implements CustomSyntax<SyntaxInf
 		this.property = property;
 		this.checkTrigger = checkTrigger;
 		this.info = SyntaxInfo.builder(CustomCondition.class)
-			.origin(SyntaxOrigin.of(SkriptMirror.getAddonInstance()))
+			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(this::copy)
 			.addPatterns(core.patterns())
 			.priority(core.priority())

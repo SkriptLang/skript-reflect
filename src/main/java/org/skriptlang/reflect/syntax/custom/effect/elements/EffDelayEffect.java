@@ -10,15 +10,15 @@ import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.effect.EffectTriggerEvent;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EffDelayEffect extends Effect implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffDelayEffect.class)
-			.origin(SyntaxOrigin.of(SkriptMirror.getAddonInstance()))
+			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(EffDelayEffect::new)
 			.addPattern("delay [the] [current] effect")
 			.build());

@@ -1,6 +1,5 @@
 package org.skriptlang.reflect.syntax.custom.shared.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -11,15 +10,15 @@ import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class ExprMatchedPattern extends SimpleExpression<Integer> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprMatchedPattern.class, Integer.class)
-			.origin(SyntaxOrigin.of(SkriptMirror.getAddonInstance()))
+			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(ExprMatchedPattern::new)
 			.addPattern("[the] [matched] pattern")
 			.priority(SyntaxInfo.SIMPLE)
