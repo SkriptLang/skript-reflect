@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 group 'com.btk5h.skript-mirror'
-version '2.6.1'
+version '2.6.3'
 
 apply plugin: 'java'
 
@@ -27,6 +27,6 @@ tasks.withType(JavaCompile).configureEach {
 
 dependencies {
 	compileOnly group: 'io.papermc.paper', name: 'paper-api', version: '1.21.10-R0.1-SNAPSHOT'
-	compileOnly group: 'com.github.SkriptLang', name: 'Skript', version: '2.13.0'
+	compileOnly group: 'com.github.SkriptLang', name: 'Skript', version: '2.14.0'
 	compileOnly group: 'org.ow2.asm', name: 'asm', version: '9.9'
 }

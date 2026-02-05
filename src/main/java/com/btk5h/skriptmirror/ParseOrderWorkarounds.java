@@ -2,6 +2,10 @@ package com.btk5h.skriptmirror;
 
 import ch.njol.skript.effects.EffReturn;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
+import com.btk5h.skriptmirror.skript.custom.ExprMatchedPattern;
+import com.btk5h.skriptmirror.util.SkriptReflection;
+import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -38,7 +42,7 @@ public class ParseOrderWorkarounds {
 			ensureLast(SyntaxRegistry.CONDITION, o -> o.type().getName().equals(c));
 			ensureLast(SyntaxRegistry.EFFECT, o -> o.type().getName().equals(c));
 			ensureLast(SyntaxRegistry.EXPRESSION, o -> o.type().getName().equals(c));
-			ensureLast(BukkitRegistryKeys.EVENT, o -> o.type().getName().equals(c));
+			ensureLast(BukkitSyntaxInfos.Event.KEY, o -> o.type().getName().equals(c));
 			ensureLast(SyntaxRegistry.STRUCTURE, o -> o.type().getName().equals(c));
 		}
 	}

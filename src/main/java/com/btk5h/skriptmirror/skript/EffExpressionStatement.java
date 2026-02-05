@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror.skript;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -13,20 +12,28 @@ import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EffExpressionStatement extends Effect {
-	static {
-		Skript.registerEffect(EffExpressionStatement.class, "[(1¦await)] %~javaobject%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffExpressionStatement.class)
+				.addPattern("[1:await] <.+>")
+				.supplier(EffExpressionStatement::new)
+				.priority(SkriptMirror.SHADOW_REALM)
+				.build());
 	}
 
 	private static final ExecutorService threadPool =
 		Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-	private Expression<Object> arg;
+	private Expression<?> arg;
 	private boolean isAsynchronous;
 
 	@Override
@@ -63,9 +70,11 @@ public class EffExpressionStatement extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
 						SkriptParser.ParseResult parseResult) {
-		arg = SkriptUtil.defendExpression(exprs[0]);
+		String rawInput = parseResult.regexes.getFirst().group();
+		// parse directly as ExprJavaCall to avoid useless parse attempts
+		arg = ExprJavaCall.parse(rawInput);
 
-		if (!(arg instanceof ExprJavaCall)) {
+		if (arg == null) {
 			return false;
 		}
 
