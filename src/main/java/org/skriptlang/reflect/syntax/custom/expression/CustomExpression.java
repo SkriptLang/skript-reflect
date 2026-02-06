@@ -19,6 +19,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -28,7 +29,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 	private final CustomSyntaxCore core;
 	private final SyntaxInfo.Expression<CustomExpression<T>, ? extends T> info;
 	private final Class<? extends T> returnType;
-	private final boolean single;
+	private final boolean single, property;
 	private final @Nullable String loopOf;
 	private final Map<ChangeMode, ChangerTrigger> changeModes;
 	private Trigger getterTrigger;
@@ -41,6 +42,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 		Predicate<ParserInstance> usableInPredicate,
 		Class<? extends T> returnType,
 		boolean single,
+		boolean property,
 		@Nullable String loopOf,
 		Map<ChangeMode, ChangerTrigger> changeModes
 	) {
@@ -53,6 +55,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 			),
 			returnType,
 			single,
+			property,
 			loopOf,
 			changeModes,
 			null
@@ -63,6 +66,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 		CustomSyntaxCore core,
 		Class<? extends T> returnType,
 		boolean single,
+		boolean property,
 		@Nullable String loopOf,
 		Map<ChangeMode, ChangerTrigger> changeModes,
 		@Nullable Trigger getterTrigger
@@ -70,6 +74,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 		this.core = core;
 		this.returnType = returnType;
 		this.single = single;
+		this.property = property;
 		this.loopOf = loopOf;
 		this.changeModes = changeModes;
 		this.getterTrigger = getterTrigger;
@@ -94,7 +99,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 
 	@Override
 	public CustomExpression<T> copy() {
-		return new CustomExpression<>(core.copy(), returnType, single, loopOf, changeModes, getterTrigger);
+		return new CustomExpression<>(core.copy(), returnType, single, property, loopOf, changeModes, getterTrigger);
 	}
 
 	@Override
@@ -186,12 +191,14 @@ public class CustomExpression<T> extends SimpleExpression<T>
 
 	@Override
 	public boolean isSingle() {
-		return single;
+		if (!property || !single)
+			return single;
+		return core.expressions()[core.matchedPattern() == 1 ? 0 : core.expressions().length - 1].isSingle();
 	}
 
 	@Override
 	public boolean isSingleReturnValue() {
-		return isSingle();
+		return single;
 	}
 
 	@Override

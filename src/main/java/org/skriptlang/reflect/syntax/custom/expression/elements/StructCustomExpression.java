@@ -79,7 +79,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 
 	private final Map<ChangeMode, ChangerNode> changeModes = new EnumMap<>(ChangeMode.class);
 	private Class<?> returnType;
-	private boolean single;
+	private boolean single, property;
 	private Literal<ClassInfo<?>> types;
 	private boolean defaultPatterns;
 	private String loopOf;
@@ -93,6 +93,8 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 
 		if (matchedPattern != 2)
 			return true;
+
+		property = true;
 		//noinspection unchecked
 		this.types = (Literal<ClassInfo<?>>) args[0];
 		String types = Arrays.stream(this.types.getArray())
@@ -168,6 +170,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 			entryContainer.getOptional("usable in", Predicate.class, false),
 			returnType,
 			single,
+			property,
 			loopOf,
 			changerTriggers
 		);

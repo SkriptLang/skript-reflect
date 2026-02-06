@@ -39,6 +39,7 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 				"If you meant to use Skript's 'raw %strings%' expression, try 'raw string within %objects%'."
 			);
 		}
+		expr = expressions[0];
 		return true;
 	}
 
