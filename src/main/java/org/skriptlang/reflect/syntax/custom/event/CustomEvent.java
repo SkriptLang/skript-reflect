@@ -43,7 +43,8 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		@Nullable Script script,
 		Predicate<ParserInstance> usableInPredicate,
 		String identifier,
-		List<Class<?>> eventValueTypes
+		List<Class<?>> eventValueTypes,
+		RegisteredEvent registeredEvent
 	) {
 		this(
 			new CustomSyntaxCore(
@@ -54,7 +55,8 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 			),
 			identifier,
 			eventValueTypes,
-			null
+			null,
+			registeredEvent
 		);
 	}
 
@@ -62,7 +64,8 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		CustomSyntaxCore core,
 		String identifier,
 		List<Class<?>> eventValueTypes,
-		@Nullable Trigger checkTrigger
+		@Nullable Trigger checkTrigger,
+		RegisteredEvent registeredEvent
 	) {
 		this.core = core;
 		this.identifier = identifier;
@@ -71,9 +74,11 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		this.info = BukkitSyntaxInfos.Event.builder(CustomEvent.class, identifier)
 			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(this::copy)
+			.addEvent(registeredEvent.eventClass())
 			.addPatterns(core.patterns())
 			.priority(core.priority())
 			.build();
+		this.registeredEventRef = new WeakReference<>(registeredEvent);
 	}
 
 	@Override
@@ -89,12 +94,6 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 	@Override
 	public boolean register(SyntaxRegistry registry) {
 		CustomSyntax.super.register(registry);
-		if (CustomEventManager.isEventDefined(identifier)) {
-			Skript.error("Custom event '" + identifier + "' is already registered.");
-			return false;
-		}
-
-		registeredEventRef = CustomEventManager.defineCustomEvent(identifier);
 
 		registerEventValues();
 
@@ -114,10 +113,8 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 			return a.isAssignableFrom(b) ? 1 : -1;
 		});
 
-		for (Class<?> eventValueType : eventValueTypes) {
-			System.out.println("REGISTERING EVENT-VALUE: " + eventValueType.getSimpleName());
+		for (Class<?> eventValueType : eventValueTypes)
 			EVENT_VALUES_LIST.add(createEventValueInfo(eventClass, eventValueType));
-		}
 	}
 
 	@Override
@@ -137,7 +134,10 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 
 	@Override
 	public CustomEvent copy() {
-		return new CustomEvent(core.copy(), identifier, eventValueTypes, checkTrigger);
+		RegisteredEvent registeredEvent = registeredEventRef.get();
+		if (registeredEvent == null)
+			throw new IllegalStateException("Cannot create a copy of an invalid CustomEvent");
+		return new CustomEvent(core.copy(), identifier, eventValueTypes, checkTrigger, registeredEvent);
 	}
 
 	@Override
@@ -172,11 +172,19 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 
 	@Override
 	public boolean check(Event event) {
+		RegisteredEvent registeredEvent = registeredEventRef.get();
+
+		if (registeredEvent == null)
+			return false;
+
+		if (event.getClass() != registeredEvent.eventClass())
+			return false;
+
 		if (checkTrigger == null)
 			return true;
 
 		EventCheckEvent checkEvent = new EventCheckEvent(
-			event,
+			(BukkitCustomEvent) event,
 			core.expressions(),
 			core.matchedPattern(),
 			core.parseResult()

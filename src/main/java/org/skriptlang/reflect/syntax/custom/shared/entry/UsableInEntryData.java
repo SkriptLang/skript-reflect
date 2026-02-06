@@ -12,7 +12,8 @@ import com.btk5h.skriptmirror.JavaType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.java.elements.structures.StructImport;
-import org.skriptlang.reflect.syntax.custom.event.BukkitCustomEvent;
+import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
+import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -46,8 +47,10 @@ public class UsableInEntryData extends EntryData<Predicate<ParserInstance>> {
 				}
 				String identifier = parsed.getSingle();
 				cumulativePredicate = cumulativePredicate.or(parser -> {
-					// TODO get current custom event identifier through parser data
-					return parser.isCurrentEvent(BukkitCustomEvent.class);
+					RegisteredEvent event = CustomEventManager.getEvent(identifier);
+					if (event == null)
+						return false;
+					return parser.isCurrentEvent(event.eventClass());
 				});
 				continue;
 			}

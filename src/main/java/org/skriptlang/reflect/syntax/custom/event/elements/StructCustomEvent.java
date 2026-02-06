@@ -10,6 +10,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.reflect.syntax.custom.event.CustomEvent;
+import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
+import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.reflect.syntax.custom.event.EventCheckEvent;
 import org.skriptlang.reflect.syntax.custom.event.EventValuesEntryData;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
@@ -20,6 +22,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -37,7 +40,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 					@Override
 					public boolean canCreateWith(String node) {
 						return super.canCreateWith(node)
-							|| node.startsWith(getKey().replace("event values", "event-values") + getSeparator());
+							|| node.startsWith("event-values" + getSeparator());
 					}
 				})
 				.addEntryData(new TriggerEntryData("parse", null, true))
@@ -48,6 +51,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 
 	private Literal<String> identifier;
 	private List<Class<?>> eventValueTypes;
+	private WeakReference<RegisteredEvent> registeredEventRef;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
@@ -73,6 +77,15 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 		//noinspection unchecked
 		identifier = (Literal<String>) args[0];
 		eventValueTypes = entryContainer.getOptional("event values", List.class, true);
+
+		String identifier = this.identifier.getSingle();
+		if (CustomEventManager.isEventDefined(identifier)) {
+			Skript.error("Custom event '" + identifier + "' is already registered.");
+			return false;
+		}
+
+		registeredEventRef = new WeakReference<>(CustomEventManager.defineCustomEvent(identifier));
+
 		return super.preLoad();
 	}
 
@@ -103,7 +116,8 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 			local ? getParser().getCurrentScript() : null,
 			entryContainer.getOptional("usable in", Predicate.class, false),
 			identifier.getSingle(),
-			eventValueTypes
+			eventValueTypes,
+			registeredEventRef.get()
 		);
 	}
 

@@ -5,7 +5,7 @@ import org.skriptlang.reflect.syntax.custom.condition.elements.EffNegateConditio
 import org.skriptlang.reflect.syntax.custom.condition.elements.StructCustomCondition;
 import org.skriptlang.reflect.syntax.custom.effect.elements.EffDelayEffect;
 import org.skriptlang.reflect.syntax.custom.effect.elements.StructCustomEffect;
-import org.skriptlang.reflect.syntax.custom.event.elements.StructCustomEvent;
+import org.skriptlang.reflect.syntax.custom.event.elements.*;
 import org.skriptlang.reflect.syntax.custom.expression.elements.ExprChangeValue;
 import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
@@ -32,6 +32,10 @@ public class CustomSyntaxModule implements AddonModule {
 		StructCustomEffect.register(addon.syntaxRegistry());
 
 		// ==Custom Event==
+		CondEventCancelled.register(addon.syntaxRegistry());
+		EffCallEvent.register(addon.syntaxRegistry());
+		ExprCustomEvent.register(addon.syntaxRegistry());
+		ExprEventData.register(addon.syntaxRegistry());
 		StructCustomEvent.register(addon.syntaxRegistry());
 
 		// ==Custom Expression==

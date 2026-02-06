@@ -28,12 +28,16 @@ public final class CustomEventManager {
 		return events.containsKey(identifier);
 	}
 
+	public static RegisteredEvent getEvent(String identifier) {
+		return events.get(identifier);
+	}
+
 	/**
 	 * Generates and loads a {@link BukkitCustomEvent} subclass and factory class using the given identifier.
 	 * @param identifier the event's identifier
 	 * @return a weak reference to an instance of the generated factory class for the event
 	 */
-	public static WeakReference<RegisteredEvent> defineCustomEvent(String identifier) {
+	public static RegisteredEvent defineCustomEvent(String identifier) {
 		String baseName = BukkitCustomEvent.class.getCanonicalName() + "$" + identifier;
 		String factoryName = baseName + "$Factory";
 
@@ -58,7 +62,7 @@ public final class CustomEventManager {
 		RegisteredEvent event = new RegisteredEvent(loader, eventClass, factory, new HandlerList());
 		events.put(identifier, event);
 
-		return new WeakReference<>(event);
+		return event;
 	}
 
 	/**
@@ -79,11 +83,9 @@ public final class CustomEventManager {
 	}
 
 	public static HandlerList getHandlerList(String identifier) {
-		System.out.println("Getting handler list for custom event '" + identifier + "'");
 		RegisteredEvent event = events.get(identifier);
 		if (event == null)
 			throw new IllegalStateException("Attempted to get the handler list of an unregistered event: " + identifier);
-		System.out.println("Handler list found: " + event.handlerList() + " (" + event.handlerList().hashCode() + ")");
 		return event.handlerList();
 	}
 

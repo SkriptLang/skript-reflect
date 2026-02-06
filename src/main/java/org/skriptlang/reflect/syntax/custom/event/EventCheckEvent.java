@@ -10,8 +10,13 @@ public class EventCheckEvent extends CustomSyntaxEvent implements Continuable {
 
 	private boolean markedContinue;
 
-	public EventCheckEvent(Event event, Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public EventCheckEvent(BukkitCustomEvent event, Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
 		super(event, expressions, matchedPattern, parseResult);
+	}
+
+	@Override
+	public BukkitCustomEvent getDirectEvent() {
+		return (BukkitCustomEvent) super.getDirectEvent();
 	}
 
 	public boolean isMarkedContinue() {
