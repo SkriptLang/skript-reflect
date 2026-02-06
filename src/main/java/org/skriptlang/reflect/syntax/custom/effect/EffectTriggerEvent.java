@@ -5,8 +5,8 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
-import org.skriptlang.reflect.syntax.custom.shared.Continuable;
 import org.bukkit.event.Event;
+import org.skriptlang.reflect.syntax.custom.shared.Continuable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
 
 public class EffectTriggerEvent extends CustomSyntaxEvent implements Continuable {

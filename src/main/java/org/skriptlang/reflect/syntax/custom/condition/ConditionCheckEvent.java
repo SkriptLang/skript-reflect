@@ -3,9 +3,8 @@ package org.skriptlang.reflect.syntax.custom.condition;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxElement;
-import org.skriptlang.reflect.syntax.custom.shared.Continuable;
 import org.bukkit.event.Event;
+import org.skriptlang.reflect.syntax.custom.shared.Continuable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
 
 public class ConditionCheckEvent extends CustomSyntaxEvent implements Continuable {

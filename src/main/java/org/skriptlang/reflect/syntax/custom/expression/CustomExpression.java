@@ -1,9 +1,11 @@
 package org.skriptlang.reflect.syntax.custom.expression;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ReturnHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;

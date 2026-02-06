@@ -2,19 +2,15 @@ package org.skriptlang.reflect.syntax.custom.event;
 
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
-import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
-import org.eclipse.sisu.space.asm.*;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class BukkitCustomEvent extends Event implements Cancellable {

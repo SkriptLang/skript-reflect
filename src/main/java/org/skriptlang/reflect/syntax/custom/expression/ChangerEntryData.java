@@ -4,7 +4,6 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import com.btk5h.skriptmirror.util.SkriptUtil;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 
 import java.util.Arrays;

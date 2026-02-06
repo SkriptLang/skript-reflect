@@ -3,7 +3,6 @@ package org.skriptlang.reflect.syntax.custom.effect.elements;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -44,7 +43,7 @@ public class EffDelayEffect extends Effect implements EventRestrictedSyntax {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "";
+		return "delay the current effect";
 	}
 
 }

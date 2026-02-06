@@ -2,7 +2,6 @@ package org.skriptlang.reflect.syntax.custom.expression;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxElement;
 import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
 

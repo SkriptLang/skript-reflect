@@ -3,7 +3,6 @@ package org.skriptlang.reflect.syntax.custom.event;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.custom.shared.Continuable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
 

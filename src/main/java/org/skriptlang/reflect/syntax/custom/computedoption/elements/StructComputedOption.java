@@ -1,8 +1,11 @@
 package org.skriptlang.reflect.syntax.custom.computedoption.elements;
 
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.ReturnHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.structures.StructOptions;
 import com.btk5h.skriptmirror.util.SkriptReflection;
