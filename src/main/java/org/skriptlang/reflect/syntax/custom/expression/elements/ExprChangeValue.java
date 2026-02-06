@@ -1,13 +1,11 @@
 package org.skriptlang.reflect.syntax.custom.expression.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +15,7 @@ import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class ExprChangeValue extends SimpleExpression<Object> implements EventRestrictedSyntax {
+public class ExprChangeValue extends SimpleExpression<Object> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprChangeValue.class, Object.class)
@@ -32,14 +30,13 @@ public class ExprChangeValue extends SimpleExpression<Object> implements EventRe
 	private Class<?>[] types;
 
 	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(ExpressionChangeEvent.class);
-	}
-
-	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!(getParser().getCurrentStructure() instanceof StructCustomExpression structure)) {
+			Skript.error("The change value expression can only be used in the 'change' section of a custom expression");
+			return false;
+		}
 		this.plural = parseResult.hasTag("s");
-		ChangerData data = getParser().getData(ChangerData.class);
+		ChangerData data = structure.changerData();
 		this.types = data.acceptedClasses();
 		if (!data.testPlurality(plural)) {
 			Skript.error(plural

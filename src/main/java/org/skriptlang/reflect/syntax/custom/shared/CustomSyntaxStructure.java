@@ -22,10 +22,6 @@ import java.util.Set;
 
 public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends Structure {
 
-	public static void register() {
-		ParserInstance.registerData(ExpressionsData.class, ExpressionsData::new);
-	}
-
 	public static final Priority PRIORITY = new Priority(350);
 
 	protected EntryContainer entryContainer;
@@ -34,6 +30,7 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 	protected boolean hasPatternsSection, hasParseSection;
 
 	protected C customSyntax;
+	protected ExpressionsData expressionsData;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
@@ -47,13 +44,13 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 		}
 		this.patterns = hasPatternsSection
 			? entryContainer.get("patterns", String[].class, false)
-			: new String[] {parseResult.regexes.get(0).group()};
+			: new String[] {parseResult.regexes.getFirst().group()};
 		return true;
 	}
 
 	@Override
 	public boolean preLoad() {
-		getParser().getData(ExpressionsData.class).computePossibleReturnTypes(patterns);
+		expressionsData = new ExpressionsData(patterns);
 		customSyntax = createCustomSyntax();
 		return customSyntax.register(SkriptMirror.getAddonInstance().syntaxRegistry());
 	}
@@ -81,18 +78,16 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 		return PRIORITY;
 	}
 
-	public static class ExpressionsData extends ParserInstance.Data {
+	public ExpressionsData expressionsData() {
+		return expressionsData;
+	}
 
-		private final List<Set<Class<?>>> possibleReturnTypes;
-		private final List<Kleenean> plurals;
+	public static class ExpressionsData {
 
-		public ExpressionsData(ParserInstance parserInstance) {
-			super(parserInstance);
-			this.possibleReturnTypes = new ArrayList<>();
-			this.plurals = new ArrayList<>();
-		}
+		private final List<Set<Class<?>>> possibleReturnTypes = new ArrayList<>();
+		private final List<Kleenean> plurals = new ArrayList<>();
 
-		private void computePossibleReturnTypes(String[] patterns) {
+		public ExpressionsData(String[] patterns) {
 			for (String pattern : patterns) {
 				List<TypePatternElement> elements = PatternCompiler.compile(pattern).getElements(TypePatternElement.class);
 				for (int expressionIndex = 0; expressionIndex < elements.size(); expressionIndex++) {
@@ -109,7 +104,7 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 						Class<?> type = info.classes[j].getC();
 						if (!set.add(type))
 							continue;
-						plurals.set(expressionIndex, updatePlurality(plurals.get(expressionIndex), type.isArray()));
+						plurals.set(expressionIndex, updatePlurality(plurals.get(expressionIndex), info.isPlural[j]));
 					}
 				}
 			}
@@ -123,6 +118,10 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 				return Kleenean.UNKNOWN;
 
 			return current;
+		}
+
+		public int expressions() {
+			return possibleReturnTypes.size();
 		}
 
 		public Class<?>[] possibleReturnTypes(int expressionIndex) {

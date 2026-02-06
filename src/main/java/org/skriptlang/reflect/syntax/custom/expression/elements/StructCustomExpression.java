@@ -7,6 +7,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 
 public class StructCustomExpression extends CustomSyntaxStructure<CustomExpression<?>> {
 
-	private SkriptParser.ParseResult parseResult;
+	private ChangerData changerData;
 
 	public static void register(SyntaxRegistry registry) {
 		EntryValidatorBuilder builder = EntryValidator.builder()
@@ -74,8 +75,6 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 			.addPattern("[:local] [:plural|plural:non[-| ]single] %classinfos% [:default] property <.+>")
 			.entryValidator(builder.build())
 			.build());
-
-		ParserInstance.registerData(ChangerData.class, ChangerData::new);
 	}
 
 	private final Map<ChangeMode, ChangerNode> changeModes = new EnumMap<>(ChangeMode.class);
@@ -86,8 +85,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 	private String loopOf;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
-		this.parseResult = parseResult;
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
 		if (!super.init(args, matchedPattern, parseResult, entryContainer))
 			return false;
 		this.returnType = ((ClassInfo<?>) entryContainer.get("return type", Literal.class, true).getSingle()).getC();
@@ -143,7 +141,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 			ChangeMode mode = entry.getKey();
 			ChangerNode changerNode = entry.getValue();
 			parser.setCurrentEvent("custom expression " + changerNode.name() + " trigger", ExpressionChangeEvent.class);
-			parser.getData(ChangerData.class).acceptedClasses(changerNode.acceptedClasses());
+			changerData = new ChangerData(changerNode.acceptedClasses());
 			Trigger trigger = new Trigger(
 				parser.getCurrentScript(),
 				"entry with key: " + changerNode.name(),
@@ -175,6 +173,10 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 		);
 	}
 
+	public ChangerData changerData() {
+		return changerData;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
@@ -195,18 +197,14 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 		return builder.toString();
 	}
 
-	public static class ChangerData extends ParserInstance.Data {
+	public static class ChangerData {
 
-		private Class<?>[] acceptedClasses;
-		private Kleenean plural = Kleenean.UNKNOWN;
+		private final Class<?>[] acceptedClasses;
+		private final Kleenean plural;
 
-		public ChangerData(ParserInstance parser) {
-			super(parser);
-		}
-
-		private void acceptedClasses(Class<?>[] acceptedClasses) {
+		public ChangerData(Class<?>[] acceptedClasses) {
 			this.acceptedClasses = acceptedClasses;
-			plural = null;
+			Kleenean plural = null;
 			for (int i = 0; i < acceptedClasses.length; i++) {
 				Class<?> type = acceptedClasses[i];
 				boolean isArray = type.isArray();
@@ -215,8 +213,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 				plural = CustomSyntaxStructure.ExpressionsData.updatePlurality(plural, isArray);
 			}
 
-			if (plural == null)
-				plural = Kleenean.UNKNOWN;
+			this.plural = plural != null ? plural : Kleenean.UNKNOWN;
 		}
 
 		public Class<?>[] acceptedClasses() {

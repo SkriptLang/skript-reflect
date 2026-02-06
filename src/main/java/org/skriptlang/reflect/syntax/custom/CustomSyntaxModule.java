@@ -8,7 +8,6 @@ import org.skriptlang.reflect.syntax.custom.effect.elements.StructCustomEffect;
 import org.skriptlang.reflect.syntax.custom.event.elements.*;
 import org.skriptlang.reflect.syntax.custom.expression.elements.ExprChangeValue;
 import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression;
-import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.custom.shared.elements.effects.EffContinue;
 import org.skriptlang.reflect.syntax.custom.shared.elements.expressions.*;
 import org.skriptlang.skript.addon.AddonModule;
@@ -18,8 +17,6 @@ public class CustomSyntaxModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		CustomSyntaxStructure.register();
-
 		// ==Computed Option==
 		StructComputedOption.register(addon.syntaxRegistry());
 
