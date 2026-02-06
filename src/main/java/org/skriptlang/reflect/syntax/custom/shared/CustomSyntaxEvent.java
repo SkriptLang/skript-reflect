@@ -3,6 +3,7 @@ package org.skriptlang.reflect.syntax.custom.shared;
 import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.WrappedEvent;
@@ -10,22 +11,35 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.util.Arrays;
 
-public class CustomSyntaxEvent extends WrappedEvent {
+public abstract class CustomSyntaxEvent extends WrappedEvent {
 
+	private final SyntaxElement self;
 	private final Expression<?>[] expressions;
 	private final int matchedPattern;
 	private final ParseResult parseResult;
 
-	public CustomSyntaxEvent(Event event, Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public CustomSyntaxEvent(
+		Event event,
+		SyntaxElement self,
+		Expression<?>[] expressions,
+		int matchedPattern,
+		ParseResult parseResult
+	) {
 		super(event);
+		this.self = self;
 		this.expressions = Arrays.stream(expressions)
 			.map(LazyExpression::new)
 			.toArray(Expression<?>[]::new);
 		this.matchedPattern = matchedPattern;
 		this.parseResult = parseResult;
+	}
+
+	public SyntaxElement self() {
+		return self;
 	}
 
 	public Expression<?>[] expressions() {

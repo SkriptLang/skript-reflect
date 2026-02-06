@@ -1,6 +1,5 @@
 package org.skriptlang.reflect.syntax.custom.event;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -167,7 +166,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		return core.init(args, matchedPattern, parseResult);
+		return core.init(this, args, matchedPattern, parseResult);
 	}
 
 	@Override
@@ -185,6 +184,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 
 		EventCheckEvent checkEvent = new EventCheckEvent(
 			(BukkitCustomEvent) event,
+			this,
 			core.expressions(),
 			core.matchedPattern(),
 			core.parseResult()

@@ -11,11 +11,12 @@ public class ExpressionChangeEvent extends CustomSyntaxEvent {
 
 	public ExpressionChangeEvent(
 		Event event,
+		Expression<?> self,
 		Expression<?>[] expressions,
 		int matchedPattern,
 		ParseResult parseResult, Object[] delta
 	) {
-		super(event, expressions, matchedPattern, parseResult);
+		super(event, self, expressions, matchedPattern, parseResult);
 		this.delta = delta;
 	}
 

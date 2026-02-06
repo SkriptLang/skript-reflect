@@ -2,6 +2,7 @@ package org.skriptlang.reflect.syntax.custom.shared;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import org.bukkit.event.Event;
 
@@ -13,12 +14,13 @@ public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
 	private boolean markedContinue;
 
 	public SyntaxParseEvent(
+		SyntaxElement self,
 		Expression<?>[] expressions,
 		int matchedPattern,
 		ParseResult parseResult,
 		Class<? extends Event>[] eventClasses
 	) {
-		super(null, wrapRawExpressions(expressions), matchedPattern, parseResult);
+		super(null, self, wrapRawExpressions(expressions), matchedPattern, parseResult);
 		this.eventClasses = eventClasses;
 	}
 

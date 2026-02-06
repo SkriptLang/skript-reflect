@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 
 public class StructCustomExpression extends CustomSyntaxStructure<CustomExpression<?>> {
 
+	private SkriptParser.ParseResult parseResult;
+
 	public static void register(SyntaxRegistry registry) {
 		EntryValidatorBuilder builder = EntryValidator.builder()
 			.addEntryData(new ExpressionEntryData<>(
@@ -84,6 +86,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
+		this.parseResult = parseResult;
 		if (!super.init(args, matchedPattern, parseResult, entryContainer))
 			return false;
 		this.returnType = ((ClassInfo<?>) entryContainer.get("return type", Literal.class, true).getSingle()).getC();

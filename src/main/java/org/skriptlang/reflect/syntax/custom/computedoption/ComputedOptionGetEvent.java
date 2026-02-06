@@ -6,7 +6,7 @@ import org.skriptlang.reflect.syntax.custom.expression.ExpressionGetEvent;
 public class ComputedOptionGetEvent extends ExpressionGetEvent {
 
 	public ComputedOptionGetEvent() {
-		super(null, new Expression[0], 0, null);
+		super(null, null, new Expression[0], 0, null);
 	}
 
 }

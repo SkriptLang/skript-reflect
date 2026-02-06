@@ -1,6 +1,7 @@
 package org.skriptlang.reflect.syntax.custom.event;
 
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.custom.shared.Continuable;
@@ -10,8 +11,14 @@ public class EventCheckEvent extends CustomSyntaxEvent implements Continuable {
 
 	private boolean markedContinue;
 
-	public EventCheckEvent(BukkitCustomEvent event, Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-		super(event, expressions, matchedPattern, parseResult);
+	public EventCheckEvent(
+		BukkitCustomEvent event,
+		SkriptEvent self,
+		Expression<?>[] expressions,
+		int matchedPattern,
+		ParseResult parseResult
+	) {
+		super(event, self, expressions, matchedPattern, parseResult);
 	}
 
 	@Override

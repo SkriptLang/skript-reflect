@@ -3,6 +3,7 @@ package org.skriptlang.reflect.syntax.custom.shared;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.patterns.PatternCompiler;
@@ -32,7 +33,7 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 	protected C customSyntax;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
 		this.entryContainer = entryContainer;
 		this.local = parseResult.hasTag("local");
 		this.hasParseSection = entryContainer.hasEntry("parse");

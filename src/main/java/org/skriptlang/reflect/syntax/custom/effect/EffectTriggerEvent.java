@@ -1,6 +1,7 @@
 package org.skriptlang.reflect.syntax.custom.effect;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
@@ -13,8 +14,15 @@ public class EffectTriggerEvent extends CustomSyntaxEvent implements Continuable
 	public final TriggerItem next;
 	private boolean sync;
 
-	public EffectTriggerEvent(Event event, Expression<?>[] expressions, int matchedPattern, ParseResult parseResult, TriggerItem next) {
-		super(event, expressions, matchedPattern, parseResult);
+	public EffectTriggerEvent(
+		Event event,
+		Effect self,
+		Expression<?>[] expressions,
+		int matchedPattern,
+		ParseResult parseResult,
+		TriggerItem next
+	) {
+		super(event, self, expressions, matchedPattern, parseResult);
 		this.next = next;
 	}
 

@@ -51,6 +51,7 @@ public class CustomSyntaxModule implements AddonModule {
 		ExprParseRegexes.register(addon.syntaxRegistry());
 		ExprParseTags.register(addon.syntaxRegistry());
 		ExprRawExpression.register(addon.syntaxRegistry());
+		ExprSelf.register(addon.syntaxRegistry());
 	}
 
 	@Override

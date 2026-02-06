@@ -132,7 +132,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return core.init(expressions, matchedPattern, parseResult);
+		return core.init(this, expressions, matchedPattern, parseResult);
 	}
 
 	@Override
@@ -141,6 +141,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 
 		ExpressionGetEvent getEvent = new ExpressionGetEvent(
 			event,
+			this,
 			core.expressions(),
 			core.matchedPattern(),
 			core.parseResult()
@@ -159,8 +160,14 @@ public class CustomExpression<T> extends SimpleExpression<T>
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Trigger trigger = changerTrigger(mode).trigger();
-		ExpressionChangeEvent changeEvent =
-			new ExpressionChangeEvent(event, core.expressions(), core.matchedPattern(), core.parseResult(), delta);
+		ExpressionChangeEvent changeEvent = new ExpressionChangeEvent(
+			event,
+			this,
+			core.expressions(),
+			core.matchedPattern(),
+			core.parseResult(),
+			delta
+		);
 		Trigger.walk(trigger, changeEvent);
 	}
 

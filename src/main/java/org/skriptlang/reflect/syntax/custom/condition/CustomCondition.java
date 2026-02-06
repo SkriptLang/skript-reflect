@@ -99,7 +99,7 @@ public class CustomCondition extends Condition implements CustomSyntax<SyntaxInf
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!core.init(expressions, matchedPattern, parseResult))
+		if (!core.init(this, expressions, matchedPattern, parseResult))
 			return false;
 		if (property)
 			setNegated(matchedPattern == 1);
@@ -112,6 +112,7 @@ public class CustomCondition extends Condition implements CustomSyntax<SyntaxInf
 
 		ConditionCheckEvent checkEvent = new ConditionCheckEvent(
 			event,
+			this,
 			core.expressions(),
 			core.matchedPattern(),
 			core.parseResult()

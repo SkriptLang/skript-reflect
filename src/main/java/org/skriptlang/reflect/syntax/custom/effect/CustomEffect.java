@@ -96,7 +96,7 @@ public class CustomEffect extends Effect implements CustomSyntax<SyntaxInfo<? ex
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return core.init(expressions, matchedPattern, parseResult);
+		return core.init(this, expressions, matchedPattern, parseResult);
 	}
 
 	@Override
@@ -105,6 +105,7 @@ public class CustomEffect extends Effect implements CustomSyntax<SyntaxInfo<? ex
 
 		EffectTriggerEvent triggerEvent = new EffectTriggerEvent(
 			event,
+			this,
 			core.expressions(),
 			core.matchedPattern(),
 			core.parseResult(),

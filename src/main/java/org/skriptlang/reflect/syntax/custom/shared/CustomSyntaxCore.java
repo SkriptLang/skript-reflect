@@ -3,6 +3,7 @@ package org.skriptlang.reflect.syntax.custom.shared;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -65,7 +66,7 @@ public class CustomSyntaxCore {
 		return usableInPredicate == null || usableInPredicate.test(parser);
 	}
 
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public boolean init(SyntaxElement self, Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
 		usedPattern = patterns[matchedPattern];
 
 		for (int i = 0; i < expressions.length; i++) {
@@ -87,7 +88,7 @@ public class CustomSyntaxCore {
 		}
 
 		Class<? extends Event>[] events = ParserInstance.get().getCurrentEvents();
-		parseEvent = new SyntaxParseEvent(expressions, matchedPattern, parseResult, events);
+		parseEvent = new SyntaxParseEvent(self, expressions, matchedPattern, parseResult, events);
 		TriggerItem.walk(parseTrigger, parseEvent);
 		return parseEvent.isMarkedContinue();
 	}
