@@ -7,11 +7,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +31,7 @@ public final class CustomEventManager {
 	/**
 	 * Generates and loads a {@link BukkitCustomEvent} subclass and factory class using the given identifier.
 	 * @param identifier the event's identifier
-	 * @return a weak reference to an instance of the generated factory class for the event
+	 * @return an instance of the generated factory class for the event
 	 */
 	public static RegisteredEvent defineCustomEvent(String identifier) {
 		String baseName = BukkitCustomEvent.class.getCanonicalName() + "$" + identifier;
@@ -67,8 +63,8 @@ public final class CustomEventManager {
 
 	/**
 	 * <b>NOTE: Make sure ALL instances of the factory are inaccessible before unloading</b>
-	 * @param identifier
-	 * @return
+	 * @param identifier the event's identifier
+	 * @return true if the event was successfully unloaded
 	 */
 	public static boolean unloadCustomEvent(String identifier) {
 		RegisteredEvent event = events.remove(identifier);
@@ -262,11 +258,6 @@ public final class CustomEventManager {
 		}
 
 		public Class<?> define(String name, byte[] bytecode) {
-			try {
-				Files.write(Path.of("D:\\Minecraft\\Servers\\skript-reflect\\plugins\\Skript\\" + name.substring(name.lastIndexOf('.') + 1) + ".class"), bytecode);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
 			return defineClass(name, bytecode, 0, bytecode.length);
 		}
 
