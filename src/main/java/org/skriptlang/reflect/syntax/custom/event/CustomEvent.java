@@ -33,8 +33,8 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 	private final String identifier;
 	private final List<Class<?>> eventValueTypes;
 	private final BukkitSyntaxInfos.Event<CustomEvent> info;
-	private Trigger checkTrigger;
-	private WeakReference<RegisteredEvent> registeredEventRef;
+	private final TriggerHolder checkTrigger;
+	private final WeakReference<RegisteredEvent> registeredEventRef;
 
 	public CustomEvent(
 		String[] patterns,
@@ -54,7 +54,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 			),
 			identifier,
 			eventValueTypes,
-			null,
+			new TriggerHolder(),
 			registeredEvent
 		);
 	}
@@ -63,7 +63,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		CustomSyntaxCore core,
 		String identifier,
 		List<Class<?>> eventValueTypes,
-		@Nullable Trigger checkTrigger,
+		TriggerHolder checkTrigger,
 		RegisteredEvent registeredEvent
 	) {
 		this.core = core;
@@ -99,7 +99,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		return true;
 	}
 
-	private <T> void registerEventValues() {
+	private void registerEventValues() {
 		RegisteredEvent registeredEvent = registeredEventRef.get();
 		if (registeredEvent == null)
 			return;
@@ -150,13 +150,13 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 	}
 
 	public Trigger checkTrigger() {
-		return checkTrigger;
+		return checkTrigger.trigger;
 	}
 
 	public void checkTrigger(Trigger checkTrigger) {
-		if (this.checkTrigger != null)
+		if (this.checkTrigger.trigger != null)
 			throw new IllegalStateException("Check trigger is already set!");
-		this.checkTrigger = checkTrigger;
+		this.checkTrigger.trigger = checkTrigger;
 	}
 
 	@Override
@@ -179,6 +179,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		if (event.getClass() != registeredEvent.eventClass())
 			return false;
 
+		Trigger checkTrigger = this.checkTrigger.trigger;
 		if (checkTrigger == null)
 			return true;
 
@@ -216,5 +217,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 			EventValues.TIME_NOW
 		);
 	}
+
+	public static final class TriggerHolder { private Trigger trigger; }
 
 }

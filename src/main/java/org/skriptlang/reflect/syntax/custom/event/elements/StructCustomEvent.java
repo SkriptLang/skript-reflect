@@ -86,7 +86,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 
 		registeredEventRef = new WeakReference<>(CustomEventManager.defineCustomEvent(identifier));
 
-		return super.preLoad();
+		return super.preLoad() && super.load();
 	}
 
 	@Override
@@ -96,8 +96,6 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 
 	@Override
 	public boolean load() {
-		super.load();
-
 		if (entryContainer.hasEntry("check")) {
 			ParserInstance parser = getParser();
 			parser.setCurrentEvent("custom event check trigger", EventCheckEvent.class);
