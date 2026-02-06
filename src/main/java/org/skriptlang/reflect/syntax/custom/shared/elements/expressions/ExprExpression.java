@@ -39,24 +39,24 @@ public class ExprExpression extends SimpleExpression<Object> {
 			return false;
 		}
 
-		this.index = Integer.parseInt(parseResult.regexes.get(0).group()) ;
-		if (this.index < 1) {
+		this.index = Integer.parseInt(parseResult.regexes.getFirst().group()) - 1;
+		if (this.index < 0) {
 			Skript.error("The expression index must be at least 1.");
 			return false;
 		}
 
 		ExpressionsData data = structure.expressionsData();
-		if (this.index > data.expressions()) {
-			Skript.error("Cannot get the " + StringUtils.fancyOrderNumber(index) + " as there are " + (data.expressions() == 0
+		if (this.index >= data.expressions()) {
+			Skript.error("Cannot get the " + StringUtils.fancyOrderNumber(index + 1) + " as there are " + (data.expressions() == 0
 				? "no expressions"
 				: "only " + Utils.toEnglishPlural(data.expressions() + " expression", data.expressions() > 1)));
 			return false;
 		}
 		this.all = parseResult.hasTag("all");
 		this.plural = all || parseResult.hasTag("s");
-		possibleReturnTypes = data.possibleReturnTypes(index - 1);
-		if (!data.testPlurality(index - 1, plural)) {
-			String expression = "The " + StringUtils.fancyOrderNumber(index) + " expression";
+		possibleReturnTypes = data.possibleReturnTypes(index);
+		if (!data.testPlurality(index, plural)) {
+			String expression = "The " + StringUtils.fancyOrderNumber(index + 1) + " expression";
 			Skript.error(plural
 				? expression + " can only be a single value"
 				: expression + " may return more than one value");
