@@ -1,6 +1,5 @@
 package com.btk5h.skriptmirror;
 
-import ch.njol.skript.effects.EffReturn;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -28,7 +27,6 @@ public class ParseOrderWorkarounds {
 		"com.pie.tlatoani.Miscellaneous.CondBoolean",
 		"us.tlatoani.tablisknu.core.base.CondBoolean",
 		"com.pie.tlatoani.CustomEvent.EvtCustomEvent",
-		EffReturn.class.getCanonicalName(),
 		"ch.njol.skript.effects.EffContinue",
 		"com.ankoki.skjade.elements.conditions.CondBoolean"
 	};
