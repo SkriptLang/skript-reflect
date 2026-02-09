@@ -31,7 +31,7 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
 		super(event);
 		this.self = self;
 		this.expressions = Arrays.stream(expressions)
-			.map(LazyExpression::new)
+			.map(expression -> new LazyExpression(event, expression))
 			.toArray(Expression<?>[]::new);
 		this.matchedPattern = matchedPattern;
 		this.parseResult = parseResult;
@@ -66,23 +66,29 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
 
 	public static class LazyExpression extends WrapperExpression<Object> {
 
+		private final Event sourceEvent;
 		private transient Object[] array, all;
 
-		public LazyExpression(Expression<?> source) {
-			setExpr(source != null ? source : new EmptyExpression());
+		public LazyExpression(Event sourceEvent, Expression<?> source) {
+			this.sourceEvent = sourceEvent;
+			if (source instanceof LazyExpression lazy) {
+				setExpr(lazy.getExpr());
+			} else {
+				setExpr(source != null ? source : new EmptyExpression());
+			}
 		}
 
 		@Override
 		protected Object[] get(Event event) {
 			if (array == null)
-				array = getExpr().getArray(event);
+				array = getExpr().getArray(sourceEvent);
 			return array;
 		}
 
 		@Override
 		public Object[] getAll(Event event) {
 			if (all == null)
-				all = getExpr().getAll(event);
+				all = getExpr().getAll(sourceEvent);
 			return all;
 		}
 
@@ -93,7 +99,7 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
 
 		@Override
 		public String toString(@Nullable Event event, boolean debug) {
-			return getExpr().toString(event, debug);
+			return getExpr().toString(sourceEvent, debug);
 		}
 
 	}
@@ -107,7 +113,7 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
 
 		@Override
 		public boolean isSingle() {
-			return false;
+			return true;
 		}
 
 		@Override
