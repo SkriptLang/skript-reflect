@@ -208,13 +208,13 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 		private final Kleenean plural;
 
 		public ChangerData(Class<?>[] acceptedClasses) {
-			this.acceptedClasses = acceptedClasses;
+			this.acceptedClasses = acceptedClasses.clone();
 			Kleenean plural = null;
-			for (int i = 0; i < acceptedClasses.length; i++) {
-				Class<?> type = acceptedClasses[i];
+			for (int i = 0; i < this.acceptedClasses.length; i++) {
+				Class<?> type = this.acceptedClasses[i];
 				boolean isArray = type.isArray();
 				if (isArray)
-					acceptedClasses[i] = type.componentType();
+					this.acceptedClasses[i] = type.componentType();
 				plural = CustomSyntaxStructure.ExpressionsData.updatePlurality(plural, isArray);
 			}
 
