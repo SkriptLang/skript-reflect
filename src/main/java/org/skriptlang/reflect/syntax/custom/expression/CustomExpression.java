@@ -19,7 +19,6 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -33,7 +32,6 @@ public class CustomExpression<T> extends SimpleExpression<T>
 	private final @Nullable String loopOf;
 	private final Map<ChangeMode, ChangerTrigger> changeModes;
 	private Trigger getterTrigger;
-
 
 	public CustomExpression(
 		String[] patterns,
@@ -198,7 +196,7 @@ public class CustomExpression<T> extends SimpleExpression<T>
 
 	@Override
 	public boolean isSingleReturnValue() {
-		return single;
+		return single && !property;
 	}
 
 	@Override
