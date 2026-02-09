@@ -5,15 +5,14 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.DefaultClasses;
+import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -88,8 +87,11 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
 		if (!super.init(args, matchedPattern, parseResult, entryContainer))
 			return false;
-		this.returnType = ((ClassInfo<?>) entryContainer.get("return type", Literal.class, true).getSingle()).getC();
-		this.single = !parseResult.hasTag("plural");
+		ClassInfoReference returnTypeRef = ClassInfoReference.wrap(entryContainer.get("return type", Expression.class, true))
+			.getSingle(ContextlessEvent.get());
+		assert returnTypeRef != null;
+		this.returnType = returnTypeRef.getClassInfo().getC();
+		this.single = !parseResult.hasTag("plural") && !returnTypeRef.isPlural().isTrue();
 
 		if (matchedPattern != 2)
 			return true;
