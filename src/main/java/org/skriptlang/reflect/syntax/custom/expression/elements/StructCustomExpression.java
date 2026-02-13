@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class StructCustomExpression extends CustomSyntaxStructure<CustomExpression<?>> {
+public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressionInfo<?>> {
 
 	private ChangerData changerData;
 
@@ -132,12 +132,12 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 		if (node != null) {
 			parser.setCurrentEvent("custom expression get trigger", ExpressionGetEvent.class);
 
-			Trigger getterTrigger = customSyntax.loadReturnableTrigger(
+			Trigger getterTrigger = customSyntaxInfo.loadReturnableTrigger(
 				node,
 				"custom expression get trigger",
 				new SimpleEvent()
 			);
-			customSyntax.getterTrigger(getterTrigger);
+			customSyntaxInfo.getterTrigger(getterTrigger);
 			parser.deleteCurrentEvent();
 		}
 
@@ -152,7 +152,7 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 				new SimpleEvent(),
 				ScriptLoader.loadItems(changerNode.node())
 			);
-			customSyntax.changerTrigger(mode, trigger, changerNode.acceptedClasses());
+			customSyntaxInfo.changerTrigger(mode, trigger, changerNode.acceptedClasses());
 			parser.deleteCurrentEvent();
 		}
 
@@ -160,12 +160,12 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 	}
 
 	@Override
-	protected CustomExpression<?> createCustomSyntax() {
+	protected CustomExpressionInfo<?> createCustomSyntaxInfo() {
 		Map<ChangeMode, ChangerTrigger> changerTriggers = new EnumMap<>(ChangeMode.class);
 		for (ChangeMode mode : changeModes.keySet())
 			changerTriggers.put(mode, null);
 
-		return new CustomExpression<>(
+		return new CustomExpressionInfo<>(
 			patterns,
 			hasParseSection,
 			local ? getParser().getCurrentScript() : null,

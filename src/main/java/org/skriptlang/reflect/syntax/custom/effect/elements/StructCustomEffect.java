@@ -5,7 +5,7 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.reflect.syntax.custom.effect.CustomEffect;
+import org.skriptlang.reflect.syntax.custom.effect.CustomEffectInfo;
 import org.skriptlang.reflect.syntax.custom.effect.EffectTriggerEvent;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.custom.shared.entry.PatternsEntryData;
@@ -17,7 +17,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.function.Predicate;
 
-public class StructCustomEffect extends CustomSyntaxStructure<CustomEffect> {
+public class StructCustomEffect extends CustomSyntaxStructure<CustomEffectInfo> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(StructCustomEffect.class)
@@ -39,15 +39,15 @@ public class StructCustomEffect extends CustomSyntaxStructure<CustomEffect> {
 
 		ParserInstance parser = getParser();
 		parser.setCurrentEvent("custom effect trigger", EffectTriggerEvent.class);
-		customSyntax.executeTrigger(entryContainer.get("trigger", Trigger.class, false));
+		customSyntaxInfo.executeTrigger(entryContainer.get("trigger", Trigger.class, false));
 		parser.deleteCurrentEvent();
 
 		return true;
 	}
 
 	@Override
-	protected CustomEffect createCustomSyntax() {
-		return new CustomEffect(
+	protected CustomEffectInfo createCustomSyntaxInfo() {
+		return new CustomEffectInfo(
 			patterns,
 			hasParseSection,
 			local ? getParser().getCurrentScript() : null,

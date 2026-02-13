@@ -9,7 +9,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.reflect.syntax.custom.event.CustomEvent;
+import org.skriptlang.reflect.syntax.custom.event.CustomEventInfo;
 import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
 import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.reflect.syntax.custom.event.EventCheckEvent;
@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
+public class StructCustomEvent extends CustomSyntaxStructure<CustomEventInfo> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(StructCustomEvent.class)
@@ -99,7 +99,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 		if (entryContainer.hasEntry("check")) {
 			ParserInstance parser = getParser();
 			parser.setCurrentEvent("custom event check trigger", EventCheckEvent.class);
-			customSyntax.checkTrigger(entryContainer.get("check", Trigger.class, false));
+			customSyntaxInfo.checkTrigger(entryContainer.get("check", Trigger.class, false));
 			parser.deleteCurrentEvent();
 		}
 
@@ -107,8 +107,8 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEvent> {
 	}
 
 	@Override
-	protected CustomEvent createCustomSyntax() {
-		return new CustomEvent(
+	protected CustomEventInfo createCustomSyntaxInfo() {
+		return new CustomEventInfo(
 			patterns,
 			hasParseSection,
 			local ? getParser().getCurrentScript() : null,

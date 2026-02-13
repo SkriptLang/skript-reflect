@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends Structure {
+public abstract class CustomSyntaxStructure<I extends CustomSyntaxInfo<?>> extends Structure {
 
 	public static final Priority PRIORITY = new Priority(350);
 
@@ -29,7 +29,7 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 	protected String[] patterns;
 	protected boolean hasPatternsSection, hasParseSection;
 
-	protected C customSyntax;
+	protected I customSyntaxInfo;
 	protected ExpressionsData expressionsData;
 
 	@Override
@@ -51,8 +51,8 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 	@Override
 	public boolean preLoad() {
 		expressionsData = new ExpressionsData(patterns);
-		customSyntax = createCustomSyntax();
-		return customSyntax.register(SkriptMirror.getAddonInstance().syntaxRegistry());
+		customSyntaxInfo = createCustomSyntaxInfo();
+		return customSyntaxInfo.register(SkriptMirror.getAddonInstance().syntaxRegistry());
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 		ParserInstance parser = getParser();
 		if (hasParseSection) {
 			parser.setCurrentEvent("custom syntax parser", SyntaxParseEvent.class);
-			customSyntax.parseTrigger(entryContainer.get("parse", Trigger.class, true));
+			customSyntaxInfo.parseTrigger(entryContainer.get("parse", Trigger.class, true));
 			parser.deleteCurrentEvent();
 		}
 		return true;
@@ -68,10 +68,10 @@ public abstract class CustomSyntaxStructure<C extends CustomSyntax<?>> extends S
 
 	@Override
 	public void unload() {
-		customSyntax.unregister(SkriptMirror.getAddonInstance().syntaxRegistry());
+		customSyntaxInfo.unregister(SkriptMirror.getAddonInstance().syntaxRegistry());
 	}
 
-	protected abstract C createCustomSyntax();
+	protected abstract I createCustomSyntaxInfo();
 
 	@Override
 	public Priority getPriority() {

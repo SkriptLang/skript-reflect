@@ -6,12 +6,10 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.expression.ExpressionChangeEvent;
 import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression.ChangerData;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -19,7 +17,6 @@ public class ExprChangeValue extends SimpleExpression<Object> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprChangeValue.class, Object.class)
-			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(ExprChangeValue::new)
 			.addPattern("[the] change value[:s]")
 			.priority(SyntaxInfo.SIMPLE)

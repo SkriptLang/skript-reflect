@@ -7,11 +7,9 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.JavaType;
-import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.SyntaxParseEvent;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -21,7 +19,6 @@ public class ExprEventClasses extends SimpleExpression<JavaType> implements Even
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprEventClasses.class, JavaType.class)
-			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(ExprEventClasses::new)
 			.addPattern("[the] event-classes")
 			.priority(SyntaxInfo.SIMPLE)

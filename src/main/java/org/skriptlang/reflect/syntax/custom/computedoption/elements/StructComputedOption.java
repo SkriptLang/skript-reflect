@@ -42,7 +42,7 @@ public class StructComputedOption extends Structure {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
-		String option = parseResult.regexes.get(0).group();
+		option = parseResult.regexes.getFirst().group();
 		SectionNode node = entryContainer.get("get", SectionNode.class, false);
 		ComputedOption holder = new ComputedOption();
 

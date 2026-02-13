@@ -4,159 +4,26 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.registrations.EventValues.EventValueInfo;
 import ch.njol.skript.variables.Variables;
-import com.btk5h.skriptmirror.SkriptMirror;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntax;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxCore;
-import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.docs.Origin;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.function.Predicate;
+public class CustomEvent extends SkriptEvent implements CustomSyntax {
 
-public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSyntaxInfos.Event<?>> {
-
-	private static final List<EventValueInfo<?, ?>> EVENT_VALUES_LIST
-		= SkriptReflection.getEventValuesList(EventValues.TIME_NOW);
-
+	private final CustomEventInfo info;
 	private final CustomSyntaxCore core;
-	private final String identifier;
-	private final List<Class<?>> eventValueTypes;
-	private final BukkitSyntaxInfos.Event<CustomEvent> info;
-	private final TriggerHolder checkTrigger;
-	private final WeakReference<RegisteredEvent> registeredEventRef;
 
-	public CustomEvent(
-		String[] patterns,
-		boolean hasParseSection,
-		@Nullable Script script,
-		Predicate<ParserInstance> usableInPredicate,
-		String identifier,
-		List<Class<?>> eventValueTypes,
-		RegisteredEvent registeredEvent
-	) {
-		this(
-			new CustomSyntaxCore(
-				patterns,
-				hasParseSection,
-				script,
-				usableInPredicate
-			),
-			identifier,
-			eventValueTypes,
-			new TriggerHolder(),
-			registeredEvent
-		);
-	}
-
-	public CustomEvent(
-		CustomSyntaxCore core,
-		String identifier,
-		List<Class<?>> eventValueTypes,
-		TriggerHolder checkTrigger,
-		RegisteredEvent registeredEvent
-	) {
-		this.core = core;
-		this.identifier = identifier;
-		this.eventValueTypes = eventValueTypes;
-		this.checkTrigger = checkTrigger;
-		this.info = BukkitSyntaxInfos.Event.builder(CustomEvent.class, identifier)
-			.origin(Origin.of(SkriptMirror.getAddonInstance()))
-			.supplier(this::copy)
-			.addEvent(registeredEvent.eventClass())
-			.addPatterns(core.patterns())
-			.priority(core.priority())
-			.build();
-		this.registeredEventRef = new WeakReference<>(registeredEvent);
+	public CustomEvent(CustomEventInfo info) {
+		this.info = info;
+		this.core = new CustomSyntaxCore(info);
 	}
 
 	@Override
-	public SyntaxRegistry.Key<BukkitSyntaxInfos.Event<?>> key() {
-		return BukkitSyntaxInfos.Event.KEY;
-	}
-
-	@Override
-	public BukkitSyntaxInfos.Event<CustomEvent> info() {
+	public CustomEventInfo info() {
 		return info;
-	}
-
-	@Override
-	public boolean register(SyntaxRegistry registry) {
-		CustomSyntax.super.register(registry);
-
-		registerEventValues();
-
-		return true;
-	}
-
-	private void registerEventValues() {
-		RegisteredEvent registeredEvent = registeredEventRef.get();
-		if (registeredEvent == null)
-			return;
-		Class<? extends BukkitCustomEvent> eventClass = registeredEvent.eventClass();
-
-		// Make sure more specific types come before more general types
-		eventValueTypes.sort((a, b) -> {
-			if (a == b)
-				return 0;
-			return a.isAssignableFrom(b) ? 1 : -1;
-		});
-
-		for (Class<?> eventValueType : eventValueTypes)
-			EVENT_VALUES_LIST.add(createEventValueInfo(eventClass, eventValueType));
-	}
-
-	@Override
-	public void unregister(SyntaxRegistry registry) {
-		CustomSyntax.super.unregister(registry);
-		unregisterEventValues();
-		CustomEventManager.unloadCustomEvent(identifier);
-	}
-
-	private void unregisterEventValues() {
-		RegisteredEvent registeredEvent = registeredEventRef.get();
-		if (registeredEvent == null)
-			return;
-		Class<? extends BukkitCustomEvent> eventClass = registeredEvent.eventClass();
-		EVENT_VALUES_LIST.removeIf(info -> info.eventClass() == eventClass);
-	}
-
-	@Override
-	public CustomEvent copy() {
-		RegisteredEvent registeredEvent = registeredEventRef.get();
-		if (registeredEvent == null)
-			throw new IllegalStateException("Cannot create a copy of an invalid CustomEvent");
-		return new CustomEvent(core.copy(), identifier, eventValueTypes, checkTrigger, registeredEvent);
-	}
-
-	@Override
-	public Trigger parseTrigger() {
-		return core.parseTrigger();
-	}
-
-	@Override
-	public void parseTrigger(Trigger parseTrigger) {
-		core.parseTrigger(parseTrigger);
-	}
-
-	public Trigger checkTrigger() {
-		return checkTrigger.trigger;
-	}
-
-	public void checkTrigger(Trigger checkTrigger) {
-		if (this.checkTrigger.trigger != null)
-			throw new IllegalStateException("Check trigger is already set!");
-		this.checkTrigger.trigger = checkTrigger;
 	}
 
 	@Override
@@ -171,7 +38,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 
 	@Override
 	public boolean check(Event event) {
-		RegisteredEvent registeredEvent = registeredEventRef.get();
+		RegisteredEvent registeredEvent = info.registeredEvent();
 
 		if (registeredEvent == null)
 			return false;
@@ -179,7 +46,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 		if (event.getClass() != registeredEvent.eventClass())
 			return false;
 
-		Trigger checkTrigger = this.checkTrigger.trigger;
+		Trigger checkTrigger = info.checkTrigger();
 		if (checkTrigger == null)
 			return true;
 
@@ -203,21 +70,5 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax<BukkitSynta
 	public String toString(@Nullable Event event, boolean debug) {
 		return core.usedPattern();
 	}
-
-	private static <T> EventValueInfo<?, T> createEventValueInfo(
-		Class<? extends BukkitCustomEvent> eventClass,
-		Class<T> type
-	) {
-		return new EventValueInfo<>(
-			eventClass,
-			type,
-			event -> event.getEventValue(type),
-			null,
-			null,
-			EventValues.TIME_NOW
-		);
-	}
-
-	public static final class TriggerHolder { private Trigger trigger; }
 
 }

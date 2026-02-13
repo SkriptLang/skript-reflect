@@ -6,11 +6,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -18,7 +16,6 @@ public class ExprParseTags extends SimpleExpression<String> implements EventRest
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprParseTags.class, String.class)
-			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(ExprParseTags::new)
 			.addPattern("[the] [parse[r]] tags")
 			.priority(SyntaxInfo.SIMPLE)

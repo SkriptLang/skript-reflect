@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.reflect.syntax.custom.condition.ConditionCheckEvent;
-import org.skriptlang.reflect.syntax.custom.condition.CustomCondition;
+import org.skriptlang.reflect.syntax.custom.condition.CustomConditionInfo;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.custom.shared.entry.PatternsEntryData;
 import org.skriptlang.reflect.syntax.custom.shared.entry.TriggerEntryData;
@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class StructCustomCondition extends CustomSyntaxStructure<CustomCondition> {
+public class StructCustomCondition extends CustomSyntaxStructure<CustomConditionInfo> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(StructCustomCondition.class)
@@ -75,15 +75,15 @@ public class StructCustomCondition extends CustomSyntaxStructure<CustomCondition
 
 		ParserInstance parser = getParser();
 		parser.setCurrentEvent("custom condition check trigger", ConditionCheckEvent.class);
-		customSyntax.checkTrigger(entryContainer.get("check", Trigger.class, false));
+		customSyntaxInfo.checkTrigger(entryContainer.get("check", Trigger.class, false));
 		parser.deleteCurrentEvent();
 
 		return true;
 	}
 
 	@Override
-	protected CustomCondition createCustomSyntax() {
-		return new CustomCondition(
+	protected CustomConditionInfo createCustomSyntaxInfo() {
+		return new CustomConditionInfo(
 			patterns,
 			hasParseSection,
 			local ? getParser().getCurrentScript() : null,

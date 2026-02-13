@@ -7,13 +7,11 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
-import com.btk5h.skriptmirror.SkriptMirror;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure.ExpressionsData;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -21,7 +19,6 @@ public class ExprExpression extends SimpleExpression<Object> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprExpression.class, Object.class)
-			.origin(Origin.of(SkriptMirror.getAddonInstance()))
 			.supplier(ExprExpression::new)
 			.addPattern("[the|:all] expr[ession][:s](-| )<\\d+>")
 			.priority(SyntaxInfo.SIMPLE)
