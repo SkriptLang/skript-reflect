@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.reflect.syntax.custom.CustomSyntaxModule;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxInfo;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -33,6 +34,7 @@ public class CustomExpressionInfo<T> extends CustomSyntaxInfo<CustomExpression<T
 		this.changeModes = changeModes;
 		//noinspection unchecked,rawtypes
 		this.info = (SyntaxInfo.Expression) SyntaxInfo.Expression.builder(CustomExpression.class, returnType)
+			.origin(CustomSyntaxModule.ORIGIN)
 			.addPatterns(patterns)
 			.supplier(this::newInstance)
 			.priority(priority())

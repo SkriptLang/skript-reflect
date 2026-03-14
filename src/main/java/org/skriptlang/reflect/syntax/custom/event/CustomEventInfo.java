@@ -5,6 +5,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.EventValues;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.reflect.syntax.custom.CustomSyntaxModule;
 import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxInfo;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -40,6 +41,7 @@ public class CustomEventInfo extends CustomSyntaxInfo<CustomEvent> {
 		this.eventValueTypes = eventValueTypes;
 		this.registeredEventRef = new WeakReference<>(registeredEvent);
 		this.info = BukkitSyntaxInfos.Event.builder(CustomEvent.class, identifier)
+			.origin(CustomSyntaxModule.ORIGIN)
 			.supplier(this::newInstance)
 			.addEvent(registeredEvent.eventClass())
 			.addPatterns(patterns)

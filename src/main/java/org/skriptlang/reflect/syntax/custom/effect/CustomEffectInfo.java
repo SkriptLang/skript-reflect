@@ -3,6 +3,7 @@ package org.skriptlang.reflect.syntax.custom.effect;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.reflect.syntax.custom.CustomSyntaxModule;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxInfo;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -18,6 +19,7 @@ public class CustomEffectInfo extends CustomSyntaxInfo<CustomEffect> {
 	public CustomEffectInfo(String[] patterns, boolean hasParseSection, @Nullable Script script, Predicate<ParserInstance> usableInPredicate) {
 		super(patterns, hasParseSection, script, usableInPredicate);
 		this.info = SyntaxInfo.builder(CustomEffect.class)
+			.origin(CustomSyntaxModule.ORIGIN)
 			.addPatterns(patterns)
 			.supplier(this::newInstance)
 			.priority(priority())
