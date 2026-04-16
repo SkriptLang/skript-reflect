@@ -2,8 +2,6 @@ name: Build and test
 
 on:
   push:
-    branches:
-      - 2.x
   pull_request:
 
 jobs:
