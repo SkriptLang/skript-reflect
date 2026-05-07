@@ -3,6 +3,9 @@ import org.apache.tools.ant.filters.ReplaceTokens
 group 'com.btk5h.skript-mirror'
 version '2.6.3'
 
+def latestJava = 25
+def oldestJava = 21
+
 apply plugin: 'java'
 
 repositories {
@@ -18,14 +21,19 @@ processResources {
 }
 
 java {
-	toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+	toolchain.languageVersion.set(JavaLanguageVersion.of(latestJava))
 }
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
+	options.compilerArgs += [
+	    '-source', "${oldestJava}",
+	    '-target', "${oldestJava}"
+	]
 }
 
 dependencies {
-	compileOnly group: 'io.papermc.paper', name: 'paper-api', version: '1.21.10-R0.1-SNAPSHOT'
-	compileOnly group: 'com.github.SkriptLang', name: 'Skript', version: '2.14.0'
+	compileOnly "io.papermc.paper:paper-api:26.1.2.build.+"
+	compileOnly "com.github.SkriptLang:Skript:2.15.2"
+	compileOnly "org.ow2.asm:asm:9.9"
 }
