@@ -33,26 +33,32 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		name = (Expression<String>) expressions[0];
-		if (expressions.length == 1)
+		if (matchedPattern == 0)
 			return true;
 
-		if (!(expressions[1] instanceof Variable<?> var1) || !var1.isList()) {
-			Skript.error(expressions[1] + " is not a list variable.");
-			return false;
-		}
-
-		if (expressions.length == 3 && expressions[2] != null && (!(expressions[2] instanceof Variable<?> var2) || !var2.isList())) {
-			Skript.error(expressions[2] + " is not a list variable.");
-			return false;
-		}
-
+		Expression<?> eventValues = null, dataValues;
 		if (matchedPattern == 1) {
-			dataValues = var1;
+			dataValues = expressions[1];
 		} else {
-			eventValues = var1;
-			eventValues.returnNestedStructures(true);
-			dataValues = (Variable<?>) expressions[1];
+			eventValues = expressions[1];
+			dataValues = expressions[2];
 		}
+
+		if (eventValues != null && (!(eventValues instanceof Variable<?> variable) || !variable.isList())) {
+			Skript.error(eventValues + " is not a list variable.");
+			return false;
+		}
+
+		if (dataValues != null && (!(dataValues instanceof Variable<?> variable) || !variable.isList())) {
+			Skript.error(dataValues + " is not a list variable.");
+			return false;
+		}
+
+		this.eventValues = (Variable<?>) eventValues;
+		if (this.eventValues != null)
+			this.returnNestedStructures(true);
+
+		this.dataValues = (Variable<?>) dataValues;
 
 		return true;
 	}
