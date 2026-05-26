@@ -6,14 +6,18 @@ import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public abstract class BukkitCustomEvent extends Event implements Cancellable {
+public class BukkitCustomEvent extends Event implements Cancellable {
+
+	private static final HandlerList HANDLERS = new HandlerList();
 
 	private final String identifier;
 	private final Map<Class<?>, Object> eventValueData = new HashMap<>();
@@ -90,6 +94,15 @@ public abstract class BukkitCustomEvent extends Event implements Cancellable {
 			setEventValue((Class<T>) type.arrayType(), plural);
 		}
 
+	}
+
+	@Override
+	public @NotNull HandlerList getHandlers() {
+		return HANDLERS;
+	}
+
+	public static @NotNull HandlerList getHandlerList() {
+		return HANDLERS;
 	}
 
 	private static String notOfType(Object value, Class<?> type) {

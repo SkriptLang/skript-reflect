@@ -9,11 +9,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.reflect.syntax.custom.event.CustomEventInfo;
-import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
-import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
-import org.skriptlang.reflect.syntax.custom.event.EventCheckEvent;
-import org.skriptlang.reflect.syntax.custom.event.EventValuesEntryData;
+import org.skriptlang.reflect.syntax.custom.event.*;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.custom.shared.entry.PatternsEntryData;
 import org.skriptlang.reflect.syntax.custom.shared.entry.TriggerEntryData;
@@ -22,7 +18,6 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -51,7 +46,6 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEventInfo> {
 
 	private Literal<String> identifier;
 	private List<Class<?>> eventValueTypes;
-	private WeakReference<RegisteredEvent> registeredEventRef;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
@@ -84,7 +78,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEventInfo> {
 			return false;
 		}
 
-		registeredEventRef = new WeakReference<>(CustomEventManager.defineCustomEvent(identifier));
+		CustomEventManager.defineCustomEvent(identifier);
 
 		return super.preLoad() && super.load();
 	}
@@ -114,8 +108,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEventInfo> {
 			local ? getParser().getCurrentScript() : null,
 			entryContainer.getOptional("usable in", Predicate.class, false),
 			identifier.getSingle(),
-			eventValueTypes,
-			registeredEventRef.get()
+			eventValueTypes
 		);
 	}
 

@@ -7,7 +7,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntax;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxCore;
 
@@ -37,13 +36,21 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax {
 	}
 
 	@Override
-	public boolean check(Event event) {
-		RegisteredEvent registeredEvent = info.registeredEvent();
-
-		if (registeredEvent == null)
+	public boolean load() {
+		if (!shouldLoadEvent())
 			return false;
 
-		if (event.getClass() != registeredEvent.eventClass())
+		try {
+			CustomEventManager.setCurrentEvent(info.identifier());
+			return super.load();
+		} finally {
+			CustomEventManager.deleteCurrentEvent();
+		}
+	}
+
+	@Override
+	public boolean check(Event event) {
+		if (!(event instanceof BukkitCustomEvent customEvent) || !customEvent.identifier().equals(info.identifier()))
 			return false;
 
 		Trigger checkTrigger = info.checkTrigger();
@@ -51,7 +58,7 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax {
 			return true;
 
 		EventCheckEvent checkEvent = new EventCheckEvent(
-			(BukkitCustomEvent) event,
+			customEvent,
 			this,
 			core.expressions(),
 			core.matchedPattern(),

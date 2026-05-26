@@ -7,6 +7,7 @@ import org.skriptlang.reflect.syntax.custom.condition.elements.EffNegateConditio
 import org.skriptlang.reflect.syntax.custom.condition.elements.StructCustomCondition;
 import org.skriptlang.reflect.syntax.custom.effect.elements.EffDelayEffect;
 import org.skriptlang.reflect.syntax.custom.effect.elements.StructCustomEffect;
+import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
 import org.skriptlang.reflect.syntax.custom.event.elements.*;
 import org.skriptlang.reflect.syntax.custom.expression.elements.ExprChangeValue;
 import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression;
@@ -16,7 +17,6 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class CustomSyntaxModule implements AddonModule {
@@ -26,6 +26,7 @@ public class CustomSyntaxModule implements AddonModule {
 	@Override
 	public void load(SkriptAddon addon) {
 		SyntaxRegistry registry = new OriginApplyingSyntaxRegistry(addon.syntaxRegistry(), ORIGIN);
+		CustomEventManager.init();
 		register(
 			registry,
 

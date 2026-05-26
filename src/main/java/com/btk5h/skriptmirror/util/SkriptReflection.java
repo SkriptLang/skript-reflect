@@ -1,15 +1,9 @@
 package com.btk5h.skriptmirror.util;
 
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.DefaultExpression;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.registrations.EventValues.EventValueInfo;
 import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
@@ -20,9 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class SkriptReflection {
@@ -30,10 +22,8 @@ public class SkriptReflection {
 	private static Field LOCAL_VARIABLES;
 	private static Field NODES;
 	private static Method VARIABLES_MAP_COPY;
-	private static Field DEFAULT_EXPRESSION;
 	private static Field PARSED_VALUE;
 	private static Field OPTIONS;
-	private static Method GET_EVENT_VALUES_LIST;
 
 	static {
 		Field _FIELD;
@@ -70,15 +60,6 @@ public class SkriptReflection {
 		}
 
 		try {
-			_FIELD = ClassInfo.class.getDeclaredField("defaultExpression");
-			_FIELD.setAccessible(true);
-			DEFAULT_EXPRESSION = _FIELD;
-		} catch (NoSuchFieldException e) {
-			warning("Skript's default expression field could not be resolved, " +
-				"therefore event-values won't work in custom events");
-		}
-
-		try {
 			_FIELD = Option.class.getDeclaredField("parsedValue");
 			_FIELD.setAccessible(true);
 			PARSED_VALUE = _FIELD;
@@ -93,15 +74,6 @@ public class SkriptReflection {
 			OPTIONS = _FIELD;
 		} catch (NoSuchFieldException e) {
 			warning("Skript's options field could not be resolved, computed options won't work");
-		}
-
-		try {
-			_METHOD = EventValues.class.getDeclaredMethod("getEventValuesList", int.class);
-			_METHOD.setAccessible(true);
-			GET_EVENT_VALUES_LIST = _METHOD;
-		} catch (NoSuchMethodException e) {
-			warning("Skript's default expression field could not be resolved, " +
-				"therefore event-values won't work in custom events");
 		}
 	}
 
@@ -231,16 +203,6 @@ public class SkriptReflection {
 			return (Map<String, String>) OPTIONS.get(optionsData);
 		} catch (IllegalAccessException e) {
 			throw new IllegalStateException(e); // setAccessible called
-		}
-	}
-
-	public static List<EventValueInfo<?, ?>> getEventValuesList(int time) {
-		if (GET_EVENT_VALUES_LIST == null)
-			throw new IllegalStateException("GET_EVENT_VALUES_LIST method not initialized, event-values cannot be used");
-		try {
-			return (List<EventValueInfo<?, ?>>) GET_EVENT_VALUES_LIST.invoke(null, time);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			throw new IllegalStateException(e);
 		}
 	}
 

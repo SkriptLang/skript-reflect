@@ -8,11 +8,13 @@ def oldestJava = 21
 
 apply plugin: 'java'
 
+/*
 repositories {
 	mavenCentral()
 	maven { url 'https://repo.papermc.io/repository/maven-public/' }
 	maven { url 'https://repo.skriptlang.org/releases' }
 }
+*/
 
 processResources {
 	filter ReplaceTokens, tokens: [
@@ -34,6 +36,6 @@ tasks.withType(JavaCompile).configureEach {
 
 dependencies {
 	compileOnly "io.papermc.paper:paper-api:26.1.2.build.+"
-	compileOnly "com.github.SkriptLang:Skript:2.15.2"
-	compileOnly "org.ow2.asm:asm:9.9"
+//	compileOnly "com.github.SkriptLang:Skript:2.15.2"
+	compileOnly "com.github.SkriptLang:Skript:dev~patch-SNAPSHOT"
 }

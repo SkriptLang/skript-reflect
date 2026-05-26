@@ -13,7 +13,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.java.elements.structures.StructImport;
 import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
-import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -46,12 +45,7 @@ public class UsableInEntryData extends EntryData<Predicate<ParserInstance>> {
 					continue;
 				}
 				String identifier = parsed.getSingle();
-				cumulativePredicate = cumulativePredicate.or(parser -> {
-					RegisteredEvent event = CustomEventManager.getEvent(identifier);
-					if (event == null)
-						return false;
-					return parser.isCurrentEvent(event.eventClass());
-				});
+				cumulativePredicate = cumulativePredicate.or(parser -> CustomEventManager.isCurrentEvent(parser, identifier));
 				continue;
 			}
 			Script script = ParserInstance.get().getCurrentScript();

@@ -11,7 +11,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.event.BukkitCustomEvent;
 import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
-import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.RegisteredEvent;
+import org.skriptlang.reflect.syntax.custom.event.CustomEventManager.EventEntry;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -60,10 +60,10 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 	@Override
 	protected Event @Nullable [] get(Event event) {
 		String name = this.name.getSingle(event);
-		RegisteredEvent registeredEvent = CustomEventManager.getEvent(name);
-		if (registeredEvent == null)
+		EventEntry eventEntry = CustomEventManager.getEvent(name);
+		if (eventEntry == null)
 			return new Event[0];
-		BukkitCustomEvent customEvent = registeredEvent.factory().create();
+		BukkitCustomEvent customEvent = eventEntry.newInstance();
 
 		if (eventValues != null)
 			customEvent.setEventValues(event, eventValues, this::error);
