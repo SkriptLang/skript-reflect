@@ -1,6 +1,5 @@
 package org.skriptlang.reflect.syntax.custom.shared.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,7 +19,6 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 			.supplier(ExprRawExpression::new)
 			.addPattern("[the] (raw|underlying) expression[s] of %objects%")
 			.addPattern("%objects%'[s] (raw|underlying) expression[s]")
-			.addPattern("[the] raw [expression] %objects%")
 			.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
 			.build());
 	}
@@ -29,13 +27,6 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 2) {
-			Skript.warning(
-				"Using 'raw %objects%' is deprecated, " +
-				"please use 'the (raw|underlying) expression of %objects%' instead. " +
-				"If you meant to use Skript's 'raw %strings%' expression, try 'raw string within %objects%'."
-			);
-		}
 		expr = expressions[0];
 		return true;
 	}
