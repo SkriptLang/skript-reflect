@@ -21,7 +21,6 @@ public class CustomEffectInfo extends CustomSyntaxInfo<CustomEffect> {
 		this.info = SyntaxInfo.builder(CustomEffect.class)
 			.addPatterns(patterns)
 			.supplier(this::newInstance)
-			.priority(priority())
 			.build();
 	}
 

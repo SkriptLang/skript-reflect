@@ -60,10 +60,6 @@ public abstract class CustomSyntaxInfo<T extends CustomSyntax> {
 		this.parseTrigger = parseTrigger;
 	}
 
-	public Priority priority() {
-		return local() ? CustomSyntax.LOCAL_PRIORITY : CustomSyntax.PRIORITY;
-	}
-
 	public abstract boolean register(SyntaxRegistry registry);
 
 	public abstract boolean unregister(SyntaxRegistry registry);

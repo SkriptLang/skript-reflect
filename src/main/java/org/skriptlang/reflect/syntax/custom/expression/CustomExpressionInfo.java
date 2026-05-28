@@ -36,7 +36,6 @@ public class CustomExpressionInfo<T> extends CustomSyntaxInfo<CustomExpression<T
 		this.info = (SyntaxInfo.Expression) SyntaxInfo.Expression.builder(CustomExpression.class, returnType)
 			.addPatterns(patterns)
 			.supplier(this::newInstance)
-			.priority(priority())
 			.build();
 	}
 

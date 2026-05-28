@@ -29,7 +29,6 @@ public class CustomConditionInfo extends CustomSyntaxInfo<CustomCondition> {
 		this.info = SyntaxInfo.builder(CustomCondition.class)
 			.supplier(this::newInstance)
 			.addPatterns(patterns)
-			.priority(priority())
 			.build();
 	}
 

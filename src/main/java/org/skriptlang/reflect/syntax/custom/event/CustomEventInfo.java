@@ -40,7 +40,6 @@ public class CustomEventInfo extends CustomSyntaxInfo<CustomEvent> {
 			.supplier(this::newInstance)
 			.addEvent(BukkitCustomEvent.class)
 			.addPatterns(patterns)
-			.priority(priority())
 			.build();
 	}
 
