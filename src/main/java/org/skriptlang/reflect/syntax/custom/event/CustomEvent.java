@@ -74,6 +74,11 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax {
 	}
 
 	@Override
+	public boolean canExecuteAsynchronously() {
+		return true;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return core.usedPattern();
 	}
