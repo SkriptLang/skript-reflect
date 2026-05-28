@@ -37,7 +37,6 @@ public class CustomEventInfo extends CustomSyntaxInfo<CustomEvent> {
 		this.eventValueTypes = eventValueTypes;
 		this.eventValues = new ArrayList<>(eventValueTypes.size());
 		this.info = BukkitSyntaxInfos.Event.builder(CustomEvent.class, identifier)
-			.origin(CustomSyntaxModule.ORIGIN)
 			.supplier(this::newInstance)
 			.addEvent(BukkitCustomEvent.class)
 			.addPatterns(patterns)

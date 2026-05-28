@@ -27,7 +27,6 @@ public class CustomConditionInfo extends CustomSyntaxInfo<CustomCondition> {
 		super(patterns, hasParseSection, script, usableInPredicate);
 		this.property = property;
 		this.info = SyntaxInfo.builder(CustomCondition.class)
-			.origin(CustomSyntaxModule.ORIGIN)
 			.supplier(this::newInstance)
 			.addPatterns(patterns)
 			.priority(priority())

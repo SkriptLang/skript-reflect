@@ -1,7 +1,5 @@
 package org.skriptlang.reflect.syntax.custom;
 
-import com.btk5h.skriptmirror.SkriptMirror;
-import org.skriptlang.reflect.registration.OriginApplyingSyntaxRegistry;
 import org.skriptlang.reflect.syntax.custom.computedoption.elements.StructComputedOption;
 import org.skriptlang.reflect.syntax.custom.condition.elements.EffNegateCondition;
 import org.skriptlang.reflect.syntax.custom.condition.elements.StructCustomCondition;
@@ -21,15 +19,10 @@ import java.util.function.Consumer;
 
 public class CustomSyntaxModule implements AddonModule {
 
-	public static ModuleOrigin ORIGIN = AddonModule.origin(SkriptMirror.getAddonInstance(), new CustomSyntaxModule());
-
 	@Override
 	public void load(SkriptAddon addon) {
-		SyntaxRegistry registry = new OriginApplyingSyntaxRegistry(addon.syntaxRegistry(), ORIGIN);
 		CustomEventManager.init();
-		register(
-			registry,
-
+		register(addon,
 			// ==Computed Option==
 			StructComputedOption::register,
 
@@ -70,9 +63,4 @@ public class CustomSyntaxModule implements AddonModule {
 		return "custom syntax";
 	}
 
-	@SafeVarargs
-	private static void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
-		for (Consumer<SyntaxRegistry> consumer : consumers)
-			consumer.accept(registry);
-	}
 }

@@ -19,7 +19,6 @@ public class CustomEffectInfo extends CustomSyntaxInfo<CustomEffect> {
 	public CustomEffectInfo(String[] patterns, boolean hasParseSection, @Nullable Script script, Predicate<ParserInstance> usableInPredicate) {
 		super(patterns, hasParseSection, script, usableInPredicate);
 		this.info = SyntaxInfo.builder(CustomEffect.class)
-			.origin(CustomSyntaxModule.ORIGIN)
 			.addPatterns(patterns)
 			.supplier(this::newInstance)
 			.priority(priority())

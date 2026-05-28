@@ -34,7 +34,6 @@ public class CustomExpressionInfo<T> extends CustomSyntaxInfo<CustomExpression<T
 		this.changeModes = changeModes;
 		//noinspection unchecked,rawtypes
 		this.info = (SyntaxInfo.Expression) SyntaxInfo.Expression.builder(CustomExpression.class, returnType)
-			.origin(CustomSyntaxModule.ORIGIN)
 			.addPatterns(patterns)
 			.supplier(this::newInstance)
 			.priority(priority())
