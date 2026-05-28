@@ -28,6 +28,7 @@ public class SyntaxParseEvent extends CustomSyntaxEvent implements Continuable {
 		return eventClasses;
 	}
 
+	@Override
 	public boolean isMarkedContinue() {
 		return markedContinue;
 	}

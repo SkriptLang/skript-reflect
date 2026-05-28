@@ -12,7 +12,7 @@ import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
 public class EffectTriggerEvent extends CustomSyntaxEvent implements Continuable {
 
 	public final TriggerItem next;
-	private boolean sync;
+	private boolean sync, continued;
 
 	public EffectTriggerEvent(
 		Event event,
@@ -39,10 +39,16 @@ public class EffectTriggerEvent extends CustomSyntaxEvent implements Continuable
 	}
 
 	@Override
+	public boolean isMarkedContinue() {
+		return continued;
+	}
+
+	@Override
 	public void setContinue(boolean b) {
+		continued = b;
 		if (isSync())
 			Skript.warning("Synchronous effects should not be continued. Call 'delay effect' to delay the effect's execution.");
-		if (b)
+		if (continued)
 			TriggerItem.walk(next, getDirectEvent());
 	}
 

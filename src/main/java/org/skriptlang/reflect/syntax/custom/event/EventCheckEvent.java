@@ -25,6 +25,7 @@ public class EventCheckEvent extends CustomSyntaxEvent implements Continuable {
 		return (BukkitCustomEvent) super.getDirectEvent();
 	}
 
+	@Override
 	public boolean isMarkedContinue() {
 		return markedContinue;
 	}

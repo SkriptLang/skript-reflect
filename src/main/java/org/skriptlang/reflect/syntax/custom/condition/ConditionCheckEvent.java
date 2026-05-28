@@ -21,6 +21,7 @@ public class ConditionCheckEvent extends CustomSyntaxEvent implements Continuabl
 		super(event, self, expressions, matchedPattern, parseResult);
 	}
 
+	@Override
 	public boolean isMarkedContinue() {
 		return markedContinue;
 	}
