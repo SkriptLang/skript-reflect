@@ -28,6 +28,7 @@ public class ExprExpression extends SimpleExpression<Object> {
 	private int index;
 	private boolean all, plural;
 	private Class<?>[] possibleReturnTypes;
+	private Class<?> returnType;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -52,6 +53,7 @@ public class ExprExpression extends SimpleExpression<Object> {
 		this.all = parseResult.hasTag("all");
 		this.plural = all || parseResult.hasTag("s");
 		possibleReturnTypes = data.possibleReturnTypes(index);
+		returnType = Utils.getSuperType(possibleReturnTypes);
 		if (!data.testPlurality(index, plural)) {
 			String expression = "The " + StringUtils.fancyOrderNumber(index + 1) + " expression";
 			Skript.error(plural
@@ -79,7 +81,7 @@ public class ExprExpression extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return Utils.getSuperType(possibleReturnTypes);
+		return returnType;
 	}
 
 	@Override
