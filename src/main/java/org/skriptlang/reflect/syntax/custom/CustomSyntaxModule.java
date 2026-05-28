@@ -50,7 +50,6 @@ public class CustomSyntaxModule implements AddonModule {
 
 			// ==Shared==
 			EffContinue::register,
-			ExprEventClasses::register,
 			ExprExpression::register,
 			ExprMatchedPattern::register,
 			ExprParseMark::register,
