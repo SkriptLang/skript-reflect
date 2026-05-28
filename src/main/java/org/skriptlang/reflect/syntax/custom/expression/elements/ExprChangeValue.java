@@ -52,6 +52,11 @@ public class ExprChangeValue extends SimpleExpression<Object> {
 	}
 
 	@Override
+	public boolean isSingle() {
+		return !plural;
+	}
+
+	@Override
 	public Class<?> getReturnType() {
 		return Utils.getSuperType(types);
 	}
@@ -59,11 +64,6 @@ public class ExprChangeValue extends SimpleExpression<Object> {
 	@Override
 	public Class<?>[] possibleReturnTypes() {
 		return types;
-	}
-
-	@Override
-	public boolean isSingle() {
-		return !plural;
 	}
 
 	@Override

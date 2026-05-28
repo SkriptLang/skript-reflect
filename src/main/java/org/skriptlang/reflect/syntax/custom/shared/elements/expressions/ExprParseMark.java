@@ -40,13 +40,13 @@ public class ExprParseMark extends SimpleExpression<Integer> implements EventRes
 	}
 
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override

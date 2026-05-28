@@ -36,13 +36,13 @@ public class ExprSelf extends SimpleExpression<SyntaxElement> {
 	}
 
 	@Override
-	public Class<? extends SyntaxElement> getReturnType() {
-		return SyntaxElement.class;
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends SyntaxElement> getReturnType() {
+		return SyntaxElement.class;
 	}
 
 	@Override

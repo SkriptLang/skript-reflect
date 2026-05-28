@@ -59,13 +59,13 @@ public class ExprParseRegexes extends SimpleExpression<String> implements EventR
 	}
 
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public boolean isSingle() {
+		return false;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return false;
+	public Class<? extends String> getReturnType() {
+		return String.class;
 	}
 
 	@Override

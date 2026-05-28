@@ -83,13 +83,13 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 	}
 
 	@Override
-	public Class<? extends Event> getReturnType() {
-		return BukkitCustomEvent.class;
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends Event> getReturnType() {
+		return BukkitCustomEvent.class;
 	}
 
 	@Override

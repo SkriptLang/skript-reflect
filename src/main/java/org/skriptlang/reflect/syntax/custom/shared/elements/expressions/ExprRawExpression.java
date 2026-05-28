@@ -68,13 +68,13 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 	}
 
 	@Override
-	public Class<? extends Expression> getReturnType() {
-		return Expression.class;
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends Expression> getReturnType() {
+		return Expression.class;
 	}
 
 	@Override

@@ -50,18 +50,18 @@ public class ExprEventData extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		return Object.class;
-	}
-
-	@Override
 	public boolean isSingle() {
 		return true;
 	}
 
 	@Override
+	public Class<?> getReturnType() {
+		return Object.class;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "event data" + key.toString(event, debug);
+		return "event data " + key.toString(event, debug);
 	}
 
 }

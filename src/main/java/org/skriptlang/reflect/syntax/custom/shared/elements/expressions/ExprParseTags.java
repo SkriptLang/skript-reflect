@@ -40,13 +40,13 @@ public class ExprParseTags extends SimpleExpression<String> implements EventRest
 	}
 
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public boolean isSingle() {
+		return false;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return false;
+	public Class<? extends String> getReturnType() {
+		return String.class;
 	}
 
 	@Override

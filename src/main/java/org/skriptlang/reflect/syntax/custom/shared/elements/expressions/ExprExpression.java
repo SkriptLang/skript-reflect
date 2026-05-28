@@ -73,6 +73,11 @@ public class ExprExpression extends SimpleExpression<Object> {
 	}
 
 	@Override
+	public boolean isSingle() {
+		return !plural;
+	}
+
+	@Override
 	public Class<?> getReturnType() {
 		return Utils.getSuperType(possibleReturnTypes);
 	}
@@ -80,11 +85,6 @@ public class ExprExpression extends SimpleExpression<Object> {
 	@Override
 	public Class<?>[] possibleReturnTypes() {
 		return possibleReturnTypes;
-	}
-
-	@Override
-	public boolean isSingle() {
-		return !plural;
 	}
 
 	public int index() {
