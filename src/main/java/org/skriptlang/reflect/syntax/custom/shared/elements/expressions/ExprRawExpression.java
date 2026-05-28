@@ -1,25 +1,29 @@
 package org.skriptlang.reflect.syntax.custom.shared.elements.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class ExprRawExpression extends SimpleExpression<Expression> {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprRawExpression.class, Expression.class)
+		registry.register(SyntaxRegistry.EXPRESSION, PropertyExpression.infoBuilder(
+				ExprRawExpression.class,
+				Expression.class,
+				"(raw|underlying) expression[s]",
+				"objects",
+				false
+			)
 			.supplier(ExprRawExpression::new)
-			.addPattern("[the] (raw|underlying) expression[s] of %objects%")
-			.addPattern("%objects%'[s] (raw|underlying) expression[s]")
-			.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
 			.build());
 	}
 
@@ -27,8 +31,8 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		expr = expressions[0];
-		return true;
+		expr = LiteralUtils.defendExpression(expressions[0]);
+		return LiteralUtils.canInitSafely(expressions);
 	}
 
 	@Override
