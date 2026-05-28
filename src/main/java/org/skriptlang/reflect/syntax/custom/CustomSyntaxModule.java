@@ -1,5 +1,6 @@
 package org.skriptlang.reflect.syntax.custom;
 
+import com.btk5h.skriptmirror.JavaType;
 import org.skriptlang.reflect.syntax.custom.computedoption.elements.StructComputedOption;
 import org.skriptlang.reflect.syntax.custom.condition.elements.EffNegateCondition;
 import org.skriptlang.reflect.syntax.custom.condition.elements.StructCustomCondition;
@@ -9,13 +10,15 @@ import org.skriptlang.reflect.syntax.custom.event.CustomEventManager;
 import org.skriptlang.reflect.syntax.custom.event.elements.*;
 import org.skriptlang.reflect.syntax.custom.expression.elements.ExprChangeValue;
 import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression;
+import org.skriptlang.reflect.syntax.custom.shared.SyntaxParseEvent;
 import org.skriptlang.reflect.syntax.custom.shared.elements.effects.EffContinue;
 import org.skriptlang.reflect.syntax.custom.shared.elements.expressions.*;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 
-import java.util.function.Consumer;
+import java.util.Arrays;
 
 public class CustomSyntaxModule implements AddonModule {
 
@@ -56,6 +59,13 @@ public class CustomSyntaxModule implements AddonModule {
 			ExprRawExpression::register,
 			ExprSelf::register
 		);
+
+		addon.registry(EventValueRegistry.class).register(EventValue.builder(SyntaxParseEvent.class, JavaType[].class)
+			.getter(event -> Arrays.stream(event.eventClasses())
+				.map(JavaType::new)
+				.toArray(JavaType[]::new))
+			.patterns("classes")
+			.build());
 	}
 
 	@Override
