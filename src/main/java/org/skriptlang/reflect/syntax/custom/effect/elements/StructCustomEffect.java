@@ -13,10 +13,10 @@ import org.skriptlang.reflect.syntax.custom.effect.CustomEffectInfo;
 import org.skriptlang.reflect.syntax.custom.effect.EffectTriggerEvent;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.custom.shared.entry.PatternsEntryData;
-import org.skriptlang.reflect.syntax.custom.shared.entry.TriggerEntryData;
 import org.skriptlang.reflect.syntax.custom.shared.entry.UsableInEntryData;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.entry.util.TriggerEntryData;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
