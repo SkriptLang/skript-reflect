@@ -31,6 +31,7 @@ public class UsableInEntryData extends EntryData<Predicate<ParserInstance>> {
 	@Override
 	public Predicate<ParserInstance> getValue(Node node) {
 		Predicate<ParserInstance> cumulativePredicate = parser -> false;
+		Script script = ParserInstance.get().getCurrentScript();
 		for (Node subNode : node) {
 			if (subNode instanceof SectionNode) {
 				Skript.error("Cannot use a section here.");
@@ -48,7 +49,6 @@ public class UsableInEntryData extends EntryData<Predicate<ParserInstance>> {
 				cumulativePredicate = cumulativePredicate.or(parser -> CustomEventManager.isCurrentEvent(parser, identifier));
 				continue;
 			}
-			Script script = ParserInstance.get().getCurrentScript();
 			JavaType javaType = StructImport.lookup(script, eventName);
 			if (javaType == null) {
 				Skript.error("Cannot understand class '" + eventName + "'. Make sure to import it first.");
