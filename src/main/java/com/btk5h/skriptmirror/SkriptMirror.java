@@ -13,6 +13,10 @@ import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.skriptlang.reflect.syntax.custom.condition.elements.StructCustomCondition;
+import org.skriptlang.reflect.syntax.custom.effect.elements.StructCustomEffect;
+import org.skriptlang.reflect.syntax.custom.event.elements.StructCustomEvent;
+import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -110,14 +114,14 @@ public class SkriptMirror extends JavaPlugin {
 			return i;
 		}));
 
-//		metrics.addCustomChart(new Metrics.SimplePie("custom_conditions_used",
-//			() -> "" + StructCustomCondition.customConditionsUsed));
-//		metrics.addCustomChart(new Metrics.SimplePie("custom_effects_used",
-//			() -> "" + StructCustomEffect.customEffectsUsed));
-//		metrics.addCustomChart(new Metrics.SimplePie("custom_events_used",
-//			() -> "" + StructCustomEvent.customEventsUsed));
-//		metrics.addCustomChart(new Metrics.SimplePie("custom_expressions_used",
-//			() -> "" + StructCustomExpression.customExpressionsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_conditions_used",
+			() -> "" + StructCustomCondition.customConditionsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_effects_used",
+			() -> "" + StructCustomEffect.customEffectsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_events_used",
+			() -> "" + StructCustomEvent.customEventsUsed));
+		metrics.addCustomChart(new Metrics.SimplePie("custom_expressions_used",
+			() -> "" + StructCustomExpression.customExpressionsUsed));
 
 		metrics.addCustomChart(new Metrics.SimplePie("proxies_used",
 			() -> "" + ExprProxy.proxiesUsed));

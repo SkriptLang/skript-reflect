@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressionInfo<?>> {
 
-	private ChangerData changerData;
+	public static boolean customExpressionsUsed = false;
 
 	public static void register(SyntaxRegistry registry) {
 		EntryValidatorBuilder builder = EntryValidator.builder()
@@ -82,11 +82,13 @@ public class StructCustomExpression extends CustomSyntaxStructure<CustomExpressi
 	private Literal<ClassInfo<?>> types;
 	private boolean defaultPatterns;
 	private String loopOf;
+	private ChangerData changerData;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
 		if (!super.init(args, matchedPattern, parseResult, entryContainer))
 			return false;
+		customExpressionsUsed = true;
 		ClassInfoReference returnTypeRef = ClassInfoReference.wrap(entryContainer.get("return type", Expression.class, true))
 			.getSingle(ContextlessEvent.get());
 		assert returnTypeRef != null;

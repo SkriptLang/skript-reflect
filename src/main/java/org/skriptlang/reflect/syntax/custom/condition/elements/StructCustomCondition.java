@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 public class StructCustomCondition extends CustomSyntaxStructure<CustomConditionInfo> {
 
+	public static boolean customConditionsUsed = false;
+
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(StructCustomCondition.class)
 			.supplier(StructCustomCondition::new)
@@ -55,6 +57,7 @@ public class StructCustomCondition extends CustomSyntaxStructure<CustomCondition
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
 		if (!super.init(args, matchedPattern, parseResult, entryContainer))
 			return false;
+		customConditionsUsed = true;
 		if (matchedPattern >= 2) {
 			property = true;
 			propertyType = PropertyType.values()[matchedPattern - 2];

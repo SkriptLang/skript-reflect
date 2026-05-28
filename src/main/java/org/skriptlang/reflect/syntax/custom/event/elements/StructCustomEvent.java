@@ -24,6 +24,8 @@ import java.util.function.Predicate;
 
 public class StructCustomEvent extends CustomSyntaxStructure<CustomEventInfo> {
 
+	public static boolean customEventsUsed = false;
+
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(StructCustomEvent.class)
 			.supplier(StructCustomEvent::new)
@@ -49,6 +51,7 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEventInfo> {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @UnknownNullability EntryContainer entryContainer) {
+		customEventsUsed = true;
 		this.entryContainer = entryContainer;
 		this.local = parseResult.hasTag("local");
 		this.hasParseSection = entryContainer.hasEntry("parse");
