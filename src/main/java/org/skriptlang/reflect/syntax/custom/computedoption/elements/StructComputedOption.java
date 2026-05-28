@@ -59,7 +59,7 @@ public class StructComputedOption extends Structure {
 
 	@Override
 	public void unload() {
-		SkriptReflection.getOptions(getParser().getCurrentScript()).clear();
+		getParser().getCurrentScript().removeData(StructOptions.OptionsData.class);
 	}
 
 	private void computeOption(String option, Trigger getter) {
