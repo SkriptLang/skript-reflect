@@ -8,6 +8,7 @@ import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Utils.PluralResult;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 
@@ -26,9 +27,9 @@ public class EventValuesEntryData extends KeyValueEntryData<List<Class<?>>> {
 		String[] stringClasses = SkriptParser.LIST_SPLIT_PATTERN.split(value);
 		List<Class<?>> infos = new ArrayList<>(stringClasses.length);
 		for (String stringClass : stringClasses) {
-			var meta = Utils.getEnglishPlural(stringClass);
-			String input = meta.getFirst();
-			boolean plural = meta.getSecond();
+			PluralResult meta = Utils.isPlural(stringClass);
+			String input = meta.updated();
+			boolean plural = meta.plural();
 			ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(input);
 			if (classInfo == null) {
 				Skript.error("The type " + stringClass + " doesn't exist");
