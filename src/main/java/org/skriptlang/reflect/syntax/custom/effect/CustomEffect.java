@@ -1,5 +1,6 @@
 package org.skriptlang.reflect.syntax.custom.effect;
 
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntax;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxCore;
 
+@NoDoc
 public class CustomEffect extends Effect implements CustomSyntax {
 
 	private final CustomEffectInfo info;

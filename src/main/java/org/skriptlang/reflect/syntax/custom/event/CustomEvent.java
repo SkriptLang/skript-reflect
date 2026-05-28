@@ -1,5 +1,6 @@
 package org.skriptlang.reflect.syntax.custom.event;
 
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntax;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxCore;
 
+@NoDoc
 public class CustomEvent extends SkriptEvent implements CustomSyntax {
 
 	private final CustomEventInfo info;

@@ -1,6 +1,7 @@
 package org.skriptlang.reflect.syntax.custom.expression;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntax;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxCore;
 
+@NoDoc
 public class CustomExpression<T> extends SimpleExpression<T> implements CustomSyntax {
 
 	private final CustomExpressionInfo<T> info;
