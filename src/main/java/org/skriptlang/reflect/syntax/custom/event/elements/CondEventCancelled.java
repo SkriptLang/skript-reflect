@@ -17,7 +17,7 @@ public class CondEventCancelled extends PropertyCondition<Object> {
 
 	@Override
 	public boolean check(Object event) {
-		return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+		return event instanceof Cancellable cancellable && cancellable.isCancelled();
 	}
 
 	@Override
