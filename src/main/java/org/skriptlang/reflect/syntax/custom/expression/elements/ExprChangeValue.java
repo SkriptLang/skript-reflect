@@ -25,6 +25,7 @@ public class ExprChangeValue extends SimpleExpression<Object> {
 
 	private boolean plural;
 	private Class<?>[] types;
+	private Class<?> returnType;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -35,6 +36,7 @@ public class ExprChangeValue extends SimpleExpression<Object> {
 		this.plural = parseResult.hasTag("s");
 		ChangerData data = structure.changerData();
 		this.types = data.acceptedClasses();
+		this.returnType = Utils.getSuperType(types);
 		if (!data.testPlurality(plural)) {
 			Skript.error(plural
 				? "The changed value may only be a single value"
@@ -58,7 +60,7 @@ public class ExprChangeValue extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return Utils.getSuperType(types);
+		return returnType;
 	}
 
 	@Override
