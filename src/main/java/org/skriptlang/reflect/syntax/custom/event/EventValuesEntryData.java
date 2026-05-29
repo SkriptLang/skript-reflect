@@ -27,9 +27,9 @@ public class EventValuesEntryData extends KeyValueEntryData<List<Class<?>>> {
 		String[] stringClasses = SkriptParser.LIST_SPLIT_PATTERN.split(value);
 		List<Class<?>> infos = new ArrayList<>(stringClasses.length);
 		for (String stringClass : stringClasses) {
-			PluralResult meta = Utils.isPlural(stringClass);
-			String input = meta.updated();
-			boolean plural = meta.plural();
+			PluralResult result = Utils.isPlural(stringClass);
+			String input = result.updated();
+			boolean plural = result.plural();
 			ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(input);
 			if (classInfo == null) {
 				Skript.error("The type " + stringClass + " doesn't exist");
