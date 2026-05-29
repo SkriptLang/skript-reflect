@@ -9,6 +9,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -29,6 +30,8 @@ public class ExprParseTags extends SimpleExpression<String> implements EventRest
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!parseResult.expr.contains("parse"))
+			ScriptWarning.printDeprecationWarning("Omitting 'parse' in the expression is no longer supported and will be removed in a future version.");
 		return true;
 	}
 
