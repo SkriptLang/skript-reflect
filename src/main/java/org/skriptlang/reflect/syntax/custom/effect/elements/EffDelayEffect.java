@@ -35,7 +35,7 @@ public class EffDelayEffect extends Effect implements EventRestrictedSyntax {
 	protected void execute(Event event) {
 		if (!(event instanceof EffectTriggerEvent triggerEvent))
 			return;
-		triggerEvent.setSync(true);
+		triggerEvent.setSync(false);
 	}
 
 	@Override

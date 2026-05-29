@@ -12,7 +12,7 @@ import org.skriptlang.reflect.syntax.custom.shared.CustomSyntaxEvent;
 public class EffectTriggerEvent extends CustomSyntaxEvent implements Continuable {
 
 	public final TriggerItem next;
-	private boolean sync, continued;
+	private boolean sync = true, continued;
 
 	public EffectTriggerEvent(
 		Event event,

@@ -40,6 +40,27 @@ public class CustomEffect extends Effect implements CustomSyntax {
 
 	@Override
 	protected void execute(Event event) {
+	}
+
+	@Override
+	protected @Nullable TriggerItem walk(Event event) {
+		EffectTriggerEvent effectEvent = invokeEffect(event);
+
+		if (effectEvent.isSync())
+			return getNext();
+
+		Object locals = Variables.copyLocalVariables(effectEvent.getDirectEvent());
+		new Thread(() -> {
+			try {
+				Thread.sleep(1);
+				if (!effectEvent.isMarkedContinue())
+					Variables.setLocalVariables(effectEvent.getDirectEvent(), locals);
+			} catch (InterruptedException ignored) {}
+		}).start();
+		return null;
+	}
+
+	private EffectTriggerEvent invokeEffect(Event event) {
 		assert info.executeTrigger() != null;
 
 		EffectTriggerEvent triggerEvent = new EffectTriggerEvent(
@@ -53,10 +74,11 @@ public class CustomEffect extends Effect implements CustomSyntax {
 
 		if (core.parseEvent() == null) {
 			TriggerItem.walk(info.executeTrigger(), triggerEvent);
-			return;
+			return triggerEvent;
 		}
 		Variables.withLocalVariables(core.parseEvent(), triggerEvent,
 			() -> TriggerItem.walk(info.executeTrigger(), triggerEvent));
+		return triggerEvent;
 	}
 
 	@Override
