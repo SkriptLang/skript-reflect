@@ -83,6 +83,8 @@ public class StructCustomEvent extends CustomSyntaxStructure<CustomEventInfo> {
 
 		CustomEventManager.defineCustomEvent(identifier);
 
+		// The 'preLoad' and 'load' stages of the custom syntax registration must be called during 'init' for events.
+		//  This is because 'init' is the latest stage where custom event registration is possible.
 		return super.preLoad() && super.load();
 	}
 
