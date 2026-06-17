@@ -12,7 +12,7 @@ condition test input based condition %boolean%:
 
 boolean property condition test property condition:
 	check:
-		continue if expr-1 is true
+		continue if exprs-1 is true
 
 test "custom conditions":
 	assert test true condition with "Failed true condition"

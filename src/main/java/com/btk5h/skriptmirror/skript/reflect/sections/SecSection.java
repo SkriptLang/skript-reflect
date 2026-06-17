@@ -2,14 +2,12 @@ package com.btk5h.skriptmirror.skript.reflect.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SecSection extends ch.njol.skript.lang.Section {
+public class SecSection extends ch.njol.skript.lang.Section implements ReturnHandler<Object> {
 
 	public static boolean sectionsUsed = false;
 
@@ -66,7 +64,7 @@ public class SecSection extends ch.njol.skript.lang.Section {
 			return false;
 		}
 
-		trigger = loadCode(sectionNode, "section", SectionEvent.class);
+		trigger = loadReturnableSectionCode(sectionNode, "section", CollectionUtils.array(SectionEvent.class));
 
 		return SkriptUtil.canInitSafely(variableStore);
 	}
@@ -74,8 +72,27 @@ public class SecSection extends ch.njol.skript.lang.Section {
 	@Override
 	protected @Nullable TriggerItem walk(Event e) {
 		Section section = new Section(trigger, e, variableArguments);
-		variableStore.change(e, new Section[]{section}, Changer.ChangeMode.SET);
+		variableStore.change(e, new Section[]{section}, ChangeMode.SET);
 		return super.walk(e, false);
+	}
+
+	@Override
+	public void returnValues(Event event, Expression<?> value) {
+		if (!(event instanceof SectionEvent sectionEvent)) {
+			assert false;
+			return;
+		}
+		sectionEvent.setOutput(value.getArray(event));
+	}
+
+	@Override
+	public boolean isSingleReturnValue() {
+		return false;
+	}
+
+	@Override
+	public @Nullable Class<?> returnValueType() {
+		return Object.class;
 	}
 
 	@Override

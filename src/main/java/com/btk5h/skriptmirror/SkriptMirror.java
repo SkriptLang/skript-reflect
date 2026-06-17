@@ -1,10 +1,10 @@
 package com.btk5h.skriptmirror;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Version;
+import org.skriptlang.reflect.syntax.custom.CustomSyntaxModule;
 import com.btk5h.skriptmirror.skript.CondExpressionStatement;
 import com.btk5h.skriptmirror.skript.EffExpressionStatement;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
@@ -13,15 +13,16 @@ import com.btk5h.skriptmirror.skript.reflect.sections.SecSection;
 import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.skriptlang.reflect.syntax.condition.elements.StructCustomCondition;
-import org.skriptlang.reflect.syntax.effect.elements.StructCustomEffect;
-import org.skriptlang.reflect.syntax.event.elements.ExprCustomEventValue;
-import org.skriptlang.reflect.syntax.event.elements.StructCustomEvent;
-import org.skriptlang.reflect.syntax.expression.elements.StructCustomExpression;
+import org.skriptlang.reflect.syntax.custom.condition.elements.StructCustomCondition;
+import org.skriptlang.reflect.syntax.custom.effect.elements.StructCustomEffect;
+import org.skriptlang.reflect.syntax.custom.event.elements.StructCustomEvent;
+import org.skriptlang.reflect.syntax.custom.expression.elements.StructCustomExpression;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.ClassLoader;
 import org.skriptlang.skript.util.Priority;
 
 import java.io.IOException;
@@ -65,12 +66,12 @@ public class SkriptMirror extends JavaPlugin {
 		}
 
 		try {
-			getAddonInstance()
-				.loadClasses("com.btk5h.skriptmirror.skript")
-				.loadClasses("org.skriptlang.reflect", "syntax", "java.elements");
+			ClassLoader.loadClasses(SkriptMirror.class, getFile(), "com.btk5h.skriptmirror.skript");
+			ClassLoader.loadClasses(SkriptMirror.class, getFile(), "org.skriptlang.reflect", "java.elements");
+
+			getAddonInstance().loadModules(new CustomSyntaxModule());
 
 			SyntaxRegistry registry = addonInstance.syntaxRegistry();
-			ExprCustomEventValue.register(registry);
 			ExprJavaCall.register(registry);
 			CondExpressionStatement.register(registry);
 			EffExpressionStatement.register(registry);
@@ -131,7 +132,8 @@ public class SkriptMirror extends JavaPlugin {
 
 	public static SkriptAddon getAddonInstance() {
 		if (addonInstance == null) {
-			addonInstance = Skript.registerAddon(getInstance()).setLanguageFileDirectory("lang");
+			addonInstance = Skript.instance().registerAddon(SkriptMirror.class, "skript-reflect");
+			addonInstance.localizer().setSourceDirectories("lang", null);
 		}
 		return addonInstance;
 	}

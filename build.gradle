@@ -34,6 +34,6 @@ tasks.withType(JavaCompile).configureEach {
 
 dependencies {
 	compileOnly "io.papermc.paper:paper-api:26.1.2.build.+"
-	compileOnly "com.github.SkriptLang:Skript:2.15.2"
-	compileOnly "org.ow2.asm:asm:9.9"
+	compileOnly "com.github.SkriptLang:Skript:2.15.3"
+	compileOnly "com.github.SkriptLang:Skript:dev~patch-SNAPSHOT"
 }
