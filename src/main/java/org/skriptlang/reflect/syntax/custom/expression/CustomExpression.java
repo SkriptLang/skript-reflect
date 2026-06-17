@@ -5,7 +5,6 @@ import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -51,7 +50,7 @@ public class CustomExpression<T> extends SimpleExpression<T> implements CustomSy
 			core.parseResult()
 		);
 
-		TriggerItem.walk(info.getterTrigger(), getEvent);
+		core.walk(info.getterTrigger(), getEvent);
 		//noinspection unchecked
 		return (T[]) getEvent.output();
 	}
@@ -72,7 +71,7 @@ public class CustomExpression<T> extends SimpleExpression<T> implements CustomSy
 			core.parseResult(),
 			delta
 		);
-		Trigger.walk(trigger, changeEvent);
+		core.walk(trigger, changeEvent);
 	}
 
 	@Override

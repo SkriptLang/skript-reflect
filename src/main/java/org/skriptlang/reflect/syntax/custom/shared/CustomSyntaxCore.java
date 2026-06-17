@@ -4,19 +4,15 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.util.LiteralUtils;
-import com.btk5h.skriptmirror.util.SkriptMirrorUtil;
+import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.util.Priority;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public class CustomSyntaxCore {
 
@@ -26,7 +22,7 @@ public class CustomSyntaxCore {
 	private int matchedPattern;
 	private ParseResult parseResult;
 	private String usedPattern;
-	private @Nullable SyntaxParseEvent parseEvent;
+	private @Nullable Object localVariables;
 
 	public CustomSyntaxCore(CustomSyntaxInfo<?> info) {
 		this.info = info;
@@ -58,9 +54,12 @@ public class CustomSyntaxCore {
 		}
 
 		Class<? extends Event>[] events = ParserInstance.get().getCurrentEvents();
-		parseEvent = new SyntaxParseEvent(self, expressions, matchedPattern, parseResult, events);
+		SyntaxParseEvent parseEvent = new SyntaxParseEvent(self, expressions, matchedPattern, parseResult, events);
 		TriggerItem.walk(info.parseTrigger(), parseEvent);
-		return parseEvent.isMarkedContinue();
+		if (!parseEvent.isMarkedContinue())
+			return false;
+		localVariables = Variables.copyLocalVariables(parseEvent);
+		return true;
 	}
 
 	public Expression<?>[] expressions() {
@@ -79,8 +78,19 @@ public class CustomSyntaxCore {
 		return usedPattern;
 	}
 
-	public @Nullable SyntaxParseEvent parseEvent() {
-		return parseEvent;
+	public @Nullable Object localVariables() {
+		return localVariables;
+	}
+
+	public void walk(TriggerItem trigger, Event event) {
+		if (localVariables == null) {
+			TriggerItem.walk(trigger, event);
+			return;
+		}
+
+		Variables.setLocalVariables(event, localVariables);
+		TriggerItem.walk(trigger, event);
+		Variables.removeLocals(event);
 	}
 
 }

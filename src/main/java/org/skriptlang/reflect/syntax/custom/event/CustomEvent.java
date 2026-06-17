@@ -5,6 +5,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -66,12 +67,8 @@ public class CustomEvent extends SkriptEvent implements CustomSyntax {
 			core.matchedPattern(),
 			core.parseResult()
 		);
+		core.walk(checkTrigger, checkEvent);
 
-		if (core.parseEvent() == null) {
-			Trigger.walk(checkTrigger, checkEvent);
-		} else {
-			Variables.withLocalVariables(core.parseEvent(), checkEvent, () -> Trigger.walk(checkTrigger, checkEvent));
-		}
 		return checkEvent.isMarkedContinue();
 	}
 

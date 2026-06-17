@@ -4,6 +4,7 @@ import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -61,7 +62,8 @@ public class CustomEffect extends Effect implements CustomSyntax {
 	}
 
 	private EffectTriggerEvent invokeEffect(Event event) {
-		assert info.executeTrigger() != null;
+		Trigger trigger = info.executeTrigger();
+		assert trigger != null;
 
 		EffectTriggerEvent triggerEvent = new EffectTriggerEvent(
 			event,
@@ -71,13 +73,8 @@ public class CustomEffect extends Effect implements CustomSyntax {
 			core.parseResult(),
 			getNext()
 		);
+		core.walk(trigger, triggerEvent);
 
-		if (core.parseEvent() == null) {
-			TriggerItem.walk(info.executeTrigger(), triggerEvent);
-			return triggerEvent;
-		}
-		Variables.withLocalVariables(core.parseEvent(), triggerEvent,
-			() -> TriggerItem.walk(info.executeTrigger(), triggerEvent));
 		return triggerEvent;
 	}
 

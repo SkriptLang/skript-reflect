@@ -54,12 +54,8 @@ public class CustomCondition extends Condition implements CustomSyntax {
 			core.matchedPattern(),
 			core.parseResult()
 		);
+		core.walk(trigger, checkEvent);
 
-		if (core.parseEvent() == null) {
-			Trigger.walk(trigger, checkEvent);
-		} else {
-			Variables.withLocalVariables(core.parseEvent(), checkEvent, () -> Trigger.walk(trigger, checkEvent));
-		}
 		return checkEvent.isMarkedContinue() ^ checkEvent.isNegated() ^ isNegated();
 	}
 
