@@ -31,7 +31,7 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
 		super(event);
 		this.self = self;
 		this.expressions = Arrays.stream(expressions)
-			.map(expression -> new LazyExpression(event, expression))
+			.map(expression -> new CachingExpression(event, expression))
 			.toArray(Expression<?>[]::new);
 		this.matchedPattern = matchedPattern;
 		this.parseResult = parseResult;
@@ -64,14 +64,14 @@ public abstract class CustomSyntaxEvent extends WrappedEvent {
 		throw new UnsupportedOperationException();
 	}
 
-	public static class LazyExpression extends WrapperExpression<Object> {
+	public static class CachingExpression extends WrapperExpression<Object> {
 
 		private final Event sourceEvent;
 		private transient Object[] array, all;
 
-		public LazyExpression(Event sourceEvent, Expression<?> source) {
+		public CachingExpression(Event sourceEvent, Expression<?> source) {
 			this.sourceEvent = sourceEvent;
-			if (source instanceof LazyExpression lazy) {
+			if (source instanceof CachingExpression lazy) {
 				setExpr(lazy.getExpr());
 			} else {
 				setExpr(source != null ? source : new EmptyExpression());
