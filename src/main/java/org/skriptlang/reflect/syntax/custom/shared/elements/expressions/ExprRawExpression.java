@@ -23,6 +23,7 @@ public class ExprRawExpression extends SimpleExpression<Expression> {
 				"objects",
 				false
 			)
+			.addPattern("raw expression[s] %objects%")
 			.supplier(ExprRawExpression::new)
 			.build());
 	}
