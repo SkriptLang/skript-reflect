@@ -95,13 +95,10 @@ public class ExprCustomEvent extends SimpleExpression<Event> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("custom event", name);
-		if (eventValues != null)
-			builder.append("with event-values", eventValues);
-		if (eventValues != null && dataValues != null)
-			builder.append("and");
-		if (dataValues != null)
-			builder.append("with data", dataValues);
+		builder.append("custom event", name)
+			.appendIf(eventValues != null, "with event-values", eventValues)
+			.appendIf(eventValues != null && dataValues != null, "and")
+			.appendIf(dataValues != null, "with data", dataValues);
 		return builder.toString();
 	}
 
