@@ -1,5 +1,7 @@
 package org.skriptlang.reflect.syntax.event.elements;
 
+import ch.njol.skript.variables.Variables;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
@@ -8,7 +10,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -74,7 +75,7 @@ public class CustomEvent extends SkriptEvent {
 		setLastWhich(which);
 
 		TriggerItem.walk(parseHandler, event);
-		variablesMap = SkriptReflection.removeLocals(event);
+		variablesMap = Variables.removeLocals(event);
 
 		setLastWhich(which);
 
@@ -96,7 +97,7 @@ public class CustomEvent extends SkriptEvent {
 			return false;
 
 		EventTriggerEvent eventTriggerEvent = new EventTriggerEvent(e, exprs, which.getMatchedPattern(), parseResult, which.getPattern());
-		SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), eventTriggerEvent);
+		Variables.setLocalVariables(eventTriggerEvent, SkriptReflection.copyLocals(variablesMap));
 
 		Trigger trigger = StructCustomEvent.eventHandlers.get(which);
 		if (trigger != null) {

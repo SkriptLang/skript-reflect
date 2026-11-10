@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript;
 
+import ch.njol.skript.variables.Variables;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.effects.Delay;
@@ -12,7 +13,6 @@ import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.ObjectWrapper;
 import com.btk5h.skriptmirror.SkriptMirror;
 import com.btk5h.skriptmirror.skript.reflect.ExprJavaCall;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -58,16 +58,16 @@ public class CondExpressionStatement extends Condition {
 		if (isAsynchronous) {
 			Delay.addDelayedEvent(e);
 
-			Object localVariables = SkriptReflection.getLocals(e);
+			Object localVariables = Variables.copyLocalVariables(e);
 			CompletableFuture.runAsync(() -> {
-				SkriptReflection.putLocals(localVariables, e);
+				Variables.setLocalVariables(e, localVariables);
 				check(e);
 			}, threadPool)
 				.thenAccept(res -> Bukkit.getScheduler().runTask(SkriptMirror.getInstance(), () -> {
 					if (getNext() != null)
 						TriggerItem.walk(getNext(), e);
 
-					SkriptReflection.removeLocals(e);
+					Variables.removeLocals(e);
 				}));
 			return null;
 		}

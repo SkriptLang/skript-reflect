@@ -1,5 +1,7 @@
 package org.skriptlang.reflect.syntax.expression.elements;
 
+import ch.njol.skript.variables.Variables;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
@@ -15,7 +17,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
 import com.btk5h.skriptmirror.util.JavaUtil;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.expression.ExpressionChangeEvent;
@@ -97,7 +98,7 @@ public class CustomExpression<T> implements Expression<T> {
 
 	private T[] getByStandard(Event e, Trigger getter) {
 		ExpressionGetEvent expressionEvent = new ExpressionGetEvent(e, exprs, which.getMatchedPattern(), parseResult);
-		SkriptReflection.putLocals(variablesMap, expressionEvent);
+		Variables.setLocalVariables(expressionEvent, SkriptReflection.copyLocals(variablesMap));
 		getter.execute(expressionEvent);
 		if (expressionEvent.getOutput() == null) {
 			Skript.error(
@@ -117,7 +118,7 @@ public class CustomExpression<T> implements Expression<T> {
 
 			ExpressionGetEvent expressionEvent =
 				new ExpressionGetEvent(e, localExprs, which.getMatchedPattern(), parseResult);
-			SkriptReflection.putLocals(variablesMap, expressionEvent);
+			Variables.setLocalVariables(expressionEvent, SkriptReflection.copyLocals(variablesMap));
 			getter.execute(expressionEvent);
 
 			Object[] exprOutput = expressionEvent.getOutput();
@@ -251,7 +252,7 @@ public class CustomExpression<T> implements Expression<T> {
 		} else {
 			ExpressionChangeEvent changeEvent =
 				new ExpressionChangeEvent(e, exprs, which.getMatchedPattern(), parseResult, delta);
-			SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), changeEvent);
+			Variables.setLocalVariables(changeEvent, SkriptReflection.copyLocals(variablesMap));
 			changer.execute(changeEvent);
 		}
 	}
@@ -309,7 +310,7 @@ public class CustomExpression<T> implements Expression<T> {
 				new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
 
 			TriggerItem.walk(parseHandler, event);
-			variablesMap = SkriptReflection.removeLocals(event);
+			variablesMap = Variables.removeLocals(event);
 
 			return event.isMarkedContinue();
 		}

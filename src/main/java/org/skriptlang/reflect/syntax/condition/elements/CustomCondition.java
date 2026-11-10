@@ -1,6 +1,8 @@
 package org.skriptlang.reflect.syntax.condition.elements;
 
 
+import ch.njol.skript.variables.Variables;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -10,7 +12,6 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.condition.ConditionCheckEvent;
@@ -48,7 +49,7 @@ public class CustomCondition extends Condition {
 
 	private boolean checkByStandard(Event e, Trigger checker) {
 		ConditionCheckEvent conditionEvent = new ConditionCheckEvent(e, exprs, which.getMatchedPattern(), parseResult);
-		SkriptReflection.putLocals(variablesMap, conditionEvent);
+		Variables.setLocalVariables(conditionEvent, SkriptReflection.copyLocals(variablesMap));
 		checker.execute(conditionEvent);
 		return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated() ^ which.isInverted();
 	}
@@ -60,7 +61,7 @@ public class CustomCondition extends Condition {
 
 			ConditionCheckEvent conditionEvent =
 				new ConditionCheckEvent(e, localExprs, which.getMatchedPattern(), parseResult);
-			SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), conditionEvent);
+			Variables.setLocalVariables(conditionEvent, SkriptReflection.copyLocals(variablesMap));
 			checker.execute(conditionEvent);
 			return conditionEvent.isMarkedContinue() ^ conditionEvent.isMarkedNegated();
 		}, which.isInverted());
@@ -111,7 +112,7 @@ public class CustomCondition extends Condition {
 				new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
 
 			TriggerItem.walk(parseHandler, event);
-			variablesMap = SkriptReflection.removeLocals(event);
+			variablesMap = Variables.removeLocals(event);
 
 			return event.isMarkedContinue();
 		}

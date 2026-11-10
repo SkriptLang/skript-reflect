@@ -12,9 +12,7 @@ import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructOptions;
-import ch.njol.skript.variables.Variables;
 import com.btk5h.skriptmirror.SkriptMirror;
-import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.CustomSyntaxStructure;
 import org.skriptlang.reflect.syntax.event.elements.ExprReplacedEventValue;
 import org.skriptlang.skript.lang.script.Script;
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class SkriptReflection {
 
-	private static Field LOCAL_VARIABLES;
 	private static Field NODES;
 	private static Method VARIABLES_MAP_COPY;
 	private static Field DEFAULT_EXPRESSION;
@@ -42,14 +39,6 @@ public class SkriptReflection {
 	static {
 		Field _FIELD;
 		Method _METHOD;
-
-		try {
-			_FIELD = Variables.class.getDeclaredField("localVariables");
-			_FIELD.setAccessible(true);
-			LOCAL_VARIABLES = _FIELD;
-		} catch (NoSuchFieldException e) {
-			warning("Skript's local variables field could not be resolved.");
-		}
 
 		try {
 			_FIELD = SectionNode.class.getDeclaredField("nodes");
@@ -105,54 +94,7 @@ public class SkriptReflection {
 	}
 
 	/**
-	 * Sets the local variables of an {@link Event} to the given local variables.
-	 */
-	@SuppressWarnings("unchecked")
-	public static void putLocals(Object originalVariablesMap, Event to) {
-		if (originalVariablesMap == null) {
-			removeLocals(to);
-			return;
-		}
-
-		try {
-			Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
-
-			localVariables.put(to, originalVariablesMap);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Removes and returns the local variables from the given {@link Event}.
-	 */
-	@SuppressWarnings("unchecked")
-	public static Object removeLocals(Event event) {
-		try {
-			Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
-			return localVariables.remove(event);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Retrieves the local variables from an {@link Event}.
-	 * @param event The {@link Event} to get the local variables from.
-	 * @return The local variables of the given {@link Event}.
-	 */
-	@SuppressWarnings("unchecked")
-	public static Object getLocals(Event event) {
-		try {
-			Map<Event, Object> localVariables = (Map<Event, Object>) LOCAL_VARIABLES.get(null);
-			return localVariables.get(event);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Copies the VariablesMap contained in the given {@link Object}.
+	 * Copies a VariablesMap, as returned by {@link ch.njol.skript.variables.Variables#removeLocals}.
 	 * @param locals The local variables to copy.
 	 * @return The copied local variables.
 	 */

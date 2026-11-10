@@ -1,5 +1,7 @@
 package org.skriptlang.reflect.syntax.effect.elements;
 
+import ch.njol.skript.variables.Variables;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -8,7 +10,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.skript.custom.SyntaxParseEvent;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.event.Event;
 import org.skriptlang.reflect.syntax.effect.EffectSyntaxInfo;
@@ -40,12 +41,12 @@ public class CustomEffect extends Effect {
 			return getNext();
 		}
 
-		Object localVars = SkriptReflection.getLocals(effectEvent.getDirectEvent());
+		Object localVars = Variables.copyLocalVariables(effectEvent.getDirectEvent());
 		new Thread(() -> {
 			try {
 				Thread.sleep(1);
 				if (!effectEvent.hasContinued())
-					SkriptReflection.putLocals(localVars, effectEvent.getDirectEvent());
+					Variables.setLocalVariables(effectEvent.getDirectEvent(), localVars);
 			} catch (InterruptedException ignored) { }
 		}).start();
 		return null;
@@ -58,7 +59,7 @@ public class CustomEffect extends Effect {
 		if (trigger == null) {
 			Skript.error(String.format("The custom effect '%s' no longer has a handler.", which));
 		} else {
-			SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), effectEvent);
+			Variables.setLocalVariables(effectEvent, SkriptReflection.copyLocals(variablesMap));
 			trigger.execute(effectEvent);
 		}
 		return effectEvent;
@@ -109,7 +110,7 @@ public class CustomEffect extends Effect {
 				new SyntaxParseEvent(this.exprs, matchedPattern, parseResult, getParser().getCurrentEvents());
 
 			TriggerItem.walk(parseHandler, event);
-			variablesMap = SkriptReflection.removeLocals(event);
+			variablesMap = Variables.removeLocals(event);
 
 			return event.isMarkedContinue();
 		}
