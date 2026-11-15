@@ -1,10 +1,11 @@
 package com.btk5h.skriptmirror.skript.reflect.sections;
 
+import ch.njol.skript.variables.Variables;
+import com.btk5h.skriptmirror.util.SkriptReflection;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Variable;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import org.bukkit.event.Event;
 
 import java.util.List;
@@ -23,13 +24,13 @@ public class Section {
 	}
 
 	public Section(Trigger trigger, Event event, List<Variable<?>> argumentVariables) {
-		this(trigger, SkriptReflection.copyLocals(SkriptReflection.getLocals(event)), argumentVariables);
+		this(trigger, Variables.copyLocalVariables(event), argumentVariables);
 	}
 
 	public SectionEvent run(Object[][] arguments) {
 		output = null;
 		SectionEvent sectionEvent = new SectionEvent(this);
-		SkriptReflection.putLocals(SkriptReflection.copyLocals(variablesMap), sectionEvent);
+		Variables.setLocalVariables(sectionEvent, SkriptReflection.copyLocals(variablesMap));
 
 		for (int i = 0; i < arguments.length && i < argumentVariables.size(); i++) {
 			Object[] currentArg = arguments[i];
@@ -41,7 +42,7 @@ public class Section {
 		}
 
 		TriggerItem.walk(trigger, sectionEvent);
-		SkriptReflection.removeLocals(sectionEvent);
+		Variables.removeLocals(sectionEvent);
 		return sectionEvent;
 	}
 

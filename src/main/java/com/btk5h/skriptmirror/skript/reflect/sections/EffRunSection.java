@@ -1,5 +1,6 @@
 package com.btk5h.skriptmirror.skript.reflect.sections;
 
+import ch.njol.skript.variables.Variables;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.effects.Delay;
@@ -11,7 +12,6 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Variable;
 import ch.njol.util.Kleenean;
 import com.btk5h.skriptmirror.SkriptMirror;
-import com.btk5h.skriptmirror.util.SkriptReflection;
 import com.btk5h.skriptmirror.util.SkriptUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -86,11 +86,11 @@ public class EffRunSection extends Effect {
 		boolean needsContinue = shouldWait && getNext() != null;
 
 		// If the trigger needs abnormal continuation, remove locals and store whether this trigger was running async.
-		Object localVars = needsContinue ? SkriptReflection.removeLocals(e) : null;
+		Object localVars = needsContinue ? Variables.removeLocals(e) : null;
 		boolean ranAsync = !Bukkit.isPrimaryThread();
 
 		Runnable runSection = () -> {
-			SkriptReflection.putLocals(localVars, e);
+			Variables.setLocalVariables(e, localVars);
 
 			SectionEvent sectionEvent = section.run(args);
 			storeResult(sectionEvent, e);
@@ -99,7 +99,7 @@ public class EffRunSection extends Effect {
 				Runnable continuation = () -> {
 
 					TriggerItem.walk(getNext(), e);
-					SkriptReflection.removeLocals(e);
+					Variables.removeLocals(e);
 				};
 
 				runTask(continuation, ranAsync);
